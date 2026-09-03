@@ -1,0 +1,211 @@
+* Host rhz.internet-box.ch:8443 was resolved.
+* IPv6: (none)
+* IPv4: 85.5.123.106
+*   Trying 85.5.123.106:8443...
+* schannel: disabled automatic use of client certificate
+* ALPN: curl offers http/1.1
+* ALPN: server accepted http/1.1
+* Established connection to rhz.internet-box.ch (85.5.123.106 port 8443) from 192.168.1.110 port 64578 
+* using HTTP/1.x
+=> Send header, 171 bytes (0xab)
+0000: POST /api/v1/auth/login HTTP/1.1
+0022: Host: rhz.internet-box.ch:8443
+0042: User-Agent: curl/8.21.0
+005b: Accept: application/json
+0075: Content-Type: application/json
+0095: Content-Length: 65
+00a9: 
+=> Send data, 65 bytes (0x41)
+0000: {"email":"robert.hofer.zuerich@bluewin.ch","password":"A67d201#"
+0040: }
+* upload completely sent off: 65 bytes
+* schannel: remote party requests renegotiation
+* schannel: renegotiating SSL/TLS connection
+* schannel: SSL/TLS connection renegotiated
+* schannel: remote party requests renegotiation
+* schannel: renegotiating SSL/TLS connection
+* schannel: SSL/TLS connection renegotiated
+<= Recv header, 24 bytes (0x18)
+0000: HTTP/1.1 404 Not Found
+<= Recv header, 15 bytes (0xf)
+0000: Server: nginx
+<= Recv header, 32 bytes (0x20)
+0000: Content-Type: application/json
+<= Recv header, 28 bytes (0x1c)
+0000: Transfer-Encoding: chunked
+<= Recv header, 24 bytes (0x18)
+0000: Connection: keep-alive
+<= Recv header, 13 bytes (0xd)
+0000: Allow: POST
+<= Recv header, 34 bytes (0x22)
+0000: Cache-Control: no-cache, private
+<= Recv header, 37 bytes (0x25)
+0000: Date: Thu, 03 Sep 2026 08:53:27 GMT
+<= Recv header, 32 bytes (0x20)
+0000: Access-Control-Allow-Origin: *
+<= Recv header, 222 bytes (0xde)
+0000: Content-Security-Policy: default-src 'self' https: wss:; script-
+0040: src 'self' 'unsafe-inline' 'unsafe-eval' https:; style-src 'self
+0080: ' 'unsafe-inline' https:; img-src 'self' data: blob: https:; con
+00c0: nect-src 'self' https: wss:;
+<= Recv header, 2 bytes (0x2)
+0000: 
+<= Recv data, 9843 bytes (0x2673)
+0000: 2666
+0006: {.    "message": "The GET method is not supported for route api/
+0046: v1/auth/login. Supported methods: POST.",.    "exception": "Symf
+0086: ony\\Component\\HttpKernel\\Exception\\MethodNotAllowedHttpExcep
+00c6: tion",.    "file": "/var/www/chatconnect/vendor/laravel/framewor
+0106: k/src/Illuminate/Routing/AbstractRouteCollection.php",.    "line
+0146: ": 130,.    "trace": [.        {.            "file": "/var/www/c
+0186: hatconnect/vendor/laravel/framework/src/Illuminate/Routing/Abstr
+01c6: actRouteCollection.php",.            "line": 115,.            "f
+0206: unction": "requestMethodNotAllowed",.            "class": "Illum
+0246: inate\\Routing\\AbstractRouteCollection",.            "type": "-
+0286: >".        },.        {.            "file": "/var/www/chatconnec
+02c6: t/vendor/laravel/framework/src/Illuminate/Routing/AbstractRouteC
+0306: ollection.php",.            "line": 41,.            "function": 
+0346: "getRouteForMethods",.            "class": "Illuminate\\Routing\
+0386: \AbstractRouteCollection",.            "type": "->".        },. 
+03c6:        {.            "file": "/var/www/chatconnect/vendor/larave
+0406: l/framework/src/Illuminate/Routing/RouteCollection.php",.       
+0446:      "line": 207,.            "function": "handleMatchedRoute",.
+0486:             "class": "Illuminate\\Routing\\AbstractRouteCollecti
+04c6: on",.            "type": "->".        },.        {.            "
+0506: file": "/var/www/chatconnect/vendor/laravel/framework/src/Illumi
+0546: nate/Routing/Router.php",.            "line": 777,.            "
+0586: function": "match",.            "class": "Illuminate\\Routing\\R
+05c6: outeCollection",.            "type": "->".        },.        {. 
+0606:            "file": "/var/www/chatconnect/vendor/laravel/framewor
+0646: k/src/Illuminate/Routing/Router.php",.            "line": 764,. 
+0686:            "function": "findRoute",.            "class": "Illumi
+06c6: nate\\Routing\\Router",.            "type": "->".        },.    
+0706:     {.            "file": "/var/www/chatconnect/vendor/laravel/f
+0746: ramework/src/Illuminate/Routing/Router.php",.            "line":
+0786:  753,.            "function": "dispatchToRoute",.            "cl
+07c6: ass": "Illuminate\\Routing\\Router",.            "type": "->".  
+0806:       },.        {.            "file": "/var/www/chatconnect/ven
+0846: dor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php"
+0886: ,.            "line": 200,.            "function": "dispatch",. 
+08c6:            "class": "Illuminate\\Routing\\Router",.            "
+0906: type": "->".        },.        {.            "file": "/var/www/c
+0946: hatconnect/vendor/laravel/framework/src/Illuminate/Pipeline/Pipe
+0986: line.php",.            "line": 180,.            "function": "{cl
+09c6: osure:Illuminate\\Foundation\\Http\\Kernel::dispatchToRouter():1
+0a06: 97}",.            "class": "Illuminate\\Foundation\\Http\\Kernel
+0a46: ",.            "type": "->".        },.        {.            "fi
+0a86: le": "/var/www/chatconnect/vendor/laravel/framework/src/Illumina
+0ac6: te/Foundation/Http/Middleware/TransformsRequest.php",.          
+0b06:   "line": 21,.            "function": "{closure:Illuminate\\Pipe
+0b46: line\\Pipeline::prepareDestination():178}",.            "class":
+0b86:  "Illuminate\\Pipeline\\Pipeline",.            "type": "->".    
+0bc6:     },.        {.            "file": "/var/www/chatconnect/vendo
+0c06: r/laravel/framework/src/Illuminate/Foundation/Http/Middleware/Co
+0c46: nvertEmptyStringsToNull.php",.            "line": 31,.          
+0c86:   "function": "handle",.            "class": "Illuminate\\Founda
+0cc6: tion\\Http\\Middleware\\TransformsRequest",.            "type": 
+0d06: "->".        },.        {.            "file": "/var/www/chatconn
+0d46: ect/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.ph
+0d86: p",.            "line": 219,.            "function": "handle",. 
+0dc6:            "class": "Illuminate\\Foundation\\Http\\Middleware\\C
+0e06: onvertEmptyStringsToNull",.            "type": "->".        },. 
+0e46:        {.            "file": "/var/www/chatconnect/vendor/larave
+0e86: l/framework/src/Illuminate/Foundation/Http/Middleware/Transforms
+0ec6: Request.php",.            "line": 21,.            "function": "{
+0f06: closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:19
+0f46: 5}",.            "class": "Illuminate\\Pipeline\\Pipeline",.    
+0f86:         "type": "->".        },.        {.            "file": "/
+0fc6: var/www/chatconnect/vendor/laravel/framework/src/Illuminate/Foun
+1006: dation/Http/Middleware/TrimStrings.php",.            "line": 51,
+1046: .            "function": "handle",.            "class": "Illumin
+1086: ate\\Foundation\\Http\\Middleware\\TransformsRequest",.         
+10c6:    "type": "->".        },.        {.            "file": "/var/w
+1106: ww/chatconnect/vendor/laravel/framework/src/Illuminate/Pipeline/
+1146: Pipeline.php",.            "line": 219,.            "function": 
+1186: "handle",.            "class": "Illuminate\\Foundation\\Http\\Mi
+11c6: ddleware\\TrimStrings",.            "type": "->".        },.    
+1206:     {.            "file": "/var/www/chatconnect/vendor/laravel/f
+1246: ramework/src/Illuminate/Http/Middleware/ValidatePostSize.php",. 
+1286:            "line": 27,.            "function": "{closure:{closur
+12c6: e:Illuminate\\Pipeline\\Pipeline::carry():194}:195}",.          
+1306:   "class": "Illuminate\\Pipeline\\Pipeline",.            "type":
+1346:  "->".        },.        {.            "file": "/var/www/chatcon
+1386: nect/vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.p
+13c6: hp",.            "line": 219,.            "function": "handle",.
+1406:             "class": "Illuminate\\Http\\Middleware\\ValidatePost
+1446: Size",.            "type": "->".        },.        {.           
+1486:  "file": "/var/www/chatconnect/vendor/laravel/framework/src/Illu
+14c6: minate/Foundation/Http/Middleware/PreventRequestsDuringMaintenan
+1506: ce.php",.            "line": 110,.            "function": "{clos
+1546: ure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:195}",
+1586: .            "class": "Illuminate\\Pipeline\\Pipeline",.        
+15c6:     "type": "->".        },.        {.            "file": "/var/
+1606: www/chatconnect/vendor/laravel/framework/src/Illuminate/Pipeline
+1646: /Pipeline.php",.            "line": 219,.            "function":
+1686:  "handle",.            "class": "Illuminate\\Foundation\\Http\\M
+16c6: iddleware\\PreventRequestsDuringMaintenance",.            "type"
+1706: : "->".        },.        {.            "file": "/var/www/chatco
+1746: nnect/vendor/laravel/framework/src/Illuminate/Http/Middleware/Ha
+1786: ndleCors.php",.            "line": 74,.            "function": "
+17c6: {closure:{closure:Illuminate\\Pipeline\\Pipeline::carry():194}:1
+1806: 95}",.            "class": "Illuminate\\Pipeline\\Pipeline",.   
+1846:          "type": "->".        },.        {.            "file": "
+1886: /var/www/chatconnect/vendor/laravel/framework/src/Illuminate/Pip
+18c6: eline/Pipeline.php",.            "line": 219,.            "funct
+1906: ion": "handle",.            "class": "Illuminate\\Http\\Middlewa
+1946: re\\HandleCors",.            "type": "->".        },.        {. 
+1986:            "file": "/var/www/chatconnect/vendor/laravel/framewor
+19c6: k/src/Illuminate/Http/Middleware/TrustProxies.php",.            
+1a06: "line": 58,.            "function": "{closure:{closure:Illuminat
+1a46: e\\Pipeline\\Pipeline::carry():194}:195}",.            "class": 
+1a86: "Illuminate\\Pipeline\\Pipeline",.            "type": "->".     
+1ac6:    },.        {.            "file": "/var/www/chatconnect/vendor
+1b06: /laravel/framework/src/Illuminate/Pipeline/Pipeline.php",.      
+1b46:       "line": 219,.            "function": "handle",.           
+1b86:  "class": "Illuminate\\Http\\Middleware\\TrustProxies",.        
+1bc6:     "type": "->".        },.        {.            "file": "/var/
+1c06: www/chatconnect/vendor/laravel/framework/src/Illuminate/Foundati
+1c46: on/Http/Middleware/InvokeDeferredCallbacks.php",.            "li
+1c86: ne": 22,.            "function": "{closure:{closure:Illuminate\\
+1cc6: Pipeline\\Pipeline::carry():194}:195}",.            "class": "Il
+1d06: luminate\\Pipeline\\Pipeline",.            "type": "->".        
+1d46: },.        {.            "file": "/var/www/chatconnect/vendor/la
+1d86: ravel/framework/src/Illuminate/Pipeline/Pipeline.php",.         
+1dc6:    "line": 219,.            "function": "handle",.            "c
+1e06: lass": "Illuminate\\Foundation\\Http\\Middleware\\InvokeDeferred
+1e46: Callbacks",.            "type": "->".        },.        {.      
+1e86:       "file": "/var/www/chatconnect/vendor/laravel/framework/src
+1ec6: /Illuminate/Http/Middleware/ValidatePathEncoding.php",.         
+1f06:    "line": 28,.            "function": "{closure:{closure:Illumi
+1f46: nate\\Pipeline\\Pipeline::carry():194}:195}",.            "class
+1f86: ": "Illuminate\\Pipeline\\Pipeline",.            "type": "->".  
+1fc6:       },.        {.            "file": "/var/www/chatconnect/ven
+2006: dor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php",.   
+2046:          "line": 219,.            "function": "handle",.        
+2086:     "class": "Illuminate\\Http\\Middleware\\ValidatePathEncoding
+20c6: ",.            "type": "->".        },.        {.            "fi
+2106: le": "/var/www/chatconnect/vendor/laravel/framework/src/Illumina
+2146: te/Pipeline/Pipeline.php",.            "line": 137,.            
+2186: "function": "{closure:{closure:Illuminate\\Pipeline\\Pipeline::c
+21c6: arry():194}:195}",.            "class": "Illuminate\\Pipeline\\P
+2206: ipeline",.            "type": "->".        },.        {.        
+2246:     "file": "/var/www/chatconnect/vendor/laravel/framework/src/I
+2286: lluminate/Foundation/Http/Kernel.php",.            "line": 175,.
+22c6:             "function": "then",.            "class": "Illuminate
+2306: \\Pipeline\\Pipeline",.            "type": "->".        },.     
+2346:    {.            "file": "/var/www/chatconnect/vendor/laravel/fr
+2386: amework/src/Illuminate/Foundation/Http/Kernel.php",.            
+23c6: "line": 144,.            "function": "sendRequestThroughRouter",
+2406: .            "class": "Illuminate\\Foundation\\Http\\Kernel",.  
+2446:           "type": "->".        },.        {.            "file": 
+2486: "/var/www/chatconnect/vendor/laravel/framework/src/Illuminate/Fo
+24c6: undation/Application.php",.            "line": 1227,.           
+2506:  "function": "handle",.            "class": "Illuminate\\Foundat
+2546: ion\\Http\\Kernel",.            "type": "->".        },.        
+2586: {.            "file": "/var/www/chatconnect/public/index.php",. 
+25c6:            "line": 20,.            "function": "handleRequest",.
+2606:             "class": "Illuminate\\Foundation\\Application",.    
+2646:         "type": "->".        }.    ].}
+266e: 0
+2671: 
+* Connection #0 to host rhz.internet-box.ch:8443 left intact
