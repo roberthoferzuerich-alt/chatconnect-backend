@@ -78,17 +78,17 @@ class MessageController extends Controller
 
     public function destroy(Request $request, Message $message)
     {
-        // Verify ownership
-        if ($message->sender_id !== $request->user()->id) {
-            return response()->json(['message' => 'Unauthorized'], 403);
-        }
-
-        // Delete associated image if it exists
-        if ($message->image_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($message->image_path)) {
-            \Illuminate\Support\Facades\Storage::disk('public')->delete($message->image_path);
-        }
-
         try {
+            // Verify ownership
+            if ($message->sender_id !== $request->user()->id) {
+                return response()->json(['message' => 'Unauthorized'], 403);
+            }
+
+            // Delete associated image if it exists
+            if ($message->image_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($message->image_path)) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($message->image_path);
+            }
+
             // Unset last_message_id to prevent foreign key constraint violations
             $conversation = \App\Models\Conversation::find($message->conversation_id);
             if ($conversation && $conversation->last_message_id === $message->id) {
@@ -98,11 +98,11 @@ class MessageController extends Controller
             }
 
             $message->delete();
-        } catch (\Exception $e) {
-            \Illuminate\Support\Facades\Log::error('Error deleting message: ' . $e->getMessage());
-            return response()->json(['message' => 'Failed to delete message: ' . $e->getMessage()], 500);
-        }
 
-        return response()->json(['success' => true]);
+            return response()->json(['success' => true]);
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('Error deleting message: ' . $e->getMessage());
+            return response()->json(['message' => 'FATAL: ' . $e->getMessage() . ' at ' . $e->getFile() . ':' . $e->getLine()], 500);
+        }
     }
 }
