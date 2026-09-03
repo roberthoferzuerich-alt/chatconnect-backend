@@ -88,7 +88,20 @@ class MessageController extends Controller
             \Illuminate\Support\Facades\Storage::disk('public')->delete($message->image_path);
         }
 
-        $message->delete();
+        try {
+            // Unset last_message_id to prevent foreign key constraint violations
+            $conversation = \App\Models\Conversation::find($message->conversation_id);
+            if ($conversation && $conversation->last_message_id === $message->id) {
+                // Find the previous message
+                $prevMessage = $conversation->messages()->where('id', '!=', $message->id)->orderBy('created_at', 'desc')->first();
+                $conversation->update(['last_message_id' => $prevMessage ? $prevMessage->id : null]);
+            }
+
+            $message->delete();
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Error deleting message: ' . $e->getMessage());
+            return response()->json(['message' => 'Failed to delete message: ' . $e->getMessage()], 500);
+        }
 
         return response()->json(['success' => true]);
     }
