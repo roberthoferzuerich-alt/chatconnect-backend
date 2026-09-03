@@ -75,4 +75,21 @@ class MessageController extends Controller
 
         return response()->json(['success' => true]);
     }
+
+    public function destroy(Request $request, Message $message)
+    {
+        // Verify ownership
+        if ($message->sender_id !== $request->user()->id) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        // Delete associated image if it exists
+        if ($message->image_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($message->image_path)) {
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($message->image_path);
+        }
+
+        $message->delete();
+
+        return response()->json(['success' => true]);
+    }
 }

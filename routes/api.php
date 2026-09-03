@@ -25,5 +25,6 @@ Route::prefix('v1')->group(function () {
         Route::get('/conversations/{conversation}/messages', [\App\Http\Controllers\Api\MessageController::class, 'index']);
         Route::post('/conversations/{conversation}/messages', [\App\Http\Controllers\Api\MessageController::class, 'store']);
         Route::post('/conversations/{conversation}/read', [\App\Http\Controllers\Api\MessageController::class, 'markAsRead']);
+        Route::delete('/messages/{message}', [\App\Http\Controllers\Api\MessageController::class, 'destroy']);
     });
 });
