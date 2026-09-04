@@ -48,5 +48,29 @@ class ConversationController extends Controller
 
         return response()->json($conversation->load(['users', 'lastMessage']));
     }
+
+    // Start a Group chat
+    public function storeGroup(Request $request)
+    {
+        $request->validate([
+            'name' => 'nullable|string|max:255',
+            'user_ids' => 'required|array|min:1',
+            'user_ids.*' => 'exists:users,id',
+        ]);
+
+        $me = $request->user();
+        
+        // Add current user to the list of participants and ensure uniqueness
+        $participantIds = collect($request->user_ids)->push($me->id)->unique()->values()->all();
+
+        $conversation = Conversation::create([
+            'is_group' => true,
+            'name' => $request->name,
+        ]);
+
+        $conversation->users()->attach($participantIds);
+
+        return response()->json($conversation->load(['users', 'lastMessage']));
+    }
 }
 

@@ -20,6 +20,10 @@ Route::prefix('v1')->group(function () {
         
         Route::get('/conversations', [\App\Http\Controllers\Api\ConversationController::class, 'index']);
         Route::post('/conversations', [\App\Http\Controllers\Api\ConversationController::class, 'store']);
+        Route::post('/conversations/group', [\App\Http\Controllers\Api\ConversationController::class, 'storeGroup']);
+        
+        Route::get('/calls', [\App\Http\Controllers\Api\CallController::class, 'index']);
+        Route::post('/calls', [\App\Http\Controllers\Api\CallController::class, 'store']);
         
         Route::get('/conversations/{conversation}/messages', [\App\Http\Controllers\Api\MessageController::class, 'index']);
         Route::post('/conversations/{conversation}/messages', [\App\Http\Controllers\Api\MessageController::class, 'store']);
