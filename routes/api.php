@@ -17,6 +17,7 @@ Route::prefix('v1')->group(function () {
 
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('/users', [\App\Http\Controllers\Api\UserController::class, 'index']);
+        Route::post('/users/sync-contacts', [\App\Http\Controllers\Api\UserController::class, 'syncContacts']);
         
         Route::get('/conversations', [\App\Http\Controllers\Api\ConversationController::class, 'index']);
         Route::post('/conversations', [\App\Http\Controllers\Api\ConversationController::class, 'store']);
