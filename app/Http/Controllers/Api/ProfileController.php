@@ -15,6 +15,7 @@ class ProfileController extends Controller
         $request->validate([
             'name' => 'nullable|string|max:255',
             'about' => 'nullable|string|max:500',
+            'phone' => 'nullable|string|max:50',
             'avatar' => 'nullable|image|max:5120',
         ]);
 
@@ -24,6 +25,10 @@ class ProfileController extends Controller
 
         if ($request->has('about')) {
             $user->about = $request->about;
+        }
+
+        if ($request->has('phone')) {
+            $user->phone = $request->phone;
         }
 
         if ($request->hasFile('avatar')) {
