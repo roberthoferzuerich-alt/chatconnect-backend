@@ -2,6 +2,11 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\UserController;
+use App\Http\Controllers\Api\ConversationController;
+use App\Http\Controllers\Api\CallController;
+use App\Http\Controllers\Api\StoryController;
+use App\Http\Controllers\Api\MessageController;
 
 Route::prefix('v1')->group(function () {
     Route::prefix('auth')->group(function () {
@@ -16,23 +21,23 @@ Route::prefix('v1')->group(function () {
     });
 
     Route::middleware('auth:sanctum')->group(function () {
-        Route::get('/users', [\App\Http\Controllers\Api\UserController::class, 'index']);
-        Route::post('/users/sync-contacts', [\App\Http\Controllers\Api\UserController::class, 'syncContacts']);
+        Route::get('/users', [UserController::class, 'index']);
+        Route::post('/users/sync-contacts', [UserController::class, 'syncContacts']);
         
-        Route::get('/conversations', [\App\Http\Controllers\Api\ConversationController::class, 'index']);
-        Route::post('/conversations', [\App\Http\Controllers\Api\ConversationController::class, 'store']);
-        Route::post('/conversations/group', [\App\Http\Controllers\Api\ConversationController::class, 'storeGroup']);
+        Route::get('/conversations', [ConversationController::class, 'index']);
+        Route::post('/conversations', [ConversationController::class, 'store']);
+        Route::post('/conversations/group', [ConversationController::class, 'storeGroup']);
         
-        Route::get('/calls', [\App\Http\Controllers\Api\CallController::class, 'index']);
-        Route::post('/calls', [\App\Http\Controllers\Api\CallController::class, 'store']);
+        Route::get('/calls', [CallController::class, 'index']);
+        Route::post('/calls', [CallController::class, 'store']);
         
         // Stories
-        Route::get('/stories', [\App\Http\Controllers\Api\StoryController::class, 'index']);
-        Route::post('/stories', [\App\Http\Controllers\Api\StoryController::class, 'store']);
+        Route::get('/stories', [StoryController::class, 'index']);
+        Route::post('/stories', [StoryController::class, 'store']);
         
-        Route::get('/conversations/{conversation}/messages', [\App\Http\Controllers\Api\MessageController::class, 'index']);
-        Route::post('/conversations/{conversation}/messages', [\App\Http\Controllers\Api\MessageController::class, 'store']);
-        Route::post('/conversations/{conversation}/read', [\App\Http\Controllers\Api\MessageController::class, 'markAsRead']);
-        Route::post('/messages/{message}/delete', [\App\Http\Controllers\Api\MessageController::class, 'destroy']);
+        Route::get('/conversations/{conversation}/messages', [MessageController::class, 'index']);
+        Route::post('/conversations/{conversation}/messages', [MessageController::class, 'store']);
+        Route::post('/conversations/{conversation}/read', [MessageController::class, 'markAsRead']);
+        Route::post('/messages/{message}/delete', [MessageController::class, 'destroy']);
     });
 });
