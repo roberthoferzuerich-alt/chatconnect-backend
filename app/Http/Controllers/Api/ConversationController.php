@@ -72,5 +72,17 @@ class ConversationController extends Controller
 
         return response()->json($conversation->load(['users', 'lastMessage']));
     }
+
+    // Delete a conversation
+    public function destroy(Request $request, Conversation $conversation)
+    {
+        // Check if user is part of the conversation
+        if (!$conversation->users()->where('users.id', $request->user()->id)->exists()) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $conversation->delete();
+        return response()->json(['message' => 'Conversation deleted']);
+    }
 }
 

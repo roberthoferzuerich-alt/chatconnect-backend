@@ -27,6 +27,7 @@ Route::prefix('v1')->group(function () {
         Route::get('/conversations', [ConversationController::class, 'index']);
         Route::post('/conversations', [ConversationController::class, 'store']);
         Route::post('/conversations/group', [ConversationController::class, 'storeGroup']);
+        Route::delete('/conversations/{conversation}', [ConversationController::class, 'destroy']);
         
         Route::get('/calls', [CallController::class, 'index']);
         Route::post('/calls', [CallController::class, 'store']);
