@@ -11,8 +11,10 @@ class Story extends Model
 
     protected $fillable = [
         'user_id',
+        'image_path',
         'media_path',
         'caption',
+        'views_count',
         'expires_at',
     ];
 

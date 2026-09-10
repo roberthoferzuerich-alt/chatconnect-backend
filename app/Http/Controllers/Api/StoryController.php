@@ -46,4 +46,15 @@ class StoryController extends Controller
 
         return response()->json($story->load('user'), 201);
     }
+
+    public function destroy(Request $request, Story $story)
+    {
+        if ($story->user_id !== $request->user()->id) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $story->delete();
+
+        return response()->json(['message' => 'Story deleted']);
+    }
 }

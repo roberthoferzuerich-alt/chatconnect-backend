@@ -35,6 +35,7 @@ Route::prefix('v1')->group(function () {
         // Stories
         Route::get('/stories', [StoryController::class, 'index']);
         Route::post('/stories', [StoryController::class, 'store']);
+        Route::delete('/stories/{story}', [StoryController::class, 'destroy']);
         
         Route::get('/conversations/{conversation}/messages', [MessageController::class, 'index']);
         Route::post('/conversations/{conversation}/messages', [MessageController::class, 'store']);
