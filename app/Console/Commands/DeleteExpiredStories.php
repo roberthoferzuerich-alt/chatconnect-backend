@@ -20,7 +20,7 @@ class DeleteExpiredStories extends Command
      *
      * @var string
      */
-    protected $description = 'Löscht alle abgelaufenen Storys (älter als 24h) mitsamt ihren physischen Bildern vom Server.';
+    protected $description = 'LÃ¶scht alle abgelaufenen Storys (Ã¤lter als 24h) mitsamt ihren physischen Bildern vom Server.';
 
     /**
      * Execute the console command.
@@ -32,17 +32,17 @@ class DeleteExpiredStories extends Command
         $count = 0;
 
         foreach ($expiredStories as $story) {
-            // Bilddatei löschen
+            // Bilddatei lÃ¶schen
             $relativePath = str_replace('/storage/', '', $story->media_path);
             if (Storage::disk('public')->exists($relativePath)) {
                 Storage::disk('public')->delete($relativePath);
             }
 
-            // Datenbankeintrag löschen
+            // Datenbankeintrag lÃ¶schen
             $story->delete();
             $count++;
         }
 
-        $this->info("Erfolgreich {$count} abgelaufene Story(s) gelöscht.");
+        $this->info("Erfolgreich {$count} abgelaufene Story(s) gelÃ¶scht.");
     }
 }

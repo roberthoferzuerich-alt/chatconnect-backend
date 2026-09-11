@@ -76,6 +76,19 @@ class MessageController extends Controller
         return response()->json(['success' => true]);
     }
 
+    public function markAllAsRead(Request $request)
+    {
+        $userId = $request->user()->id;
+        $conversationIds = $request->user()->conversations()->pluck('conversations.id');
+
+        \App\Models\Message::whereIn('conversation_id', $conversationIds)
+            ->where('sender_id', '!=', $userId)
+            ->whereNull('read_at')
+            ->update(['read_at' => now()]);
+
+        return response()->json(['success' => true]);
+    }
+
     public function destroy(Request $request, Message $message)
     {
         try {
