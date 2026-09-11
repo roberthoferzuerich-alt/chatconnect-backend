@@ -61,6 +61,19 @@ class StoryController extends Controller
 
         $story->delete();
 
-        return response()->json(['message' => 'Story deleted']);
+        return response()->json(['message' => 'Story deleted successfully']);
+    }
+
+    public function view(Request $request, Story $story)
+    {
+        // Don't count views if the user is the owner
+        if ($story->user_id !== $request->user()->id) {
+            $story->increment('views_count');
+        }
+
+        return response()->json([
+            'message' => 'Story viewed',
+            'views_count' => $story->views_count
+        ]);
     }
 }
