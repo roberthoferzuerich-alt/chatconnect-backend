@@ -26,4 +26,9 @@ class Story extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function viewers()
+    {
+        return $this->hasMany(StoryView::class)->orderBy('created_at', 'desc');
+    }
 }

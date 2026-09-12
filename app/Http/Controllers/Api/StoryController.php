@@ -12,7 +12,7 @@ class StoryController extends Controller
     public function index(Request $request)
     {
         // Get all active stories (expires_at > now), grouped by user
-        $stories = Story::with('user')
+        $stories = Story::with(['user', 'viewers.user'])
             ->where('expires_at', '>', now())
             ->orderBy('created_at', 'asc')
             ->get();
@@ -68,7 +68,21 @@ class StoryController extends Controller
     {
         // Don't count views if the user is the owner
         if ($story->user_id !== $request->user()->id) {
-            $story->increment('views_count');
+            // Only increment if they haven't viewed it before
+            $view = $story->viewers()->firstOrNew(['user_id' => $request->user()->id]);
+            
+            if (!$view->exists) {
+                $story->increment('views_count');
+            }
+            
+            if ($request->has('reaction')) {
+                $view->reaction = $request->reaction;
+            }
+            if ($request->has('message')) {
+                $view->message = $request->message;
+            }
+            
+            $view->save();
         }
 
         return response()->json([
