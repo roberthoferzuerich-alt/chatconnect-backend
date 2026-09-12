@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 use Illuminate\Support\Facades\Broadcast;
 
@@ -7,5 +7,7 @@ Broadcast::channel('App.Models.User.{id}', function ($user, $id) {
 });
 
 Broadcast::channel('chat.{conversation_id}', function ($user, $conversation_id) {
-    return \App\Models\Conversation::find($conversation_id)->users()->where('users.id', $user->id)->exists();
+    $conversation = \App\Models\Conversation::find($conversation_id);
+    if (!$conversation) return false;
+    return $conversation->users()->where('users.id', $user->id)->exists();
 });
