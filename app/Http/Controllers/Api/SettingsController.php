@@ -7,23 +7,23 @@ use Illuminate\Http\Request;
 
 class SettingsController extends Controller
 {
-    public function show(Request \)
+    public function show(Request $request)
     {
-        \ = \->user()->settings ?? [];
-        return response()->json(\);
+        $settings = $request->user()->settings ?? [];
+        return response()->json($settings);
     }
 
-    public function update(Request \)
+    public function update(Request $request)
     {
-        \ = \->user();
-        \ = \->settings ?? [];
+        $user = $request->user();
+        $currentSettings = $user->settings ?? [];
         
         // Merge new settings with existing ones
-        \ = array_merge(\, \->all());
+        $newSettings = array_merge($currentSettings, $request->all());
         
-        \->settings = \;
-        \->save();
+        $user->settings = $newSettings;
+        $user->save();
         
-        return response()->json(\->settings);
+        return response()->json($user->settings);
     }
 }
