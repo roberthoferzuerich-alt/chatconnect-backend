@@ -8,13 +8,13 @@ use Illuminate\Support\Facades\Auth;
 
 Route::get('/', function () {
     if (Auth::check()) {
-        return redirect()->route('chats.index');
+        return view('dashboard');
     }
     return view('welcome');
 });
 
 Route::get('/dashboard', function () {
-    return redirect()->route('chats.index');
+    return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
@@ -49,4 +49,5 @@ require __DIR__.'/auth.php';
 Route::get('/web', function () {
     return view('webclient');
 });
+
 
