@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\ConversationController;
 use App\Http\Controllers\Api\CallController;
 use App\Http\Controllers\Api\StoryController;
 use App\Http\Controllers\Api\MessageController;
+use App\Http\Controllers\Api\SettingsController;
 
 Route::prefix('v1')->group(function () {
     Route::prefix('auth')->group(function () {
@@ -23,6 +24,9 @@ Route::prefix('v1')->group(function () {
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('/users', [UserController::class, 'index']);
         Route::post('/users/sync-contacts', [UserController::class, 'syncContacts']);
+        
+        Route::get('/settings', [SettingsController::class, 'show']);
+        Route::put('/settings', [SettingsController::class, 'update']);
         
         Route::get('/conversations', [ConversationController::class, 'index']);
         Route::post('/conversations', [ConversationController::class, 'store']);

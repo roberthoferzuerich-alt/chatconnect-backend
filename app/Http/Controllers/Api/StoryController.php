@@ -11,17 +11,34 @@ class StoryController extends Controller
 {
     public function index(Request $request)
     {
+        $currentUser = $request->user();
+        $mySettings = $currentUser->settings ?? [];
+        $mutedUsers = $mySettings['muted_stories'] ?? [];
+
         // Get all active stories (expires_at > now), grouped by user
         $stories = Story::with(['user', 'viewers.user'])
             ->where('expires_at', '>', now())
             ->orderBy('created_at', 'asc')
-            ->get();
+            ->get()
+            ->filter(function ($story) use ($currentUser, $mutedUsers) {
+                if ($story->user_id === $currentUser->id) return true;
+                
+                // Exclude muted stories
+                if (in_array($story->user_id, $mutedUsers)) return false;
+                
+                // Exclude if uploader set visibility to 'nobody'
+                $uploaderSettings = $story->user->settings ?? [];
+                $visibility = $uploaderSettings['story_visibility'] ?? 'everyone';
+                if ($visibility === 'nobody') return false;
+                
+                return true;
+            });
 
         // Group by user
         $grouped = $stories->groupBy('user_id')->map(function ($userStories) {
             return [
                 'user' => $userStories->first()->user,
-                'stories' => $userStories
+                'stories' => $userStories->values()
             ];
         })->values();
 
