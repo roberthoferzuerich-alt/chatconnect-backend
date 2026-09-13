@@ -61,17 +61,25 @@ class MessageController extends Controller
 
     public function markAsRead(Request $request, Conversation $conversation)
     {
-        if (!$conversation->users()->where('users.id', $request->user()->id)->exists()) {
+        $user = $request->user();
+        
+        if (!$conversation->users()->where('users.id', $user->id)->exists()) {
             return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        // Check if user disabled read receipts
+        $settings = $user->settings ?? [];
+        if (isset($settings['read_receipts']) && $settings['read_receipts'] == false) {
+            return response()->json(['success' => true]);
         }
 
         // Mark all unread messages from other users in this conversation as read
         $conversation->messages()
-            ->where('sender_id', '!=', $request->user()->id)
+            ->where('sender_id', '!=', $user->id)
             ->whereNull('read_at')
             ->update(['read_at' => now()]);
             
-        broadcast(new \App\Events\MessagesRead($conversation->id, $request->user()->id))->toOthers();
+        broadcast(new \App\Events\MessagesRead($conversation->id, $user->id))->toOthers();
 
         return response()->json(['success' => true]);
     }
