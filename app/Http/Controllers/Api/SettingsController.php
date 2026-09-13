@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 namespace App\Http\Controllers\Api;
 
@@ -18,7 +18,6 @@ class SettingsController extends Controller
         $user = $request->user();
         $currentSettings = $user->settings ?? [];
         
-        // Merge new settings with existing ones
         $newSettings = array_merge($currentSettings, $request->all());
         
         $user->settings = $newSettings;
