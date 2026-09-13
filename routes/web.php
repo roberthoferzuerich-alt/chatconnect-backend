@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ChatController;
@@ -8,14 +8,12 @@ use Illuminate\Support\Facades\Auth;
 
 Route::get('/', function () {
     if (Auth::check()) {
-        return view('dashboard');
+        return redirect()->route('dashboard');
     }
     return view('welcome');
 });
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::view('/dashboard', 'dashboard')->middleware(['auth'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile/about', [ProfileController::class, 'about'])->name('profile.about');
@@ -46,8 +44,5 @@ Route::middleware('auth')->group(function () {
 
 require __DIR__.'/auth.php';
 
-Route::get('/web', function () {
-    return view('webclient');
-});
-
+Route::view('/web', 'webclient');
 
