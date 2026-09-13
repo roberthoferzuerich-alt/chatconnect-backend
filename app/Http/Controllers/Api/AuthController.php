@@ -14,12 +14,19 @@ class AuthController extends Controller
 {
     public function register(RegisterRequest $request): JsonResponse
     {
-        $user = User::create([
+        $userData = [
             'name' => $request->validated('name'),
             'email' => $request->validated('email'),
+            'phone' => $request->validated('phone'),
             'password' => Hash::make($request->validated('password')),
             'is_online' => true,
-        ]);
+        ];
+
+        if ($request->hasFile('avatar')) {
+            $userData['avatar_path'] = $request->file('avatar')->store('avatars', 'public');
+        }
+
+        $user = User::create($userData);
 
         $token = $user->createToken($request->header('User-Agent', 'auth_token'))->plainTextToken;
 
