@@ -8,6 +8,9 @@ use App\Http\Controllers\Api\CallController;
 use App\Http\Controllers\Api\StoryController;
 use App\Http\Controllers\Api\MessageController;
 use App\Http\Controllers\Api\SettingsController;
+use Illuminate\Support\Facades\Broadcast;
+
+Broadcast::routes(['middleware' => ['auth:sanctum']]);
 
 Route::prefix('v1')->group(function () {
     Route::prefix('auth')->group(function () {
