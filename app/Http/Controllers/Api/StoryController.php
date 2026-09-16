@@ -64,6 +64,10 @@ class StoryController extends Controller
 
         $path = $request->file('image')->store('stories', 'public');
 
+        if (!$path) {
+            return response()->json(['message' => 'Fehler beim Speichern des Bildes auf dem Server (Berechtigungen?).'], 500);
+        }
+
         $story = $request->user()->stories()->create([
             'media_path' => $path,
             'caption' => $request->caption,

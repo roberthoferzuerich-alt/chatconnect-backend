@@ -37,7 +37,11 @@ class ProfileController extends Controller
                 Storage::disk('public')->delete($user->avatar_path);
             }
             
-            $user->avatar_path = $request->file('avatar')->store('avatars', 'public');
+            $path = $request->file('avatar')->store('avatars', 'public');
+            if (!$path) {
+                return response()->json(['message' => 'Fehler beim Speichern des Profilbildes auf dem Server.'], 500);
+            }
+            $user->avatar_path = $path;
         }
 
         $user->save();
