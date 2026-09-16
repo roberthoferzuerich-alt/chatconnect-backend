@@ -50,7 +50,7 @@
                 </div>
                 <div class="ml-4">
                     <h2 class="text-xl font-bold text-gray-900">{{ $user->name }}</h2>
-                    <p class="text-[14px] font-medium text-[#137333]">Gründer & App-Inhaber</p>
+                    <p class="text-[14px] font-medium text-[#137333]">{{ $user->about ?: 'ChatConnect Nutzer' }}</p>
                 </div>
             </div>
 
