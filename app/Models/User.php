@@ -50,6 +50,11 @@ class User extends Authenticatable
         return $this->hasMany(Message::class, 'sender_id');
     }
 
+    public function stories()
+    {
+        return $this->hasMany(Story::class);
+    }
+
     public function statuses()
     {
         return $this->hasMany(Status::class);

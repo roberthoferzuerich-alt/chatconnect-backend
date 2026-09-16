@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Story;
+use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -11,57 +13,73 @@ class StoryController extends Controller
 {
     public function index(Request $request)
     {
+        $now = Carbon::now();
         $currentUser = $request->user();
-        $mySettings = $currentUser->settings ?? [];
-        $mutedUsers = $mySettings['muted_stories'] ?? [];
 
-        // Get all active stories (expires_at > now), grouped by user
-        $stories = Story::with(['user', 'viewers.user'])
-            ->where('expires_at', '>', now())
-            ->orderBy('created_at', 'asc')
-            ->get()
-            ->filter(function ($story) use ($currentUser, $mutedUsers) {
-                if ($story->user_id === $currentUser->id) return true;
-                
-                // Exclude muted stories
-                if (in_array($story->user_id, $mutedUsers)) return false;
-                
-                // Exclude if uploader set visibility to 'nobody'
-                $uploaderSettings = $story->user->settings ?? [];
-                $visibility = $uploaderSettings['story_visibility'] ?? 'everyone';
-                if ($visibility === 'nobody') return false;
-                
-                return true;
-            });
+        // Fetch users who have active stories
+        $users = User::whereHas('stories', function ($q) use ($now) {
+            $q->where('expires_at', '>', $now);
+        })->with(['stories' => function ($q) use ($now) {
+            $q->where('expires_at', '>', $now)
+              ->withCount('views')
+              ->with(['views.user']); // Load views with users
+        }])->get();
 
-        // Group by user
-        $grouped = $stories->groupBy('user_id')->map(function ($userStories) {
+        $result = $users->map(function ($user) use ($currentUser) {
+            $isCurrentUser = $user->id === $currentUser->id;
+
             return [
-                'user' => $userStories->first()->user,
-                'stories' => $userStories->values()
+                'user' => $user,
+                'stories' => $user->stories->map(function ($story) use ($isCurrentUser) {
+                    return [
+                        'id' => $story->id,
+                        'user_id' => $story->user_id,
+                        'media_path' => $story->media_path,
+                        'caption' => $story->caption,
+                        'expires_at' => $story->expires_at,
+                        'created_at' => $story->created_at,
+                        'views_count' => $story->views_count,
+                        'viewers' => $isCurrentUser ? $story->views->map(function ($view) {
+                            return [
+                                'user' => $view->user,
+                                'reaction' => $view->reaction,
+                                'message' => $view->message,
+                                'created_at' => $view->created_at,
+                            ];
+                        })->values() : [],
+                    ];
+                }),
             ];
-        })->values();
+        });
 
-        return response()->json($grouped);
+        return response()->json($result);
     }
 
     public function store(Request $request)
     {
         $request->validate([
-            'image' => 'required|image|max:10240', // max 10MB
+            'image' => 'required|image|max:10240',
             'caption' => 'nullable|string|max:255',
         ]);
 
         $path = $request->file('image')->store('stories', 'public');
 
-        $story = Story::create([
-            'user_id' => $request->user()->id,
-            'media_path' => Storage::url($path),
+        $story = $request->user()->stories()->create([
+            'media_path' => $path,
             'caption' => $request->caption,
-            'expires_at' => now()->addHours(24),
+            'expires_at' => Carbon::now()->addHours(24),
         ]);
 
-        return response()->json($story->load('user'), 201);
+        return response()->json([
+            'id' => $story->id,
+            'user_id' => $story->user_id,
+            'media_path' => $story->media_path,
+            'caption' => $story->caption,
+            'expires_at' => $story->expires_at,
+            'created_at' => $story->created_at,
+            'views_count' => 0,
+            'viewers' => [],
+        ]);
     }
 
     public function destroy(Request $request, Story $story)
@@ -70,41 +88,29 @@ class StoryController extends Controller
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
-        // Delete physical file
-        $relativePath = str_replace('/storage/', '', $story->media_path);
-        if (Storage::disk('public')->exists($relativePath)) {
-            Storage::disk('public')->delete($relativePath);
+        if (Storage::disk('public')->exists($story->media_path)) {
+            Storage::disk('public')->delete($story->media_path);
         }
-
+        
         $story->delete();
 
-        return response()->json(['message' => 'Story deleted successfully']);
+        return response()->json(['message' => 'Story deleted']);
     }
 
     public function view(Request $request, Story $story)
     {
-        // Don't count views if the user is the owner
-        if ($story->user_id !== $request->user()->id) {
-            // Only increment if they haven't viewed it before
-            $view = $story->viewers()->firstOrNew(['user_id' => $request->user()->id]);
-            
-            if (!$view->exists) {
-                $story->increment('views_count');
-            }
-            
-            if ($request->has('reaction')) {
-                $view->reaction = $request->reaction;
-            }
-            if ($request->has('message')) {
-                $view->message = $request->message;
-            }
-            
-            $view->save();
+        if ($story->user_id === $request->user()->id) {
+            return response()->json(['message' => 'Cannot view own story'], 400);
         }
 
-        return response()->json([
-            'message' => 'Story viewed',
-            'views_count' => $story->views_count
-        ]);
+        $story->views()->updateOrCreate(
+            ['user_id' => $request->user()->id],
+            [
+                'reaction' => $request->reaction,
+                'message' => $request->message,
+            ]
+        );
+
+        return response()->json(['message' => 'View recorded']);
     }
 }

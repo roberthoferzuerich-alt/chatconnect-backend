@@ -2,19 +2,14 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Story extends Model
 {
-    use HasFactory;
-
     protected $fillable = [
         'user_id',
-        'image_path',
         'media_path',
         'caption',
-        'views_count',
         'expires_at',
     ];
 
@@ -27,8 +22,8 @@ class Story extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function viewers()
+    public function views()
     {
-        return $this->hasMany(StoryView::class)->orderBy('created_at', 'desc');
+        return $this->hasMany(StoryView::class);
     }
 }

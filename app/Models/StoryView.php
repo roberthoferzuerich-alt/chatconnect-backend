@@ -13,13 +13,13 @@ class StoryView extends Model
         'message',
     ];
 
-    public function user()
-    {
-        return $this->belongsTo(User::class);
-    }
-
     public function story()
     {
         return $this->belongsTo(Story::class);
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 }
