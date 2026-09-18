@@ -22,6 +22,7 @@ class User extends Authenticatable
         'last_seen_at',
         'is_online',
         'settings',
+        'fcm_token',
     ];
 
     protected $hidden = [

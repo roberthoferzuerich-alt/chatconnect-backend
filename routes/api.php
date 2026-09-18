@@ -25,6 +25,8 @@ Route::prefix('v1')->group(function () {
     });
 
     Route::middleware('auth:sanctum')->group(function () {
+        Route::post('/fcm-token', [\App\Http\Controllers\Api\FCMController::class, 'updateToken']);
+
         Route::get('/users', [UserController::class, 'index']);
         Route::post('/users/sync-contacts', [UserController::class, 'syncContacts']);
         

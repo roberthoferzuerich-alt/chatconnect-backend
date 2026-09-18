@@ -63,6 +63,40 @@ class MessageController extends Controller
         // Update conversation's last message
         $conversation->update(['last_message_id' => $message->id]);
 
+        // Sende Push-Benachrichtigungen
+        $recipients = $conversation->users()
+            ->where('users.id', '!=', $request->user()->id)
+            ->whereNotNull('fcm_token')
+            ->get();
+
+        if ($recipients->count() > 0) {
+            $messaging = app('firebase.messaging');
+            $notificationTitle = $request->user()->name;
+            
+            $notificationBody = 'Neue Nachricht';
+            if ($message->content) {
+                $notificationBody = $message->content;
+            } elseif ($message->audio_path) {
+                $notificationBody = '🎤 Sprachnachricht';
+            } elseif ($message->image_path) {
+                $notificationBody = '📷 Bildnachricht';
+            }
+
+            foreach ($recipients as $recipient) {
+                $fcmMessage = \Kreait\Firebase\Messaging\CloudMessage::withTarget('token', $recipient->fcm_token)
+                    ->withNotification(\Kreait\Firebase\Messaging\Notification::create($notificationTitle, $notificationBody))
+                    ->withData([
+                        'conversation_id' => (string) $conversation->id,
+                        'type' => 'chat_message'
+                    ]);
+                try {
+                    $messaging->send($fcmMessage);
+                } catch (\Exception $e) {
+                    \Log::error('FCM Error: ' . $e->getMessage());
+                }
+            }
+        }
+
         return response()->json($message, 201);
     }
 
