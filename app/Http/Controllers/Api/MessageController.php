@@ -83,8 +83,14 @@ class MessageController extends Controller
             }
 
             foreach ($recipients as $recipient) {
-                $fcmMessage = \Kreait\Firebase\Messaging\CloudMessage::withTarget('token', $recipient->fcm_token)
+                $fcmMessage = \Kreait\Firebase\Messaging\CloudMessage::new()->withToken($recipient->fcm_token)
                     ->withNotification(\Kreait\Firebase\Messaging\Notification::create($notificationTitle, $notificationBody))
+                    ->withAndroidConfig(\Kreait\Firebase\Messaging\AndroidConfig::fromArray([
+                        'notification' => [
+                            'channel_id' => 'chat_messages_channel',
+                            'sound' => 'default'
+                        ]
+                    ]))
                     ->withData([
                         'conversation_id' => (string) $conversation->id,
                         'type' => 'chat_message'
