@@ -50,5 +50,6 @@ Route::prefix('v1')->group(function () {
         Route::post('/conversations/{conversation}/read', [MessageController::class, 'markAsRead']);
         Route::post('/messages/mark-all-read', [MessageController::class, 'markAllAsRead']);
         Route::post('/messages/{message}/delete', [MessageController::class, 'destroy']);
+        Route::post('/messages/{message}/react', [MessageController::class, 'react']);
     });
 });

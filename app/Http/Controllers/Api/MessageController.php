@@ -17,7 +17,7 @@ class MessageController extends Controller
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
-        $messages = $conversation->messages()->with('sender')->orderBy('created_at', 'asc')->get();
+        $messages = $conversation->messages()->with(['sender', 'reactions'])->orderBy('created_at', 'asc')->get();
 
         return response()->json($messages);
     }
@@ -49,7 +49,7 @@ class MessageController extends Controller
             'image_path' => $imagePath,
         ]);
 
-        $message->load('sender');
+        $message->load(['sender', 'reactions']);
 
         broadcast(new \App\Events\MessageSent($message))->toOthers();
 
@@ -125,5 +125,36 @@ class MessageController extends Controller
             \Illuminate\Support\Facades\Log::error('Error deleting message: ' . $e->getMessage());
             return response()->json(['message' => 'FATAL: ' . $e->getMessage() . ' at ' . $e->getFile() . ':' . $e->getLine()], 500);
         }
+    }
+
+    public function react(Request $request, Message $message)
+    {
+        $request->validate(['reaction' => 'required|string']);
+        $user = $request->user();
+
+        // Ensure user is part of the conversation
+        $conversation = $message->conversation;
+        if (!$conversation->users()->where('users.id', $user->id)->exists()) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $existingReaction = $message->reactions()->where('user_id', $user->id)->first();
+        if ($existingReaction) {
+            if ($existingReaction->reaction === $request->reaction) {
+                $existingReaction->delete();
+            } else {
+                $existingReaction->update(['reaction' => $request->reaction]);
+            }
+        } else {
+            $message->reactions()->create([
+                'user_id' => $user->id,
+                'reaction' => $request->reaction,
+            ]);
+        }
+
+        $message->load(['sender', 'reactions']);
+        // broadcast(new \App\Events\MessageReacted($message))->toOthers();
+
+        return response()->json($message);
     }
 }
