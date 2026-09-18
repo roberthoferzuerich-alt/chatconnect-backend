@@ -14,6 +14,7 @@ class Message extends Model
         'sender_id',
         'content',
         'image_path',
+        'audio_path',
         'read_at',
     ];
 
@@ -21,11 +22,16 @@ class Message extends Model
         'read_at' => 'datetime',
     ];
 
-    protected $appends = ['image_url'];
+    protected $appends = ['image_url', 'audio_url'];
 
     public function getImageUrlAttribute()
     {
         return $this->image_path ? asset('storage/' . $this->image_path) : null;
+    }
+
+    public function getAudioUrlAttribute()
+    {
+        return $this->audio_path ? asset('storage/' . $this->audio_path) : null;
     }
 
     public function conversation()

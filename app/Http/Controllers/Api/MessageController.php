@@ -32,10 +32,11 @@ class MessageController extends Controller
         $request->validate([
             'content' => 'nullable|string',
             'image' => 'nullable|image|max:5120',
+            'audio' => 'nullable|file|mimes:m4a,mp3,wav,aac,ogg,mp4|max:10240',
         ]);
 
-        if (!$request->content && !$request->hasFile('image')) {
-            return response()->json(['message' => 'Content or image is required.'], 422);
+        if (!$request->content && !$request->hasFile('image') && !$request->hasFile('audio')) {
+            return response()->json(['message' => 'Content, image or audio is required.'], 422);
         }
 
         $imagePath = null;
@@ -43,10 +44,16 @@ class MessageController extends Controller
             $imagePath = $request->file('image')->store('messages', 'public');
         }
 
+        $audioPath = null;
+        if ($request->hasFile('audio')) {
+            $audioPath = $request->file('audio')->store('audio_messages', 'public');
+        }
+
         $message = $conversation->messages()->create([
             'sender_id' => $request->user()->id,
             'content' => $request->content ?? '',
             'image_path' => $imagePath,
+            'audio_path' => $audioPath,
         ]);
 
         $message->load(['sender', 'reactions']);
@@ -108,6 +115,11 @@ class MessageController extends Controller
             // Delete associated image if it exists
             if ($message->image_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($message->image_path)) {
                 \Illuminate\Support\Facades\Storage::disk('public')->delete($message->image_path);
+            }
+
+            // Delete associated audio if it exists
+            if ($message->audio_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($message->audio_path)) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($message->audio_path);
             }
 
             // Unset last_message_id to prevent foreign key constraint violations
