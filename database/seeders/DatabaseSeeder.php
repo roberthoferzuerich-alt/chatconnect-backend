@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
             [
                 'name' => 'Robert Hofer',
                 'password' => $password,
+                'phone' => '+41794865700',
                 'about' => 'Gründer & App-Inhaber',
                 'is_online' => false,
             ]
@@ -30,6 +31,7 @@ class DatabaseSeeder extends Seeder
             [
                 'name' => 'Florian Thaler',
                 'password' => $password,
+                'phone' => '+41791234567',
                 'about' => 'Test-Account Florian',
                 'is_online' => false,
             ]
@@ -40,6 +42,7 @@ class DatabaseSeeder extends Seeder
             [
                 'name' => 'Tester Gamal',
                 'password' => $password,
+                'phone' => '+41781234567',
                 'about' => 'Tablet Tester',
                 'is_online' => false,
             ]

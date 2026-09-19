@@ -14,6 +14,7 @@ class ProfileController extends Controller
 
         $request->validate([
             'name' => 'nullable|string|max:255',
+            'email' => 'nullable|string|email|max:255|unique:users,email,' . $user->id,
             'about' => 'nullable|string|max:500',
             'phone' => 'nullable|string|max:50',
             'avatar' => 'nullable|image|max:5120',
@@ -21,6 +22,9 @@ class ProfileController extends Controller
 
         if ($request->has('name')) {
             $user->name = $request->name;
+        }
+        if ($request->has('email')) {
+            $user->email = $request->email;
         }
 
         if ($request->has('about')) {
