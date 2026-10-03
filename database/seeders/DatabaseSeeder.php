@@ -70,7 +70,7 @@ class DatabaseSeeder extends Seeder
         );
 
         $zoe = User::firstOrCreate(
-            ['email' => 'zoe.thalter@gmail.com'],
+            ['email' => 'zoe.thaler@gmail.com'],
             [
                 'name' => 'Zoe Thaler',
                 'password' => $password,
