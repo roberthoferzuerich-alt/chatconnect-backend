@@ -69,6 +69,28 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
+        $zoe = User::firstOrCreate(
+            ['email' => 'zoe.thalter@gmail.com'],
+            [
+                'name' => 'Zoe Thaler',
+                'password' => $password,
+                'phone' => '+41791112240',
+                'about' => 'Enkelin von Robert',
+                'is_online' => false,
+            ]
+        );
+
+        $leon = User::firstOrCreate(
+            ['email' => 'leon_thaler@gmail.com'],
+            [
+                'name' => 'Leon Thaler',
+                'password' => $password,
+                'phone' => '+41791112245',
+                'about' => 'Enkel von Robert',
+                'is_online' => false,
+            ]
+        );
+
         // Generate 5 random users using factory
         $randomUsers = clone User::factory(5)->create(['password' => $password]);
 
@@ -116,17 +138,37 @@ class DatabaseSeeder extends Seeder
 
         $convoLucienne->update(['last_message_id' => $msgL1->id]);
 
+        // Chat: Robert & Zoe
+        $convoZoe = Conversation::create(['is_group' => false]);
+        $convoZoe->users()->attach([$robert->id, $zoe->id]);
+        $msgZoe = Message::create([
+            'conversation_id' => $convoZoe->id,
+            'sender_id' => $robert->id,
+            'content' => 'Hallo Zoe, herzlich willkommen bei ChatConnect! 👋',
+        ]);
+        $convoZoe->update(['last_message_id' => $msgZoe->id]);
+
+        // Chat: Robert & Leon
+        $convoLeon = Conversation::create(['is_group' => false]);
+        $convoLeon->users()->attach([$robert->id, $leon->id]);
+        $msgLeon = Message::create([
+            'conversation_id' => $convoLeon->id,
+            'sender_id' => $robert->id,
+            'content' => 'Hallo Leon, herzlich willkommen bei ChatConnect! 👋',
+        ]);
+        $convoLeon->update(['last_message_id' => $msgLeon->id]);
+
         // Group Chat
         $groupConvo = Conversation::create([
             'is_group' => true,
-            'name' => 'ChatConnect Alpha Team'
+            'name' => 'ChatConnect Family & Team'
         ]);
-        $groupConvo->users()->attach([$robert->id, $florian->id, $tester->id, $lucienne->id]);
+        $groupConvo->users()->attach([$robert->id, $florian->id, $tester->id, $lucienne->id, $zoe->id, $leon->id]);
 
         $msg4 = Message::create([
             'conversation_id' => $groupConvo->id,
             'sender_id' => $robert->id,
-            'content' => 'Willkommen im Gruppen-Chat!',
+            'content' => 'Willkommen im Familien- & Gruppen-Chat!',
         ]);
 
         $groupConvo->update(['last_message_id' => $msg4->id]);
