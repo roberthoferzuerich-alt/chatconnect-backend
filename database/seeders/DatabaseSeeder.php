@@ -14,6 +14,12 @@ class DatabaseSeeder extends Seeder
     {
         $password = Hash::make('password'); // Use 'password' for all test accounts
 
+        // Vorhandene Profilbilder im Storage finden (damit sie nach migrate:fresh nicht verloren gehen)
+        $existingAvatars = \Illuminate\Support\Facades\Storage::disk('public')->files('avatars');
+        $existingAvatars = array_values(array_filter($existingAvatars, fn($f) => !str_ends_with($f, '.gitignore')));
+        $robertAvatar = $existingAvatars[0] ?? null;
+        $lucienneAvatar = $existingAvatars[1] ?? ($existingAvatars[0] ?? null);
+
         // Create Main Users
         $robert = User::firstOrCreate(
             ['email' => 'robert.hofer.zuerich@bluewin.ch'],
@@ -22,6 +28,21 @@ class DatabaseSeeder extends Seeder
                 'password' => $password,
                 'phone' => '+41794865700',
                 'about' => 'Gründer & App-Inhaber',
+                'avatar' => $robertAvatar,
+                'avatar_path' => $robertAvatar,
+                'is_online' => false,
+            ]
+        );
+
+        $lucienne = User::firstOrCreate(
+            ['email' => 'lucienne.hofer@hispeed.ch'],
+            [
+                'name' => 'Lucienne Hofer',
+                'password' => $password,
+                'phone' => '+41791112233',
+                'about' => 'ChatConnect Testerin',
+                'avatar' => $lucienneAvatar,
+                'avatar_path' => $lucienneAvatar,
                 'is_online' => false,
             ]
         );
@@ -83,12 +104,24 @@ class DatabaseSeeder extends Seeder
 
         $convo2->update(['last_message_id' => $msg3->id]);
 
+        // Chat: Robert & Lucienne
+        $convoLucienne = Conversation::create(['is_group' => false]);
+        $convoLucienne->users()->attach([$robert->id, $lucienne->id]);
+        
+        $msgL1 = Message::create([
+            'conversation_id' => $convoLucienne->id,
+            'sender_id' => $robert->id,
+            'content' => 'Hallo Lucienne, wie geht es Dir?',
+        ]);
+
+        $convoLucienne->update(['last_message_id' => $msgL1->id]);
+
         // Group Chat
         $groupConvo = Conversation::create([
             'is_group' => true,
             'name' => 'ChatConnect Alpha Team'
         ]);
-        $groupConvo->users()->attach([$robert->id, $florian->id, $tester->id]);
+        $groupConvo->users()->attach([$robert->id, $florian->id, $tester->id, $lucienne->id]);
 
         $msg4 = Message::create([
             'conversation_id' => $groupConvo->id,
