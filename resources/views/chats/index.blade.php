@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ChatConnect Web</title>
     @vite(['resources/css/app.css'])
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js"></script>
     
     <style>
         .bg-chat { background-color: #efeae2; }
@@ -208,28 +210,138 @@
                     @endforeach
                 </div>
 
-                <!-- Chat Input -->
-                <form action="{{ route('chats.store', $activeConversation->id) }}" method="POST" enctype="multipart/form-data" class="h-16 bg-gray-100 flex items-center px-4 py-2 border-t m-0">
-                    @csrf
-                    
-                    <label class="text-gray-500 hover:text-gray-700 cursor-pointer p-2">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path></svg>
-                        <input type="file" name="image" class="hidden" onchange="this.form.submit()">
-                    </label>
-                    
-                    <div class="flex-1 mx-2">
-                        <input type="text" name="content" placeholder="Schreibe eine Nachricht" class="w-full bg-white rounded-lg px-4 py-2.5 outline-none focus:ring-1 focus:ring-teal-500 shadow-sm border border-transparent" autofocus autocomplete="off">
+                <!-- Chat Input Area -->
+                <div class="relative bg-gray-100 border-t border-gray-200">
+                    <!-- Emoji Picker Popup -->
+                    <div id="emoji-picker" class="hidden absolute bottom-20 left-4 z-40 bg-white shadow-2xl rounded-2xl border border-gray-200 p-3 w-80 max-h-72 flex flex-col">
+                        <div class="flex items-center justify-between pb-2 border-b border-gray-100 text-xs font-semibold text-gray-500">
+                            <span>Emojis</span>
+                            <button type="button" onclick="toggleEmojiPicker()" class="text-gray-400 hover:text-gray-600 text-lg font-bold px-1">&times;</button>
+                        </div>
+                        <div class="grid grid-cols-8 gap-2 overflow-y-auto pt-2 text-2xl" id="emoji-grid">
+                            <button type="button" onclick="insertEmoji('😀')" class="hover:scale-125 transition">😀</button>
+                            <button type="button" onclick="insertEmoji('😃')" class="hover:scale-125 transition">😃</button>
+                            <button type="button" onclick="insertEmoji('😄')" class="hover:scale-125 transition">😄</button>
+                            <button type="button" onclick="insertEmoji('😁')" class="hover:scale-125 transition">😁</button>
+                            <button type="button" onclick="insertEmoji('😆')" class="hover:scale-125 transition">😆</button>
+                            <button type="button" onclick="insertEmoji('😅')" class="hover:scale-125 transition">😅</button>
+                            <button type="button" onclick="insertEmoji('😂')" class="hover:scale-125 transition">😂</button>
+                            <button type="button" onclick="insertEmoji('🤣')" class="hover:scale-125 transition">🤣</button>
+                            <button type="button" onclick="insertEmoji('😊')" class="hover:scale-125 transition">😊</button>
+                            <button type="button" onclick="insertEmoji('😇')" class="hover:scale-125 transition">😇</button>
+                            <button type="button" onclick="insertEmoji('🙂')" class="hover:scale-125 transition">🙂</button>
+                            <button type="button" onclick="insertEmoji('😉')" class="hover:scale-125 transition">😉</button>
+                            <button type="button" onclick="insertEmoji('😍')" class="hover:scale-125 transition">😍</button>
+                            <button type="button" onclick="insertEmoji('🥰')" class="hover:scale-125 transition">🥰</button>
+                            <button type="button" onclick="insertEmoji('😘')" class="hover:scale-125 transition">😘</button>
+                            <button type="button" onclick="insertEmoji('😋')" class="hover:scale-125 transition">😋</button>
+                            <button type="button" onclick="insertEmoji('😎')" class="hover:scale-125 transition">😎</button>
+                            <button type="button" onclick="insertEmoji('🤩')" class="hover:scale-125 transition">🤩</button>
+                            <button type="button" onclick="insertEmoji('🥳')" class="hover:scale-125 transition">🥳</button>
+                            <button type="button" onclick="insertEmoji('🤔')" class="hover:scale-125 transition">🤔</button>
+                            <button type="button" onclick="insertEmoji('🤫')" class="hover:scale-125 transition">🤫</button>
+                            <button type="button" onclick="insertEmoji('🤗')" class="hover:scale-125 transition">🤗</button>
+                            <button type="button" onclick="insertEmoji('👍')" class="hover:scale-125 transition">👍</button>
+                            <button type="button" onclick="insertEmoji('👏')" class="hover:scale-125 transition">👏</button>
+                            <button type="button" onclick="insertEmoji('🙌')" class="hover:scale-125 transition">🙌</button>
+                            <button type="button" onclick="insertEmoji('👌')" class="hover:scale-125 transition">👌</button>
+                            <button type="button" onclick="insertEmoji('✌️')" class="hover:scale-125 transition">✌️</button>
+                            <button type="button" onclick="insertEmoji('🤞')" class="hover:scale-125 transition">🤞</button>
+                            <button type="button" onclick="insertEmoji('👋')" class="hover:scale-125 transition">👋</button>
+                            <button type="button" onclick="insertEmoji('❤️')" class="hover:scale-125 transition">❤️</button>
+                            <button type="button" onclick="insertEmoji('🧡')" class="hover:scale-125 transition">🧡</button>
+                            <button type="button" onclick="insertEmoji('💛')" class="hover:scale-125 transition">💛</button>
+                            <button type="button" onclick="insertEmoji('💚')" class="hover:scale-125 transition">💚</button>
+                            <button type="button" onclick="insertEmoji('💙')" class="hover:scale-125 transition">💙</button>
+                            <button type="button" onclick="insertEmoji('💜')" class="hover:scale-125 transition">💜</button>
+                            <button type="button" onclick="insertEmoji('🔥')" class="hover:scale-125 transition">🔥</button>
+                            <button type="button" onclick="insertEmoji('✨')" class="hover:scale-125 transition">✨</button>
+                            <button type="button" onclick="insertEmoji('🎉')" class="hover:scale-125 transition">🎉</button>
+                            <button type="button" onclick="insertEmoji('💯')" class="hover:scale-125 transition">💯</button>
+                            <button type="button" onclick="insertEmoji('☕')" class="hover:scale-125 transition">☕</button>
+                        </div>
                     </div>
-                    
-                    <!-- New Chat Button -->
-                <button type="button" onclick="document.getElementById('new-chat-modal').classList.remove('hidden')" class="p-2 text-gray-500 hover:bg-gray-100 rounded-full transition relative group" title="Neuer Chat">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-                </button>
-                
-                <!-- Menu Button -->
-                </form>
+
+                    <form id="chat-form" action="{{ route('chats.store', $activeConversation->id) }}" method="POST" enctype="multipart/form-data" class="h-16 flex items-center px-4 py-2 gap-2">
+                        @csrf
+                        
+                        <!-- Emoji Button -->
+                        <button type="button" onclick="toggleEmojiPicker()" class="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-200 rounded-full transition" title="Emojis">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <circle cx="12" cy="12" r="10" stroke-width="2"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 14s1.5 2 4 2 4-2 4-2M9 9h.01M15 9h.01"/>
+                            </svg>
+                        </button>
+
+                        <!-- Paperclip / Image Attachment -->
+                        <label class="text-gray-500 hover:text-gray-700 hover:bg-gray-200 rounded-full cursor-pointer p-2 transition" title="Bild anhängen & zuschneiden">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path></svg>
+                            <input type="file" id="image-file-input" accept="image/*" class="hidden" onchange="openImageCropModal(event)">
+                        </label>
+                        
+                        <!-- Text Input -->
+                        <div class="flex-1">
+                            <input type="text" id="chat-input-field" name="content" placeholder="Schreibe eine Nachricht" class="w-full bg-white rounded-lg px-4 py-2.5 outline-none focus:ring-2 focus:ring-[#00a884] shadow-sm border border-transparent text-[15px]" autofocus autocomplete="off">
+                        </div>
+                        
+                        <!-- Hidden input for final image blob -->
+                        <input type="file" name="image" id="final-image-input" class="hidden">
+
+                        <!-- Send Arrow Button -->
+                        <button type="submit" class="w-10 h-10 bg-[#00a884] hover:bg-[#008f6f] text-white rounded-full flex items-center justify-center transition shadow-md focus:outline-none flex-shrink-0" title="Nachricht senden">
+                            <svg class="w-5 h-5 ml-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+                            </svg>
+                        </button>
+                    </form>
+                </div>
             </div>
         @endif
+    </div>
+</div>
+
+<!-- Image Crop / Resize Modal -->
+<div id="image-crop-modal" class="hidden fixed inset-0 bg-black/75 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+    <div class="bg-white w-full max-w-xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+        <div class="h-14 bg-gray-50 flex items-center justify-between px-5 border-b border-gray-200">
+            <h3 class="font-semibold text-gray-900 text-base">Bild zuschneiden & anpassen</h3>
+            <button type="button" onclick="closeImageCropModal()" class="text-gray-400 hover:text-gray-600 text-2xl font-bold">&times;</button>
+        </div>
+
+        <div class="flex-1 bg-gray-900 flex items-center justify-center overflow-hidden p-4" style="max-height: 55vh;">
+            <img id="image-to-crop" class="max-w-full max-h-full block">
+        </div>
+
+        <div class="bg-gray-50 px-4 py-2 flex items-center justify-center space-x-2 border-t border-b border-gray-200 text-xs sm:text-sm flex-wrap gap-y-1">
+            <button type="button" onclick="if(cropper) cropper.rotate(-90)" class="px-2.5 py-1.5 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 text-gray-700" title="90° nach links">
+                ↺ 90°
+            </button>
+            <button type="button" onclick="if(cropper) cropper.rotate(90)" class="px-2.5 py-1.5 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 text-gray-700" title="90° nach rechts">
+                ↻ 90°
+            </button>
+            <button type="button" onclick="if(cropper) cropper.setAspectRatio(1)" class="px-2.5 py-1.5 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 text-gray-700">
+                1:1
+            </button>
+            <button type="button" onclick="if(cropper) cropper.setAspectRatio(4/3)" class="px-2.5 py-1.5 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 text-gray-700">
+                4:3
+            </button>
+            <button type="button" onclick="if(cropper) cropper.setAspectRatio(NaN)" class="px-2.5 py-1.5 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 text-gray-700">
+                Frei
+            </button>
+            <button type="button" onclick="if(cropper) cropper.reset()" class="px-2.5 py-1.5 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 text-gray-700">
+                Reset
+            </button>
+        </div>
+
+        <div class="h-16 bg-white flex items-center justify-end px-5 space-x-3">
+            <button type="button" onclick="closeImageCropModal()" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 font-medium text-sm">
+                Abbrechen
+            </button>
+            <button type="button" onclick="submitCroppedImage()" class="px-5 py-2 bg-[#00a884] hover:bg-[#008f6f] text-white rounded-xl font-medium text-sm shadow-sm flex items-center space-x-2">
+                <span>Bild senden</span>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+            </button>
+        </div>
     </div>
 </div>
 
@@ -281,7 +393,7 @@
 </div>
 
 <script>
-    // Scrollen nach unten erzwingen (minimales JS)
+    // Scrollen nach unten erzwingen
     const container = document.getElementById('messages-container');
     if (container) {
         container.scrollTop = container.scrollHeight;
@@ -295,6 +407,90 @@
             menu.classList.add('hidden');
         }
     });
+
+    // Emoji Picker Logik
+    function toggleEmojiPicker() {
+        const picker = document.getElementById('emoji-picker');
+        picker.classList.toggle('hidden');
+    }
+
+    function insertEmoji(emoji) {
+        const input = document.getElementById('chat-input-field');
+        if (!input) return;
+        const start = input.selectionStart || input.value.length;
+        const end = input.selectionEnd || input.value.length;
+        input.value = input.value.substring(0, start) + emoji + input.value.substring(end);
+        input.focus();
+        input.selectionStart = input.selectionEnd = start + emoji.length;
+    }
+
+    // Emoji-Picker schließen bei Klick außerhalb
+    document.addEventListener('click', function(e) {
+        const picker = document.getElementById('emoji-picker');
+        const toggleBtn = e.target.closest('[title="Emojis"]');
+        if (picker && !picker.classList.contains('hidden') && !picker.contains(e.target) && !toggleBtn) {
+            picker.classList.add('hidden');
+        }
+    });
+
+    // Cropper.js Logik
+    let cropper = null;
+
+    function openImageCropModal(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const imageElement = document.getElementById('image-to-crop');
+            imageElement.src = e.target.result;
+            
+            document.getElementById('image-crop-modal').classList.remove('hidden');
+
+            if (cropper) {
+                cropper.destroy();
+            }
+
+            cropper = new Cropper(imageElement, {
+                viewMode: 1,
+                autoCropArea: 0.9,
+                responsive: true,
+                restore: false,
+            });
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function closeImageCropModal() {
+        document.getElementById('image-crop-modal').classList.add('hidden');
+        if (cropper) {
+            cropper.destroy();
+            cropper = null;
+        }
+        document.getElementById('image-file-input').value = '';
+    }
+
+    function submitCroppedImage() {
+        if (!cropper) return;
+
+        // Bild skalieren (max 1600px Breite/Höhe)
+        const canvas = cropper.getCroppedCanvas({
+            maxWidth: 1600,
+            maxHeight: 1600,
+            imageSmoothingEnabled: true,
+            imageSmoothingQuality: 'high',
+        });
+
+        canvas.toBlob(function(blob) {
+            const file = new File([blob], 'image_' + Date.now() + '.jpg', { type: 'image/jpeg' });
+            
+            const dataTransfer = new DataTransfer();
+            dataTransfer.items.add(file);
+            document.getElementById('final-image-input').files = dataTransfer.files;
+
+            document.getElementById('chat-form').submit();
+        }, 'image/jpeg', 0.85);
+    }
 </script>
 </body>
 </html>
