@@ -7,11 +7,18 @@
     @vite(['resources/css/app.css'])
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js"></script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/emoji-picker-element@^1/index.js"></script>
     
     <style>
         .bg-chat { background-color: #efeae2; }
         .msg-me { background-color: #d9fdd3; }
         .msg-other { background-color: #ffffff; }
+        emoji-picker {
+            width: 360px;
+            height: 400px;
+            --background: #ffffff;
+            --border-color: #e5e7eb;
+        }
     </style>
 </head>
 <body class="bg-gray-200 h-screen w-full flex items-center justify-center p-4">
@@ -212,54 +219,9 @@
 
                 <!-- Chat Input Area -->
                 <div class="relative bg-gray-100 border-t border-gray-200">
-                    <!-- Emoji Picker Popup -->
-                    <div id="emoji-picker" class="hidden absolute bottom-20 left-4 z-40 bg-white shadow-2xl rounded-2xl border border-gray-200 p-3 w-80 max-h-72 flex flex-col">
-                        <div class="flex items-center justify-between pb-2 border-b border-gray-100 text-xs font-semibold text-gray-500">
-                            <span>Emojis</span>
-                            <button type="button" onclick="toggleEmojiPicker()" class="text-gray-400 hover:text-gray-600 text-lg font-bold px-1">&times;</button>
-                        </div>
-                        <div class="grid grid-cols-8 gap-2 overflow-y-auto pt-2 text-2xl" id="emoji-grid">
-                            <button type="button" onclick="insertEmoji('😀')" class="hover:scale-125 transition">😀</button>
-                            <button type="button" onclick="insertEmoji('😃')" class="hover:scale-125 transition">😃</button>
-                            <button type="button" onclick="insertEmoji('😄')" class="hover:scale-125 transition">😄</button>
-                            <button type="button" onclick="insertEmoji('😁')" class="hover:scale-125 transition">😁</button>
-                            <button type="button" onclick="insertEmoji('😆')" class="hover:scale-125 transition">😆</button>
-                            <button type="button" onclick="insertEmoji('😅')" class="hover:scale-125 transition">😅</button>
-                            <button type="button" onclick="insertEmoji('😂')" class="hover:scale-125 transition">😂</button>
-                            <button type="button" onclick="insertEmoji('🤣')" class="hover:scale-125 transition">🤣</button>
-                            <button type="button" onclick="insertEmoji('😊')" class="hover:scale-125 transition">😊</button>
-                            <button type="button" onclick="insertEmoji('😇')" class="hover:scale-125 transition">😇</button>
-                            <button type="button" onclick="insertEmoji('🙂')" class="hover:scale-125 transition">🙂</button>
-                            <button type="button" onclick="insertEmoji('😉')" class="hover:scale-125 transition">😉</button>
-                            <button type="button" onclick="insertEmoji('😍')" class="hover:scale-125 transition">😍</button>
-                            <button type="button" onclick="insertEmoji('🥰')" class="hover:scale-125 transition">🥰</button>
-                            <button type="button" onclick="insertEmoji('😘')" class="hover:scale-125 transition">😘</button>
-                            <button type="button" onclick="insertEmoji('😋')" class="hover:scale-125 transition">😋</button>
-                            <button type="button" onclick="insertEmoji('😎')" class="hover:scale-125 transition">😎</button>
-                            <button type="button" onclick="insertEmoji('🤩')" class="hover:scale-125 transition">🤩</button>
-                            <button type="button" onclick="insertEmoji('🥳')" class="hover:scale-125 transition">🥳</button>
-                            <button type="button" onclick="insertEmoji('🤔')" class="hover:scale-125 transition">🤔</button>
-                            <button type="button" onclick="insertEmoji('🤫')" class="hover:scale-125 transition">🤫</button>
-                            <button type="button" onclick="insertEmoji('🤗')" class="hover:scale-125 transition">🤗</button>
-                            <button type="button" onclick="insertEmoji('👍')" class="hover:scale-125 transition">👍</button>
-                            <button type="button" onclick="insertEmoji('👏')" class="hover:scale-125 transition">👏</button>
-                            <button type="button" onclick="insertEmoji('🙌')" class="hover:scale-125 transition">🙌</button>
-                            <button type="button" onclick="insertEmoji('👌')" class="hover:scale-125 transition">👌</button>
-                            <button type="button" onclick="insertEmoji('✌️')" class="hover:scale-125 transition">✌️</button>
-                            <button type="button" onclick="insertEmoji('🤞')" class="hover:scale-125 transition">🤞</button>
-                            <button type="button" onclick="insertEmoji('👋')" class="hover:scale-125 transition">👋</button>
-                            <button type="button" onclick="insertEmoji('❤️')" class="hover:scale-125 transition">❤️</button>
-                            <button type="button" onclick="insertEmoji('🧡')" class="hover:scale-125 transition">🧡</button>
-                            <button type="button" onclick="insertEmoji('💛')" class="hover:scale-125 transition">💛</button>
-                            <button type="button" onclick="insertEmoji('💚')" class="hover:scale-125 transition">💚</button>
-                            <button type="button" onclick="insertEmoji('💙')" class="hover:scale-125 transition">💙</button>
-                            <button type="button" onclick="insertEmoji('💜')" class="hover:scale-125 transition">💜</button>
-                            <button type="button" onclick="insertEmoji('🔥')" class="hover:scale-125 transition">🔥</button>
-                            <button type="button" onclick="insertEmoji('✨')" class="hover:scale-125 transition">✨</button>
-                            <button type="button" onclick="insertEmoji('🎉')" class="hover:scale-125 transition">🎉</button>
-                            <button type="button" onclick="insertEmoji('💯')" class="hover:scale-125 transition">💯</button>
-                            <button type="button" onclick="insertEmoji('☕')" class="hover:scale-125 transition">☕</button>
-                        </div>
+                    <!-- Full Emoji Picker Popup -->
+                    <div id="emoji-picker" class="hidden absolute bottom-20 left-4 z-40 bg-white shadow-2xl rounded-2xl border border-gray-200 overflow-hidden">
+                        <emoji-picker locale="de" id="emoji-picker-element"></emoji-picker>
                     </div>
 
                     <form id="chat-form" action="{{ route('chats.store', $activeConversation->id) }}" method="POST" enctype="multipart/form-data" class="h-16 flex items-center px-4 py-2 gap-2">
@@ -413,6 +375,17 @@
         const picker = document.getElementById('emoji-picker');
         picker.classList.toggle('hidden');
     }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const pickerEl = document.getElementById('emoji-picker-element');
+        if (pickerEl) {
+            pickerEl.addEventListener('emoji-click', function(event) {
+                if (event.detail && event.detail.unicode) {
+                    insertEmoji(event.detail.unicode);
+                }
+            });
+        }
+    });
 
     function insertEmoji(emoji) {
         const input = document.getElementById('chat-input-field');
