@@ -5,9 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ChatConnect - {{ $call->type === 'video' ? 'Videoanruf' : 'Sprachanruf' }}</title>
     @vite(['resources/css/app.css'])
-    <!-- ZegoCloud WebRTC SDK & ZIM Signaling Plugin -->
-    <script src="https://unpkg.com/zego-zim-web@2.14.0/index.js"></script>
-    <script src="https://unpkg.com/@zegocloud/zego-uikit-prebuilt/zego-uikit-prebuilt.js"></script>
+    
+    <!-- ZegoCloud WebRTC SDK & ZIM Plugins (with jsdelivr & unpkg fallbacks) -->
+    <script src="https://cdn.jsdelivr.net/npm/zego-zim-web@2.14.0/index.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@zegocloud/zego-uikit-prebuilt/zego-uikit-prebuilt.js"></script>
     
     <style>
         #call-container {
@@ -16,7 +17,7 @@
             position: fixed;
             top: 0;
             left: 0;
-            z-index: 10;
+            z-index: 20;
         }
     </style>
 </head>
@@ -54,7 +55,44 @@
 <div id="call-container"></div>
 
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
+    let zegoInitialized = false;
+
+    function getZegoSDK() {
+        if (window.ZegoUIKitPrebuilt) {
+            return window.ZegoUIKitPrebuilt.ZegoUIKitPrebuilt || window.ZegoUIKitPrebuilt;
+        }
+        return null;
+    }
+
+    function tryInitZego() {
+        if (zegoInitialized) return;
+        const Zego = getZegoSDK();
+        if (!Zego) return;
+
+        zegoInitialized = true;
+        startZegoCall(Zego);
+    }
+
+    // Polling retry for SDK load
+    let checkAttempts = 0;
+    const loadChecker = setInterval(() => {
+        checkAttempts++;
+        tryInitZego();
+        if (zegoInitialized) {
+            clearInterval(loadChecker);
+        } else if (checkAttempts > 50) {
+            clearInterval(loadChecker);
+            const statusText = document.getElementById('call-status-text');
+            if (statusText) {
+                statusText.innerText = "ZegoCloud SDK lädt länger als gewöhnlich. Bitte Seite aktualisieren.";
+            }
+        }
+    }, 200);
+
+    window.addEventListener("load", tryInitZego);
+    document.addEventListener("DOMContentLoaded", tryInitZego);
+
+    function startZegoCall(Zego) {
         const appID = 869972860;
         const serverSecret = "4c9bef099444746e0067c66ba963f76c";
         const userID = String({{ $user->id }});
@@ -67,15 +105,11 @@
 
         const statusText = document.getElementById('call-status-text');
         const overlay = document.getElementById('loading-overlay');
-
-        if (typeof ZegoUIKitPrebuilt === 'undefined') {
-            if (statusText) statusText.innerText = "ZegoCloud SDK lädt... Bitte einen Moment Geduld.";
-            return;
-        }
+        if (statusText) statusText.innerText = "Verbindung wird hergestellt...";
 
         try {
             // Generate Kit Token
-            const kitToken = ZegoUIKitPrebuilt.generateKitTokenForTest(
+            const kitToken = Zego.generateKitTokenForTest(
                 appID,
                 serverSecret,
                 roomID,
@@ -83,18 +117,23 @@
                 userName
             );
 
-            const zp = ZegoUIKitPrebuilt.create(kitToken);
+            const zp = Zego.create(kitToken);
 
             // Add ZIM plugin for Call Invitation to mobile apps
-            if (window.ZIM) {
-                zp.addPlugins({ ZIM: window.ZIM });
+            const zimPlugin = window.ZIM || (window.ZegoUIKitPrebuilt && window.ZegoUIKitPrebuilt.ZIM);
+            if (zimPlugin) {
+                try {
+                    zp.addPlugins({ ZIM: zimPlugin });
+                } catch(e) {
+                    console.warn("ZIM plugin add warning:", e);
+                }
             }
 
             // Join the real-time call room
             zp.joinRoom({
                 container: document.querySelector("#call-container"),
                 scenario: {
-                    mode: ZegoUIKitPrebuilt.OneONoneCall,
+                    mode: Zego.OneONoneCall || 0,
                 },
                 showPreJoinView: false,
                 turnOnCameraWhenJoining: isVideo,
@@ -108,9 +147,8 @@
                 maxUsers: 2,
                 layout: "Auto",
                 onJoinRoom: () => {
-                    // Hide waiting overlay once joined room
                     if (overlay) {
-                        setTimeout(() => { overlay.style.display = 'none'; }, 800);
+                        setTimeout(() => { overlay.style.display = 'none'; }, 500);
                     }
                 },
                 onLeaveRoom: () => {
@@ -118,8 +156,8 @@
                 },
             });
 
-            // If initiator, trigger the call invitation to partner's mobile device
-            if (isCaller && window.ZIM) {
+            // If caller, send call invitation to partner's mobile device
+            if (isCaller && zimPlugin) {
                 zp.sendCallInvitation({
                     callees: [{ userID: partnerID, userName: partnerName }],
                     callType: isVideo ? 0 : 1, // 0: Video, 1: Voice
@@ -127,19 +165,16 @@
                     roomID: roomID,
                 }).then((res) => {
                     console.log("Zego Call Invitation Sent:", res);
-                    if (res && res.errorInvitees && res.errorInvitees.length > 0) {
-                        console.warn("Partner might be offline:", res.errorInvitees);
-                    }
                 }).catch((err) => {
-                    console.error("Zego Call Invitation Error:", err);
+                    console.warn("Call invitation warning:", err);
                 });
             }
 
         } catch (err) {
             console.error("Zego Init Exception:", err);
-            if (statusText) statusText.innerText = "Fehler: " + err.message;
+            if (statusText) statusText.innerText = "Fehler beim Anruf: " + err.message;
         }
-    });
+    }
 </script>
 
 </body>
