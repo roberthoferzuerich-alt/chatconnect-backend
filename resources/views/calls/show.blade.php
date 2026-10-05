@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ChatConnect - {{ $call->type === 'video' ? 'Videoanruf' : 'Sprachanruf' }}</title>
-    @vite(['resources/css/app.css'])
+    @vite(['resources/css/app.css', 'resources/js/call.js'])
     
     <style>
         #root {
@@ -57,10 +57,6 @@
 <!-- Zego Root Container -->
 <div id="root"></div>
 
-<!-- Zego ZIM Signaling + UIKit Prebuilt SDK -->
-<script src="https://unpkg.com/zego-zim-web@2.16.0/index.js"></script>
-<script src="https://unpkg.com/@zegocloud/zego-uikit-prebuilt/zego-uikit-prebuilt.js"></script>
-
 <script>
     window.onerror = function (msg, url, lineNo, columnNo, error) {
         console.error("Global JS error:", msg, url, lineNo, error);
@@ -71,9 +67,12 @@
         const statusEl = document.getElementById('connecting-status');
         const connectingCard = document.getElementById('connecting-card');
 
-        if (typeof ZegoUIKitPrebuilt === 'undefined') {
-            if (statusEl) statusEl.innerText = "ZegoCloud SDK lädt noch... Bitte kurz warten.";
-            setTimeout(startCall, 500);
+        const ZegoUIKitPrebuilt = window.ZegoUIKitPrebuilt;
+        const ZIM = window.ZIM;
+
+        if (!ZegoUIKitPrebuilt) {
+            if (statusEl) statusEl.innerText = "ZegoCloud SDK lädt... Bitte kurz warten.";
+            setTimeout(startCall, 300);
             return;
         }
 
@@ -100,13 +99,15 @@
             const zp = ZegoUIKitPrebuilt.create(kitToken);
 
             // ZIM Signaling Plugin aktivieren
-            const zimPlugin = window.ZIM || (window.ZegoUIKitPrebuilt && window.ZegoUIKitPrebuilt.ZIM);
-            if (zimPlugin) {
+            if (ZIM) {
                 try {
-                    zp.addPlugins({ ZIM: zimPlugin });
+                    zp.addPlugins({ ZIM });
+                    console.log("ZIM Plugin successfully added!");
                 } catch (e) {
                     console.warn("ZIM Plugin Warning:", e);
                 }
+            } else {
+                console.warn("ZIM Plugin not found on window");
             }
 
             if (statusEl) statusEl.innerText = "Es läutet bei " + partnerName + "...";
@@ -148,7 +149,6 @@
                 if (res && res.errorInvitees && res.errorInvitees.length > 0) {
                     if (statusEl) statusEl.innerText = partnerName + " ist offline. Raum wird geöffnet...";
                     setTimeout(() => {
-                        // Raum trotzdem öffnen falls Tablet nachträglich beitritt
                         zp.joinRoom({
                             container: document.querySelector("#root"),
                             scenario: { mode: ZegoUIKitPrebuilt.OneONoneCall },
@@ -166,7 +166,6 @@
                 }
             }).catch((err) => {
                 console.warn("sendCallInvitation fallback to joinRoom:", err);
-                // Fallback: Direkt in Raum eintreten
                 zp.joinRoom({
                     container: document.querySelector("#root"),
                     scenario: { mode: ZegoUIKitPrebuilt.OneONoneCall },
@@ -192,7 +191,6 @@
         }
     }
 
-    // Nach Laden starten
     if (document.readyState === 'complete' || document.readyState === 'interactive') {
         startCall();
     } else {

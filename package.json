@@ -21,5 +21,9 @@
     },
     "optionalDependencies": {
         "@laravel/multiplex": "^0.4.1"
+    },
+    "dependencies": {
+        "@zegocloud/zego-uikit-prebuilt": "^2.18.4",
+        "zego-zim-web": "^2.16.0"
     }
 }
