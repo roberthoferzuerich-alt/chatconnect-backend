@@ -412,14 +412,7 @@
 
 <script>
     // Registered contacts data for fast client-side dialpad lookup
-    const registeredContacts = @json($contacts->map(function($c) {
-        return [
-            'id' => $c->id,
-            'name' => $c->name,
-            'phone' => $c->phone,
-            'avatar' => $c->avatar_url ?? ($c->avatar ? '/storage/' . ltrim($c->avatar, '/') : null),
-        ];
-    }));
+    const registeredContacts = {!! json_encode($contactsData ?? []) !!};
 
     let dialNumber = '';
     let matchedContact = null;

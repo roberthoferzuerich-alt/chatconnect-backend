@@ -19,9 +19,19 @@ class CallController extends Controller
                            ->orderBy('created_at', 'desc')
                            ->get();
 
+        $contactsData = $contacts->map(function ($c) {
+            return [
+                'id' => $c->id,
+                'name' => $c->name,
+                'phone' => $c->phone,
+                'avatar' => $c->avatar_url ?? ($c->avatar ? '/storage/' . ltrim($c->avatar, '/') : null),
+            ];
+        });
+
         return view('calls.index', [
             'user' => $user,
             'contacts' => $contacts,
+            'contactsData' => $contactsData,
             'recentCalls' => $recentCalls,
         ]);
     }
