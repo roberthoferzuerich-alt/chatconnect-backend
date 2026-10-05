@@ -32,17 +32,17 @@
     </div>
 </div>
 
-<!-- On-Screen Live Diagnostics / Console Box -->
-<div id="debug-box" class="fixed bottom-4 left-4 right-4 bg-gray-900/95 text-gray-300 p-4 rounded-xl z-50 text-xs border border-teal-500/50 font-mono shadow-2xl max-h-48 overflow-y-auto">
-    <div class="text-teal-400 font-bold mb-1 flex justify-between items-center border-b border-gray-800 pb-1">
-        <span>Zego Live-Diagnose</span>
-        <span class="text-[10px] text-gray-400">Anrufer: {{ $user->name }} (ID: {{ $user->id }}) &rarr; Ziel: {{ $partner->name }} (ID: {{ $partner->id }})</span>
+<!-- On-Screen Live Diagnostics / Console Box (hidden by default, shows on error) -->
+<div id="debug-box" class="hidden fixed bottom-4 left-4 right-4 bg-gray-900/95 text-gray-300 p-4 rounded-xl z-50 text-xs border border-red-500/50 font-mono shadow-2xl max-h-48 overflow-y-auto">
+    <div class="text-red-400 font-bold mb-1 flex justify-between items-center border-b border-gray-800 pb-1">
+        <span>Zego Fehler-Meldung</span>
+        <span class="text-[10px] text-gray-400">Anrufer: {{ $user->name }} &rarr; Ziel: {{ $partner->name }}</span>
     </div>
     <div id="debug-log-lines" class="space-y-1 mt-1"></div>
 </div>
 
 <!-- Initial Connecting Card -->
-<div id="connecting-card" class="fixed inset-0 flex flex-col items-center justify-center bg-[#0b141a] z-20 pb-36">
+<div id="connecting-card" class="fixed inset-0 flex flex-col items-center justify-center bg-[#0b141a] z-20">
     <div class="w-36 h-36 rounded-full overflow-hidden mb-6 border-4 border-teal-500 shadow-[0_0_50px_rgba(20,184,166,0.3)] bg-teal-800 flex items-center justify-center text-5xl font-bold">
         @if($partnerAvatar)
             <img src="{{ $partnerAvatar }}" alt="{{ $partner->name }}" class="w-full h-full object-cover">
@@ -64,8 +64,12 @@
 <div id="root"></div>
 
 <script>
-    // Live Logger auf den Bildschirm
+    // Live Logger auf den Bildschirm (nur bei Fehlern sichtbar)
     function logToScreen(type, ...args) {
+        if (type === 'error') {
+            const box = document.getElementById('debug-box');
+            if (box) box.classList.remove('hidden');
+        }
         const logLines = document.getElementById('debug-log-lines');
         if (!logLines) return;
         const msg = args.map(a => typeof a === 'object' ? JSON.stringify(a) : String(a)).join(' ');
