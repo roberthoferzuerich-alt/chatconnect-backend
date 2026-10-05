@@ -299,7 +299,7 @@
 
 <!-- Nummer wählen Modal (Dialpad) -->
 <div id="dial-modal" class="hidden fixed inset-0 bg-black/60 z-50 flex items-center justify-center backdrop-blur-sm p-4">
-    <div class="bg-white w-full max-w-sm rounded-3xl shadow-2xl overflow-hidden flex flex-col border border-gray-100 transition-all">
+    <div class="bg-white w-full max-w-sm rounded-3xl shadow-2xl overflow-hidden flex flex-col border border-gray-100 transition-all" style="max-height: 94vh; overflow-y: auto;">
         
         <!-- Header -->
         <div class="h-14 bg-gray-50 flex items-center justify-between px-5 border-b border-gray-200">
@@ -338,70 +338,70 @@
                 <span class="text-gray-400">Nummer per Tastatur oder Ziffernblock eingeben</span>
             </div>
 
-            <!-- Keypad Grid -->
-            <div class="grid grid-cols-3 gap-3 w-full max-w-[270px] mb-5">
-                <button type="button" onclick="dialDigit('1')" class="h-14 rounded-2xl bg-gray-50 hover:bg-gray-100 active:bg-gray-200 flex flex-col items-center justify-center border border-gray-100 shadow-sm transition">
-                    <span class="text-xl font-bold text-gray-800">1</span>
-                    <span class="text-[9px] text-gray-400 tracking-widest font-medium">&nbsp;</span>
+            <!-- Keypad Grid (explicit inline styles for 3x4 grid) -->
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 100%; max-width: 270px; margin-bottom: 16px;">
+                <button type="button" onclick="dialDigit('1')" style="height: 52px; border-radius: 14px; background-color: #f3f4f6; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 1px solid #e5e7eb; cursor: pointer; user-select: none;" class="hover:bg-gray-200 active:scale-95 transition">
+                    <span style="font-size: 1.25rem; font-weight: 700; color: #1f2937; line-height: 1.1;">1</span>
+                    <span style="font-size: 8px; color: #9ca3af; letter-spacing: 0.1em; font-weight: 600;">&nbsp;</span>
                 </button>
-                <button type="button" onclick="dialDigit('2')" class="h-14 rounded-2xl bg-gray-50 hover:bg-gray-100 active:bg-gray-200 flex flex-col items-center justify-center border border-gray-100 shadow-sm transition">
-                    <span class="text-xl font-bold text-gray-800">2</span>
-                    <span class="text-[9px] text-gray-400 tracking-widest font-medium">ABC</span>
+                <button type="button" onclick="dialDigit('2')" style="height: 52px; border-radius: 14px; background-color: #f3f4f6; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 1px solid #e5e7eb; cursor: pointer; user-select: none;" class="hover:bg-gray-200 active:scale-95 transition">
+                    <span style="font-size: 1.25rem; font-weight: 700; color: #1f2937; line-height: 1.1;">2</span>
+                    <span style="font-size: 8px; color: #9ca3af; letter-spacing: 0.1em; font-weight: 600;">ABC</span>
                 </button>
-                <button type="button" onclick="dialDigit('3')" class="h-14 rounded-2xl bg-gray-50 hover:bg-gray-100 active:bg-gray-200 flex flex-col items-center justify-center border border-gray-100 shadow-sm transition">
-                    <span class="text-xl font-bold text-gray-800">3</span>
-                    <span class="text-[9px] text-gray-400 tracking-widest font-medium">DEF</span>
+                <button type="button" onclick="dialDigit('3')" style="height: 52px; border-radius: 14px; background-color: #f3f4f6; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 1px solid #e5e7eb; cursor: pointer; user-select: none;" class="hover:bg-gray-200 active:scale-95 transition">
+                    <span style="font-size: 1.25rem; font-weight: 700; color: #1f2937; line-height: 1.1;">3</span>
+                    <span style="font-size: 8px; color: #9ca3af; letter-spacing: 0.1em; font-weight: 600;">DEF</span>
                 </button>
-                <button type="button" onclick="dialDigit('4')" class="h-14 rounded-2xl bg-gray-50 hover:bg-gray-100 active:bg-gray-200 flex flex-col items-center justify-center border border-gray-100 shadow-sm transition">
-                    <span class="text-xl font-bold text-gray-800">4</span>
-                    <span class="text-[9px] text-gray-400 tracking-widest font-medium">GHI</span>
+                <button type="button" onclick="dialDigit('4')" style="height: 52px; border-radius: 14px; background-color: #f3f4f6; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 1px solid #e5e7eb; cursor: pointer; user-select: none;" class="hover:bg-gray-200 active:scale-95 transition">
+                    <span style="font-size: 1.25rem; font-weight: 700; color: #1f2937; line-height: 1.1;">4</span>
+                    <span style="font-size: 8px; color: #9ca3af; letter-spacing: 0.1em; font-weight: 600;">GHI</span>
                 </button>
-                <button type="button" onclick="dialDigit('5')" class="h-14 rounded-2xl bg-gray-50 hover:bg-gray-100 active:bg-gray-200 flex flex-col items-center justify-center border border-gray-100 shadow-sm transition">
-                    <span class="text-xl font-bold text-gray-800">5</span>
-                    <span class="text-[9px] text-gray-400 tracking-widest font-medium">JKL</span>
+                <button type="button" onclick="dialDigit('5')" style="height: 52px; border-radius: 14px; background-color: #f3f4f6; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 1px solid #e5e7eb; cursor: pointer; user-select: none;" class="hover:bg-gray-200 active:scale-95 transition">
+                    <span style="font-size: 1.25rem; font-weight: 700; color: #1f2937; line-height: 1.1;">5</span>
+                    <span style="font-size: 8px; color: #9ca3af; letter-spacing: 0.1em; font-weight: 600;">JKL</span>
                 </button>
-                <button type="button" onclick="dialDigit('6')" class="h-14 rounded-2xl bg-gray-50 hover:bg-gray-100 active:bg-gray-200 flex flex-col items-center justify-center border border-gray-100 shadow-sm transition">
-                    <span class="text-xl font-bold text-gray-800">6</span>
-                    <span class="text-[9px] text-gray-400 tracking-widest font-medium">MNO</span>
+                <button type="button" onclick="dialDigit('6')" style="height: 52px; border-radius: 14px; background-color: #f3f4f6; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 1px solid #e5e7eb; cursor: pointer; user-select: none;" class="hover:bg-gray-200 active:scale-95 transition">
+                    <span style="font-size: 1.25rem; font-weight: 700; color: #1f2937; line-height: 1.1;">6</span>
+                    <span style="font-size: 8px; color: #9ca3af; letter-spacing: 0.1em; font-weight: 600;">MNO</span>
                 </button>
-                <button type="button" onclick="dialDigit('7')" class="h-14 rounded-2xl bg-gray-50 hover:bg-gray-100 active:bg-gray-200 flex flex-col items-center justify-center border border-gray-100 shadow-sm transition">
-                    <span class="text-xl font-bold text-gray-800">7</span>
-                    <span class="text-[9px] text-gray-400 tracking-widest font-medium">PQRS</span>
+                <button type="button" onclick="dialDigit('7')" style="height: 52px; border-radius: 14px; background-color: #f3f4f6; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 1px solid #e5e7eb; cursor: pointer; user-select: none;" class="hover:bg-gray-200 active:scale-95 transition">
+                    <span style="font-size: 1.25rem; font-weight: 700; color: #1f2937; line-height: 1.1;">7</span>
+                    <span style="font-size: 8px; color: #9ca3af; letter-spacing: 0.1em; font-weight: 600;">PQRS</span>
                 </button>
-                <button type="button" onclick="dialDigit('8')" class="h-14 rounded-2xl bg-gray-50 hover:bg-gray-100 active:bg-gray-200 flex flex-col items-center justify-center border border-gray-100 shadow-sm transition">
-                    <span class="text-xl font-bold text-gray-800">8</span>
-                    <span class="text-[9px] text-gray-400 tracking-widest font-medium">TUV</span>
+                <button type="button" onclick="dialDigit('8')" style="height: 52px; border-radius: 14px; background-color: #f3f4f6; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 1px solid #e5e7eb; cursor: pointer; user-select: none;" class="hover:bg-gray-200 active:scale-95 transition">
+                    <span style="font-size: 1.25rem; font-weight: 700; color: #1f2937; line-height: 1.1;">8</span>
+                    <span style="font-size: 8px; color: #9ca3af; letter-spacing: 0.1em; font-weight: 600;">TUV</span>
                 </button>
-                <button type="button" onclick="dialDigit('9')" class="h-14 rounded-2xl bg-gray-50 hover:bg-gray-100 active:bg-gray-200 flex flex-col items-center justify-center border border-gray-100 shadow-sm transition">
-                    <span class="text-xl font-bold text-gray-800">9</span>
-                    <span class="text-[9px] text-gray-400 tracking-widest font-medium">WXYZ</span>
+                <button type="button" onclick="dialDigit('9')" style="height: 52px; border-radius: 14px; background-color: #f3f4f6; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 1px solid #e5e7eb; cursor: pointer; user-select: none;" class="hover:bg-gray-200 active:scale-95 transition">
+                    <span style="font-size: 1.25rem; font-weight: 700; color: #1f2937; line-height: 1.1;">9</span>
+                    <span style="font-size: 8px; color: #9ca3af; letter-spacing: 0.1em; font-weight: 600;">WXYZ</span>
                 </button>
-                <button type="button" onclick="dialDigit('*')" class="h-14 rounded-2xl bg-gray-50 hover:bg-gray-100 active:bg-gray-200 flex flex-col items-center justify-center border border-gray-100 shadow-sm transition">
-                    <span class="text-xl font-bold text-gray-800">*</span>
-                    <span class="text-[9px] text-gray-400 tracking-widest font-medium">&nbsp;</span>
+                <button type="button" onclick="dialDigit('*')" style="height: 52px; border-radius: 14px; background-color: #f3f4f6; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 1px solid #e5e7eb; cursor: pointer; user-select: none;" class="hover:bg-gray-200 active:scale-95 transition">
+                    <span style="font-size: 1.25rem; font-weight: 700; color: #1f2937; line-height: 1.1;">*</span>
+                    <span style="font-size: 8px; color: #9ca3af; letter-spacing: 0.1em; font-weight: 600;">&nbsp;</span>
                 </button>
-                <button type="button" onclick="dialDigit('0')" oncontextmenu="event.preventDefault(); dialDigit('+');" class="h-14 rounded-2xl bg-gray-50 hover:bg-gray-100 active:bg-gray-200 flex flex-col items-center justify-center border border-gray-100 shadow-sm transition" title="Klick für 0, Rechtsklick für +">
-                    <span class="text-xl font-bold text-gray-800">0</span>
-                    <span class="text-[10px] text-teal-600 font-bold leading-none">+</span>
+                <button type="button" onclick="dialDigit('0')" oncontextmenu="event.preventDefault(); dialDigit('+');" style="height: 52px; border-radius: 14px; background-color: #f3f4f6; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 1px solid #e5e7eb; cursor: pointer; user-select: none;" class="hover:bg-gray-200 active:scale-95 transition" title="Klick für 0, Rechtsklick für +">
+                    <span style="font-size: 1.25rem; font-weight: 700; color: #1f2937; line-height: 1.1;">0</span>
+                    <span style="font-size: 10px; color: #0d9488; font-weight: 700; line-height: 1;">+</span>
                 </button>
-                <button type="button" onclick="dialDigit('#')" class="h-14 rounded-2xl bg-gray-50 hover:bg-gray-100 active:bg-gray-200 flex flex-col items-center justify-center border border-gray-100 shadow-sm transition">
-                    <span class="text-xl font-bold text-gray-800">#</span>
-                    <span class="text-[9px] text-gray-400 tracking-widest font-medium">&nbsp;</span>
+                <button type="button" onclick="dialDigit('#')" style="height: 52px; border-radius: 14px; background-color: #f3f4f6; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 1px solid #e5e7eb; cursor: pointer; user-select: none;" class="hover:bg-gray-200 active:scale-95 transition">
+                    <span style="font-size: 1.25rem; font-weight: 700; color: #1f2937; line-height: 1.1;">#</span>
+                    <span style="font-size: 8px; color: #9ca3af; letter-spacing: 0.1em; font-weight: 600;">&nbsp;</span>
                 </button>
             </div>
 
             <!-- Call Action Buttons -->
-            <div class="flex items-center justify-center space-x-6 w-full pt-1">
+            <div style="display: flex; align-items: center; justify-content: center; gap: 24px; width: 100%; padding-top: 4px;">
                 <!-- Audio Call -->
-                <button type="button" onclick="submitDialCall('audio')" id="btn-dial-audio" class="w-14 h-14 bg-[#00a884] hover:bg-[#008f6f] active:scale-95 text-white rounded-full flex items-center justify-center shadow-lg shadow-teal-500/30 transition" title="Sprachanruf starten">
-                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                <button type="button" onclick="submitDialCall('audio')" id="btn-dial-audio" style="width: 56px; height: 56px; border-radius: 50%; background-color: #00a884; display: flex; align-items: center; justify-content: center; color: white; border: none; cursor: pointer; box-shadow: 0 4px 14px rgba(0,168,132,0.4);" class="hover:bg-[#008f6f] active:scale-95 transition" title="Sprachanruf starten">
+                    <svg style="width: 24px; height: 24px;" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
                     </svg>
                 </button>
                 
                 <!-- Video Call -->
-                <button type="button" onclick="submitDialCall('video')" id="btn-dial-video" class="w-14 h-14 bg-teal-700 hover:bg-teal-800 active:scale-95 text-white rounded-full flex items-center justify-center shadow-lg shadow-teal-700/30 transition" title="Videoanruf starten">
-                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                <button type="button" onclick="submitDialCall('video')" id="btn-dial-video" style="width: 56px; height: 56px; border-radius: 50%; background-color: #0f766e; display: flex; align-items: center; justify-content: center; color: white; border: none; cursor: pointer; box-shadow: 0 4px 14px rgba(15,118,110,0.4);" class="hover:bg-teal-800 active:scale-95 transition" title="Videoanruf starten">
+                    <svg style="width: 24px; height: 24px;" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/>
                     </svg>
                 </button>
