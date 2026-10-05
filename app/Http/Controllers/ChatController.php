@@ -14,7 +14,7 @@ class ChatController extends Controller
         $user = Auth::user();
         
         $conversations = $user->conversations()->with(['users', 'lastMessage'])->get();
-        $contacts = User::where('id', '!=', $user->id)->get();
+        $contacts = User::where('id', '!=', $user->id)->orderBy('name')->get();
 
         return view('chats.index', [
             'user' => $user,
@@ -35,7 +35,7 @@ class ChatController extends Controller
         }
 
         $conversations = $user->conversations()->with(['users', 'lastMessage'])->get();
-        $contacts = User::where('id', '!=', $user->id)->get();
+        $contacts = User::where('id', '!=', $user->id)->orderBy('name')->get();
         $messages = $conversation->messages()->with('sender')->orderBy('created_at', 'asc')->get();
 
         // Mark as read
@@ -81,22 +81,26 @@ class ChatController extends Controller
         return redirect()->route('chats.show', $conversation->id);
     }
 
-    public function start(Request $request)
+    public function start(Request $request, ?User $user = null)
     {
-        $request->validate(['user_id' => 'required|exists:users,id']);
-        
-        $user = Auth::user();
-        $targetUserId = $request->user_id;
+        $targetUserId = $user ? $user->id : ($request->input('user_id') ?? $request->route('user'));
+        if (!$targetUserId) {
+            return redirect()->route('chats.index');
+        }
 
-        // Finde existierenden Chat zwischen den beiden
-        $conversation = $user->conversations()->whereHas('users', function($q) use ($targetUserId) {
-            $q->where('users.id', $targetUserId);
-        })->first();
+        $currentUser = Auth::user();
+
+        // Finde existierenden 1-zu-1 Chat zwischen den beiden
+        $conversation = $currentUser->conversations()
+            ->where('is_group', false)
+            ->whereHas('users', function($q) use ($targetUserId) {
+                $q->where('users.id', $targetUserId);
+            })->first();
 
         // Falls nicht vorhanden, neu erstellen
         if (!$conversation) {
-            $conversation = Conversation::create();
-            $conversation->users()->attach([$user->id, $targetUserId]);
+            $conversation = Conversation::create(['is_group' => false]);
+            $conversation->users()->attach([$currentUser->id, $targetUserId]);
         }
 
         return redirect()->route('chats.show', $conversation->id);

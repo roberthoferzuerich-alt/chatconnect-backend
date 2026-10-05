@@ -52,8 +52,10 @@
         <div class="flex flex-col items-center space-y-4 w-full">
             <!-- Profil (Du) Link -->
             <a href="{{ route('profile.about') }}" class="p-3 text-gray-500 rounded-lg hover:bg-gray-200 transition" title="Profil">
-                @if($user->avatar)
-                    <img src="{{ asset('storage/' . $user->avatar) }}" class="w-8 h-8 rounded-full object-cover">
+                @if($user->avatar_url)
+                    <img src="{{ $user->avatar_url }}" class="w-8 h-8 rounded-full object-cover shadow-sm">
+                @elseif($user->avatar)
+                    <img src="/storage/{{ ltrim($user->avatar, '/') }}" class="w-8 h-8 rounded-full object-cover shadow-sm">
                 @else
                     <div class="w-8 h-8 bg-teal-600 rounded-full flex items-center justify-center text-white font-bold text-sm">{{ substr($user->name, 0, 1) }}</div>
                 @endif
@@ -120,42 +122,102 @@
 
         <!-- Search -->
         <div class="bg-white p-2 border-b">
-            <div class="bg-gray-100 rounded-lg flex items-center px-3 py-1.5">
+            <div class="bg-gray-100 rounded-lg flex items-center px-3 py-1.5 focus-within:ring-2 focus-within:ring-teal-500">
                 <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                <input type="text" placeholder="Suchen oder neuen Chat beginnen" class="bg-transparent border-none outline-none ml-3 w-full text-sm placeholder-gray-500">
+                <input type="text" id="sidebar-search-input" oninput="filterSidebar(this.value)" placeholder="Suchen oder Chat beginnen..." class="bg-transparent border-none outline-none ml-3 w-full text-sm placeholder-gray-500 text-gray-900">
             </div>
         </div>
 
-        <!-- Chat List -->
-        <div class="flex-1 overflow-y-auto">
-            @if(count($conversations) === 0)
-                <div class="p-4 text-center text-gray-500 text-sm">
-                    Noch keine Chats vorhanden.
+        <!-- Sidebar List -->
+        <div class="flex-1 overflow-y-auto" id="sidebar-scroll-area">
+            <!-- Active Conversations -->
+            <div id="chats-list-container">
+                <div class="px-4 pt-3 pb-1 text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                    Chats ({{ count($conversations) }})
                 </div>
-            @endif
-            
-            @foreach($conversations as $chat)
-                @php
-                    $partner = $chat->users->where('id', '!=', $user->id)->first();
-                @endphp
-                <a href="{{ route('chats.show', $chat->id) }}" class="flex items-center px-3 py-3 hover:bg-gray-100 cursor-pointer border-b border-gray-50 {{ $activeConversation && $activeConversation->id === $chat->id ? 'bg-gray-100' : '' }}">
-                    <div class="w-12 h-12 bg-gray-300 rounded-full flex-shrink-0 flex items-center justify-center text-white font-bold text-xl overflow-hidden">
-                        <span>{{ $partner ? substr($partner->name, 0, 1) : '?' }}</span>
+
+                @if(count($conversations) === 0)
+                    <div class="p-4 text-center text-gray-400 text-xs italic">
+                        Noch keine aktiven Chats.
                     </div>
-                    <div class="ml-4 flex-1 border-gray-100 pb-1 h-full flex flex-col justify-center">
-                        <div class="flex justify-between items-center">
-                            <span class="font-medium text-gray-900">{{ $partner ? $partner->name : 'Unbekannt' }}</span>
-                        </div>
-                        <div class="flex items-center text-sm text-gray-500 mt-0.5">
-                            @if($chat->lastMessage)
-                                <div class="flex items-center truncate max-w-[200px]">
-                                    <span class="truncate">{{ Str::limit($chat->lastMessage->content, 25) }}</span>
-                                </div>
+                @endif
+                
+                @foreach($conversations as $chat)
+                    @php
+                        $isGroup = $chat->is_group;
+                        $partner = $isGroup ? null : $chat->users->where('id', '!=', $user->id)->first();
+                        $title = $isGroup ? ($chat->name ?? 'Gruppe') : ($partner ? $partner->name : 'Unbekannt');
+                        $avatarUrl = $isGroup ? null : ($partner ? ($partner->avatar_url ?? ($partner->avatar ? '/storage/' . ltrim($partner->avatar, '/') : null)) : null);
+                        $isActive = $activeConversation && $activeConversation->id === $chat->id;
+                    @endphp
+                    <a href="{{ route('chats.show', $chat->id) }}" data-search="{{ strtolower($title) }}" class="chat-list-item flex items-center px-3 py-3 hover:bg-gray-100 cursor-pointer border-b border-gray-50 transition {{ $isActive ? 'bg-gray-100' : '' }}">
+                        <div class="w-12 h-12 rounded-full flex-shrink-0 flex items-center justify-center text-white font-bold text-lg overflow-hidden shadow-sm {{ $isGroup ? 'bg-indigo-600' : 'bg-teal-600' }}">
+                            @if($avatarUrl)
+                                <img src="{{ $avatarUrl }}" alt="{{ $title }}" class="w-full h-full object-cover">
+                            @elseif($isGroup)
+                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5V18a3 3 0 00-5-2.5M9 20H4V18a3 3 0 015-2.5M16 11a3 3 0 100-6 3 3 0 000 6zM9 11a3 3 0 100-6 3 3 0 000 6z"></path></svg>
+                            @else
+                                <span>{{ substr($title, 0, 1) }}</span>
                             @endif
                         </div>
+                        <div class="ml-3 flex-1 min-w-0">
+                            <div class="flex justify-between items-baseline">
+                                <span class="font-medium text-gray-900 text-sm truncate">{{ $title }}</span>
+                                @if($chat->lastMessage)
+                                    <span class="text-[11px] text-gray-400 ml-2 flex-shrink-0">{{ $chat->lastMessage->created_at->format('H:i') }}</span>
+                                @endif
+                            </div>
+                            <div class="flex items-center text-xs text-gray-500 mt-0.5 truncate">
+                                @if($chat->lastMessage)
+                                    @if($chat->lastMessage->image_path || $chat->lastMessage->image_url)
+                                        <span class="flex items-center text-teal-600 font-medium truncate">
+                                            <svg class="w-3.5 h-3.5 mr-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                                            Foto {{ $chat->lastMessage->content ? '· ' . Str::limit($chat->lastMessage->content, 20) : '' }}
+                                        </span>
+                                    @elseif($chat->lastMessage->audio_path || $chat->lastMessage->audio_url)
+                                        <span class="flex items-center text-teal-600 font-medium truncate">
+                                            <svg class="w-3.5 h-3.5 mr-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/></svg>
+                                            Sprachnachricht
+                                        </span>
+                                    @else
+                                        <span class="truncate">{{ Str::limit($chat->lastMessage->content, 28) }}</span>
+                                    @endif
+                                @else
+                                    <span class="text-gray-400 italic">Noch keine Nachrichten</span>
+                                @endif
+                            </div>
+                        </div>
+                    </a>
+                @endforeach
+            </div>
+
+            <!-- Contacts Section -->
+            @if(isset($contacts) && count($contacts) > 0)
+                <div id="contacts-list-container" class="mt-2 border-t border-gray-100">
+                    <div class="px-4 pt-3 pb-1 text-xs font-semibold text-gray-400 uppercase tracking-wider flex items-center justify-between">
+                        <span>Kontakte ({{ count($contacts) }})</span>
+                        <span class="text-[10px] text-teal-600 font-normal">Klick startet Chat</span>
                     </div>
-                </a>
-            @endforeach
+                    @foreach($contacts as $contact)
+                        @php
+                            $contactAvatar = $contact->avatar_url ?? ($contact->avatar ? '/storage/' . ltrim($contact->avatar, '/') : null);
+                        @endphp
+                        <a href="{{ route('chats.start', $contact->id) }}" data-search="{{ strtolower($contact->name . ' ' . $contact->phone . ' ' . $contact->email) }}" class="contact-list-item flex items-center px-3 py-2.5 hover:bg-gray-100 cursor-pointer border-b border-gray-50 transition">
+                            <div class="w-10 h-10 bg-teal-600 rounded-full flex-shrink-0 flex items-center justify-center text-white font-bold text-sm overflow-hidden shadow-sm">
+                                @if($contactAvatar)
+                                    <img src="{{ $contactAvatar }}" alt="{{ $contact->name }}" class="w-full h-full object-cover">
+                                @else
+                                    <span>{{ substr($contact->name, 0, 1) }}</span>
+                                @endif
+                            </div>
+                            <div class="ml-3 flex-1 min-w-0">
+                                <div class="font-medium text-gray-900 text-sm truncate">{{ $contact->name }}</div>
+                                <div class="text-[11px] text-gray-500 truncate">{{ $contact->about ?? $contact->phone ?? 'ChatConnect Benutzer' }}</div>
+                            </div>
+                        </a>
+                    @endforeach
+                </div>
+            @endif
         </div>
     </div>
 
@@ -175,37 +237,81 @@
             <!-- Active Chat State -->
             <div class="flex flex-col h-full w-full">
                 @php
-                    $activePartner = $activeConversation->users->where('id', '!=', $user->id)->first();
+                    $isGroup = $activeConversation->is_group;
+                    $activePartner = $isGroup ? null : $activeConversation->users->where('id', '!=', $user->id)->first();
+                    $headerTitle = $isGroup ? ($activeConversation->name ?? 'Gruppe') : ($activePartner ? $activePartner->name : 'Unbekannt');
+                    $headerAvatar = $isGroup ? null : ($activePartner ? ($activePartner->avatar_url ?? ($activePartner->avatar ? '/storage/' . ltrim($activePartner->avatar, '/') : null)) : null);
                 @endphp
                 
                 <!-- Chat Header -->
-                <div class="h-16 bg-gray-100 flex items-center px-4 py-2 border-b border-gray-200 z-10 shadow-sm">
-                    <div class="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center text-white font-bold">
-                        <span>{{ $activePartner ? substr($activePartner->name, 0, 1) : '?' }}</span>
-                    </div>
-                    <div class="ml-4">
-                        <h3 class="font-medium text-gray-900">{{ $activePartner ? $activePartner->name : 'Unbekannt' }}</h3>
+                <div class="h-16 bg-gray-100 flex items-center justify-between px-4 py-2 border-b border-gray-200 z-10 shadow-sm">
+                    <div class="flex items-center min-w-0">
+                        <div class="w-10 h-10 rounded-full flex-shrink-0 flex items-center justify-center text-white font-bold text-base overflow-hidden shadow-sm {{ $isGroup ? 'bg-indigo-600' : 'bg-teal-600' }}">
+                            @if($headerAvatar)
+                                <img src="{{ $headerAvatar }}" alt="{{ $headerTitle }}" class="w-full h-full object-cover">
+                            @elseif($isGroup)
+                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5V18a3 3 0 00-5-2.5M9 20H4V18a3 3 0 015-2.5M16 11a3 3 0 100-6 3 3 0 000 6zM9 11a3 3 0 100-6 3 3 0 000 6z"></path></svg>
+                            @else
+                                <span>{{ substr($headerTitle, 0, 1) }}</span>
+                            @endif
+                        </div>
+                        <div class="ml-3 min-w-0">
+                            <h3 class="font-medium text-gray-900 text-sm truncate">{{ $headerTitle }}</h3>
+                            <p class="text-[11px] text-gray-500 truncate">
+                                @if($isGroup)
+                                    {{ implode(', ', $activeConversation->users->pluck('name')->toArray()) }}
+                                @else
+                                    {{ $activePartner && $activePartner->is_online ? 'online' : ($activePartner ? ($activePartner->about ?? 'ChatConnect') : '') }}
+                                @endif
+                            </p>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Chat Messages -->
                 <div id="messages-container" class="flex-1 overflow-y-auto p-4 space-y-3 bg-[url('https://web.whatsapp.com/img/bg-chat-tile-dark_a4be512e7195b6b733d9110b408f075d.png')] bg-repeat bg-opacity-50">
                     @foreach($messages as $msg)
-                        <div class="flex {{ $msg->sender_id === $user->id ? 'justify-end' : 'justify-start' }}">
-                            <div class="max-w-[70%] rounded-lg p-2 px-3 shadow-sm relative text-[15px] {{ $msg->sender_id === $user->id ? 'msg-me rounded-tr-none' : 'msg-other rounded-tl-none' }}">
+                        @php
+                            $isMe = $msg->sender_id === $user->id;
+                            $imgSrc = $msg->image_url ?: ($msg->image_path ? '/storage/' . ltrim($msg->image_path, '/') : null);
+                            $audioSrc = $msg->audio_url ?: ($msg->audio_path ? '/storage/' . ltrim($msg->audio_path, '/') : null);
+                        @endphp
+                        <div class="flex {{ $isMe ? 'justify-end' : 'justify-start' }}">
+                            <div class="max-w-[70%] rounded-lg p-2 px-3 shadow-sm relative text-[15px] {{ $isMe ? 'msg-me rounded-tr-none' : 'msg-other rounded-tl-none' }}">
                                 
-                                @if($msg->image_url)
-                                    <img src="{{ $msg->image_url }}" class="rounded-lg mb-2 max-h-64 object-cover" />
+                                @if($activeConversation->is_group && !$isMe && $msg->sender)
+                                    <div class="text-[11px] font-bold text-teal-700 mb-1">
+                                        {{ $msg->sender->name }}
+                                    </div>
                                 @endif
 
-                                <div class="text-gray-800 break-words pr-12 pb-2">
-                                    <span>{{ $msg->content }}</span>
-                                </div>
+                                @if($imgSrc)
+                                    <div class="mb-2 max-w-sm rounded-lg overflow-hidden cursor-pointer shadow-sm hover:opacity-95 transition" onclick="window.open('{{ $imgSrc }}', '_blank')">
+                                        <img src="{{ $imgSrc }}" alt="Bild" class="w-full max-h-72 object-cover rounded-lg" loading="lazy" />
+                                    </div>
+                                @endif
+
+                                @if($audioSrc)
+                                    <div class="mb-2 pt-1">
+                                        <audio controls class="max-w-full h-9">
+                                            <source src="{{ $audioSrc }}" type="audio/mpeg">
+                                            <source src="{{ $audioSrc }}" type="audio/m4a">
+                                            <source src="{{ $audioSrc }}" type="audio/wav">
+                                            Audio kann nicht abgespielt werden.
+                                        </audio>
+                                    </div>
+                                @endif
+
+                                @if($msg->content)
+                                    <div class="text-gray-800 break-words pr-12 pb-2">
+                                        <span>{{ $msg->content }}</span>
+                                    </div>
+                                @endif
 
                                 <div class="absolute bottom-1 right-2 flex items-center text-[10px] text-gray-500">
                                     <span>{{ $msg->created_at->format('H:i') }}</span>
                                     
-                                    @if($msg->sender_id === $user->id)
+                                    @if($isMe)
                                         <div class="ml-1 flex">
                                             <svg class="w-4 h-4 {{ $msg->read_at ? 'text-[#53bdeb]' : 'text-gray-400' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                                             <svg class="w-4 h-4 -ml-2 {{ $msg->read_at ? 'text-[#53bdeb]' : 'text-gray-400' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
@@ -340,8 +446,10 @@
                         @csrf
                         <input type="hidden" name="user_id" value="{{ $contact->id }}">
                         <button type="submit" class="w-full flex items-center px-4 py-3 hover:bg-gray-50 cursor-pointer rounded-xl transition text-left focus:outline-none">
-                            @if($contact->avatar)
-                                <img src="{{ asset('storage/' . $contact->avatar) }}" class="w-10 h-10 rounded-full object-cover">
+                            @if($contact->avatar_url)
+                                <img src="{{ $contact->avatar_url }}" class="w-10 h-10 rounded-full object-cover">
+                            @elseif($contact->avatar)
+                                <img src="/storage/{{ ltrim($contact->avatar, '/') }}" class="w-10 h-10 rounded-full object-cover">
                             @else
                                 <div class="w-10 h-10 bg-teal-600 rounded-full flex items-center justify-center text-white font-bold">{{ substr($contact->name, 0, 1) }}</div>
                             @endif
@@ -463,6 +571,23 @@
 
             document.getElementById('chat-form').submit();
         }, 'image/jpeg', 0.85);
+    }
+
+    // Live-Suche für Chats und Kontakte
+    function filterSidebar(query) {
+        const q = (query || '').trim().toLowerCase();
+        const chatItems = document.querySelectorAll('#chats-list-container .chat-list-item');
+        const contactItems = document.querySelectorAll('#contacts-list-container .contact-list-item');
+
+        chatItems.forEach(el => {
+            const text = (el.getAttribute('data-search') || '').toLowerCase();
+            el.style.display = (!q || text.includes(q)) ? 'flex' : 'none';
+        });
+
+        contactItems.forEach(el => {
+            const text = (el.getAttribute('data-search') || '').toLowerCase();
+            el.style.display = (!q || text.includes(q)) ? 'flex' : 'none';
+        });
     }
 </script>
 </body>

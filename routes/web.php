@@ -23,7 +23,7 @@ Route::middleware('auth')->group(function () {
 
     // Chats
     Route::get('/chats', [ChatController::class, 'index'])->name('chats.index');
-    Route::post('/chats/start', [ChatController::class, 'start'])->name('chats.start');
+    Route::match(['get', 'post'], '/chats/start/{user?}', [ChatController::class, 'start'])->name('chats.start');
     Route::get('/chats/{conversation}', [ChatController::class, 'show'])->name('chats.show');
     Route::post('/chats/{conversation}/messages', [ChatController::class, 'store'])->name('chats.store');
 

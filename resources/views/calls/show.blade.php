@@ -33,8 +33,14 @@
         <!-- Partner Profile or Video Placeholder -->
         @if($call->type === 'audio')
             <!-- Audio UI -->
-            <div class="w-40 h-40 bg-teal-700 rounded-full flex items-center justify-center text-white text-6xl shadow-[0_0_50px_rgba(13,148,136,0.3)] border-4 border-teal-600/30">
-                {{ substr($partner->name, 0, 1) }}
+            <div class="w-40 h-40 bg-teal-700 rounded-full flex items-center justify-center text-white text-6xl shadow-[0_0_50px_rgba(13,148,136,0.3)] border-4 border-teal-600/30 overflow-hidden">
+                @if($partner->avatar_url)
+                    <img src="{{ $partner->avatar_url }}" class="w-full h-full object-cover">
+                @elseif($partner->avatar)
+                    <img src="/storage/{{ ltrim($partner->avatar, '/') }}" class="w-full h-full object-cover">
+                @else
+                    {{ substr($partner->name, 0, 1) }}
+                @endif
             </div>
             
             <!-- Audio Waves Animation -->

@@ -26,12 +26,24 @@ class Message extends Model
 
     public function getImageUrlAttribute()
     {
-        return $this->image_path ? asset('storage/' . $this->image_path) : null;
+        if (!$this->image_path) {
+            return null;
+        }
+        if (str_starts_with($this->image_path, 'http://') || str_starts_with($this->image_path, 'https://')) {
+            return $this->image_path;
+        }
+        return '/storage/' . ltrim($this->image_path, '/');
     }
 
     public function getAudioUrlAttribute()
     {
-        return $this->audio_path ? asset('storage/' . $this->audio_path) : null;
+        if (!$this->audio_path) {
+            return null;
+        }
+        if (str_starts_with($this->audio_path, 'http://') || str_starts_with($this->audio_path, 'https://')) {
+            return $this->audio_path;
+        }
+        return '/storage/' . ltrim($this->audio_path, '/');
     }
 
     public function conversation()

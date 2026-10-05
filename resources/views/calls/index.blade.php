@@ -46,8 +46,10 @@
         <div class="flex flex-col items-center space-y-4 w-full">
             <!-- Profil (Du) Link -->
             <a href="{{ route('profile.about') }}" class="p-3 text-gray-500 rounded-lg hover:bg-gray-200 transition" title="Profil">
-                @if($user->avatar)
-                    <img src="{{ asset('storage/' . $user->avatar) }}" class="w-8 h-8 rounded-full object-cover">
+                @if($user->avatar_url)
+                    <img src="{{ $user->avatar_url }}" class="w-8 h-8 rounded-full object-cover">
+                @elseif($user->avatar)
+                    <img src="/storage/{{ ltrim($user->avatar, '/') }}" class="w-8 h-8 rounded-full object-cover">
                 @else
                     <div class="w-8 h-8 bg-teal-600 rounded-full flex items-center justify-center text-white font-bold text-sm">{{ substr($user->name, 0, 1) }}</div>
                 @endif
@@ -95,9 +97,10 @@
                         @endphp
                         <div class="flex items-center justify-between p-3 hover:bg-gray-50 cursor-pointer rounded-xl group transition">
                             <div class="flex items-center">
-                                <!-- Avatar Fallback or real -->
-                                @if($partner->avatar)
-                                    <img src="{{ asset('storage/' . $partner->avatar) }}" class="w-12 h-12 rounded-full object-cover">
+                                @if($partner->avatar_url)
+                                    <img src="{{ $partner->avatar_url }}" class="w-12 h-12 rounded-full object-cover">
+                                @elseif($partner->avatar)
+                                    <img src="/storage/{{ ltrim($partner->avatar, '/') }}" class="w-12 h-12 rounded-full object-cover">
                                 @else
                                     <div class="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center text-white font-bold text-xl">{{ substr($partner->name, 0, 1) }}</div>
                                 @endif
@@ -237,8 +240,10 @@
             @foreach($contacts as $contact)
                 <div class="flex items-center justify-between px-4 py-3 hover:bg-gray-50 cursor-pointer rounded-xl group transition">
                     <div class="flex items-center">
-                        @if($contact->avatar)
-                            <img src="{{ asset('storage/' . $contact->avatar) }}" class="w-10 h-10 rounded-full object-cover">
+                        @if($contact->avatar_url)
+                            <img src="{{ $contact->avatar_url }}" class="w-10 h-10 rounded-full object-cover">
+                        @elseif($contact->avatar)
+                            <img src="/storage/{{ ltrim($contact->avatar, '/') }}" class="w-10 h-10 rounded-full object-cover">
                         @else
                             <div class="w-10 h-10 bg-teal-600 rounded-full flex items-center justify-center text-white font-bold">{{ substr($contact->name, 0, 1) }}</div>
                         @endif
