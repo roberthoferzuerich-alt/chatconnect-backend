@@ -460,23 +460,44 @@
             </div>
 
             <!-- Preview section -->
-            <div id="wallpaper-preview-section" class="flex flex-col items-center">
-                <p class="text-xs text-gray-500 mb-2 font-medium">Aktuelles Chat-Hintergrundbild:</p>
-                <div id="current-wallpaper-preview" class="w-full h-44 rounded-xl border border-gray-200 overflow-hidden shadow-inner flex items-center justify-center relative"
-                     style="@if($user->wallpaper_url) background-image: url('{{ $user->wallpaper_url }}'); background-size: cover; background-position: center; @else background-image: url('https://web.whatsapp.com/img/bg-chat-tile-dark_a4be512e7195b6b733d9110b408f075d.png'); background-repeat: repeat; background-color: #efeae2; @endif">
-                    @if(!$user->wallpaper_url)
-                        <span id="default-wallpaper-badge" class="bg-black/40 text-white text-xs px-3 py-1 rounded-full backdrop-blur-sm">Standard WhatsApp Muster</span>
-                    @endif
+            <div id="wallpaper-preview-section" class="space-y-4">
+                <div>
+                    <p class="text-xs text-gray-500 mb-2 font-medium">Aktuelles Chat-Hintergrundbild:</p>
+                    <div id="current-wallpaper-preview" class="w-full h-40 rounded-xl border border-gray-200 overflow-hidden shadow-inner flex items-center justify-center relative"
+                         style="@if($user->wallpaper_url) background-image: url('{{ $user->wallpaper_url }}'); background-size: cover; background-position: center; @else background-image: url('https://web.whatsapp.com/img/bg-chat-tile-dark_a4be512e7195b6b733d9110b408f075d.png'); background-repeat: repeat; background-color: #efeae2; @endif">
+                        @if(!$user->wallpaper_url)
+                            <span id="default-wallpaper-badge" class="bg-black/40 text-white text-xs px-3 py-1 rounded-full backdrop-blur-sm">Standard WhatsApp Muster</span>
+                        @endif
+                    </div>
                 </div>
-            </div>
 
-            <!-- Choose file input -->
-            <div class="flex items-center justify-center">
-                <label class="cursor-pointer px-4 py-2.5 bg-teal-50 hover:bg-teal-100 text-teal-700 rounded-xl font-medium text-sm border border-teal-200 transition flex items-center space-x-2">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-                    <span>Neues Bild auswählen</span>
-                    <input type="file" id="wallpaper-file-input" accept="image/*" class="hidden" onchange="onWallpaperFileSelected(event)">
-                </label>
+                <!-- Presets -->
+                <div>
+                    <p class="text-xs text-gray-500 mb-2 font-medium">Coole Vorlagen auswählen:</p>
+                    <div class="grid grid-cols-2 gap-3">
+                        <button type="button" onclick="selectPresetWallpaper('/images/chat-bg-dark-neon.jpg')" class="group relative rounded-xl overflow-hidden border-2 border-transparent hover:border-teal-500 focus:border-teal-500 transition shadow-sm h-24 text-left">
+                            <img src="/images/chat-bg-dark-neon.jpg" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent flex items-end p-2">
+                                <span class="text-white text-xs font-semibold drop-shadow">Neon Waves</span>
+                            </div>
+                        </button>
+                        <button type="button" onclick="selectPresetWallpaper('/images/chat-bg-cyber-mesh.jpg')" class="group relative rounded-xl overflow-hidden border-2 border-transparent hover:border-teal-500 focus:border-teal-500 transition shadow-sm h-24 text-left">
+                            <img src="/images/chat-bg-cyber-mesh.jpg" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent flex items-end p-2">
+                                <span class="text-white text-xs font-semibold drop-shadow">Cyber Mesh</span>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Choose file input -->
+                <div class="flex items-center justify-center pt-1">
+                    <label class="cursor-pointer px-4 py-2.5 bg-teal-50 hover:bg-teal-100 text-teal-700 rounded-xl font-medium text-sm border border-teal-200 transition flex items-center space-x-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                        <span>Eigenes Bild hochladen & zuschneiden</span>
+                        <input type="file" id="wallpaper-file-input" accept="image/*" class="hidden" onchange="onWallpaperFileSelected(event)">
+                    </label>
+                </div>
             </div>
         </div>
 
@@ -701,6 +722,26 @@
             });
         };
         reader.readAsDataURL(file);
+    }
+
+    function selectPresetWallpaper(url) {
+        const cropImage = document.getElementById('wallpaper-image-to-crop');
+        cropImage.src = url;
+
+        document.getElementById('wallpaper-crop-section').classList.remove('hidden');
+        document.getElementById('wallpaper-preview-section').classList.add('hidden');
+        document.getElementById('save-wallpaper-btn').disabled = false;
+
+        if (wallpaperCropper) {
+            wallpaperCropper.destroy();
+        }
+
+        wallpaperCropper = new Cropper(cropImage, {
+            viewMode: 1,
+            autoCropArea: 1,
+            responsive: true,
+            restore: false,
+        });
     }
 
     function saveCroppedWallpaper() {
