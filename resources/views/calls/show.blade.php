@@ -167,24 +167,67 @@
                 },
             });
 
-            console.log("Sende Call Invitation via ZIM an Benutzer-ID:", partnerID);
+            console.log("Starte Anruf-Einladung via ZIM an Benutzer-ID:", partnerID);
 
-            // Anruf-Einladung senden
-            zp.sendCallInvitation({
-                callees: [{ userID: partnerID, userName: partnerName }],
-                callType: isVideo ? ZegoUIKitPrebuilt.InvitationTypeVideoCall : ZegoUIKitPrebuilt.InvitationTypeVoiceCall,
-                timeout: 60,
-                data: JSON.stringify({ resourceID: 'zego_data' }),
-            }).then((res) => {
-                console.log("Call Invitation Antwort erhalten:", res);
-                if (res && res.errorInvitees && res.errorInvitees.length > 0) {
-                    console.warn("Zego meldet: Empfänger ist offline oder nicht registriert:", res.errorInvitees);
-                    if (statusEl) statusEl.innerText = `${partnerName} (ID: ${partnerID}) wird von Zego als OFFLINE gemeldet!`;
-                } else {
-                    console.log("Einladung erfolgreich verschickt! Klingeln läuft...");
+            // Anruf-Einladung senden mit Retry-Schleife bis ZIM eingeloggt ist
+            async function sendInvitationWithRetry(maxRetries = 10, delay = 1000) {
+                for (let i = 0; i < maxRetries; i++) {
+                    try {
+                        console.log(`[Versuch ${i + 1}/${maxRetries}] Sende Einladung an ${partnerName} (ID: ${partnerID})...`);
+                        if (statusEl) statusEl.innerText = `Verbinde mit ZIM-Signalisierung (Versuch ${i + 1})...`;
+
+                        const res = await zp.sendCallInvitation({
+                            callees: [{ userID: partnerID, userName: partnerName }],
+                            callType: isVideo ? ZegoUIKitPrebuilt.InvitationTypeVideoCall : ZegoUIKitPrebuilt.InvitationTypeVoiceCall,
+                            timeout: 60,
+                            data: JSON.stringify({ resourceID: 'zego_data' }),
+                        });
+
+                        console.log("Call Invitation erfolgreich gesendet:", res);
+
+                        if (res && res.errorInvitees && res.errorInvitees.length > 0) {
+                            console.warn("Zego meldet: Empfänger ist offline oder nicht registriert:", res.errorInvitees);
+                            if (statusEl) statusEl.innerText = `${partnerName} (ID: ${partnerID}) ist laut Zego OFFLINE! Öffne Anrufraum...`;
+                            // Raum trotzdem öffnen falls Tablet beitritt
+                            setTimeout(() => {
+                                zp.joinRoom({
+                                    container: document.querySelector("#root"),
+                                    scenario: { mode: ZegoUIKitPrebuilt.OneONoneCall },
+                                    showPreJoinView: false,
+                                    turnOnCameraWhenJoining: isVideo,
+                                    turnOnMicrophoneWhenJoining: true,
+                                    onJoinRoom: () => {
+                                        if (connectingCard) connectingCard.style.display = 'none';
+                                    },
+                                    onLeaveRoom: () => {
+                                        window.location.href = "{{ route('calls.index') }}";
+                                    },
+                                });
+                            }, 2000);
+                        } else {
+                            console.log("Einladung erfolgreich verschickt! Klingeln läuft auf Tablet...");
+                            if (statusEl) statusEl.innerText = "Es läutet bei " + partnerName + "...";
+                        }
+                        return res;
+                    } catch (err) {
+                        const errCode = err.code || (err.data && err.data.code);
+                        const errMsg = err.message || JSON.stringify(err);
+                        console.warn(`Versuch ${i + 1} noch nicht bereit (${errCode || errMsg})`);
+
+                        if (errCode === 6000121 || errMsg.includes('not logged in')) {
+                            console.log("ZIM Login noch im Gange. Warte 1s...");
+                            if (statusEl) statusEl.innerText = "Warte auf ZIM-Anmeldung...";
+                            await new Promise(r => setTimeout(r, delay));
+                        } else {
+                            throw err;
+                        }
+                    }
                 }
-            }).catch((err) => {
-                console.error("sendCallInvitation FEHLER:", err);
+                throw new Error("ZIM Login Timeout nach 10 Sekunden");
+            }
+
+            sendInvitationWithRetry().catch((err) => {
+                console.error("sendCallInvitation endgültiger Fehler:", err);
                 if (statusEl) statusEl.innerText = "Fehler beim Anrufen: " + (err.message || err);
             });
 
