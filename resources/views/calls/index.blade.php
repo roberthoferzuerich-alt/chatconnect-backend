@@ -169,7 +169,7 @@
                 </button>
                 
                 <!-- Neuer Anruflink Button -->
-                <button class="flex flex-col items-center group">
+                <button type="button" onclick="openCallLinkModal()" class="flex flex-col items-center group">
                     <div class="w-[120px] h-[120px] bg-[#e9edef] rounded-[24px] flex items-center justify-center mb-4 group-hover:bg-[#d1d7db] transition shadow-sm">
                         <svg class="w-9 h-9 text-[#54656f]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <!-- Link Icon -->
@@ -292,6 +292,69 @@
                     </div>
                 </div>
             @endforeach
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Neuer Anruflink Modal -->
+<div id="call-link-modal" class="hidden fixed inset-0 bg-black/60 z-50 flex items-center justify-center backdrop-blur-sm p-4">
+    <div class="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden flex flex-col border border-gray-100" style="max-height: 94vh; overflow-y: auto;">
+        
+        <!-- Header -->
+        <div class="h-16 bg-gray-50 flex items-center justify-between px-6 border-b border-gray-200">
+            <h3 class="font-semibold text-gray-800 text-lg flex items-center">
+                <svg class="w-6 h-6 text-teal-600 mr-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
+                </svg>
+                Neuer Anruflink
+            </h3>
+            <button type="button" onclick="closeCallLinkModal()" class="p-1.5 text-gray-400 hover:text-gray-700 hover:bg-gray-200 rounded-full transition">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+        </div>
+
+        <div class="p-6 flex flex-col space-y-5">
+            <div class="flex items-center space-x-3 text-sm text-gray-600 bg-teal-50 border border-teal-200 p-3.5 rounded-2xl">
+                <div class="w-9 h-9 rounded-full bg-teal-600 text-white flex items-center justify-center flex-shrink-0 shadow-sm">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>
+                </div>
+                <span>Jeder mit diesem ChatConnect-Link kann dem Anruf per Browser oder App beitreten.</span>
+            </div>
+
+            <!-- Call Type Selector -->
+            <div>
+                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Anruftyp auswählen</label>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <button type="button" id="type-btn-video" onclick="setCallLinkType('video')" style="display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px; border-radius: 16px; border: 2px solid #0d9488; background-color: #f0fdf4; color: #0f766e; font-weight: 600; cursor: pointer; transition: all 0.15s;">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/></svg>
+                        <span>Videoanruf</span>
+                    </button>
+                    <button type="button" id="type-btn-audio" onclick="setCallLinkType('audio')" style="display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px; border-radius: 16px; border: 2px solid #e5e7eb; background-color: #f9fafb; color: #4b5563; font-weight: 600; cursor: pointer; transition: all 0.15s;">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
+                        <span>Sprachanruf</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Link Display Box -->
+            <div>
+                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Dein Einladungs-Link</label>
+                <div class="flex items-center bg-gray-50 border border-gray-300 rounded-2xl p-2.5 shadow-inner">
+                    <input type="text" id="call-link-input" readonly class="bg-transparent border-none outline-none text-xs font-mono text-gray-800 flex-1 px-2 select-all" value="">
+                    <button type="button" onclick="copyCallLink()" id="btn-copy-call-link" class="px-3.5 py-1.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-semibold transition flex items-center gap-1.5 shadow-sm">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
+                        <span id="copy-call-link-text">Kopieren</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="pt-2 flex flex-col space-y-2.5">
+                <button type="button" onclick="joinCallLinkNow()" class="w-full py-3.5 bg-[#00a884] hover:bg-[#008f6f] active:scale-[0.99] text-white rounded-2xl font-semibold transition shadow-lg shadow-teal-500/25 flex items-center justify-center gap-2">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>
+                    <span>Dem Anruf jetzt beitreten</span>
+                </button>
             </div>
         </div>
     </div>
@@ -541,12 +604,101 @@
         }
     });
 
+    // Call Link Logic
+    let currentCallLinkRoom = '';
+    let currentCallLinkType = 'video';
+
+    function generateRoomCode() {
+        const chars = 'abcdefghjkmnpqrstuvwxyz23456789';
+        let code = '';
+        for (let i = 0; i < 9; i++) {
+            if (i === 3 || i === 6) code += '-';
+            code += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        return 'cc-' + code;
+    }
+
+    function openCallLinkModal() {
+        currentCallLinkRoom = generateRoomCode();
+        setCallLinkType('video');
+
+        const modal = document.getElementById('call-link-modal');
+        if (modal) modal.classList.remove('hidden');
+    }
+
+    function closeCallLinkModal() {
+        const modal = document.getElementById('call-link-modal');
+        if (modal) modal.classList.add('hidden');
+    }
+
+    function setCallLinkType(type) {
+        currentCallLinkType = type;
+        const btnVideo = document.getElementById('type-btn-video');
+        const btnAudio = document.getElementById('type-btn-audio');
+
+        if (type === 'video') {
+            if (btnVideo) {
+                btnVideo.style.borderColor = '#0d9488';
+                btnVideo.style.backgroundColor = '#f0fdf4';
+                btnVideo.style.color = '#0f766e';
+            }
+            if (btnAudio) {
+                btnAudio.style.borderColor = '#e5e7eb';
+                btnAudio.style.backgroundColor = '#f9fafb';
+                btnAudio.style.color = '#4b5563';
+            }
+        } else {
+            if (btnAudio) {
+                btnAudio.style.borderColor = '#0d9488';
+                btnAudio.style.backgroundColor = '#f0fdf4';
+                btnAudio.style.color = '#0f766e';
+            }
+            if (btnVideo) {
+                btnVideo.style.borderColor = '#e5e7eb';
+                btnVideo.style.backgroundColor = '#f9fafb';
+                btnVideo.style.color = '#4b5563';
+            }
+        }
+        updateCallLinkDisplay();
+    }
+
+    function updateCallLinkDisplay() {
+        const input = document.getElementById('call-link-input');
+        if (input && currentCallLinkRoom) {
+            const url = window.location.origin + '/calls/room/' + currentCallLinkRoom + '?type=' + currentCallLinkType;
+            input.value = url;
+        }
+    }
+
+    function copyCallLink() {
+        const input = document.getElementById('call-link-input');
+        if (!input || !input.value) return;
+
+        navigator.clipboard.writeText(input.value).then(() => {
+            const text = document.getElementById('copy-call-link-text');
+            if (text) {
+                const orig = text.innerText;
+                text.innerText = 'Kopiert!';
+                setTimeout(() => { text.innerText = orig; }, 2000);
+            }
+        });
+    }
+
+    function joinCallLinkNow() {
+        const input = document.getElementById('call-link-input');
+        if (input && input.value) {
+            window.location.href = input.value;
+        }
+    }
+
     // Close on backdrop click
     window.addEventListener('click', (e) => {
         const dialModal = document.getElementById('dial-modal');
         if (e.target === dialModal) closeDialModal();
         const callModal = document.getElementById('new-call-modal');
         if (e.target === callModal) callModal.classList.add('hidden');
+        const linkModal = document.getElementById('call-link-modal');
+        if (e.target === linkModal) closeCallLinkModal();
     });
 
     // Sidebar search filter

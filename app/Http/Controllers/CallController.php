@@ -95,4 +95,16 @@ class CallController extends Controller
             'user' => Auth::user(),
         ]);
     }
+
+    public function room(Request $request, string $room)
+    {
+        $user = Auth::user();
+        $type = $request->query('type', 'video');
+
+        return view('calls.room', [
+            'user' => $user,
+            'room' => $room,
+            'type' => in_array($type, ['audio', 'video']) ? $type : 'video',
+        ]);
+    }
 }

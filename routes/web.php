@@ -30,6 +30,7 @@ Route::middleware('auth')->group(function () {
     // Calls
     Route::get('/calls', [CallController::class, 'index'])->name('calls.index');
     Route::post('/calls', [CallController::class, 'store'])->name('calls.store');
+    Route::get('/calls/room/{room}', [CallController::class, 'room'])->name('calls.room');
     Route::get('/calls/{call}', [CallController::class, 'show'])->name('calls.show');
 
     // Status
