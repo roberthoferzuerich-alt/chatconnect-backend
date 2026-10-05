@@ -46,32 +46,24 @@
     </div>
     <h2 class="text-2xl font-semibold mb-2 text-white">{{ $partner->name }}</h2>
     <p id="connecting-status" class="text-teal-400 text-sm animate-pulse mb-8">
-        Verbinde mit ZegoCloud...
+        Rufe {{ $partner->name }} an...
     </p>
     <a href="{{ route('calls.index') }}" class="px-6 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-full font-medium transition shadow-lg flex items-center space-x-2 text-sm">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-        <span>Abbrechen</span>
+        <span>Auflegen</span>
     </a>
 </div>
 
 <!-- Zego Root Container -->
 <div id="root"></div>
 
-<!-- Zego SDK with Fallback -->
+<!-- Zego ZIM Signaling + UIKit Prebuilt SDK -->
+<script src="https://unpkg.com/zego-zim-web@2.16.0/index.js"></script>
 <script src="https://unpkg.com/@zegocloud/zego-uikit-prebuilt/zego-uikit-prebuilt.js"></script>
-<script>
-    if (typeof ZegoUIKitPrebuilt === 'undefined') {
-        document.write('<script src="https://cdn.jsdelivr.net/npm/@zegocloud/zego-uikit-prebuilt/zego-uikit-prebuilt.js"><\/script>');
-    }
-</script>
 
 <script>
     window.onerror = function (msg, url, lineNo, columnNo, error) {
-        const debugBox = document.getElementById('debug-box');
-        if (debugBox) {
-            debugBox.classList.remove('hidden');
-            debugBox.innerHTML = `<strong>JavaScript-Meldung:</strong> ${msg} (Zeile ${lineNo})<br>${error ? error.stack : ''}`;
-        }
+        console.error("Global JS error:", msg, url, lineNo, error);
         return false;
     };
 
@@ -90,12 +82,12 @@
             const serverSecret = "4c9bef099444746e0067c66ba963f76c";
             const userID = String({{ $user->id }});
             const userName = @json($user->name);
+            const partnerID = String({{ $partner->id }});
+            const partnerName = @json($partner->name);
             const isVideo = "{{ $call->type }}" === 'video';
 
             // Gemeinsame Raum-ID für beide Gesprächspartner
             const roomID = "call_" + Math.min({{ $user->id }}, {{ $partner->id }}) + "_" + Math.max({{ $user->id }}, {{ $partner->id }});
-
-            if (statusEl) statusEl.innerText = "Token wird erstellt...";
 
             const kitToken = ZegoUIKitPrebuilt.generateKitTokenForTest(
                 appID,
@@ -105,32 +97,89 @@
                 userName
             );
 
-            if (statusEl) statusEl.innerText = "Betrete Anrufraum...";
-
             const zp = ZegoUIKitPrebuilt.create(kitToken);
 
-            zp.joinRoom({
-                container: document.querySelector("#root"),
-                scenario: {
-                    mode: ZegoUIKitPrebuilt.OneONoneCall,
+            // ZIM Signaling Plugin aktivieren
+            const zimPlugin = window.ZIM || (window.ZegoUIKitPrebuilt && window.ZegoUIKitPrebuilt.ZIM);
+            if (zimPlugin) {
+                try {
+                    zp.addPlugins({ ZIM: zimPlugin });
+                } catch (e) {
+                    console.warn("ZIM Plugin Warning:", e);
+                }
+            }
+
+            if (statusEl) statusEl.innerText = "Es läutet bei " + partnerName + "...";
+
+            // Konfiguration für den Anruf-Raum
+            zp.setCallInvitationConfig({
+                onSetRoomConfigBeforeJoining: (callType) => {
+                    return {
+                        container: document.querySelector("#root"),
+                        turnOnCameraWhenJoining: isVideo,
+                        turnOnMicrophoneWhenJoining: true,
+                        showMyCameraToggleButton: true,
+                        showMyMicrophoneToggleButton: true,
+                        showAudioVideoSettingsButton: true,
+                        showScreenSharingButton: false,
+                        showTextChat: false,
+                        showUserList: false,
+                        onJoinRoom: () => {
+                            if (connectingCard) connectingCard.style.display = 'none';
+                        },
+                        onLeaveRoom: () => {
+                            window.location.href = "{{ route('calls.index') }}";
+                        },
+                    };
                 },
-                showPreJoinView: false,
-                turnOnCameraWhenJoining: isVideo,
-                turnOnMicrophoneWhenJoining: true,
-                showMyCameraToggleButton: true,
-                showMyMicrophoneToggleButton: true,
-                showAudioVideoSettingsButton: true,
-                showScreenSharingButton: false,
-                showTextChat: false,
-                showUserList: false,
-                maxUsers: 2,
-                layout: "Auto",
-                onJoinRoom: () => {
-                    if (connectingCard) connectingCard.style.display = 'none';
+                onWaitingPageWhenSending: (callType, callees, cancel) => {
+                    if (statusEl) statusEl.innerText = "Es läutet bei " + partnerName + "...";
                 },
-                onLeaveRoom: () => {
-                    window.location.href = "{{ route('calls.index') }}";
-                },
+            });
+
+            // Anruf-Einladung direkt an das Tablet/Handy von Florian senden!
+            zp.sendCallInvitation({
+                callees: [{ userID: partnerID, userName: partnerName }],
+                callType: isVideo ? ZegoUIKitPrebuilt.InvitationTypeVideoCall : ZegoUIKitPrebuilt.InvitationTypeVoiceCall,
+                timeout: 60,
+                data: JSON.stringify({ resourceID: 'zego_data' }),
+            }).then((res) => {
+                console.log("Call invitation response:", res);
+                if (res && res.errorInvitees && res.errorInvitees.length > 0) {
+                    if (statusEl) statusEl.innerText = partnerName + " ist offline. Raum wird geöffnet...";
+                    setTimeout(() => {
+                        // Raum trotzdem öffnen falls Tablet nachträglich beitritt
+                        zp.joinRoom({
+                            container: document.querySelector("#root"),
+                            scenario: { mode: ZegoUIKitPrebuilt.OneONoneCall },
+                            showPreJoinView: false,
+                            turnOnCameraWhenJoining: isVideo,
+                            turnOnMicrophoneWhenJoining: true,
+                            onJoinRoom: () => {
+                                if (connectingCard) connectingCard.style.display = 'none';
+                            },
+                            onLeaveRoom: () => {
+                                window.location.href = "{{ route('calls.index') }}";
+                            },
+                        });
+                    }, 1500);
+                }
+            }).catch((err) => {
+                console.warn("sendCallInvitation fallback to joinRoom:", err);
+                // Fallback: Direkt in Raum eintreten
+                zp.joinRoom({
+                    container: document.querySelector("#root"),
+                    scenario: { mode: ZegoUIKitPrebuilt.OneONoneCall },
+                    showPreJoinView: false,
+                    turnOnCameraWhenJoining: isVideo,
+                    turnOnMicrophoneWhenJoining: true,
+                    onJoinRoom: () => {
+                        if (connectingCard) connectingCard.style.display = 'none';
+                    },
+                    onLeaveRoom: () => {
+                        window.location.href = "{{ route('calls.index') }}";
+                    },
+                });
             });
 
         } catch (err) {
@@ -143,7 +192,7 @@
         }
     }
 
-    // Sofort nach Laden starten
+    // Nach Laden starten
     if (document.readyState === 'complete' || document.readyState === 'interactive') {
         startCall();
     } else {
