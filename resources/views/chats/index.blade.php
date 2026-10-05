@@ -439,10 +439,10 @@
 </div>
 
 <!-- Chat-Hintergrundbild Modal -->
-<div id="wallpaper-modal" class="hidden fixed inset-0 bg-black/75 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
-    <div class="bg-white rounded-2xl max-w-lg w-full overflow-hidden shadow-2xl flex flex-col">
+<div id="wallpaper-modal" class="hidden fixed inset-0 bg-black/75 z-50 flex items-center justify-center p-3 sm:p-4 backdrop-blur-sm">
+    <div class="bg-white rounded-2xl max-w-lg w-full overflow-hidden shadow-2xl flex flex-col max-h-[92vh]">
         <!-- Header -->
-        <div class="p-4 border-b flex items-center justify-between bg-gray-50">
+        <div class="p-4 border-b flex items-center justify-between bg-gray-50 flex-shrink-0">
             <div class="flex items-center space-x-2">
                 <svg class="w-5 h-5 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                 <h3 class="font-bold text-gray-800 text-lg">Chat-Hintergrundbild</h3>
@@ -450,12 +450,24 @@
             <button type="button" onclick="closeWallpaperModal()" class="text-gray-400 hover:text-gray-600 text-2xl font-bold">&times;</button>
         </div>
 
-        <div class="p-5 space-y-4">
+        <div class="p-4 sm:p-5 space-y-4 overflow-y-auto flex-1">
             <!-- Crop section -->
-            <div id="wallpaper-crop-section" class="hidden">
-                <p class="text-xs text-gray-500 mb-2 font-medium">Bildausschnitt wählen & zurechtschneiden:</p>
-                <div class="max-h-[350px] w-full bg-gray-900 rounded-xl overflow-hidden flex items-center justify-center">
-                    <img id="wallpaper-image-to-crop" class="max-w-full max-h-[350px] block" src="" alt="Crop">
+            <div id="wallpaper-crop-section" class="hidden space-y-3">
+                <div class="flex items-center justify-between">
+                    <p class="text-xs text-gray-500 font-semibold">Bildausschnitt anpassen:</p>
+                    <button type="button" onclick="cancelCrop()" class="text-xs text-teal-600 hover:text-teal-800 font-medium">Zurück zur Auswahl</button>
+                </div>
+                <div class="max-h-[300px] w-full bg-gray-900 rounded-xl overflow-hidden flex items-center justify-center">
+                    <img id="wallpaper-image-to-crop" class="max-w-full max-h-[300px] block" src="" alt="Crop">
+                </div>
+                <div class="flex items-center justify-end space-x-2 pt-1">
+                    <button type="button" onclick="cancelCrop()" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-100 font-medium text-sm">
+                        Abbrechen
+                    </button>
+                    <button type="button" onclick="saveCroppedWallpaper()" class="px-5 py-2.5 bg-[#00a884] hover:bg-[#008f6f] text-white rounded-xl font-bold text-sm shadow-md flex items-center space-x-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                        <span>Ausschnitt speichern</span>
+                    </button>
                 </div>
             </div>
 
@@ -463,7 +475,7 @@
             <div id="wallpaper-preview-section" class="space-y-4">
                 <div>
                     <p class="text-xs text-gray-500 mb-2 font-medium">Aktuelles Chat-Hintergrundbild:</p>
-                    <div id="current-wallpaper-preview" class="w-full h-40 rounded-xl border border-gray-200 overflow-hidden shadow-inner flex items-center justify-center relative"
+                    <div id="current-wallpaper-preview" class="w-full h-36 rounded-xl border border-gray-200 overflow-hidden shadow-inner flex items-center justify-center relative"
                          style="@if($user->wallpaper_url) background-image: url('{{ $user->wallpaper_url }}'); background-size: cover; background-position: center; @else background-image: url('https://web.whatsapp.com/img/bg-chat-tile-dark_a4be512e7195b6b733d9110b408f075d.png'); background-repeat: repeat; background-color: #efeae2; @endif">
                         @if(!$user->wallpaper_url)
                             <span id="default-wallpaper-badge" class="bg-black/40 text-white text-xs px-3 py-1 rounded-full backdrop-blur-sm">Standard WhatsApp Muster</span>
@@ -475,18 +487,38 @@
                 <div>
                     <p class="text-xs text-gray-500 mb-2 font-medium">Coole Vorlagen auswählen:</p>
                     <div class="grid grid-cols-2 gap-3">
-                        <button type="button" onclick="selectPresetWallpaper('/images/chat-bg-dark-neon.jpg')" class="group relative rounded-xl overflow-hidden border-2 border-transparent hover:border-teal-500 focus:border-teal-500 transition shadow-sm h-24 text-left">
-                            <img src="/images/chat-bg-dark-neon.jpg" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
-                            <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent flex items-end p-2">
-                                <span class="text-white text-xs font-semibold drop-shadow">Neon Waves</span>
+                        <div class="group relative rounded-xl overflow-hidden border border-gray-200 shadow-sm h-32 flex flex-col justify-end">
+                            <img src="/images/chat-bg-dark-neon.jpg" class="absolute inset-0 w-full h-full object-cover">
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
+                            <div class="relative p-2.5 space-y-1.5 z-10">
+                                <span class="text-white text-xs font-bold drop-shadow block">Neon Waves</span>
+                                <div class="flex items-center space-x-1.5">
+                                    <button type="button" onclick="applyPresetDirectly('/images/chat-bg-dark-neon.jpg')" class="flex-1 bg-[#00a884] hover:bg-[#008f6f] text-white text-[11px] font-semibold py-1.5 px-2 rounded-lg text-center shadow transition flex items-center justify-center space-x-1">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                        <span>Übernehmen</span>
+                                    </button>
+                                    <button type="button" onclick="selectPresetWallpaper('/images/chat-bg-dark-neon.jpg')" class="bg-white/20 hover:bg-white/30 text-white text-[11px] font-medium py-1.5 px-2 rounded-lg backdrop-blur-sm transition" title="Zuschneiden">
+                                        Zuschneiden
+                                    </button>
+                                </div>
                             </div>
-                        </button>
-                        <button type="button" onclick="selectPresetWallpaper('/images/chat-bg-cyber-mesh.jpg')" class="group relative rounded-xl overflow-hidden border-2 border-transparent hover:border-teal-500 focus:border-teal-500 transition shadow-sm h-24 text-left">
-                            <img src="/images/chat-bg-cyber-mesh.jpg" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
-                            <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent flex items-end p-2">
-                                <span class="text-white text-xs font-semibold drop-shadow">Cyber Mesh</span>
+                        </div>
+                        <div class="group relative rounded-xl overflow-hidden border border-gray-200 shadow-sm h-32 flex flex-col justify-end">
+                            <img src="/images/chat-bg-cyber-mesh.jpg" class="absolute inset-0 w-full h-full object-cover">
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
+                            <div class="relative p-2.5 space-y-1.5 z-10">
+                                <span class="text-white text-xs font-bold drop-shadow block">Cyber Mesh</span>
+                                <div class="flex items-center space-x-1.5">
+                                    <button type="button" onclick="applyPresetDirectly('/images/chat-bg-cyber-mesh.jpg')" class="flex-1 bg-[#00a884] hover:bg-[#008f6f] text-white text-[11px] font-semibold py-1.5 px-2 rounded-lg text-center shadow transition flex items-center justify-center space-x-1">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                        <span>Übernehmen</span>
+                                    </button>
+                                    <button type="button" onclick="selectPresetWallpaper('/images/chat-bg-cyber-mesh.jpg')" class="bg-white/20 hover:bg-white/30 text-white text-[11px] font-medium py-1.5 px-2 rounded-lg backdrop-blur-sm transition" title="Zuschneiden">
+                                        Zuschneiden
+                                    </button>
+                                </div>
                             </div>
-                        </button>
+                        </div>
                     </div>
                 </div>
 
@@ -502,16 +534,17 @@
         </div>
 
         <!-- Footer -->
-        <div class="p-4 border-t bg-gray-50 flex items-center justify-between">
+        <div class="p-4 border-t bg-gray-50 flex items-center justify-between flex-shrink-0">
             <button type="button" onclick="deleteWallpaper()" class="text-red-600 hover:text-red-700 hover:bg-red-50 px-3 py-2 rounded-xl text-sm font-medium transition">
                 Standard wiederherstellen
             </button>
             <div class="flex items-center space-x-2">
                 <button type="button" onclick="closeWallpaperModal()" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-100 font-medium text-sm">
-                    Abbrechen
+                    Schließen
                 </button>
-                <button type="button" id="save-wallpaper-btn" onclick="saveCroppedWallpaper()" class="px-5 py-2 bg-[#00a884] hover:bg-[#008f6f] text-white rounded-xl font-medium text-sm shadow-sm disabled:opacity-50" disabled>
-                    Speichern
+                <button type="button" id="save-wallpaper-btn" onclick="saveCroppedWallpaper()" class="hidden px-5 py-2.5 bg-[#00a884] hover:bg-[#008f6f] text-white rounded-xl font-bold text-sm shadow-md transition flex items-center space-x-1.5">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                    <span>Speichern</span>
                 </button>
             </div>
         </div>
@@ -693,7 +726,20 @@
         }
         document.getElementById('wallpaper-crop-section').classList.add('hidden');
         document.getElementById('wallpaper-preview-section').classList.remove('hidden');
-        document.getElementById('save-wallpaper-btn').disabled = true;
+        const saveBtn = document.getElementById('save-wallpaper-btn');
+        if (saveBtn) saveBtn.classList.add('hidden');
+        document.getElementById('wallpaper-file-input').value = '';
+    }
+
+    function cancelCrop() {
+        if (wallpaperCropper) {
+            wallpaperCropper.destroy();
+            wallpaperCropper = null;
+        }
+        document.getElementById('wallpaper-crop-section').classList.add('hidden');
+        document.getElementById('wallpaper-preview-section').classList.remove('hidden');
+        const saveBtn = document.getElementById('save-wallpaper-btn');
+        if (saveBtn) saveBtn.classList.add('hidden');
         document.getElementById('wallpaper-file-input').value = '';
     }
 
@@ -708,7 +754,11 @@
 
             document.getElementById('wallpaper-crop-section').classList.remove('hidden');
             document.getElementById('wallpaper-preview-section').classList.add('hidden');
-            document.getElementById('save-wallpaper-btn').disabled = false;
+            const saveBtn = document.getElementById('save-wallpaper-btn');
+            if (saveBtn) {
+                saveBtn.classList.remove('hidden');
+                saveBtn.disabled = false;
+            }
 
             if (wallpaperCropper) {
                 wallpaperCropper.destroy();
@@ -730,7 +780,11 @@
 
         document.getElementById('wallpaper-crop-section').classList.remove('hidden');
         document.getElementById('wallpaper-preview-section').classList.add('hidden');
-        document.getElementById('save-wallpaper-btn').disabled = false;
+        const saveBtn = document.getElementById('save-wallpaper-btn');
+        if (saveBtn) {
+            saveBtn.classList.remove('hidden');
+            saveBtn.disabled = false;
+        }
 
         if (wallpaperCropper) {
             wallpaperCropper.destroy();
@@ -742,6 +796,79 @@
             responsive: true,
             restore: false,
         });
+    }
+
+    function applyPresetDirectly(url) {
+        const targetBtn = event && event.currentTarget ? event.currentTarget : null;
+        let originalContent = '';
+        if (targetBtn) {
+            originalContent = targetBtn.innerHTML;
+            targetBtn.innerHTML = '<span>Lädt...</span>';
+            targetBtn.disabled = true;
+        }
+
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.onload = function() {
+            const canvas = document.createElement('canvas');
+            canvas.width = img.naturalWidth || 1920;
+            canvas.height = img.naturalHeight || 1080;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0);
+            const base64 = canvas.toDataURL('image/jpeg', 0.85);
+
+            fetch("{{ route('profile.wallpaper.update') }}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({ wallpaper_base64: base64 })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (targetBtn) {
+                    targetBtn.innerHTML = originalContent;
+                    targetBtn.disabled = false;
+                }
+                if (data.status === 'success' && data.wallpaper_url) {
+                    const mc = document.getElementById('messages-container');
+                    if (mc) {
+                        mc.style.backgroundImage = 'url(' + data.wallpaper_url + ')';
+                        mc.style.backgroundSize = 'cover';
+                        mc.style.backgroundPosition = 'center';
+                        mc.style.backgroundRepeat = 'no-repeat';
+                    }
+                    const prev = document.getElementById('current-wallpaper-preview');
+                    if (prev) {
+                        prev.style.backgroundImage = 'url(' + data.wallpaper_url + ')';
+                        prev.style.backgroundSize = 'cover';
+                        prev.style.backgroundPosition = 'center';
+                        prev.innerHTML = '';
+                    }
+                    closeWallpaperModal();
+                    alert('Hintergrundbild erfolgreich übernommen!');
+                } else {
+                    alert('Fehler beim Speichern: ' + (data.message || 'Unbekannt'));
+                }
+            })
+            .catch(err => {
+                if (targetBtn) {
+                    targetBtn.innerHTML = originalContent;
+                    targetBtn.disabled = false;
+                }
+                alert('Netzwerkfehler: ' + err);
+            });
+        };
+        img.onerror = function() {
+            if (targetBtn) {
+                targetBtn.innerHTML = originalContent;
+                targetBtn.disabled = false;
+            }
+            alert('Bild konnte nicht geladen werden.');
+        };
+        img.src = url;
     }
 
     function saveCroppedWallpaper() {
