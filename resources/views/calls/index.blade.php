@@ -64,7 +64,7 @@
         <div class="bg-white p-3 border-b border-gray-100">
             <div class="bg-gray-100 rounded-lg flex items-center px-3 py-2">
                 <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                <input type="text" placeholder="Suche nach Namen, Nummer oder @B..." class="bg-transparent border-none outline-none ml-3 w-full text-[15px] placeholder-gray-500">
+                <input type="text" oninput="filterCallsSidebar(this.value)" placeholder="Suche nach Namen, Nummer..." class="bg-transparent border-none outline-none ml-3 w-full text-[15px] placeholder-gray-500">
             </div>
         </div>
 
@@ -89,13 +89,13 @@
                     <p class="text-sm text-gray-500 mb-4">Du hast bisher keine Anrufe getätigt.</p>
                 </div>
             @else
-                <div class="space-y-1">
+                <div id="calls-history-list" class="space-y-1">
                     @foreach($recentCalls as $call)
                         @php
                             $isOutgoing = $call->caller_id === $user->id;
                             $partner = $isOutgoing ? $call->receiver : $call->caller;
                         @endphp
-                        <div class="flex items-center justify-between p-3 hover:bg-gray-50 cursor-pointer rounded-xl group transition">
+                        <div class="call-item flex items-center justify-between p-3 hover:bg-gray-50 cursor-pointer rounded-xl group transition">
                             <div class="flex items-center">
                                 @if($partner->avatar_url)
                                     <img src="{{ $partner->avatar_url }}" class="w-12 h-12 rounded-full object-cover">
@@ -143,6 +143,16 @@
 
     <!-- Main Area -->
     <div class="w-2/3 flex flex-col bg-[#f0f2f5] relative">
+        @if($errors->any())
+            <div class="m-4 p-3 bg-red-100 border border-red-300 text-red-700 rounded-xl text-sm flex items-center justify-between shadow-sm z-10">
+                <div class="flex items-center">
+                    <svg class="w-5 h-5 mr-2 text-red-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg>
+                    <span>{{ $errors->first() }}</span>
+                </div>
+                <button type="button" onclick="this.parentElement.remove()" class="text-red-500 hover:text-red-800 font-bold ml-2 text-lg leading-none">&times;</button>
+            </div>
+        @endif
+
         <div class="flex-1 flex items-center justify-center">
             
             <div class="grid grid-cols-2 gap-x-16 gap-y-12 pb-10">
@@ -170,7 +180,7 @@
                 </button>
 
                 <!-- Nummer wählen Button -->
-                <button class="flex flex-col items-center group">
+                <button type="button" onclick="openDialModal()" class="flex flex-col items-center group">
                     <div class="w-[120px] h-[120px] bg-[#e9edef] rounded-[24px] flex items-center justify-center mb-4 group-hover:bg-[#d1d7db] transition shadow-sm">
                         <svg class="w-9 h-9 text-[#54656f]" fill="currentColor" viewBox="0 0 24 24">
                             <!-- Dialpad (Nummernblock) -->
@@ -232,28 +242,34 @@
             <div class="px-2 pb-2">
                 <div class="bg-gray-100 rounded-lg flex items-center px-3 py-2">
                     <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                    <input type="text" placeholder="Kontakt suchen" class="bg-transparent border-none outline-none ml-3 w-full text-[15px] placeholder-gray-500">
+                    <input type="text" oninput="filterContactsModal(this.value)" placeholder="Kontakt suchen" class="bg-transparent border-none outline-none ml-3 w-full text-[15px] placeholder-gray-500">
                 </div>
             </div>
             
             <h4 class="px-4 py-3 text-xs font-bold text-teal-600 uppercase tracking-wider">Kontakte</h4>
             
-            @if(count($contacts) === 0)
-                <div class="p-4 text-center text-gray-500 text-sm">Keine Kontakte gefunden.</div>
-            @endif
-            
-            @foreach($contacts as $contact)
-                <div class="flex items-center justify-between px-4 py-3 hover:bg-gray-50 cursor-pointer rounded-xl group transition">
-                    <div class="flex items-center">
-                        @if($contact->avatar_url)
-                            <img src="{{ $contact->avatar_url }}" class="w-10 h-10 rounded-full object-cover">
-                        @elseif($contact->avatar)
-                            <img src="/storage/{{ ltrim($contact->avatar, '/') }}" class="w-10 h-10 rounded-full object-cover">
-                        @else
-                            <div class="w-10 h-10 bg-teal-600 rounded-full flex items-center justify-center text-white font-bold">{{ substr($contact->name, 0, 1) }}</div>
-                        @endif
-                        <span class="ml-4 font-medium text-gray-900">{{ $contact->name }}</span>
-                    </div>
+            <div id="modal-contacts-list">
+                @if(count($contacts) === 0)
+                    <div class="p-4 text-center text-gray-500 text-sm">Keine Kontakte gefunden.</div>
+                @endif
+                
+                @foreach($contacts as $contact)
+                    <div class="contact-item flex items-center justify-between px-4 py-3 hover:bg-gray-50 cursor-pointer rounded-xl group transition">
+                        <div class="flex items-center">
+                            @if($contact->avatar_url)
+                                <img src="{{ $contact->avatar_url }}" class="w-10 h-10 rounded-full object-cover">
+                            @elseif($contact->avatar)
+                                <img src="/storage/{{ ltrim($contact->avatar, '/') }}" class="w-10 h-10 rounded-full object-cover">
+                            @else
+                                <div class="w-10 h-10 bg-teal-600 rounded-full flex items-center justify-center text-white font-bold">{{ substr($contact->name, 0, 1) }}</div>
+                            @endif
+                            <div class="ml-4 flex flex-col">
+                                <span class="font-medium text-gray-900">{{ $contact->name }}</span>
+                                @if($contact->phone)
+                                    <span class="text-xs text-gray-400">{{ $contact->phone }}</span>
+                                @endif
+                            </div>
+                        </div>
                     <div class="flex space-x-1 opacity-0 group-hover:opacity-100 transition">
                         <!-- Audio Call Form -->
                         <form action="{{ route('calls.store') }}" method="POST">
@@ -276,9 +292,290 @@
                     </div>
                 </div>
             @endforeach
+            </div>
         </div>
     </div>
 </div>
+
+<!-- Nummer wählen Modal (Dialpad) -->
+<div id="dial-modal" class="hidden fixed inset-0 bg-black/60 z-50 flex items-center justify-center backdrop-blur-sm p-4">
+    <div class="bg-white w-full max-w-sm rounded-3xl shadow-2xl overflow-hidden flex flex-col border border-gray-100 transition-all">
+        
+        <!-- Header -->
+        <div class="h-14 bg-gray-50 flex items-center justify-between px-5 border-b border-gray-200">
+            <h3 class="font-semibold text-gray-800 text-base flex items-center">
+                <svg class="w-5 h-5 text-teal-600 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                    <circle cx="7.5" cy="7.5" r="1.5"/><circle cx="12" cy="7.5" r="1.5"/><circle cx="16.5" cy="7.5" r="1.5"/>
+                    <circle cx="7.5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="16.5" cy="12" r="1.5"/>
+                    <circle cx="7.5" cy="16.5" r="1.5"/><circle cx="12" cy="16.5" r="1.5"/><circle cx="16.5" cy="16.5" r="1.5"/>
+                    <circle cx="12" cy="21" r="1.5"/>
+                </svg>
+                Nummer wählen
+            </h3>
+            <button type="button" onclick="closeDialModal()" class="p-1.5 text-gray-400 hover:text-gray-700 hover:bg-gray-200 rounded-full transition">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+        </div>
+
+        <form id="dial-form" action="{{ route('calls.store') }}" method="POST" class="p-5 flex flex-col items-center">
+            @csrf
+            <input type="hidden" name="phone" id="dial-input-phone" value="">
+            <input type="hidden" name="receiver_id" id="dial-input-receiver-id" value="">
+            <input type="hidden" name="type" id="dial-input-type" value="audio">
+
+            <!-- Number Display with Backspace -->
+            <div class="w-full relative flex items-center justify-center border-b border-gray-200 pb-3 mb-2">
+                <input type="text" id="dial-display" placeholder="Nummer tippen" class="w-full text-center text-2xl font-bold tracking-wider text-gray-800 outline-none border-none bg-transparent" autocomplete="off">
+                <button type="button" id="dial-backspace-btn" onclick="dialBackspace()" class="absolute right-1 text-gray-400 hover:text-gray-700 p-1.5 rounded-full hover:bg-gray-100 transition hidden">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2M3 12l6.414-6.414A2 2 0 0110.828 5H20a2 2 0 012 2v10a2 2 0 01-2 2h-9.172a2 2 0 01-1.414-.586L3 12z"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Matched Contact Preview Box -->
+            <div id="dial-contact-box" class="w-full min-h-[46px] flex items-center justify-center mb-3 text-xs">
+                <span class="text-gray-400">Nummer per Tastatur oder Ziffernblock eingeben</span>
+            </div>
+
+            <!-- Keypad Grid -->
+            <div class="grid grid-cols-3 gap-3 w-full max-w-[270px] mb-5">
+                <button type="button" onclick="dialDigit('1')" class="h-14 rounded-2xl bg-gray-50 hover:bg-gray-100 active:bg-gray-200 flex flex-col items-center justify-center border border-gray-100 shadow-sm transition">
+                    <span class="text-xl font-bold text-gray-800">1</span>
+                    <span class="text-[9px] text-gray-400 tracking-widest font-medium">&nbsp;</span>
+                </button>
+                <button type="button" onclick="dialDigit('2')" class="h-14 rounded-2xl bg-gray-50 hover:bg-gray-100 active:bg-gray-200 flex flex-col items-center justify-center border border-gray-100 shadow-sm transition">
+                    <span class="text-xl font-bold text-gray-800">2</span>
+                    <span class="text-[9px] text-gray-400 tracking-widest font-medium">ABC</span>
+                </button>
+                <button type="button" onclick="dialDigit('3')" class="h-14 rounded-2xl bg-gray-50 hover:bg-gray-100 active:bg-gray-200 flex flex-col items-center justify-center border border-gray-100 shadow-sm transition">
+                    <span class="text-xl font-bold text-gray-800">3</span>
+                    <span class="text-[9px] text-gray-400 tracking-widest font-medium">DEF</span>
+                </button>
+                <button type="button" onclick="dialDigit('4')" class="h-14 rounded-2xl bg-gray-50 hover:bg-gray-100 active:bg-gray-200 flex flex-col items-center justify-center border border-gray-100 shadow-sm transition">
+                    <span class="text-xl font-bold text-gray-800">4</span>
+                    <span class="text-[9px] text-gray-400 tracking-widest font-medium">GHI</span>
+                </button>
+                <button type="button" onclick="dialDigit('5')" class="h-14 rounded-2xl bg-gray-50 hover:bg-gray-100 active:bg-gray-200 flex flex-col items-center justify-center border border-gray-100 shadow-sm transition">
+                    <span class="text-xl font-bold text-gray-800">5</span>
+                    <span class="text-[9px] text-gray-400 tracking-widest font-medium">JKL</span>
+                </button>
+                <button type="button" onclick="dialDigit('6')" class="h-14 rounded-2xl bg-gray-50 hover:bg-gray-100 active:bg-gray-200 flex flex-col items-center justify-center border border-gray-100 shadow-sm transition">
+                    <span class="text-xl font-bold text-gray-800">6</span>
+                    <span class="text-[9px] text-gray-400 tracking-widest font-medium">MNO</span>
+                </button>
+                <button type="button" onclick="dialDigit('7')" class="h-14 rounded-2xl bg-gray-50 hover:bg-gray-100 active:bg-gray-200 flex flex-col items-center justify-center border border-gray-100 shadow-sm transition">
+                    <span class="text-xl font-bold text-gray-800">7</span>
+                    <span class="text-[9px] text-gray-400 tracking-widest font-medium">PQRS</span>
+                </button>
+                <button type="button" onclick="dialDigit('8')" class="h-14 rounded-2xl bg-gray-50 hover:bg-gray-100 active:bg-gray-200 flex flex-col items-center justify-center border border-gray-100 shadow-sm transition">
+                    <span class="text-xl font-bold text-gray-800">8</span>
+                    <span class="text-[9px] text-gray-400 tracking-widest font-medium">TUV</span>
+                </button>
+                <button type="button" onclick="dialDigit('9')" class="h-14 rounded-2xl bg-gray-50 hover:bg-gray-100 active:bg-gray-200 flex flex-col items-center justify-center border border-gray-100 shadow-sm transition">
+                    <span class="text-xl font-bold text-gray-800">9</span>
+                    <span class="text-[9px] text-gray-400 tracking-widest font-medium">WXYZ</span>
+                </button>
+                <button type="button" onclick="dialDigit('*')" class="h-14 rounded-2xl bg-gray-50 hover:bg-gray-100 active:bg-gray-200 flex flex-col items-center justify-center border border-gray-100 shadow-sm transition">
+                    <span class="text-xl font-bold text-gray-800">*</span>
+                    <span class="text-[9px] text-gray-400 tracking-widest font-medium">&nbsp;</span>
+                </button>
+                <button type="button" onclick="dialDigit('0')" oncontextmenu="event.preventDefault(); dialDigit('+');" class="h-14 rounded-2xl bg-gray-50 hover:bg-gray-100 active:bg-gray-200 flex flex-col items-center justify-center border border-gray-100 shadow-sm transition" title="Klick für 0, Rechtsklick für +">
+                    <span class="text-xl font-bold text-gray-800">0</span>
+                    <span class="text-[10px] text-teal-600 font-bold leading-none">+</span>
+                </button>
+                <button type="button" onclick="dialDigit('#')" class="h-14 rounded-2xl bg-gray-50 hover:bg-gray-100 active:bg-gray-200 flex flex-col items-center justify-center border border-gray-100 shadow-sm transition">
+                    <span class="text-xl font-bold text-gray-800">#</span>
+                    <span class="text-[9px] text-gray-400 tracking-widest font-medium">&nbsp;</span>
+                </button>
+            </div>
+
+            <!-- Call Action Buttons -->
+            <div class="flex items-center justify-center space-x-6 w-full pt-1">
+                <!-- Audio Call -->
+                <button type="button" onclick="submitDialCall('audio')" id="btn-dial-audio" class="w-14 h-14 bg-[#00a884] hover:bg-[#008f6f] active:scale-95 text-white rounded-full flex items-center justify-center shadow-lg shadow-teal-500/30 transition" title="Sprachanruf starten">
+                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
+                    </svg>
+                </button>
+                
+                <!-- Video Call -->
+                <button type="button" onclick="submitDialCall('video')" id="btn-dial-video" class="w-14 h-14 bg-teal-700 hover:bg-teal-800 active:scale-95 text-white rounded-full flex items-center justify-center shadow-lg shadow-teal-700/30 transition" title="Videoanruf starten">
+                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/>
+                    </svg>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Registered contacts data for fast client-side dialpad lookup
+    const registeredContacts = @json($contacts->map(function($c) {
+        return [
+            'id' => $c->id,
+            'name' => $c->name,
+            'phone' => $c->phone,
+            'avatar' => $c->avatar_url ?? ($c->avatar ? '/storage/' . ltrim($c->avatar, '/') : null),
+        ];
+    }));
+
+    let dialNumber = '';
+    let matchedContact = null;
+
+    function openDialModal() {
+        const modal = document.getElementById('dial-modal');
+        if (modal) {
+            modal.classList.remove('hidden');
+            const input = document.getElementById('dial-display');
+            if (input) {
+                input.focus();
+                input.setSelectionRange(input.value.length, input.value.length);
+            }
+        }
+    }
+
+    function closeDialModal() {
+        const modal = document.getElementById('dial-modal');
+        if (modal) modal.classList.add('hidden');
+    }
+
+    function dialDigit(digit) {
+        dialNumber += digit;
+        updateDialDisplay();
+    }
+
+    function dialBackspace() {
+        dialNumber = dialNumber.slice(0, -1);
+        updateDialDisplay();
+    }
+
+    function cleanPhone(num) {
+        if (!num) return '';
+        return String(num).replace(/[^0-9+]/g, '');
+    }
+
+    function updateDialDisplay() {
+        const display = document.getElementById('dial-display');
+        const backspaceBtn = document.getElementById('dial-backspace-btn');
+        const contactBox = document.getElementById('dial-contact-box');
+        const hiddenPhone = document.getElementById('dial-input-phone');
+        const hiddenReceiverId = document.getElementById('dial-input-receiver-id');
+
+        if (display && display.value !== dialNumber) {
+            display.value = dialNumber;
+        }
+
+        if (backspaceBtn) {
+            if (dialNumber.length > 0) backspaceBtn.classList.remove('hidden');
+            else backspaceBtn.classList.add('hidden');
+        }
+
+        if (hiddenPhone) hiddenPhone.value = dialNumber;
+
+        const cleaned = cleanPhone(dialNumber);
+
+        matchedContact = null;
+        if (cleaned.length >= 3) {
+            matchedContact = registeredContacts.find(c => {
+                if (!c.phone) return false;
+                const dbClean = cleanPhone(c.phone);
+                if (dbClean === cleaned) return true;
+                if (cleaned.length >= 7 && dbClean.endsWith(cleaned.slice(-7))) return true;
+                if (dbClean.length >= 7 && cleaned.endsWith(dbClean.slice(-7))) return true;
+                return false;
+            });
+        }
+
+        if (matchedContact) {
+            if (hiddenReceiverId) hiddenReceiverId.value = matchedContact.id;
+            const avatarHtml = matchedContact.avatar
+                ? `<img src="${matchedContact.avatar}" class="w-8 h-8 rounded-full object-cover mr-2.5 shadow-sm border border-teal-500">`
+                : `<div class="w-8 h-8 bg-teal-600 rounded-full flex items-center justify-center text-white font-bold text-xs mr-2.5 shadow-sm">${matchedContact.name.substring(0, 1)}</div>`;
+            
+            contactBox.innerHTML = `
+                <div class="flex items-center bg-teal-50 border border-teal-200 px-3 py-1.5 rounded-full text-teal-900 w-full justify-between shadow-sm">
+                    <div class="flex items-center truncate">
+                        ${avatarHtml}
+                        <div class="text-left truncate">
+                            <span class="font-semibold text-xs block leading-tight truncate">${matchedContact.name}</span>
+                            <span class="text-[10px] text-teal-700 block">${matchedContact.phone || ''}</span>
+                        </div>
+                    </div>
+                    <span class="ml-2 bg-teal-600 text-white text-[9px] px-2 py-0.5 rounded-full font-medium flex-shrink-0">ChatConnect</span>
+                </div>
+            `;
+        } else if (cleaned.length >= 4) {
+            if (hiddenReceiverId) hiddenReceiverId.value = '';
+            contactBox.innerHTML = `
+                <span class="text-amber-700 bg-amber-50 border border-amber-200 px-3 py-1 rounded-full text-[11px] shadow-sm">
+                    Kein ChatConnect-Kontakt mit dieser Nummer
+                </span>
+            `;
+        } else {
+            if (hiddenReceiverId) hiddenReceiverId.value = '';
+            contactBox.innerHTML = `<span class="text-gray-400">Nummer per Tastatur oder Ziffernblock eingeben</span>`;
+        }
+    }
+
+    function submitDialCall(type) {
+        if (!dialNumber.trim()) {
+            alert('Bitte gib zuerst eine Nummer ein.');
+            return;
+        }
+        if (!matchedContact) {
+            alert('Kein ChatConnect-Nutzer mit der Nummer "' + dialNumber + '" gefunden. Nur registrierte ChatConnect-Nutzer können angerufen werden.');
+            return;
+        }
+        document.getElementById('dial-input-type').value = type;
+        document.getElementById('dial-form').submit();
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const display = document.getElementById('dial-display');
+        if (display) {
+            display.addEventListener('input', (e) => {
+                dialNumber = e.target.value;
+                updateDialDisplay();
+            });
+            display.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    submitDialCall('audio');
+                }
+            });
+        }
+    });
+
+    // Close on backdrop click
+    window.addEventListener('click', (e) => {
+        const dialModal = document.getElementById('dial-modal');
+        if (e.target === dialModal) closeDialModal();
+        const callModal = document.getElementById('new-call-modal');
+        if (e.target === callModal) callModal.classList.add('hidden');
+    });
+
+    // Sidebar search filter
+    function filterCallsSidebar(query) {
+        const q = query.toLowerCase().trim();
+        const items = document.querySelectorAll('#calls-history-list .call-item');
+        items.forEach(el => {
+            const text = el.textContent.toLowerCase();
+            el.style.display = text.includes(q) ? '' : 'none';
+        });
+    }
+
+    // Modal contacts filter
+    function filterContactsModal(query) {
+        const q = query.toLowerCase().trim();
+        const items = document.querySelectorAll('#modal-contacts-list .contact-item');
+        items.forEach(el => {
+            const text = el.textContent.toLowerCase();
+            el.style.display = text.includes(q) ? '' : 'none';
+        });
+    }
+</script>
 
 </body>
 </html>

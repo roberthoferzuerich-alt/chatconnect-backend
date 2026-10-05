@@ -16,7 +16,7 @@ class ProfileController extends Controller
             'name' => 'nullable|string|max:255',
             'email' => 'nullable|string|email|max:255|unique:users,email,' . $user->id,
             'about' => 'nullable|string|max:500',
-            'phone' => 'nullable|string|max:50',
+            'phone' => 'nullable|string|max:50|unique:users,phone,' . $user->id,
             'avatar' => 'nullable|image|max:5120',
         ]);
 

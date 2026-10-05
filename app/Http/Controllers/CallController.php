@@ -29,13 +29,42 @@ class CallController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'receiver_id' => 'required|exists:users,id',
+            'receiver_id' => 'required_without:phone|nullable|exists:users,id',
+            'phone' => 'required_without:receiver_id|nullable|string',
             'type' => 'required|in:audio,video',
         ]);
 
+        $receiverId = $request->receiver_id;
+
+        if (!$receiverId && $request->filled('phone')) {
+            $inputPhone = trim($request->phone);
+            $cleanInput = preg_replace('/[^0-9+]/', '', $inputPhone);
+
+            $matchedUser = User::where('id', '!=', Auth::id())
+                ->whereNotNull('phone')
+                ->get()
+                ->first(function ($u) use ($cleanInput) {
+                    $dbPhone = preg_replace('/[^0-9+]/', '', $u->phone);
+                    if ($dbPhone === $cleanInput) return true;
+                    if (strlen($cleanInput) >= 8 && str_ends_with($dbPhone, substr($cleanInput, -8))) return true;
+                    if (strlen($dbPhone) >= 8 && str_ends_with($cleanInput, substr($dbPhone, -8))) return true;
+                    return false;
+                });
+
+            if (!$matchedUser) {
+                return back()->withErrors(['phone' => 'Kein Benutzer mit der Rufnummer ' . $inputPhone . ' gefunden.']);
+            }
+
+            $receiverId = $matchedUser->id;
+        }
+
+        if (!$receiverId) {
+            return back()->withErrors(['receiver_id' => 'Bitte wählen Sie einen Empfänger aus.']);
+        }
+
         $call = Call::create([
             'caller_id' => Auth::id(),
-            'receiver_id' => $request->receiver_id,
+            'receiver_id' => $receiverId,
             'type' => $request->type,
             'status' => 'ongoing',
             'started_at' => now(),
