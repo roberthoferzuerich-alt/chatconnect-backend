@@ -14,7 +14,7 @@
         }
     </style>
 </head>
-<body class="bg-[#0b141a] text-white m-0 p-0 overflow-hidden">
+<body class="bg-[#0b141a] text-white m-0 p-0 overflow-hidden font-sans">
 
 @php
     $partner = $call->caller_id === $user->id ? $call->receiver : $call->caller;
@@ -28,15 +28,21 @@
         <span>Zurück zu Anrufe</span>
     </a>
     <div class="bg-gray-900/90 px-5 py-2 rounded-full backdrop-blur-md text-sm font-medium text-gray-200 shadow-xl border border-gray-700/50">
-        {{ $partner->name }} &middot; {{ $call->type === 'video' ? 'Videoanruf' : 'Sprachanruf' }}
+        {{ $partner->name }} (ID: {{ $partner->id }}) &middot; {{ $call->type === 'video' ? 'Videoanruf' : 'Sprachanruf' }}
     </div>
 </div>
 
-<!-- On-Screen Debug / Error Box -->
-<div id="debug-box" class="hidden fixed bottom-6 left-6 right-6 bg-red-950/95 text-red-200 p-4 rounded-xl z-50 text-xs border border-red-500 font-mono shadow-2xl"></div>
+<!-- On-Screen Live Diagnostics / Console Box -->
+<div id="debug-box" class="fixed bottom-4 left-4 right-4 bg-gray-900/95 text-gray-300 p-4 rounded-xl z-50 text-xs border border-teal-500/50 font-mono shadow-2xl max-h-48 overflow-y-auto">
+    <div class="text-teal-400 font-bold mb-1 flex justify-between items-center border-b border-gray-800 pb-1">
+        <span>Zego Live-Diagnose</span>
+        <span class="text-[10px] text-gray-400">Anrufer: {{ $user->name }} (ID: {{ $user->id }}) &rarr; Ziel: {{ $partner->name }} (ID: {{ $partner->id }})</span>
+    </div>
+    <div id="debug-log-lines" class="space-y-1 mt-1"></div>
+</div>
 
 <!-- Initial Connecting Card -->
-<div id="connecting-card" class="fixed inset-0 flex flex-col items-center justify-center bg-[#0b141a] z-20">
+<div id="connecting-card" class="fixed inset-0 flex flex-col items-center justify-center bg-[#0b141a] z-20 pb-36">
     <div class="w-36 h-36 rounded-full overflow-hidden mb-6 border-4 border-teal-500 shadow-[0_0_50px_rgba(20,184,166,0.3)] bg-teal-800 flex items-center justify-center text-5xl font-bold">
         @if($partnerAvatar)
             <img src="{{ $partnerAvatar }}" alt="{{ $partner->name }}" class="w-full h-full object-cover">
@@ -46,7 +52,7 @@
     </div>
     <h2 class="text-2xl font-semibold mb-2 text-white">{{ $partner->name }}</h2>
     <p id="connecting-status" class="text-teal-400 text-sm animate-pulse mb-8">
-        Rufe {{ $partner->name }} an...
+        Anruf-Signal wird vorbereitet...
     </p>
     <a href="{{ route('calls.index') }}" class="px-6 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-full font-medium transition shadow-lg flex items-center space-x-2 text-sm">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
@@ -58,8 +64,26 @@
 <div id="root"></div>
 
 <script>
+    // Live Logger auf den Bildschirm
+    function logToScreen(type, ...args) {
+        const logLines = document.getElementById('debug-log-lines');
+        if (!logLines) return;
+        const msg = args.map(a => typeof a === 'object' ? JSON.stringify(a) : String(a)).join(' ');
+        const line = document.createElement('div');
+        line.className = type === 'error' ? 'text-red-400 font-semibold' : (type === 'warn' ? 'text-yellow-300' : 'text-emerald-400');
+        line.innerText = `[${new Date().toLocaleTimeString()}] ${msg}`;
+        logLines.appendChild(line);
+        logLines.scrollTop = logLines.scrollHeight;
+    }
+    const origLog = console.log;
+    const origWarn = console.warn;
+    const origError = console.error;
+    console.log = function(...args) { origLog.apply(console, args); logToScreen('log', ...args); };
+    console.warn = function(...args) { origWarn.apply(console, args); logToScreen('warn', ...args); };
+    console.error = function(...args) { origError.apply(console, args); logToScreen('error', ...args); };
+
     window.onerror = function (msg, url, lineNo, columnNo, error) {
-        console.error("Global JS error:", msg, url, lineNo, error);
+        console.error("Window Error:", msg, "Line:", lineNo);
         return false;
     };
 
@@ -70,9 +94,11 @@
         const ZegoUIKitPrebuilt = window.ZegoUIKitPrebuilt;
         const ZIM = window.ZIM;
 
+        console.log("Prüfe ZegoUIKitPrebuilt:", !!ZegoUIKitPrebuilt, "| ZIM:", !!ZIM);
+
         if (!ZegoUIKitPrebuilt) {
             if (statusEl) statusEl.innerText = "ZegoCloud SDK lädt... Bitte kurz warten.";
-            setTimeout(startCall, 300);
+            setTimeout(startCall, 400);
             return;
         }
 
@@ -85,8 +111,10 @@
             const partnerName = @json($partner->name);
             const isVideo = "{{ $call->type }}" === 'video';
 
-            // Gemeinsame Raum-ID für beide Gesprächspartner
+            // Raum-ID für beide Gesprächspartner
             const roomID = "call_" + Math.min({{ $user->id }}, {{ $partner->id }}) + "_" + Math.max({{ $user->id }}, {{ $partner->id }});
+
+            console.log(`Erzeuge Token: appID=${appID}, userID=${userID}, targetID=${partnerID}, room=${roomID}`);
 
             const kitToken = ZegoUIKitPrebuilt.generateKitTokenForTest(
                 appID,
@@ -96,23 +124,23 @@
                 userName
             );
 
+            console.log("Token erfolgreich generiert. Erstelle ZegoUIKitPrebuilt Instanz...");
             const zp = ZegoUIKitPrebuilt.create(kitToken);
 
-            // ZIM Signaling Plugin aktivieren
             if (ZIM) {
                 try {
                     zp.addPlugins({ ZIM });
-                    console.log("ZIM Plugin successfully added!");
+                    console.log("ZIM-Plugin erfolgreich registriert!");
                 } catch (e) {
-                    console.warn("ZIM Plugin Warning:", e);
+                    console.warn("ZIM Plugin Warning:", e.message || e);
                 }
             } else {
-                console.warn("ZIM Plugin not found on window");
+                console.error("WARNUNG: ZIM ist nicht vorhanden! Call Invitation benötigt ZIM.");
             }
 
-            if (statusEl) statusEl.innerText = "Es läutet bei " + partnerName + "...";
+            if (statusEl) statusEl.innerText = "Sende Anruf an " + partnerName + " (ID: " + partnerID + ")...";
 
-            // Konfiguration für den Anruf-Raum
+            // Konfiguration für den Raum
             zp.setCallInvitationConfig({
                 onSetRoomConfigBeforeJoining: (callType) => {
                     return {
@@ -134,60 +162,35 @@
                     };
                 },
                 onWaitingPageWhenSending: (callType, callees, cancel) => {
+                    console.log("Warte auf Antwort von " + partnerName + "...");
                     if (statusEl) statusEl.innerText = "Es läutet bei " + partnerName + "...";
                 },
             });
 
-            // Anruf-Einladung direkt an das Tablet/Handy von Florian senden!
+            console.log("Sende Call Invitation via ZIM an Benutzer-ID:", partnerID);
+
+            // Anruf-Einladung senden
             zp.sendCallInvitation({
                 callees: [{ userID: partnerID, userName: partnerName }],
                 callType: isVideo ? ZegoUIKitPrebuilt.InvitationTypeVideoCall : ZegoUIKitPrebuilt.InvitationTypeVoiceCall,
                 timeout: 60,
                 data: JSON.stringify({ resourceID: 'zego_data' }),
             }).then((res) => {
-                console.log("Call invitation response:", res);
+                console.log("Call Invitation Antwort erhalten:", res);
                 if (res && res.errorInvitees && res.errorInvitees.length > 0) {
-                    if (statusEl) statusEl.innerText = partnerName + " ist offline. Raum wird geöffnet...";
-                    setTimeout(() => {
-                        zp.joinRoom({
-                            container: document.querySelector("#root"),
-                            scenario: { mode: ZegoUIKitPrebuilt.OneONoneCall },
-                            showPreJoinView: false,
-                            turnOnCameraWhenJoining: isVideo,
-                            turnOnMicrophoneWhenJoining: true,
-                            onJoinRoom: () => {
-                                if (connectingCard) connectingCard.style.display = 'none';
-                            },
-                            onLeaveRoom: () => {
-                                window.location.href = "{{ route('calls.index') }}";
-                            },
-                        });
-                    }, 1500);
+                    console.warn("Zego meldet: Empfänger ist offline oder nicht registriert:", res.errorInvitees);
+                    if (statusEl) statusEl.innerText = `${partnerName} (ID: ${partnerID}) wird von Zego als OFFLINE gemeldet!`;
+                } else {
+                    console.log("Einladung erfolgreich verschickt! Klingeln läuft...");
                 }
             }).catch((err) => {
-                console.warn("sendCallInvitation fallback to joinRoom:", err);
-                zp.joinRoom({
-                    container: document.querySelector("#root"),
-                    scenario: { mode: ZegoUIKitPrebuilt.OneONoneCall },
-                    showPreJoinView: false,
-                    turnOnCameraWhenJoining: isVideo,
-                    turnOnMicrophoneWhenJoining: true,
-                    onJoinRoom: () => {
-                        if (connectingCard) connectingCard.style.display = 'none';
-                    },
-                    onLeaveRoom: () => {
-                        window.location.href = "{{ route('calls.index') }}";
-                    },
-                });
+                console.error("sendCallInvitation FEHLER:", err);
+                if (statusEl) statusEl.innerText = "Fehler beim Anrufen: " + (err.message || err);
             });
 
         } catch (err) {
-            console.error("Zego Error:", err);
-            const debugBox = document.getElementById('debug-box');
-            if (debugBox) {
-                debugBox.classList.remove('hidden');
-                debugBox.innerHTML = `<strong>Fehler:</strong> ${err.message}`;
-            }
+            console.error("Zego Exception:", err);
+            if (statusEl) statusEl.innerText = "Fehler: " + err.message;
         }
     }
 
