@@ -35,6 +35,14 @@ class User extends Authenticatable
         'wallpaper_url',
     ];
 
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'password' => 'hashed',
+        'last_seen_at' => 'datetime',
+        'is_online' => 'boolean',
+        'settings' => 'array',
+    ];
+
     public function getAvatarUrlAttribute()
     {
         $path = $this->avatar_path ?? $this->avatar;
@@ -49,8 +57,21 @@ class User extends Authenticatable
 
     public function getWallpaperUrlAttribute()
     {
-        $settings = $this->settings ?? [];
-        $wallpaper = $settings['wallpaper'] ?? null;
+        $wallpaper = null;
+        $settings = $this->settings;
+        if (is_string($settings)) {
+            $decoded = json_decode($settings, true);
+            if (is_array($decoded)) {
+                $wallpaper = $decoded['wallpaper'] ?? null;
+            }
+        } elseif (is_array($settings)) {
+            $wallpaper = $settings['wallpaper'] ?? null;
+        }
+
+        if (!$wallpaper && !empty($this->attributes['wallpaper'])) {
+            $wallpaper = $this->attributes['wallpaper'];
+        }
+
         if (!$wallpaper) {
             return null;
         }

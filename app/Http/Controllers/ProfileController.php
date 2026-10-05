@@ -82,7 +82,13 @@ class ProfileController extends Controller
 
         if ($path) {
             // Delete old wallpaper if exists
-            $settings = $user->settings ?? [];
+            $settings = $user->settings;
+            if (is_string($settings)) {
+                $settings = json_decode($settings, true);
+            }
+            if (!is_array($settings)) {
+                $settings = [];
+            }
             if (!empty($settings['wallpaper']) && Storage::disk('public')->exists($settings['wallpaper'])) {
                 Storage::disk('public')->delete($settings['wallpaper']);
             }
@@ -106,7 +112,13 @@ class ProfileController extends Controller
     public function deleteWallpaper(Request $request): JsonResponse
     {
         $user = $request->user();
-        $settings = $user->settings ?? [];
+        $settings = $user->settings;
+        if (is_string($settings)) {
+            $settings = json_decode($settings, true);
+        }
+        if (!is_array($settings)) {
+            $settings = [];
+        }
 
         if (!empty($settings['wallpaper']) && Storage::disk('public')->exists($settings['wallpaper'])) {
             Storage::disk('public')->delete($settings['wallpaper']);
