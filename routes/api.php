@@ -29,6 +29,8 @@ Route::prefix('v1')->group(function () {
             Route::get('/me', [AuthController::class, 'me']);
             Route::post('/logout', [AuthController::class, 'logout']);
             Route::post('/profile', ['App\\Http\\Controllers\\Api\\ProfileController', 'update']);
+            Route::post('/profile/wallpaper', [\App\Http\Controllers\Api\ProfileController::class, 'updateWallpaper']);
+            Route::delete('/profile/wallpaper', [\App\Http\Controllers\Api\ProfileController::class, 'deleteWallpaper']);
         });
     });
 

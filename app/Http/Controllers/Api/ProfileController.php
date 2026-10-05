@@ -55,4 +55,53 @@ class ProfileController extends Controller
             'user' => $user
         ]);
     }
+
+    public function updateWallpaper(Request $request)
+    {
+        $user = $request->user();
+        $request->validate([
+            'wallpaper' => 'required|image|max:10240',
+        ]);
+
+        $settings = $user->settings ?? [];
+        if (!empty($settings['wallpaper']) && Storage::disk('public')->exists($settings['wallpaper'])) {
+            Storage::disk('public')->delete($settings['wallpaper']);
+        }
+
+        $path = $request->file('wallpaper')->store('wallpapers', 'public');
+        if (!$path) {
+            return response()->json(['message' => 'Fehler beim Speichern des Hintergrundbildes.'], 500);
+        }
+
+        $settings['wallpaper'] = $path;
+        $user->settings = $settings;
+        $user->save();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Hintergrundbild erfolgreich aktualisiert',
+            'user' => $user,
+            'wallpaper_url' => $user->wallpaper_url,
+        ]);
+    }
+
+    public function deleteWallpaper(Request $request)
+    {
+        $user = $request->user();
+        $settings = $user->settings ?? [];
+
+        if (!empty($settings['wallpaper']) && Storage::disk('public')->exists($settings['wallpaper'])) {
+            Storage::disk('public')->delete($settings['wallpaper']);
+        }
+
+        unset($settings['wallpaper']);
+        $user->settings = $settings;
+        $user->save();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Hintergrundbild gelöscht',
+            'user' => $user,
+        ]);
+    }
 }

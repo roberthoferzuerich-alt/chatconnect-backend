@@ -103,8 +103,10 @@
                         Alle als gelesen markieren
                     </a>
                     
-                    <hr class="my-2 border-gray-100">
-                    
+                    <button type="button" onclick="document.getElementById('chat-menu').classList.add('hidden'); openWallpaperModal();" class="w-full flex items-center px-4 py-3 text-[15px] text-gray-800 hover:bg-gray-50 transition text-left">
+                        <svg class="w-5 h-5 mr-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                        Chat-Hintergrundbild
+                    </button>
                     <a href="#" class="flex items-center px-4 py-3 text-[15px] text-gray-800 hover:bg-gray-50 transition">
                         <svg class="w-5 h-5 mr-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
                         App-Sperre
@@ -292,7 +294,7 @@
                 </div>
 
                 <!-- Chat Messages -->
-                <div id="messages-container" class="flex-1 overflow-y-auto p-4 space-y-3 bg-[url('https://web.whatsapp.com/img/bg-chat-tile-dark_a4be512e7195b6b733d9110b408f075d.png')] bg-repeat bg-opacity-50">
+                <div id="messages-container" class="flex-1 overflow-y-auto p-4 space-y-3" style="@if($user->wallpaper_url) background-image: url('{{ $user->wallpaper_url }}'); background-size: cover; background-position: center; background-repeat: no-repeat; @else background-image: url('https://web.whatsapp.com/img/bg-chat-tile-dark_a4be512e7195b6b733d9110b408f075d.png'); background-repeat: repeat; background-color: #efeae2; @endif">
                     @foreach($messages as $msg)
                         @php
                             $isMe = $msg->sender_id === $user->id;
@@ -432,6 +434,65 @@
                 <span>Bild senden</span>
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
             </button>
+        </div>
+    </div>
+</div>
+
+<!-- Chat-Hintergrundbild Modal -->
+<div id="wallpaper-modal" class="hidden fixed inset-0 bg-black/75 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+    <div class="bg-white rounded-2xl max-w-lg w-full overflow-hidden shadow-2xl flex flex-col">
+        <!-- Header -->
+        <div class="p-4 border-b flex items-center justify-between bg-gray-50">
+            <div class="flex items-center space-x-2">
+                <svg class="w-5 h-5 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                <h3 class="font-bold text-gray-800 text-lg">Chat-Hintergrundbild</h3>
+            </div>
+            <button type="button" onclick="closeWallpaperModal()" class="text-gray-400 hover:text-gray-600 text-2xl font-bold">&times;</button>
+        </div>
+
+        <div class="p-5 space-y-4">
+            <!-- Crop section -->
+            <div id="wallpaper-crop-section" class="hidden">
+                <p class="text-xs text-gray-500 mb-2 font-medium">Bildausschnitt wählen & zurechtschneiden:</p>
+                <div class="max-h-[350px] w-full bg-gray-900 rounded-xl overflow-hidden flex items-center justify-center">
+                    <img id="wallpaper-image-to-crop" class="max-w-full max-h-[350px] block" src="" alt="Crop">
+                </div>
+            </div>
+
+            <!-- Preview section -->
+            <div id="wallpaper-preview-section" class="flex flex-col items-center">
+                <p class="text-xs text-gray-500 mb-2 font-medium">Aktuelles Chat-Hintergrundbild:</p>
+                <div id="current-wallpaper-preview" class="w-full h-44 rounded-xl border border-gray-200 overflow-hidden shadow-inner flex items-center justify-center relative"
+                     style="@if($user->wallpaper_url) background-image: url('{{ $user->wallpaper_url }}'); background-size: cover; background-position: center; @else background-image: url('https://web.whatsapp.com/img/bg-chat-tile-dark_a4be512e7195b6b733d9110b408f075d.png'); background-repeat: repeat; background-color: #efeae2; @endif">
+                    @if(!$user->wallpaper_url)
+                        <span id="default-wallpaper-badge" class="bg-black/40 text-white text-xs px-3 py-1 rounded-full backdrop-blur-sm">Standard WhatsApp Muster</span>
+                    @endif
+                </div>
+            </div>
+
+            <!-- Choose file input -->
+            <div class="flex items-center justify-center">
+                <label class="cursor-pointer px-4 py-2.5 bg-teal-50 hover:bg-teal-100 text-teal-700 rounded-xl font-medium text-sm border border-teal-200 transition flex items-center space-x-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                    <span>Neues Bild auswählen</span>
+                    <input type="file" id="wallpaper-file-input" accept="image/*" class="hidden" onchange="onWallpaperFileSelected(event)">
+                </label>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="p-4 border-t bg-gray-50 flex items-center justify-between">
+            <button type="button" onclick="deleteWallpaper()" class="text-red-600 hover:text-red-700 hover:bg-red-50 px-3 py-2 rounded-xl text-sm font-medium transition">
+                Standard wiederherstellen
+            </button>
+            <div class="flex items-center space-x-2">
+                <button type="button" onclick="closeWallpaperModal()" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-100 font-medium text-sm">
+                    Abbrechen
+                </button>
+                <button type="button" id="save-wallpaper-btn" onclick="saveCroppedWallpaper()" class="px-5 py-2 bg-[#00a884] hover:bg-[#008f6f] text-white rounded-xl font-medium text-sm shadow-sm disabled:opacity-50" disabled>
+                    Speichern
+                </button>
+            </div>
         </div>
     </div>
 </div>
@@ -594,6 +655,140 @@
 
             document.getElementById('chat-form').submit();
         }, 'image/jpeg', 0.85);
+    }
+
+    // Chat-Hintergrundbild Logik & Cropper
+    let wallpaperCropper = null;
+
+    function openWallpaperModal() {
+        document.getElementById('wallpaper-modal').classList.remove('hidden');
+    }
+
+    function closeWallpaperModal() {
+        document.getElementById('wallpaper-modal').classList.add('hidden');
+        if (wallpaperCropper) {
+            wallpaperCropper.destroy();
+            wallpaperCropper = null;
+        }
+        document.getElementById('wallpaper-crop-section').classList.add('hidden');
+        document.getElementById('wallpaper-preview-section').classList.remove('hidden');
+        document.getElementById('save-wallpaper-btn').disabled = true;
+        document.getElementById('wallpaper-file-input').value = '';
+    }
+
+    function onWallpaperFileSelected(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const cropImage = document.getElementById('wallpaper-image-to-crop');
+            cropImage.src = e.target.result;
+
+            document.getElementById('wallpaper-crop-section').classList.remove('hidden');
+            document.getElementById('wallpaper-preview-section').classList.add('hidden');
+            document.getElementById('save-wallpaper-btn').disabled = false;
+
+            if (wallpaperCropper) {
+                wallpaperCropper.destroy();
+            }
+
+            wallpaperCropper = new Cropper(cropImage, {
+                viewMode: 1,
+                autoCropArea: 1,
+                responsive: true,
+                restore: false,
+            });
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function saveCroppedWallpaper() {
+        if (!wallpaperCropper) return;
+
+        const btn = document.getElementById('save-wallpaper-btn');
+        btn.disabled = true;
+        btn.innerText = 'Speichern...';
+
+        const canvas = wallpaperCropper.getCroppedCanvas({
+            maxWidth: 1920,
+            maxHeight: 1920,
+            imageSmoothingQuality: 'high',
+        });
+
+        const base64 = canvas.toDataURL('image/jpeg', 0.85);
+
+        fetch("{{ route('profile.wallpaper.update') }}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({ wallpaper_base64: base64 })
+        })
+        .then(res => res.json())
+        .then(data => {
+            btn.disabled = false;
+            btn.innerText = 'Speichern';
+            if (data.status === 'success' && data.wallpaper_url) {
+                const mc = document.getElementById('messages-container');
+                if (mc) {
+                    mc.style.backgroundImage = 'url(' + data.wallpaper_url + ')';
+                    mc.style.backgroundSize = 'cover';
+                    mc.style.backgroundPosition = 'center';
+                    mc.style.backgroundRepeat = 'no-repeat';
+                }
+                const prev = document.getElementById('current-wallpaper-preview');
+                if (prev) {
+                    prev.style.backgroundImage = 'url(' + data.wallpaper_url + ')';
+                    prev.style.backgroundSize = 'cover';
+                    prev.style.backgroundPosition = 'center';
+                    prev.innerHTML = '';
+                }
+                closeWallpaperModal();
+                alert('Hintergrundbild erfolgreich gespeichert!');
+            } else {
+                alert('Fehler beim Speichern: ' + (data.message || 'Unbekannt'));
+            }
+        })
+        .catch(err => {
+            btn.disabled = false;
+            btn.innerText = 'Speichern';
+            alert('Netzwerkfehler: ' + err);
+        });
+    }
+
+    function deleteWallpaper() {
+        if (!confirm('Möchtest du das Hintergrundbild wirklich auf Standard zurücksetzen?')) return;
+
+        fetch("{{ route('profile.wallpaper.delete') }}", {
+            method: 'DELETE',
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json'
+            }
+        })
+        .then(res => res.json())
+        .then(data => {
+            const mc = document.getElementById('messages-container');
+            if (mc) {
+                mc.style.backgroundImage = "url('https://web.whatsapp.com/img/bg-chat-tile-dark_a4be512e7195b6b733d9110b408f075d.png')";
+                mc.style.backgroundRepeat = "repeat";
+                mc.style.backgroundColor = "#efeae2";
+                mc.style.backgroundSize = "auto";
+            }
+            const prev = document.getElementById('current-wallpaper-preview');
+            if (prev) {
+                prev.style.backgroundImage = "url('https://web.whatsapp.com/img/bg-chat-tile-dark_a4be512e7195b6b733d9110b408f075d.png')";
+                prev.style.backgroundRepeat = "repeat";
+                prev.style.backgroundColor = "#efeae2";
+                prev.innerHTML = '<span id="default-wallpaper-badge" class="bg-black/40 text-white text-xs px-3 py-1 rounded-full backdrop-blur-sm">Standard WhatsApp Muster</span>';
+            }
+            closeWallpaperModal();
+            alert('Hintergrundbild zurückgesetzt.');
+        })
+        .catch(err => alert('Fehler: ' + err));
     }
 
     // Live-Suche für Chats und Kontakte

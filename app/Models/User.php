@@ -32,6 +32,7 @@ class User extends Authenticatable
 
     protected $appends = [
         'avatar_url',
+        'wallpaper_url',
     ];
 
     public function getAvatarUrlAttribute()
@@ -44,6 +45,19 @@ class User extends Authenticatable
             return $path;
         }
         return '/storage/' . ltrim($path, '/');
+    }
+
+    public function getWallpaperUrlAttribute()
+    {
+        $settings = $this->settings ?? [];
+        $wallpaper = $settings['wallpaper'] ?? null;
+        if (!$wallpaper) {
+            return null;
+        }
+        if (str_starts_with($wallpaper, 'http://') || str_starts_with($wallpaper, 'https://')) {
+            return $wallpaper;
+        }
+        return '/storage/' . ltrim($wallpaper, '/');
     }
 
     protected function casts(): array
