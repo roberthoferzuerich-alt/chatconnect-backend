@@ -44,4 +44,11 @@
             </x-primary-button>
         </div>
     </form>
+
+    <div class="mt-6 pt-4 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500">
+        <a href="{{ route('download') }}" class="text-teal-600 hover:underline font-medium flex items-center space-x-1">
+            <span>App herunterladen (Android / iOS)</span>
+        </a>
+        <a href="{{ route('privacy') }}" class="hover:underline">Datenschutz</a>
+    </div>
 </x-guest-layout>
