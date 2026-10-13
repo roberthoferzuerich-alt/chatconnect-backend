@@ -64,7 +64,7 @@
     </div>
 
     <!-- Sidebar (Chat List) -->
-    <div class="w-1/3 flex flex-col border-r border-gray-200 bg-white z-10 relative">
+    <div class="w-1/3 flex flex-col border-r border-gray-200 bg-white z-30 relative">
         <!-- Header -->
         <div class="h-16 bg-white flex items-center justify-between px-4 py-2 relative">
             <h2 class="text-2xl font-semibold text-gray-900">Chats</h2>
@@ -85,37 +85,37 @@
                 </button>
 
                 <!-- Dropdown Menü -->
-                <div id="chat-menu" class="hidden absolute top-14 left-1/2 transform -translate-x-1/2 md:translate-x-0 md:left-auto md:right-8 w-64 bg-white rounded-2xl shadow-xl border border-gray-100 py-2 z-50">
+                <div id="chat-menu" class="hidden absolute top-14 left-2 w-64 bg-white rounded-2xl shadow-2xl border border-gray-100 py-2 z-50" style="left: 8px; right: auto; transform: none; width: 260px; z-index: 999;">
                     <a href="{{ route('communities.index') }}" class="flex items-center px-4 py-3 text-[15px] text-gray-800 hover:bg-gray-50 transition">
-                        <svg class="w-5 h-5 mr-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5V18a3 3 0 00-5-2.5M9 20H4V18a3 3 0 015-2.5M16 11a3 3 0 100-6 3 3 0 000 6zM9 11a3 3 0 100-6 3 3 0 000 6z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11v4m-2-2h4"></path></svg>
-                        Neue Gruppe
+                        <svg class="w-5 h-5 mr-3.5 text-gray-600 flex-shrink-0" style="min-width: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5V18a3 3 0 00-5-2.5M9 20H4V18a3 3 0 015-2.5M16 11a3 3 0 100-6 3 3 0 000 6zM9 11a3 3 0 100-6 3 3 0 000 6z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11v4m-2-2h4"></path></svg>
+                        <span>Neue Gruppe</span>
                     </a>
                     <a href="#" class="flex items-center px-4 py-3 text-[15px] text-gray-800 hover:bg-gray-50 transition">
-                        <svg class="w-5 h-5 mr-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path></svg>
-                        Mit Stern markierte Nachrichten
+                        <svg class="w-5 h-5 mr-3.5 text-gray-600 flex-shrink-0" style="min-width: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path></svg>
+                        <span>Mit Stern markierte Nachrichten</span>
                     </a>
                     <a href="#" class="flex items-center px-4 py-3 text-[15px] text-gray-800 hover:bg-gray-50 transition">
-                        <svg class="w-5 h-5 mr-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
-                        Chats auswählen
+                        <svg class="w-5 h-5 mr-3.5 text-gray-600 flex-shrink-0" style="min-width: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+                        <span>Chats auswählen</span>
                     </a>
                     <a href="#" class="flex items-center px-4 py-3 text-[15px] text-gray-800 hover:bg-gray-50 transition">
-                        <svg class="w-5 h-5 mr-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
-                        Alle als gelesen markieren
+                        <svg class="w-5 h-5 mr-3.5 text-gray-600 flex-shrink-0" style="min-width: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                        <span>Alle als gelesen markieren</span>
                     </a>
                     
                     <button type="button" onclick="document.getElementById('chat-menu').classList.add('hidden'); openWallpaperModal();" class="w-full flex items-center px-4 py-3 text-[15px] text-gray-800 hover:bg-gray-50 transition text-left">
-                        <svg class="w-5 h-5 mr-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                        Chat-Hintergrundbild
+                        <svg class="w-5 h-5 mr-3.5 text-gray-600 flex-shrink-0" style="min-width: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                        <span>Chat-Hintergrundbild</span>
                     </button>
                     <a href="#" class="flex items-center px-4 py-3 text-[15px] text-gray-800 hover:bg-gray-50 transition">
-                        <svg class="w-5 h-5 mr-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
-                        App-Sperre
+                        <svg class="w-5 h-5 mr-3.5 text-gray-600 flex-shrink-0" style="min-width: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                        <span>App-Sperre</span>
                     </a>
                     <form action="{{ route('logout') }}" method="POST" class="w-full">
                         @csrf
                         <button type="submit" class="w-full flex items-center px-4 py-3 text-[15px] text-gray-800 hover:bg-gray-50 text-left transition">
-                            <svg class="w-5 h-5 mr-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
-                            Abmelden
+                            <svg class="w-5 h-5 mr-3.5 text-gray-600 flex-shrink-0" style="min-width: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                            <span>Abmelden</span>
                         </button>
                     </form>
                 </div>
