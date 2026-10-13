@@ -439,43 +439,42 @@
 </div>
 
 <!-- Chat-Hintergrundbild Modal -->
-<div id="wallpaper-modal" class="hidden fixed inset-0 bg-black/75 z-50 flex items-center justify-center p-3 sm:p-4 backdrop-blur-sm">
-    <div class="bg-white rounded-2xl max-w-lg w-full overflow-hidden shadow-2xl flex flex-col max-h-[92vh]">
+<div id="wallpaper-modal" class="hidden fixed inset-0 bg-black/75 z-50 flex items-center justify-center p-2 sm:p-4 backdrop-blur-sm overflow-y-auto">
+    <div class="bg-white rounded-2xl max-w-lg w-full overflow-hidden shadow-2xl flex flex-col" style="max-height: 88vh; display: flex; flex-direction: column;">
         <!-- Header -->
-        <div class="p-4 border-b flex items-center justify-between bg-gray-50 flex-shrink-0">
+        <div class="px-4 py-3 border-b flex items-center justify-between bg-gray-50 flex-shrink-0" style="flex-shrink: 0;">
             <div class="flex items-center space-x-2">
                 <svg class="w-5 h-5 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                <h3 class="font-bold text-gray-800 text-lg">Chat-Hintergrundbild</h3>
+                <h3 class="font-bold text-gray-800 text-base sm:text-lg">Chat-Hintergrundbild</h3>
             </div>
-            <button type="button" onclick="closeWallpaperModal()" class="text-gray-400 hover:text-gray-600 text-2xl font-bold">&times;</button>
+            <button type="button" onclick="closeWallpaperModal()" class="text-gray-400 hover:text-gray-600 text-2xl font-bold leading-none px-1">&times;</button>
         </div>
 
-        <div class="p-4 sm:p-5 space-y-4 overflow-y-auto flex-1">
+        <div class="p-3 sm:p-5 space-y-3 overflow-y-auto flex-1" style="overflow-y: auto; flex: 1 1 auto; min-height: 0;">
             <!-- Crop section -->
-            <div id="wallpaper-crop-section" class="hidden space-y-3">
-                <div class="flex items-center justify-between">
-                    <p class="text-xs text-gray-500 font-semibold">Bildausschnitt anpassen:</p>
-                    <button type="button" onclick="cancelCrop()" class="text-xs text-teal-600 hover:text-teal-800 font-medium">Zurück zur Auswahl</button>
-                </div>
-                <div class="max-h-[300px] w-full bg-gray-900 rounded-xl overflow-hidden flex items-center justify-center">
-                    <img id="wallpaper-image-to-crop" class="max-w-full max-h-[300px] block" src="" alt="Crop">
-                </div>
-                <div class="flex items-center justify-end space-x-2 pt-1">
-                    <button type="button" onclick="cancelCrop()" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-100 font-medium text-sm">
-                        Abbrechen
+            <div id="wallpaper-crop-section" class="hidden space-y-2.5">
+                <!-- Obere Aktionsleiste (sofort sichtbar auch auf kleinen Tablets) -->
+                <div class="flex items-center justify-between gap-2 bg-gray-50 p-2 rounded-xl border border-gray-200">
+                    <button type="button" onclick="cancelCrop()" class="px-3 py-1.5 border border-gray-300 bg-white text-gray-700 rounded-lg hover:bg-gray-100 font-medium text-xs sm:text-sm">
+                        &larr; Zurück
                     </button>
-                    <button type="button" onclick="saveCroppedWallpaper()" class="px-5 py-2.5 bg-[#00a884] hover:bg-[#008f6f] text-white rounded-xl font-bold text-sm shadow-md flex items-center space-x-2">
+                    <button type="button" onclick="saveCroppedWallpaper()" style="background-color: #00a884; color: #ffffff;" class="px-4 py-1.5 hover:opacity-90 text-white rounded-lg font-bold text-xs sm:text-sm shadow flex items-center space-x-1.5">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                         <span>Ausschnitt speichern</span>
                     </button>
                 </div>
+
+                <!-- Kompakter Cropper-Container für kleine Tablets -->
+                <div class="w-full bg-gray-900 rounded-xl overflow-hidden flex items-center justify-center" style="height: 210px; max-height: 36vh;">
+                    <img id="wallpaper-image-to-crop" class="max-w-full block" style="max-height: 210px;" src="" alt="Crop">
+                </div>
             </div>
 
             <!-- Preview section -->
-            <div id="wallpaper-preview-section" class="space-y-4">
+            <div id="wallpaper-preview-section" class="space-y-3">
                 <div>
-                    <p class="text-xs text-gray-500 mb-2 font-medium">Aktuelles Chat-Hintergrundbild:</p>
-                    <div id="current-wallpaper-preview" class="w-full h-36 rounded-xl border border-gray-200 overflow-hidden shadow-inner flex items-center justify-center relative"
+                    <p class="text-xs text-gray-500 mb-1.5 font-medium">Aktuelles Chat-Hintergrundbild:</p>
+                    <div id="current-wallpaper-preview" class="w-full h-28 sm:h-36 rounded-xl border border-gray-200 overflow-hidden shadow-inner flex items-center justify-center relative"
                          style="@if($user->wallpaper_url) background-image: url('{{ $user->wallpaper_url }}'); background-size: cover; background-position: center; @else background-image: url('https://web.whatsapp.com/img/bg-chat-tile-dark_a4be512e7195b6b733d9110b408f075d.png'); background-repeat: repeat; background-color: #efeae2; @endif">
                         @if(!$user->wallpaper_url)
                             <span id="default-wallpaper-badge" class="bg-black/40 text-white text-xs px-3 py-1 rounded-full backdrop-blur-sm">Standard WhatsApp Muster</span>
@@ -485,15 +484,15 @@
 
                 <!-- Presets -->
                 <div>
-                    <p class="text-xs text-gray-500 mb-2 font-medium">Coole Vorlagen auswählen:</p>
-                    <div class="grid grid-cols-2 gap-3">
-                        <div class="group relative rounded-xl overflow-hidden border border-gray-200 shadow-sm h-32 flex flex-col justify-end">
+                    <p class="text-xs text-gray-500 mb-1.5 font-medium">Coole Vorlagen auswählen:</p>
+                    <div class="grid grid-cols-2 gap-2.5">
+                        <div class="group relative rounded-xl overflow-hidden border border-gray-200 shadow-sm h-28 sm:h-32 flex flex-col justify-end">
                             <img src="/images/chat-bg-dark-neon.jpg" class="absolute inset-0 w-full h-full object-cover">
                             <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
-                            <div class="relative p-2.5 space-y-1.5 z-10">
+                            <div class="relative p-2 space-y-1 z-10">
                                 <span class="text-white text-xs font-bold drop-shadow block">Neon Waves</span>
-                                <div class="flex items-center space-x-1.5">
-                                    <button type="button" onclick="applyPresetDirectly('/images/chat-bg-dark-neon.jpg')" class="flex-1 bg-[#00a884] hover:bg-[#008f6f] text-white text-[11px] font-semibold py-1.5 px-2 rounded-lg text-center shadow transition flex items-center justify-center space-x-1">
+                                <div class="flex items-center space-x-1">
+                                    <button type="button" onclick="applyPresetDirectly('/images/chat-bg-dark-neon.jpg')" style="background-color: #00a884; color: #ffffff;" class="flex-1 text-white text-[11px] font-semibold py-1.5 px-2 rounded-lg text-center shadow transition flex items-center justify-center space-x-1">
                                         <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                                         <span>Übernehmen</span>
                                     </button>
@@ -503,13 +502,13 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="group relative rounded-xl overflow-hidden border border-gray-200 shadow-sm h-32 flex flex-col justify-end">
+                        <div class="group relative rounded-xl overflow-hidden border border-gray-200 shadow-sm h-28 sm:h-32 flex flex-col justify-end">
                             <img src="/images/chat-bg-cyber-mesh.jpg" class="absolute inset-0 w-full h-full object-cover">
                             <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
-                            <div class="relative p-2.5 space-y-1.5 z-10">
+                            <div class="relative p-2 space-y-1 z-10">
                                 <span class="text-white text-xs font-bold drop-shadow block">Cyber Mesh</span>
-                                <div class="flex items-center space-x-1.5">
-                                    <button type="button" onclick="applyPresetDirectly('/images/chat-bg-cyber-mesh.jpg')" class="flex-1 bg-[#00a884] hover:bg-[#008f6f] text-white text-[11px] font-semibold py-1.5 px-2 rounded-lg text-center shadow transition flex items-center justify-center space-x-1">
+                                <div class="flex items-center space-x-1">
+                                    <button type="button" onclick="applyPresetDirectly('/images/chat-bg-cyber-mesh.jpg')" style="background-color: #00a884; color: #ffffff;" class="flex-1 text-white text-[11px] font-semibold py-1.5 px-2 rounded-lg text-center shadow transition flex items-center justify-center space-x-1">
                                         <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                                         <span>Übernehmen</span>
                                     </button>
@@ -524,7 +523,7 @@
 
                 <!-- Choose file input -->
                 <div class="flex items-center justify-center pt-1">
-                    <label class="cursor-pointer px-4 py-2.5 bg-teal-50 hover:bg-teal-100 text-teal-700 rounded-xl font-medium text-sm border border-teal-200 transition flex items-center space-x-2">
+                    <label class="cursor-pointer px-4 py-2 bg-teal-50 hover:bg-teal-100 text-teal-700 rounded-xl font-medium text-xs sm:text-sm border border-teal-200 transition flex items-center space-x-2">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
                         <span>Eigenes Bild hochladen & zuschneiden</span>
                         <input type="file" id="wallpaper-file-input" accept="image/*" class="hidden" onchange="onWallpaperFileSelected(event)">
@@ -533,16 +532,16 @@
             </div>
         </div>
 
-        <!-- Footer -->
-        <div class="p-4 border-t bg-gray-50 flex items-center justify-between flex-shrink-0">
-            <button type="button" onclick="deleteWallpaper()" class="text-red-600 hover:text-red-700 hover:bg-red-50 px-3 py-2 rounded-xl text-sm font-medium transition">
+        <!-- Sticky Footer (immer sichtbar am unteren Rand) -->
+        <div class="px-4 py-3 border-t bg-gray-50 flex items-center justify-between flex-shrink-0 gap-2" style="flex-shrink: 0;">
+            <button type="button" onclick="deleteWallpaper()" class="text-red-600 hover:text-red-700 hover:bg-red-50 px-2.5 py-1.5 rounded-xl text-xs sm:text-sm font-medium transition">
                 Standard wiederherstellen
             </button>
             <div class="flex items-center space-x-2">
-                <button type="button" onclick="closeWallpaperModal()" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-100 font-medium text-sm">
+                <button type="button" onclick="closeWallpaperModal()" class="px-3.5 py-1.5 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-100 font-medium text-xs sm:text-sm">
                     Schließen
                 </button>
-                <button type="button" id="save-wallpaper-btn" onclick="saveCroppedWallpaper()" class="hidden px-5 py-2.5 bg-[#00a884] hover:bg-[#008f6f] text-white rounded-xl font-bold text-sm shadow-md transition flex items-center space-x-1.5">
+                <button type="button" id="save-wallpaper-btn" onclick="saveCroppedWallpaper()" style="background-color: #00a884; color: #ffffff;" class="hidden px-4 py-1.5 text-white rounded-xl font-bold text-xs sm:text-sm shadow-md transition flex items-center space-x-1.5">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                     <span>Speichern</span>
                 </button>
