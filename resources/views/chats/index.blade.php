@@ -302,7 +302,10 @@
                             $audioSrc = $msg->audio_url ?: ($msg->audio_path ? '/storage/' . ltrim($msg->audio_path, '/') : null);
                         @endphp
                         <div class="flex {{ $isMe ? 'justify-end' : 'justify-start' }}" data-msg-id="{{ $msg->id }}">
-                            <div class="max-w-[70%] rounded-lg p-2 px-3 shadow-sm relative text-[15px] {{ $isMe ? 'msg-me rounded-tr-none' : 'msg-other rounded-tl-none' }}">
+                            <div class="group/msg max-w-[70%] rounded-lg p-2 px-3 shadow-sm relative text-[15px] {{ $isMe ? 'msg-me rounded-tr-none' : 'msg-other rounded-tl-none' }}">
+                                <button type="button" onclick="deleteChatMessage({{ $msg->id }})" class="opacity-0 group-hover/msg:opacity-100 hover:text-red-500 text-gray-400 absolute top-1 right-1 p-0.5 transition" title="Nachricht löschen">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                </button>
                                 
                                 @if($activeConversation->is_group && !$isMe && $msg->sender)
                                     <div class="text-[11px] font-bold text-teal-700 mb-1">
@@ -894,7 +897,10 @@
         ` : '';
 
         div.innerHTML = `
-            <div class="max-w-[70%] rounded-lg p-2 px-3 shadow-sm relative text-[15px] ${isMe ? 'msg-me rounded-tr-none' : 'msg-other rounded-tl-none'}">
+            <div class="group/msg max-w-[70%] rounded-lg p-2 px-3 shadow-sm relative text-[15px] ${isMe ? 'msg-me rounded-tr-none' : 'msg-other rounded-tl-none'}">
+                <button type="button" onclick="deleteChatMessage(${msg.id})" class="opacity-0 group-hover/msg:opacity-100 hover:text-red-500 text-gray-400 absolute top-1 right-1 p-0.5 transition" title="Nachricht löschen">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                </button>
                 ${bodyHtml}
                 <div class="absolute bottom-1 right-2 flex items-center text-[10px] text-gray-500">
                     <span>${msg.time}</span>
@@ -913,6 +919,29 @@
         if (msg.id > lastKnownMessageId) {
             lastKnownMessageId = msg.id;
         }
+    }
+
+    function deleteChatMessage(id) {
+        if (!confirm('Möchtest du diese Nachricht wirklich für alle löschen?')) return;
+        fetch('/messages/' + id, {
+            method: 'DELETE',
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.status === 'success') {
+                const el = document.querySelector(`[data-msg-id="${id}"]`);
+                if (el) el.remove();
+            }
+        })
+        .catch(err => {
+            console.error('Delete error:', err);
+            alert('Fehler beim Löschen: ' + err);
+        });
     }
 
     function escapeHtml(str) {
