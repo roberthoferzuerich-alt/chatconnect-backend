@@ -301,7 +301,7 @@
                             $imgSrc = $msg->image_url ?: ($msg->image_path ? '/storage/' . ltrim($msg->image_path, '/') : null);
                             $audioSrc = $msg->audio_url ?: ($msg->audio_path ? '/storage/' . ltrim($msg->audio_path, '/') : null);
                         @endphp
-                        <div class="flex {{ $isMe ? 'justify-end' : 'justify-start' }}">
+                        <div class="flex {{ $isMe ? 'justify-end' : 'justify-start' }}" data-msg-id="{{ $msg->id }}">
                             <div class="max-w-[70%] rounded-lg p-2 px-3 shadow-sm relative text-[15px] {{ $isMe ? 'msg-me rounded-tr-none' : 'msg-other rounded-tl-none' }}">
                                 
                                 @if($activeConversation->is_group && !$isMe && $msg->sender)
@@ -317,10 +317,12 @@
                                 @endif
 
                                 @if($audioSrc)
-                                    <div class="mb-2 pt-1">
-                                        <audio controls class="max-w-full h-9">
+                                    <div class="mb-2 pt-1 min-w-[220px] max-w-xs">
+                                        <audio controls src="{{ $audioSrc }}" preload="metadata" class="w-full h-9 rounded-lg">
+                                            <source src="{{ $audioSrc }}" type="audio/webm">
+                                            <source src="{{ $audioSrc }}" type="audio/ogg">
+                                            <source src="{{ $audioSrc }}" type="audio/mp4">
                                             <source src="{{ $audioSrc }}" type="audio/mpeg">
-                                            <source src="{{ $audioSrc }}" type="audio/m4a">
                                             <source src="{{ $audioSrc }}" type="audio/wav">
                                             Audio kann nicht abgespielt werden.
                                         </audio>
@@ -355,11 +357,36 @@
                         <emoji-picker locale="de" id="emoji-picker-element"></emoji-picker>
                     </div>
 
-                    <form id="chat-form" action="{{ route('chats.store', $activeConversation->id) }}" method="POST" enctype="multipart/form-data" class="h-16 flex items-center px-4 py-2 gap-2">
+                    <!-- Voice Recording Active Bar -->
+                    <div id="voice-recording-bar" class="hidden h-16 flex items-center px-4 py-2 gap-3 bg-red-50 border-t border-red-200">
+                        <div class="flex items-center space-x-2">
+                            <span class="relative flex h-3 w-3">
+                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                                <span class="relative inline-flex rounded-full h-3 w-3 bg-red-600"></span>
+                            </span>
+                            <span id="recording-timer" class="font-mono text-sm font-bold text-red-600">0:00</span>
+                        </div>
+                        <div class="flex-1 flex items-center space-x-2">
+                            <span class="text-xs sm:text-sm text-gray-700 font-medium">🎤 Sprachnachricht läuft...</span>
+                        </div>
+                        <!-- Cancel Recording -->
+                        <button type="button" onclick="cancelVoiceRecording()" class="p-2 text-gray-500 hover:text-red-600 hover:bg-red-100 rounded-full transition" title="Löschen & Abbrechen">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                        </button>
+                        <!-- Send Recording -->
+                        <button type="button" onclick="sendVoiceRecording()" class="w-10 h-10 bg-[#00a884] hover:bg-[#008f6f] text-white rounded-full flex items-center justify-center transition shadow-md focus:outline-none flex-shrink-0" title="Sprachnachricht senden">
+                            <svg class="w-5 h-5 ml-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <!-- Normal Chat Form -->
+                    <form id="chat-form" action="{{ route('chats.store', $activeConversation->id) }}" method="POST" enctype="multipart/form-data" class="h-16 flex items-center px-4 py-2 gap-2" onsubmit="handleChatSubmit(event)">
                         @csrf
                         
                         <!-- Emoji Button -->
-                        <button type="button" onclick="toggleEmojiPicker()" class="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-200 rounded-full transition" title="Emojis">
+                        <button type="button" onclick="toggleEmojiPicker()" class="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-200 rounded-full transition flex-shrink-0" title="Emojis">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <circle cx="12" cy="12" r="10" stroke-width="2"/>
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 14s1.5 2 4 2 4-2 4-2M9 9h.01M15 9h.01"/>
@@ -367,21 +394,26 @@
                         </button>
 
                         <!-- Paperclip / Image Attachment -->
-                        <label class="text-gray-500 hover:text-gray-700 hover:bg-gray-200 rounded-full cursor-pointer p-2 transition" title="Bild anhängen & zuschneiden">
+                        <label class="text-gray-500 hover:text-gray-700 hover:bg-gray-200 rounded-full cursor-pointer p-2 transition flex-shrink-0" title="Bild anhängen & zuschneiden">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path></svg>
                             <input type="file" id="image-file-input" accept="image/*" class="hidden" onchange="openImageCropModal(event)">
                         </label>
                         
                         <!-- Text Input -->
                         <div class="flex-1">
-                            <input type="text" id="chat-input-field" name="content" placeholder="Schreibe eine Nachricht" class="w-full bg-white rounded-lg px-4 py-2.5 outline-none focus:ring-2 focus:ring-[#00a884] shadow-sm border border-transparent text-[15px]" autofocus autocomplete="off">
+                            <input type="text" id="chat-input-field" name="content" placeholder="Schreibe eine Nachricht..." class="w-full bg-white rounded-lg px-4 py-2.5 outline-none focus:ring-2 focus:ring-[#00a884] shadow-sm border border-transparent text-[15px]" autofocus autocomplete="off">
                         </div>
                         
                         <!-- Hidden input for final image blob -->
                         <input type="file" name="image" id="final-image-input" class="hidden">
 
+                        <!-- Microphone / Voice Message Button -->
+                        <button type="button" id="mic-record-btn" onclick="startVoiceRecording()" class="w-10 h-10 bg-gray-200 hover:bg-teal-100 text-gray-600 hover:text-teal-700 rounded-full flex items-center justify-center transition shadow-sm focus:outline-none flex-shrink-0" title="Sprachnachricht aufnehmen">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path></svg>
+                        </button>
+
                         <!-- Send Arrow Button -->
-                        <button type="submit" class="w-10 h-10 bg-[#00a884] hover:bg-[#008f6f] text-white rounded-full flex items-center justify-center transition shadow-md focus:outline-none flex-shrink-0" title="Nachricht senden">
+                        <button type="submit" id="send-msg-btn" class="w-10 h-10 bg-[#00a884] hover:bg-[#008f6f] text-white rounded-full flex items-center justify-center transition shadow-md focus:outline-none flex-shrink-0" title="Nachricht senden">
                             <svg class="w-5 h-5 ml-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
                             </svg>
@@ -605,6 +637,331 @@
     if (container) {
         container.scrollTop = container.scrollHeight;
     }
+
+    // --- BENACHRICHTIGUNGSTON (Pling) ---
+    function playNotificationSound() {
+        try {
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            if (!AudioContext) return;
+            const ctx = new AudioContext();
+            const now = ctx.currentTime;
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+
+            // Heller, sympathischer WhatsApp-ähnlicher Zweiklang
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(587.33, now); // D5
+            osc.frequency.exponentialRampToValueAtTime(880.00, now + 0.10); // A5
+
+            gain.gain.setValueAtTime(0.25, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
+
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+
+            osc.start(now);
+            osc.stop(now + 0.45);
+        } catch (e) {
+            console.log('Audio autoplay blocked or unsupported', e);
+        }
+    }
+
+    // --- SPRACHNACHRICHTEN AUFNEHMEN (MediaRecorder) ---
+    let mediaRecorder = null;
+    let audioChunks = [];
+    let recordingTimerInterval = null;
+    let recordingSeconds = 0;
+    let audioStream = null;
+
+    async function startVoiceRecording() {
+        try {
+            audioChunks = [];
+            recordingSeconds = 0;
+            
+            // Mikrofon anfordern
+            audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            
+            // Geeigneten Mime-Type ermitteln
+            let options = {};
+            if (MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) {
+                options = { mimeType: 'audio/webm;codecs=opus' };
+            } else if (MediaRecorder.isTypeSupported('audio/webm')) {
+                options = { mimeType: 'audio/webm' };
+            } else if (MediaRecorder.isTypeSupported('audio/mp4')) {
+                options = { mimeType: 'audio/mp4' };
+            } else if (MediaRecorder.isTypeSupported('audio/ogg')) {
+                options = { mimeType: 'audio/ogg' };
+            }
+
+            mediaRecorder = new MediaRecorder(audioStream, options);
+
+            mediaRecorder.ondataavailable = function(e) {
+                if (e.data && e.data.size > 0) {
+                    audioChunks.push(e.data);
+                }
+            };
+
+            mediaRecorder.start(250); // Alle 250ms Daten sammeln
+
+            // UI umschalten auf Aufnahmebalken
+            document.getElementById('chat-form').classList.add('hidden');
+            document.getElementById('voice-recording-bar').classList.remove('hidden');
+            document.getElementById('recording-timer').innerText = '0:00';
+
+            // Timer starten
+            recordingTimerInterval = setInterval(function() {
+                recordingSeconds++;
+                const mins = Math.floor(recordingSeconds / 60);
+                const secs = recordingSeconds % 60;
+                document.getElementById('recording-timer').innerText = 
+                    mins + ':' + (secs < 10 ? '0' : '') + secs;
+            }, 1000);
+
+        } catch (err) {
+            console.error('Mikrofonfehler:', err);
+            alert('Mikrofon-Zugriff fehlgeschlagen: Bitte erlaube dem Browser den Zugriff auf das Mikrofon.');
+            cleanupRecording();
+        }
+    }
+
+    function cleanupRecording() {
+        if (recordingTimerInterval) {
+            clearInterval(recordingTimerInterval);
+            recordingTimerInterval = null;
+        }
+        if (audioStream) {
+            audioStream.getTracks().forEach(t => t.stop());
+            audioStream = null;
+        }
+        mediaRecorder = null;
+        audioChunks = [];
+        document.getElementById('voice-recording-bar').classList.add('hidden');
+        document.getElementById('chat-form').classList.remove('hidden');
+    }
+
+    function cancelVoiceRecording() {
+        if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+            mediaRecorder.stop();
+        }
+        cleanupRecording();
+    }
+
+    function sendVoiceRecording() {
+        if (!mediaRecorder || mediaRecorder.state === 'inactive') return;
+
+        mediaRecorder.onstop = function() {
+            const mimeType = mediaRecorder.mimeType || 'audio/webm';
+            const audioBlob = new Blob(audioChunks, { type: mimeType });
+            
+            if (audioBlob.size < 500) {
+                cleanupRecording();
+                return; // Zu kurz / leer
+            }
+
+            let ext = 'webm';
+            if (mimeType.includes('mp4') || mimeType.includes('aac')) ext = 'm4a';
+            else if (mimeType.includes('ogg')) ext = 'ogg';
+
+            const audioFile = new File([audioBlob], 'voice_' + Date.now() + '.' + ext, { type: mimeType });
+
+            const formData = new FormData();
+            formData.append('audio', audioFile);
+            formData.append('_token', '{{ csrf_token() }}');
+
+            fetch("{{ route('chats.store', $activeConversation->id ?? 0) }}", {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                cleanupRecording();
+                if (data.status === 'success' && data.message) {
+                    appendMessageToChat(data.message);
+                }
+            })
+            .catch(err => {
+                console.error('Audio Upload Error:', err);
+                cleanupRecording();
+                alert('Fehler beim Senden der Sprachnachricht: ' + err);
+            });
+        };
+
+        mediaRecorder.stop();
+        if (recordingTimerInterval) {
+            clearInterval(recordingTimerInterval);
+            recordingTimerInterval = null;
+        }
+    }
+
+    // --- TEXTNACHRICHT PER AJAX SENDEN (ohne Neuladen) ---
+    function handleChatSubmit(e) {
+        // Falls Bild ausgewählt ist, normales Formular-Submit nutzen
+        const imageInput = document.getElementById('final-image-input');
+        if (imageInput && imageInput.files && imageInput.files.length > 0) {
+            return; // Normal absenden
+        }
+
+        e.preventDefault();
+        const inputField = document.getElementById('chat-input-field');
+        const content = (inputField.value || '').trim();
+        if (!content) return;
+
+        // Eingabefeld sofort leeren für geschmeidiges Tippen
+        inputField.value = '';
+
+        const formData = new FormData();
+        formData.append('content', content);
+        formData.append('_token', '{{ csrf_token() }}');
+
+        fetch("{{ route('chats.store', $activeConversation->id ?? 0) }}", {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: formData
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.status === 'success' && data.message) {
+                appendMessageToChat(data.message);
+            }
+        })
+        .catch(err => {
+            console.error('Send error:', err);
+            // Fallback: normales Submit
+            document.getElementById('chat-form').submit();
+        });
+    }
+
+    // --- NACHRICHT INS CHAT-FENSTER ANFÜGEN ---
+    function appendMessageToChat(msg) {
+        const mc = document.getElementById('messages-container');
+        if (!mc) return;
+
+        // Prüfen, ob Nachricht schon da ist
+        if (document.querySelector(`[data-msg-id="${msg.id}"]`)) return;
+
+        const isMe = msg.is_me;
+        const div = document.createElement('div');
+        div.className = `flex ${isMe ? 'justify-end' : 'justify-start'}`;
+        div.setAttribute('data-msg-id', msg.id);
+
+        let bodyHtml = '';
+
+        @if(isset($activeConversation) && $activeConversation->is_group)
+            if (!isMe && msg.sender_name) {
+                bodyHtml += `<div class="text-[11px] font-bold text-teal-700 mb-1">${escapeHtml(msg.sender_name)}</div>`;
+            }
+        @endif
+
+        if (msg.image_url) {
+            bodyHtml += `
+                <div class="mb-2 max-w-sm rounded-lg overflow-hidden cursor-pointer shadow-sm hover:opacity-95 transition" onclick="window.open('${msg.image_url}', '_blank')">
+                    <img src="${msg.image_url}" alt="Bild" class="w-full max-h-72 object-cover rounded-lg" loading="lazy" />
+                </div>
+            `;
+        }
+
+        if (msg.audio_url) {
+            bodyHtml += `
+                <div class="mb-2 pt-1 min-w-[220px] max-w-xs">
+                    <audio controls src="${msg.audio_url}" preload="metadata" class="w-full h-9 rounded-lg">
+                        <source src="${msg.audio_url}" type="audio/webm">
+                        <source src="${msg.audio_url}" type="audio/ogg">
+                        <source src="${msg.audio_url}" type="audio/mp4">
+                        <source src="${msg.audio_url}" type="audio/mpeg">
+                        <source src="${msg.audio_url}" type="audio/wav">
+                        Audio kann nicht abgespielt werden.
+                    </audio>
+                </div>
+            `;
+        }
+
+        if (msg.content) {
+            bodyHtml += `<div class="text-gray-800 break-words pr-12 pb-2"><span>${escapeHtml(msg.content)}</span></div>`;
+        }
+
+        const checkmarks = isMe ? `
+            <div class="ml-1 flex">
+                <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                <svg class="w-4 h-4 -ml-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+            </div>
+        ` : '';
+
+        div.innerHTML = `
+            <div class="max-w-[70%] rounded-lg p-2 px-3 shadow-sm relative text-[15px] ${isMe ? 'msg-me rounded-tr-none' : 'msg-other rounded-tl-none'}">
+                ${bodyHtml}
+                <div class="absolute bottom-1 right-2 flex items-center text-[10px] text-gray-500">
+                    <span>${msg.time}</span>
+                    ${checkmarks}
+                </div>
+            </div>
+        `;
+
+        mc.appendChild(div);
+        mc.scrollTop = mc.scrollHeight;
+
+        // Höchste Message ID aktualisieren
+        if (msg.id > lastKnownMessageId) {
+            lastKnownMessageId = msg.id;
+        }
+    }
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        const d = document.createElement('div');
+        d.textContent = str;
+        return d.innerHTML;
+    }
+
+    // --- LIVE POLLING FÜR NEUE NACHRICHTEN ---
+    let lastKnownMessageId = 0;
+
+    @if(isset($activeConversation))
+        document.addEventListener('DOMContentLoaded', function() {
+            // Höchste ID aus vorhandenen Nachrichten ermitteln
+            const msgEls = document.querySelectorAll('#messages-container [data-msg-id]');
+            msgEls.forEach(el => {
+                const id = parseInt(el.getAttribute('data-msg-id'), 10);
+                if (id > lastKnownMessageId) lastKnownMessageId = id;
+            });
+
+            // Polling alle 2.5 Sekunden
+            setInterval(checkNewMessages, 2500);
+        });
+
+        function checkNewMessages() {
+            fetch("{{ route('chats.newMessages', $activeConversation->id) }}?after_id=" + lastKnownMessageId, {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.messages && data.messages.length > 0) {
+                    let hasIncoming = false;
+                    data.messages.forEach(msg => {
+                        appendMessageToChat(msg);
+                        if (!msg.is_me) {
+                            hasIncoming = true;
+                        }
+                    });
+                    if (hasIncoming) {
+                        playNotificationSound();
+                    }
+                }
+            })
+            .catch(err => {
+                // Bei kurzer Unterbrechung stumm bleiben
+            });
+        }
+    @endif
 
     // Dropdown-Menü schließen, wenn außerhalb geklickt wird
     document.addEventListener('click', function(event) {

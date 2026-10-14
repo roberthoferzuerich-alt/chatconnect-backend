@@ -28,6 +28,7 @@ Route::middleware('auth')->group(function () {
     Route::match(['get', 'post'], '/chats/start/{user?}', [ChatController::class, 'start'])->name('chats.start');
     Route::get('/chats/{conversation}', [ChatController::class, 'show'])->name('chats.show');
     Route::post('/chats/{conversation}/messages', [ChatController::class, 'store'])->name('chats.store');
+    Route::get('/chats/{conversation}/new-messages', [ChatController::class, 'newMessages'])->name('chats.newMessages');
 
     // Calls
     Route::get('/calls', [CallController::class, 'index'])->name('calls.index');

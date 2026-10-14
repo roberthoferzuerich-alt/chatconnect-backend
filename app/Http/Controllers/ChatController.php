@@ -53,8 +53,9 @@ class ChatController extends Controller
     public function store(Request $request, Conversation $conversation)
     {
         $request->validate([
-            'content' => 'required_without:image|nullable|string|max:1000',
-            'image' => 'nullable|image|max:2048'
+            'content' => 'required_without_all:image,audio|nullable|string|max:1000',
+            'image' => 'nullable|image|max:5120',
+            'audio' => 'nullable|file|max:15360'
         ]);
 
         $user = Auth::user();
@@ -68,17 +69,75 @@ class ChatController extends Controller
             $imagePath = $request->file('image')->store('chat_images', 'public');
         }
 
+        $audioPath = null;
+        if ($request->hasFile('audio')) {
+            $audioPath = $request->file('audio')->store('audio_messages', 'public');
+        }
+
         $message = $conversation->messages()->create([
             'sender_id' => $user->id,
             'content' => $request->input('content', ''),
             'image_path' => $imagePath,
+            'audio_path' => $audioPath,
         ]);
 
         $conversation->update([
             'last_message_id' => $message->id,
         ]);
 
+        try {
+            broadcast(new \App\Events\MessageSent($message))->toOthers();
+        } catch (\Throwable $e) {
+            \Log::warning('Broadcast failed: ' . $e->getMessage());
+        }
+
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json([
+                'status' => 'success',
+                'message' => [
+                    'id' => $message->id,
+                    'is_me' => true,
+                    'sender_name' => $user->name,
+                    'content' => $message->content,
+                    'image_url' => $message->image_url ?: ($message->image_path ? '/storage/' . ltrim($message->image_path, '/') : null),
+                    'audio_url' => $message->audio_url ?: ($message->audio_path ? '/storage/' . ltrim($message->audio_path, '/') : null),
+                    'time' => $message->created_at->format('H:i'),
+                    'read' => false,
+                ]
+            ]);
+        }
+
         return redirect()->route('chats.show', $conversation->id);
+    }
+
+    public function newMessages(Request $request, Conversation $conversation)
+    {
+        $user = Auth::user();
+        if (!$conversation->users->contains($user->id)) {
+            return response()->json([], 403);
+        }
+
+        $afterId = (int)$request->query('after_id', 0);
+        $newMessages = $conversation->messages()
+            ->with('sender')
+            ->where('id', '>', $afterId)
+            ->orderBy('id', 'asc')
+            ->get();
+
+        return response()->json([
+            'messages' => $newMessages->map(function ($msg) use ($user) {
+                return [
+                    'id' => $msg->id,
+                    'is_me' => $msg->sender_id === $user->id,
+                    'sender_name' => $msg->sender ? $msg->sender->name : '',
+                    'content' => $msg->content,
+                    'image_url' => $msg->image_url ?: ($msg->image_path ? '/storage/' . ltrim($msg->image_path, '/') : null),
+                    'audio_url' => $msg->audio_url ?: ($msg->audio_path ? '/storage/' . ltrim($msg->audio_path, '/') : null),
+                    'time' => $msg->created_at->format('H:i'),
+                    'read' => (bool)$msg->read_at,
+                ];
+            })
+        ]);
     }
 
     public function start(Request $request, ?User $user = null)
