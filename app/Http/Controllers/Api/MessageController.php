@@ -147,10 +147,15 @@ class MessageController extends Controller
     public function destroy(Request $request, Message $message)
     {
         try {
-            // Verify ownership
-            if ($message->sender_id !== $request->user()->id) {
+            $conversationId = $message->conversation_id;
+            $conversation = \App\Models\Conversation::find($conversationId);
+
+            // Verify participant in conversation
+            if (!$conversation || !$conversation->users()->where('users.id', $request->user()->id)->exists()) {
                 return response()->json(['message' => 'Unauthorized'], 403);
             }
+
+            $messageId = $message->id;
 
             // Delete associated image if it exists
             if ($message->image_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($message->image_path)) {
@@ -163,14 +168,19 @@ class MessageController extends Controller
             }
 
             // Unset last_message_id to prevent foreign key constraint violations
-            $conversation = \App\Models\Conversation::find($message->conversation_id);
-            if ($conversation && $conversation->last_message_id === $message->id) {
+            if ($conversation->last_message_id === $messageId) {
                 // Find the previous message
-                $prevMessage = $conversation->messages()->where('id', '!=', $message->id)->orderBy('created_at', 'desc')->first();
+                $prevMessage = $conversation->messages()->where('id', '!=', $messageId)->orderBy('created_at', 'desc')->first();
                 $conversation->update(['last_message_id' => $prevMessage ? $prevMessage->id : null]);
             }
 
             $message->delete();
+
+            try {
+                broadcast(new \App\Events\MessageDeleted($messageId, $conversationId))->toOthers();
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning('Broadcast MessageDeleted failed: ' . $e->getMessage());
+            }
 
             return response()->json(['success' => true]);
         } catch (\Throwable $e) {

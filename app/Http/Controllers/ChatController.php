@@ -208,4 +208,54 @@ class ChatController extends Controller
 
         return redirect()->route('chats.show', $conversation->id);
     }
+
+    public function destroy(Request $request, Message $message)
+    {
+        try {
+            $conversationId = $message->conversation_id;
+            $conversation = \App\Models\Conversation::find($conversationId);
+
+            if (!$conversation || !$conversation->users()->where('users.id', Auth::id())->exists()) {
+                if ($request->wantsJson() || $request->ajax()) {
+                    return response()->json(['message' => 'Unauthorized'], 403);
+                }
+                abort(403);
+            }
+
+            $messageId = $message->id;
+
+            if ($message->image_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($message->image_path)) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($message->image_path);
+            }
+
+            if ($message->audio_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($message->audio_path)) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($message->audio_path);
+            }
+
+            if ($conversation->last_message_id === $messageId) {
+                $prevMessage = $conversation->messages()->where('id', '!=', $messageId)->orderBy('created_at', 'desc')->first();
+                $conversation->update(['last_message_id' => $prevMessage ? $prevMessage->id : null]);
+            }
+
+            $message->delete();
+
+            try {
+                broadcast(new \App\Events\MessageDeleted($messageId, $conversationId))->toOthers();
+            } catch (\Throwable $e) {
+                \Log::warning('Broadcast MessageDeleted failed: ' . $e->getMessage());
+            }
+
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json(['status' => 'success', 'deleted_id' => $messageId]);
+            }
+
+            return redirect()->route('chats.show', $conversationId);
+        } catch (\Throwable $e) {
+            \Log::error('Error deleting message: ' . $e->getMessage());
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json(['message' => $e->getMessage()], 500);
+            }
+            return back()->with('error', 'Fehler beim Löschen');
+        }
+    }
 }
