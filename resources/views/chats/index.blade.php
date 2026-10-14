@@ -905,6 +905,9 @@
 
         mc.appendChild(div);
         mc.scrollTop = mc.scrollHeight;
+        setTimeout(() => {
+            mc.scrollTop = mc.scrollHeight;
+        }, 80);
 
         // Höchste Message ID aktualisieren
         if (msg.id > lastKnownMessageId) {
@@ -921,28 +924,46 @@
 
     // --- LIVE POLLING FÜR NEUE NACHRICHTEN ---
     let lastKnownMessageId = 0;
+    let isPollingRequestInProgress = false;
 
     @if(isset($activeConversation))
-        document.addEventListener('DOMContentLoaded', function() {
+        function initChatLivePolling() {
             // Höchste ID aus vorhandenen Nachrichten ermitteln
             const msgEls = document.querySelectorAll('#messages-container [data-msg-id]');
             msgEls.forEach(el => {
                 const id = parseInt(el.getAttribute('data-msg-id'), 10);
-                if (id > lastKnownMessageId) lastKnownMessageId = id;
+                if (!isNaN(id) && id > lastKnownMessageId) lastKnownMessageId = id;
             });
 
-            // Polling alle 2.5 Sekunden
-            setInterval(checkNewMessages, 2500);
-        });
+            // Sofort einmal ausführen
+            checkNewMessages();
+
+            // Und alle 2 Sekunden wiederholen
+            if (!window.chatPollingInterval) {
+                window.chatPollingInterval = setInterval(checkNewMessages, 2000);
+            }
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initChatLivePolling);
+        } else {
+            initChatLivePolling();
+        }
 
         function checkNewMessages() {
+            if (isPollingRequestInProgress) return;
+            isPollingRequestInProgress = true;
+
             fetch("{{ route('chats.newMessages', $activeConversation->id) }}?after_id=" + lastKnownMessageId, {
                 headers: {
                     'Accept': 'application/json',
                     'X-Requested-With': 'XMLHttpRequest'
                 }
             })
-            .then(res => res.json())
+            .then(res => {
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                return res.json();
+            })
             .then(data => {
                 if (data.messages && data.messages.length > 0) {
                     let hasIncoming = false;
@@ -958,7 +979,10 @@
                 }
             })
             .catch(err => {
-                // Bei kurzer Unterbrechung stumm bleiben
+                console.warn('Polling check error:', err);
+            })
+            .finally(() => {
+                isPollingRequestInProgress = false;
             });
         }
     @endif

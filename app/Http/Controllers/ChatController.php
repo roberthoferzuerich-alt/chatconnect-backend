@@ -91,6 +91,50 @@ class ChatController extends Controller
             \Log::warning('Broadcast failed: ' . $e->getMessage());
         }
 
+        // Sende Push-Benachrichtigungen an App-Benutzer
+        try {
+            $recipients = $conversation->users()
+                ->where('users.id', '!=', $user->id)
+                ->whereNotNull('fcm_token')
+                ->get();
+
+            if ($recipients->count() > 0) {
+                $messaging = app('firebase.messaging');
+                $notificationTitle = $user->name;
+                
+                $notificationBody = 'Neue Nachricht';
+                if ($message->content) {
+                    $notificationBody = $message->content;
+                } elseif ($message->audio_path) {
+                    $notificationBody = '🎤 Sprachnachricht';
+                } elseif ($message->image_path) {
+                    $notificationBody = '📷 Bildnachricht';
+                }
+
+                foreach ($recipients as $recipient) {
+                    $fcmMessage = \Kreait\Firebase\Messaging\CloudMessage::new()->withToken($recipient->fcm_token)
+                        ->withNotification(\Kreait\Firebase\Messaging\Notification::create($notificationTitle, $notificationBody))
+                        ->withAndroidConfig(\Kreait\Firebase\Messaging\AndroidConfig::fromArray([
+                            'notification' => [
+                                'channel_id' => 'chat_messages_channel',
+                                'sound' => 'default'
+                            ]
+                        ]))
+                        ->withData([
+                            'conversation_id' => (string) $conversation->id,
+                            'type' => 'chat_message'
+                        ]);
+                    try {
+                        $messaging->send($fcmMessage);
+                    } catch (\Exception $e) {
+                        \Log::warning('FCM error: ' . $e->getMessage());
+                    }
+                }
+            }
+        } catch (\Throwable $e) {
+            \Log::warning('Push notification failed: ' . $e->getMessage());
+        }
+
         if ($request->wantsJson() || $request->ajax()) {
             return response()->json([
                 'status' => 'success',
@@ -113,7 +157,7 @@ class ChatController extends Controller
     public function newMessages(Request $request, Conversation $conversation)
     {
         $user = Auth::user();
-        if (!$conversation->users->contains($user->id)) {
+        if (!$conversation->users()->where('users.id', $user->id)->exists()) {
             return response()->json([], 403);
         }
 
