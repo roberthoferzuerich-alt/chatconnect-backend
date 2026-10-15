@@ -1,12 +1,15 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="ChatConnect">
     <title>Über mich & Team</title>
     @vite(['resources/css/app.css'])
 </head>
-<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+<body class="bg-gray-100 flex items-center justify-center min-h-screen min-h-[100dvh] p-0 sm:p-4">
 
 <!-- Mobile Simulator Container -->
 <div class="w-full max-w-[400px] h-full sm:h-[850px] bg-[#f7f8fb] sm:rounded-[40px] sm:shadow-2xl sm:border-[8px] sm:border-gray-800 relative overflow-y-auto overflow-x-hidden flex flex-col">

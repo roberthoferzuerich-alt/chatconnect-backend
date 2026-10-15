@@ -1,8 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="ChatConnect">
     <title>ChatConnect - Status</title>
     @vite(['resources/css/app.css'])
     <style>
@@ -11,14 +14,22 @@
             padding: 2px;
             border-radius: 50%;
         }
+        .safe-area-bottom {
+            padding-bottom: max(0.5rem, env(safe-area-inset-bottom, 0px));
+        }
+        @media (max-height: 500px) and (orientation: landscape) {
+            .landscape-hide {
+                display: none !important;
+            }
+        }
     </style>
 </head>
-<body class="bg-gray-200 h-screen w-full flex items-center justify-center p-4">
+<body class="bg-gray-200 h-screen h-[100dvh] w-full flex items-center justify-center p-0 md:p-4 overflow-hidden">
 
-<div class="w-full max-w-7xl h-full shadow-2xl bg-white flex overflow-hidden rounded-lg">
+<div class="w-full md:max-w-7xl h-full shadow-2xl bg-white flex overflow-hidden md:rounded-lg">
     
-    <!-- Far Left Navigation Sidebar -->
-    <div class="w-16 bg-gray-50 flex flex-col items-center py-4 border-r border-gray-200 z-20 justify-between">
+    <!-- Far Left Navigation Sidebar (Desktop only) -->
+    <div class="hidden md:flex w-16 bg-gray-50 flex-col items-center py-4 border-r border-gray-200 z-20 justify-between flex-shrink-0">
         
         <!-- Top Icons -->
         <div class="flex flex-col items-center space-y-4 w-full" style="display: flex; flex-direction: column; align-items: center; gap: 16px;">
@@ -59,7 +70,7 @@
     </div>
 
     <!-- Sidebar (Status List) -->
-    <div class="w-1/3 flex flex-col border-r border-gray-200 bg-white z-10 relative">
+    <div class="{{ $viewingUser ? 'hidden md:flex' : 'flex' }} w-full md:w-1/3 flex-col border-r border-gray-200 bg-white z-10 relative h-full overflow-hidden">
         
         <div class="h-16 bg-white flex items-center justify-between px-4 py-2 border-b">
             <h2 class="text-2xl font-semibold text-gray-900">Status</h2>
@@ -136,10 +147,34 @@
                 </div>
             @endif
         </div>
+
+        <!-- Mobile Bottom Navigation Bar (Visible only on mobile) -->
+        <div class="md:hidden h-14 landscape-hide bg-white border-t border-gray-200 flex items-center justify-around px-2 z-30 safe-area-bottom flex-shrink-0">
+            <a href="{{ route('chats.index') }}" class="flex flex-col items-center py-1 px-3 text-gray-500 hover:text-gray-800" title="Chats">
+                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"></path></svg>
+                <span class="text-[10px] mt-0.5">Chats</span>
+            </a>
+            <a href="{{ route('calls.index') }}" class="flex flex-col items-center py-1 px-3 text-gray-500 hover:text-gray-800" title="Anrufe">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
+                <span class="text-[10px] mt-0.5">Anrufe</span>
+            </a>
+            <a href="{{ route('status.index') }}" class="flex flex-col items-center py-1 px-3 text-[#00a884] font-medium" title="Storys">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="2.2" stroke-dasharray="14 4"></circle></svg>
+                <span class="text-[10px] mt-0.5">Storys</span>
+            </a>
+            <a href="{{ route('profile.about') }}" class="flex flex-col items-center py-1 px-3 text-gray-500 hover:text-gray-800" title="Profil">
+                @if($user->avatar)
+                    <img src="{{ asset('storage/' . $user->avatar) }}" class="w-6 h-6 rounded-full object-cover">
+                @else
+                    <div class="w-6 h-6 bg-teal-600 rounded-full flex items-center justify-center text-white font-bold text-[10px]">{{ substr($user->name, 0, 1) }}</div>
+                @endif
+                <span class="text-[10px] mt-0.5">Profil</span>
+            </a>
+        </div>
     </div>
 
     <!-- Main Area (Viewer) -->
-    <div class="w-2/3 flex flex-col bg-black relative">
+    <div class="{{ $viewingUser ? 'flex' : 'hidden md:flex' }} flex-1 flex-col bg-black relative h-full overflow-hidden">
         @if($viewingUser && count($activeStatuses) > 0)
             <!-- Status Header -->
             <div class="absolute top-0 w-full p-4 flex items-center justify-between z-10 bg-gradient-to-b from-black/60 to-transparent">

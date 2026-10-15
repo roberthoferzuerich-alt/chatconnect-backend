@@ -1,8 +1,12 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="ChatConnect">
+    <meta name="theme-color" content="#ffffff">
     <title>ChatConnect Web</title>
     @vite(['resources/css/app.css'])
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css">
@@ -14,19 +18,48 @@
         .msg-me { background-color: #d9fdd3; }
         .msg-other { background-color: #ffffff; }
         emoji-picker {
-            width: 360px;
-            height: 400px;
+            width: 100%;
+            max-width: 360px;
+            height: 350px;
             --background: #ffffff;
             --border-color: #e5e7eb;
         }
+
+        /* iOS Safari Input Zoom Fix: ensure inputs never zoom in */
+        @media screen and (max-width: 768px) {
+            input, select, textarea {
+                font-size: 16px !important;
+            }
+        }
+
+        /* Safe area support for iPhone notch and home indicator */
+        .safe-area-bottom {
+            padding-bottom: max(0.5rem, env(safe-area-inset-bottom, 0px));
+        }
+        .safe-area-top {
+            padding-top: max(0.5rem, env(safe-area-inset-top, 0px));
+        }
+
+        /* Landscape optimizations on smartphones (height <= 500px) */
+        @media (max-height: 500px) and (orientation: landscape) {
+            .landscape-header {
+                height: 3rem !important; /* 48px */
+            }
+            .landscape-input {
+                height: 3.25rem !important; /* 52px */
+            }
+            .landscape-hide {
+                display: none !important;
+            }
+        }
     </style>
 </head>
-<body class="bg-gray-200 h-screen w-full flex items-center justify-center p-4">
+<body class="bg-gray-200 h-screen h-[100dvh] w-full flex items-center justify-center p-0 md:p-4 overflow-hidden">
 
-<div class="w-full max-w-7xl h-full shadow-2xl bg-white flex overflow-hidden rounded-lg">
+<div class="w-full md:max-w-7xl h-full shadow-2xl bg-white flex overflow-hidden md:rounded-lg">
     
-    <!-- Far Left Navigation Sidebar -->
-    <div class="w-16 bg-gray-50 flex flex-col items-center py-4 border-r border-gray-200 z-20 justify-between">
+    <!-- Far Left Navigation Sidebar (Desktop only) -->
+    <div class="hidden md:flex w-16 bg-gray-50 flex-col items-center py-4 border-r border-gray-200 z-20 justify-between flex-shrink-0">
         
         <!-- Top Icons -->
         <div class="flex flex-col items-center space-y-4 w-full" style="display: flex; flex-direction: column; align-items: center; gap: 16px;">
@@ -64,10 +97,10 @@
     </div>
 
     <!-- Sidebar (Chat List) -->
-    <div class="w-1/3 flex flex-col border-r border-gray-200 bg-white z-30 relative">
+    <div class="{{ $activeConversation ? 'hidden md:flex' : 'flex' }} w-full md:w-1/3 lg:w-96 flex-col border-r border-gray-200 bg-white z-30 relative flex-shrink-0 h-full overflow-hidden">
         <!-- Header -->
-        <div class="h-16 bg-white flex items-center justify-between px-4 py-2 relative">
-            <h2 class="text-2xl font-semibold text-gray-900">Chats</h2>
+        <div class="h-16 landscape-header bg-white flex items-center justify-between px-4 py-2 border-b border-gray-100 flex-shrink-0">
+            <h2 class="text-xl sm:text-2xl font-semibold text-gray-900">Chats</h2>
             
             <div class="flex items-center space-x-3 text-gray-600">
                 <!-- 3-Punkte Menu Button -->
@@ -85,7 +118,7 @@
                 </button>
 
                 <!-- Dropdown Menü -->
-                <div id="chat-menu" class="hidden absolute top-14 left-2 w-64 bg-white rounded-2xl shadow-2xl border border-gray-100 py-2 z-50" style="left: 8px; right: auto; transform: none; width: 260px; z-index: 999;">
+                <div id="chat-menu" class="hidden absolute top-14 left-2 w-64 bg-white rounded-2xl shadow-2xl border border-gray-100 py-2 z-50" style="left: 8px; right: auto; transform: none; width: 260px; max-width: calc(100vw - 20px); z-index: 999;">
                     <a href="{{ route('communities.index') }}" class="flex items-center px-4 py-3 text-[15px] text-gray-800 hover:bg-gray-50 transition">
                         <svg class="w-5 h-5 mr-3.5 text-gray-600 flex-shrink-0" style="min-width: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5V18a3 3 0 00-5-2.5M9 20H4V18a3 3 0 015-2.5M16 11a3 3 0 100-6 3 3 0 000 6zM9 11a3 3 0 100-6 3 3 0 000 6z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11v4m-2-2h4"></path></svg>
                         <span>Neue Gruppe</span>
@@ -127,10 +160,10 @@
         </div>
 
         <!-- Search -->
-        <div class="bg-white p-2 border-b">
+        <div class="bg-white p-2 border-b flex-shrink-0">
             <div class="bg-gray-100 rounded-lg flex items-center px-3 py-1.5 focus-within:ring-2 focus-within:ring-teal-500">
-                <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                <input type="text" id="sidebar-search-input" oninput="filterSidebar(this.value)" placeholder="Suchen oder Chat beginnen..." class="bg-transparent border-none outline-none ml-3 w-full text-sm placeholder-gray-500 text-gray-900">
+                <svg class="w-5 h-5 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                <input type="text" id="sidebar-search-input" oninput="filterSidebar(this.value)" placeholder="Suchen oder Chat beginnen..." class="bg-transparent border-none outline-none ml-2 sm:ml-3 w-full text-base sm:text-sm placeholder-gray-500 text-gray-900">
             </div>
         </div>
 
@@ -225,23 +258,49 @@
                 </div>
             @endif
         </div>
+
+        <!-- Mobile Bottom Navigation Bar (Visible only on mobile in chat list view) -->
+        <div class="md:hidden h-14 landscape-hide bg-white border-t border-gray-200 flex items-center justify-around px-2 z-30 safe-area-bottom flex-shrink-0">
+            <a href="{{ route('chats.index') }}" class="flex flex-col items-center py-1 px-3 text-[#00a884] font-medium" title="Chats">
+                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"></path></svg>
+                <span class="text-[10px] mt-0.5">Chats</span>
+            </a>
+            <a href="{{ route('calls.index') }}" class="flex flex-col items-center py-1 px-3 text-gray-500 hover:text-gray-800" title="Anrufe">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
+                <span class="text-[10px] mt-0.5">Anrufe</span>
+            </a>
+            <a href="{{ route('status.index') }}" class="flex flex-col items-center py-1 px-3 text-gray-500 hover:text-gray-800" title="Storys">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="2.2" stroke-dasharray="14 4"></circle></svg>
+                <span class="text-[10px] mt-0.5">Storys</span>
+            </a>
+            <a href="{{ route('profile.about') }}" class="flex flex-col items-center py-1 px-3 text-gray-500 hover:text-gray-800" title="Profil">
+                @if($user->avatar_url)
+                    <img src="{{ $user->avatar_url }}" class="w-6 h-6 rounded-full object-cover">
+                @elseif($user->avatar)
+                    <img src="/storage/{{ ltrim($user->avatar, '/') }}" class="w-6 h-6 rounded-full object-cover">
+                @else
+                    <div class="w-6 h-6 bg-teal-600 rounded-full flex items-center justify-center text-white font-bold text-[10px]">{{ substr($user->name, 0, 1) }}</div>
+                @endif
+                <span class="text-[10px] mt-0.5">Profil</span>
+            </a>
+        </div>
     </div>
 
     <!-- Main Area -->
-    <div class="w-2/3 flex flex-col bg-chat relative">
+    <div class="{{ $activeConversation ? 'flex' : 'hidden md:flex' }} flex-1 flex-col bg-chat relative h-full overflow-hidden">
         
         @if(!$activeConversation)
             <!-- Empty State -->
-            <div class="absolute inset-0 z-20 flex flex-col items-center justify-center bg-gray-50 text-center px-10">
-                <div class="w-64 h-64 bg-gray-200 rounded-full mb-8 flex items-center justify-center overflow-hidden">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/WhatsApp.svg/1200px-WhatsApp.svg.png" class="w-24 opacity-20 grayscale">
+            <div class="absolute inset-0 z-20 flex flex-col items-center justify-center bg-gray-50 text-center px-6 sm:px-10">
+                <div class="w-48 h-48 sm:w-64 sm:h-64 bg-gray-200 rounded-full mb-6 sm:mb-8 flex items-center justify-center overflow-hidden">
+                    <svg class="w-20 h-20 sm:w-24 sm:h-24 text-gray-400" fill="currentColor" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"></path></svg>
                 </div>
-                <h2 class="text-3xl font-light text-gray-700 mb-4">ChatConnect Web</h2>
-                <p class="text-gray-500 max-w-md">Sende und empfange Nachrichten ohne dein Telefon online zu halten.</p>
+                <h2 class="text-2xl sm:text-3xl font-light text-gray-700 mb-3 sm:mb-4">ChatConnect Web</h2>
+                <p class="text-gray-500 max-w-md text-sm sm:text-base">Wähle einen Chat aus oder starte eine neue Konversation.</p>
             </div>
         @else
             <!-- Active Chat State -->
-            <div class="flex flex-col h-full w-full">
+            <div class="flex flex-col h-full w-full overflow-hidden">
                 @php
                     $isGroup = $activeConversation->is_group;
                     $activePartner = $isGroup ? null : $activeConversation->users->where('id', '!=', $user->id)->first();
@@ -250,8 +309,13 @@
                 @endphp
                 
                 <!-- Chat Header -->
-                <div class="h-16 bg-gray-100 flex items-center justify-between px-4 py-2 border-b border-gray-200 z-10 shadow-sm">
+                <div class="h-16 landscape-header bg-gray-100 flex items-center justify-between px-3 sm:px-4 py-2 border-b border-gray-200 z-10 shadow-sm flex-shrink-0">
                     <div class="flex items-center min-w-0">
+                        <!-- Back Button for Mobile -->
+                        <a href="{{ route('chats.index') }}" class="md:hidden mr-1.5 p-2 -ml-1 text-teal-700 hover:text-teal-900 hover:bg-gray-200 rounded-full transition flex items-center justify-center flex-shrink-0" title="Zurück zu den Chats">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
+                        </a>
+
                         <div class="w-10 h-10 rounded-full flex-shrink-0 flex items-center justify-center text-white font-bold text-base overflow-hidden shadow-sm {{ $isGroup ? 'bg-indigo-600' : 'bg-teal-600' }}">
                             @if($headerAvatar)
                                 <img src="{{ $headerAvatar }}" alt="{{ $headerTitle }}" class="w-full h-full object-cover">
@@ -261,8 +325,8 @@
                                 <span>{{ substr($headerTitle, 0, 1) }}</span>
                             @endif
                         </div>
-                        <div class="ml-3 min-w-0">
-                            <h3 class="font-medium text-gray-900 text-sm truncate">{{ $headerTitle }}</h3>
+                        <div class="ml-2.5 sm:ml-3 min-w-0">
+                            <h3 class="font-medium text-gray-900 text-sm truncate leading-snug">{{ $headerTitle }}</h3>
                             <p class="text-[11px] text-gray-500 truncate">
                                 @if($isGroup)
                                     {{ implode(', ', $activeConversation->users->pluck('name')->toArray()) }}
@@ -274,13 +338,13 @@
                     </div>
 
                     @if(!$isGroup && $activePartner)
-                        <div class="flex items-center space-x-1 text-gray-600">
+                        <div class="flex items-center space-x-0.5 sm:space-x-1 text-gray-600 flex-shrink-0">
                             <!-- Video Call Button -->
                             <form action="{{ route('calls.store') }}" method="POST" class="m-0">
                                 @csrf
                                 <input type="hidden" name="receiver_id" value="{{ $activePartner->id }}">
                                 <input type="hidden" name="type" value="video">
-                                <button type="submit" class="p-2 hover:text-teal-600 hover:bg-gray-200 rounded-full transition" title="Videoanruf starten">
+                                <button type="submit" class="p-1.5 sm:p-2 hover:text-teal-600 hover:bg-gray-200 rounded-full transition" title="Videoanruf starten">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
                                 </button>
                             </form>
@@ -289,7 +353,7 @@
                                 @csrf
                                 <input type="hidden" name="receiver_id" value="{{ $activePartner->id }}">
                                 <input type="hidden" name="type" value="audio">
-                                <button type="submit" class="p-2 hover:text-teal-600 hover:bg-gray-200 rounded-full transition" title="Sprachanruf starten">
+                                <button type="submit" class="p-1.5 sm:p-2 hover:text-teal-600 hover:bg-gray-200 rounded-full transition" title="Sprachanruf starten">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
                                 </button>
                             </form>
@@ -298,7 +362,7 @@
                 </div>
 
                 <!-- Chat Messages -->
-                <div id="messages-container" class="flex-1 overflow-y-auto p-4 space-y-3" style="@if($user->wallpaper_url) background-image: url('{{ $user->wallpaper_url }}'); background-size: cover; background-position: center; background-repeat: no-repeat; @else background-image: url('https://web.whatsapp.com/img/bg-chat-tile-dark_a4be512e7195b6b733d9110b408f075d.png'); background-repeat: repeat; background-color: #efeae2; @endif">
+                <div id="messages-container" class="flex-1 overflow-y-auto p-3 sm:p-4 space-y-3" style="@if($user->wallpaper_url) background-image: url('{{ $user->wallpaper_url }}'); background-size: cover; background-position: center; background-repeat: no-repeat; @else background-image: url('https://web.whatsapp.com/img/bg-chat-tile-dark_a4be512e7195b6b733d9110b408f075d.png'); background-repeat: repeat; background-color: #efeae2; @endif">
                     @foreach($messages as $msg)
                         @php
                             $isMe = $msg->sender_id === $user->id;
@@ -306,7 +370,7 @@
                             $audioSrc = $msg->audio_url ?: ($msg->audio_path ? '/storage/' . ltrim($msg->audio_path, '/') : null);
                         @endphp
                         <div class="flex {{ $isMe ? 'justify-end' : 'justify-start' }}" data-msg-id="{{ $msg->id }}">
-                            <div class="group/msg max-w-[70%] rounded-lg p-2 px-3 shadow-sm relative text-[15px] {{ $isMe ? 'msg-me rounded-tr-none' : 'msg-other rounded-tl-none' }}">
+                            <div class="group/msg max-w-[85%] sm:max-w-[70%] rounded-lg p-2 px-3 shadow-sm relative text-[15px] {{ $isMe ? 'msg-me rounded-tr-none' : 'msg-other rounded-tl-none' }}">
                                 <button type="button" onclick="deleteChatMessage({{ $msg->id }})" class="text-gray-400 hover:text-red-600 hover:bg-black/5 rounded p-1 transition absolute top-1 right-1" style="opacity: 0.6;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.6" title="Nachricht löschen">
                                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                                 </button>
@@ -324,7 +388,7 @@
                                 @endif
 
                                 @if($audioSrc)
-                                    <div class="mb-2 pt-1 min-w-[220px] max-w-xs">
+                                    <div class="mb-2 pt-1 min-w-[200px] sm:min-w-[220px] max-w-xs">
                                         <audio controls src="{{ $audioSrc }}" preload="metadata" class="w-full h-9 rounded-lg">
                                             <source src="{{ $audioSrc }}" type="audio/webm">
                                             <source src="{{ $audioSrc }}" type="audio/ogg">
@@ -358,14 +422,14 @@
                 </div>
 
                 <!-- Chat Input Area -->
-                <div class="relative bg-gray-100 border-t border-gray-200">
+                <div class="relative bg-gray-100 border-t border-gray-200 safe-area-bottom flex-shrink-0">
                     <!-- Full Emoji Picker Popup -->
-                    <div id="emoji-picker" class="hidden absolute bottom-20 left-4 z-40 bg-white shadow-2xl rounded-2xl border border-gray-200 overflow-hidden">
+                    <div id="emoji-picker" class="hidden absolute bottom-16 sm:bottom-20 left-2 right-2 sm:right-auto sm:left-4 z-40 bg-white shadow-2xl rounded-2xl border border-gray-200 overflow-hidden max-w-[calc(100vw-1rem)] sm:max-w-xs">
                         <emoji-picker locale="de" id="emoji-picker-element"></emoji-picker>
                     </div>
 
                     <!-- Voice Recording Active Bar -->
-                    <div id="voice-recording-bar" class="hidden h-16 flex items-center px-4 py-2 gap-3 bg-red-50 border-t border-red-200">
+                    <div id="voice-recording-bar" class="hidden h-16 landscape-input flex items-center px-3 sm:px-4 py-2 gap-2 sm:gap-3 bg-red-50 border-t border-red-200">
                         <div class="flex items-center space-x-2">
                             <span class="relative flex h-3 w-3">
                                 <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
@@ -373,12 +437,12 @@
                             </span>
                             <span id="recording-timer" class="font-mono text-sm font-bold text-red-600">0:00</span>
                         </div>
-                        <div class="flex-1 flex items-center space-x-2">
-                            <span class="text-xs sm:text-sm text-gray-700 font-medium">🎤 Sprachnachricht läuft...</span>
+                        <div class="flex-1 flex items-center space-x-1 sm:space-x-2 min-w-0">
+                            <span class="text-xs sm:text-sm text-gray-700 font-medium truncate">🎤 Sprachnachricht läuft...</span>
                         </div>
                         <!-- Cancel Recording -->
                         <button type="button" onclick="cancelVoiceRecording()" class="p-2 text-gray-500 hover:text-red-600 hover:bg-red-100 rounded-full transition" title="Löschen & Abbrechen">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                            <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                         </button>
                         <!-- Send Recording -->
                         <button type="button" onclick="sendVoiceRecording()" class="w-10 h-10 bg-[#00a884] hover:bg-[#008f6f] text-white rounded-full flex items-center justify-center transition shadow-md focus:outline-none flex-shrink-0" title="Sprachnachricht senden">
@@ -389,39 +453,39 @@
                     </div>
 
                     <!-- Normal Chat Form -->
-                    <form id="chat-form" action="{{ route('chats.store', $activeConversation->id) }}" method="POST" enctype="multipart/form-data" class="h-16 flex items-center px-4 py-2 gap-2" onsubmit="handleChatSubmit(event)">
+                    <form id="chat-form" action="{{ route('chats.store', $activeConversation->id) }}" method="POST" enctype="multipart/form-data" class="h-16 landscape-input flex items-center px-2 sm:px-4 py-2 gap-1.5 sm:gap-2" onsubmit="handleChatSubmit(event)">
                         @csrf
                         
                         <!-- Emoji Button -->
-                        <button type="button" onclick="toggleEmojiPicker()" class="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-200 rounded-full transition flex-shrink-0" title="Emojis">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <button type="button" onclick="toggleEmojiPicker()" class="p-1.5 sm:p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-200 rounded-full transition flex-shrink-0" title="Emojis">
+                            <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <circle cx="12" cy="12" r="10" stroke-width="2"/>
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 14s1.5 2 4 2 4-2 4-2M9 9h.01M15 9h.01"/>
                             </svg>
                         </button>
 
                         <!-- Paperclip / Image Attachment -->
-                        <label class="text-gray-500 hover:text-gray-700 hover:bg-gray-200 rounded-full cursor-pointer p-2 transition flex-shrink-0" title="Bild anhängen & zuschneiden">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path></svg>
+                        <label class="text-gray-500 hover:text-gray-700 hover:bg-gray-200 rounded-full cursor-pointer p-1.5 sm:p-2 transition flex-shrink-0" title="Bild anhängen & zuschneiden">
+                            <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path></svg>
                             <input type="file" id="image-file-input" accept="image/*" class="hidden" onchange="openImageCropModal(event)">
                         </label>
                         
                         <!-- Text Input -->
-                        <div class="flex-1">
-                            <input type="text" id="chat-input-field" name="content" placeholder="Schreibe eine Nachricht..." class="w-full bg-white rounded-lg px-4 py-2.5 outline-none focus:ring-2 focus:ring-[#00a884] shadow-sm border border-transparent text-[15px]" autofocus autocomplete="off">
+                        <div class="flex-1 min-w-0">
+                            <input type="text" id="chat-input-field" name="content" placeholder="Schreibe eine Nachricht..." class="w-full bg-white rounded-lg px-3 sm:px-4 py-2 sm:py-2.5 outline-none focus:ring-2 focus:ring-[#00a884] shadow-sm border border-transparent text-base sm:text-[15px]" autofocus autocomplete="off">
                         </div>
                         
                         <!-- Hidden input for final image blob -->
                         <input type="file" name="image" id="final-image-input" class="hidden">
 
                         <!-- Microphone / Voice Message Button -->
-                        <button type="button" id="mic-record-btn" onclick="startVoiceRecording()" class="w-10 h-10 bg-gray-200 hover:bg-teal-100 text-gray-600 hover:text-teal-700 rounded-full flex items-center justify-center transition shadow-sm focus:outline-none flex-shrink-0" title="Sprachnachricht aufnehmen">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path></svg>
+                        <button type="button" id="mic-record-btn" onclick="startVoiceRecording()" class="w-9 h-9 sm:w-10 sm:h-10 bg-gray-200 hover:bg-teal-100 text-gray-600 hover:text-teal-700 rounded-full flex items-center justify-center transition shadow-sm focus:outline-none flex-shrink-0" title="Sprachnachricht aufnehmen">
+                            <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path></svg>
                         </button>
 
                         <!-- Send Arrow Button -->
-                        <button type="submit" id="send-msg-btn" class="w-10 h-10 bg-[#00a884] hover:bg-[#008f6f] text-white rounded-full flex items-center justify-center transition shadow-md focus:outline-none flex-shrink-0" title="Nachricht senden">
-                            <svg class="w-5 h-5 ml-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <button type="submit" id="send-msg-btn" class="w-9 h-9 sm:w-10 sm:h-10 bg-[#00a884] hover:bg-[#008f6f] text-white rounded-full flex items-center justify-center transition shadow-md focus:outline-none flex-shrink-0" title="Nachricht senden">
+                            <svg class="w-4 h-4 sm:w-5 sm:h-5 ml-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
                             </svg>
                         </button>
