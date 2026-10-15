@@ -14,6 +14,13 @@
     <script type="module" src="https://cdn.jsdelivr.net/npm/emoji-picker-element@^1/index.js"></script>
     
     <style>
+        :root {
+            --chat-font-size: 15px;
+        }
+        .chat-message-text {
+            font-size: var(--chat-font-size, 15px) !important;
+            line-height: 1.45;
+        }
         .bg-chat { background-color: #efeae2; }
         .msg-me { background-color: #d9fdd3; }
         .msg-other { background-color: #ffffff; }
@@ -139,6 +146,10 @@
                     <button type="button" onclick="document.getElementById('chat-menu').classList.add('hidden'); openWallpaperModal();" class="w-full flex items-center px-4 py-3 text-[15px] text-gray-800 hover:bg-gray-50 transition text-left">
                         <svg class="w-5 h-5 mr-3.5 text-gray-600 flex-shrink-0" style="min-width: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                         <span>Chat-Hintergrundbild</span>
+                    </button>
+                    <button type="button" onclick="document.getElementById('chat-menu').classList.add('hidden'); openFontSizeModal();" class="w-full flex items-center px-4 py-3 text-[15px] text-gray-800 hover:bg-gray-50 transition text-left">
+                        <svg class="w-5 h-5 mr-3.5 text-gray-600 flex-shrink-0" style="min-width: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7V5a2 2 0 012-2h14a2 2 0 012 2v2M9 21h6m-3-18v18"/></svg>
+                        <span>Chat-Schriftgröße</span>
                     </button>
                     <a href="{{ route('guide') }}" target="_blank" class="flex items-center px-4 py-3 text-[15px] text-gray-800 hover:bg-gray-50 transition">
                         <svg class="w-5 h-5 mr-3.5 text-gray-600 flex-shrink-0" style="min-width: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
@@ -401,7 +412,7 @@
                                 @endif
 
                                 @if($msg->content)
-                                    <div class="text-gray-800 break-words pr-12 pb-2">
+                                    <div class="chat-message-text text-gray-800 break-words pr-12 pb-2">
                                         <span>{{ $msg->content }}</span>
                                     </div>
                                 @endif
@@ -649,6 +660,63 @@
                     <span>Speichern</span>
                 </button>
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chat-Schriftgröße Modal -->
+<div id="font-size-modal" class="hidden fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-3 sm:p-4 backdrop-blur-sm">
+    <div class="bg-white rounded-2xl max-w-md w-full overflow-hidden shadow-2xl flex flex-col border border-gray-100">
+        <div class="h-14 bg-gray-50 flex items-center justify-between px-5 border-b border-gray-200">
+            <div class="flex items-center space-x-2">
+                <svg class="w-5 h-5 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7V5a2 2 0 012-2h14a2 2 0 012 2v2M9 21h6m-3-18v18"/></svg>
+                <h3 class="font-bold text-gray-800 text-base">Chat-Schriftgröße</h3>
+            </div>
+            <button type="button" onclick="closeFontSizeModal()" class="text-gray-400 hover:text-gray-600 text-2xl font-bold leading-none px-1">&times;</button>
+        </div>
+
+        <div class="p-5 space-y-5">
+            <!-- Live Preview Bubble -->
+            <div>
+                <p class="text-xs text-gray-400 uppercase tracking-wider font-semibold mb-2">Live-Vorschau:</p>
+                <div class="p-4 bg-chat rounded-xl flex flex-col space-y-2 border border-gray-200">
+                    <div class="self-start max-w-[85%] bg-white rounded-lg rounded-tl-none p-2.5 px-3 shadow-sm text-gray-800">
+                        <div id="font-preview-text" class="break-words" style="font-size: 15px; line-height: 1.45;">
+                            Hallo! Hier siehst du die Chat-Schrift in Echtzeit.
+                        </div>
+                        <span class="block text-right text-[10px] text-gray-400 mt-1">12:30</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slider Control -->
+            <div class="space-y-2">
+                <div class="flex items-center justify-between">
+                    <span class="text-sm font-medium text-gray-700">Schriftgröße:</span>
+                    <span id="font-size-label" class="text-sm font-bold text-teal-700 bg-teal-50 px-2.5 py-0.5 rounded-full border border-teal-200">15 px (Standard)</span>
+                </div>
+                
+                <div class="flex items-center space-x-3">
+                    <span class="text-xs font-bold text-gray-400">A</span>
+                    <input type="range" id="chat-font-slider" min="12" max="24" step="1" value="15" oninput="updateChatFontSize(this.value)" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-[#00a884]">
+                    <span class="text-lg font-bold text-gray-700">A</span>
+                </div>
+                
+                <div class="flex justify-between text-[11px] text-gray-400 px-1">
+                    <span>Klein (12px)</span>
+                    <span>Standard (15px)</span>
+                    <span>Groß (24px)</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="h-16 bg-gray-50 flex items-center justify-between px-5 border-t border-gray-200">
+            <button type="button" onclick="resetChatFontSize()" class="text-xs font-semibold text-gray-500 hover:text-gray-800 transition">
+                Auf Standard zurücksetzen
+            </button>
+            <button type="button" onclick="closeFontSizeModal()" class="px-5 py-2 bg-[#00a884] hover:bg-[#008f6f] text-white font-semibold rounded-xl text-sm shadow-sm transition">
+                Fertig
+            </button>
         </div>
     </div>
 </div>
@@ -954,7 +1022,7 @@
         }
 
         if (msg.content) {
-            bodyHtml += `<div class="text-gray-800 break-words pr-12 pb-2"><span>${escapeHtml(msg.content)}</span></div>`;
+            bodyHtml += `<div class="chat-message-text text-gray-800 break-words pr-12 pb-2"><span>${escapeHtml(msg.content)}</span></div>`;
         }
 
         const checkmarks = isMe ? `
@@ -1460,6 +1528,60 @@
             el.style.display = (!q || text.includes(q)) ? 'flex' : 'none';
         });
     }
+
+    // --- DYNAMISCHE CHAT-SCHRIFTGRÖSSE ---
+    function getFontSizeLabel(val) {
+        val = parseInt(val);
+        if (val <= 13) return val + ' px (Klein)';
+        if (val <= 15) return val + ' px (Standard)';
+        if (val <= 18) return val + ' px (Mittel/Groß)';
+        if (val <= 21) return val + ' px (Groß)';
+        return val + ' px (Sehr groß)';
+    }
+
+    function applyChatFontSize(val) {
+        val = parseInt(val) || 15;
+        document.documentElement.style.setProperty('--chat-font-size', val + 'px');
+        try {
+            localStorage.setItem('chat_connect_font_size', val);
+        } catch (_) {}
+        const preview = document.getElementById('font-preview-text');
+        if (preview) preview.style.fontSize = val + 'px';
+        const label = document.getElementById('font-size-label');
+        if (label) label.textContent = getFontSizeLabel(val);
+        const slider = document.getElementById('chat-font-slider');
+        if (slider) slider.value = val;
+    }
+
+    function updateChatFontSize(val) {
+        applyChatFontSize(val);
+    }
+
+    function resetChatFontSize() {
+        applyChatFontSize(15);
+    }
+
+    function openFontSizeModal() {
+        let saved = 15;
+        try {
+            saved = parseInt(localStorage.getItem('chat_connect_font_size')) || 15;
+        } catch (_) {}
+        applyChatFontSize(saved);
+        document.getElementById('font-size-modal').classList.remove('hidden');
+    }
+
+    function closeFontSizeModal() {
+        document.getElementById('font-size-modal').classList.add('hidden');
+    }
+
+    // Beim Seitenstart gespeicherte Schriftgröße sofort aktivieren
+    (function() {
+        let saved = 15;
+        try {
+            saved = parseInt(localStorage.getItem('chat_connect_font_size')) || 15;
+        } catch (_) {}
+        applyChatFontSize(saved);
+    })();
 </script>
 </body>
 </html>
