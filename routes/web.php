@@ -52,4 +52,5 @@ require __DIR__.'/auth.php';
 Route::view('/web', 'webclient');
 Route::view('/privacy', 'privacy')->name('privacy');
 Route::view('/download', 'download')->name('download');
+Route::view('/guide', 'guide')->name('guide');
 
