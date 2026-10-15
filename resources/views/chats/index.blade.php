@@ -38,14 +38,16 @@
         }
 
         #emoji-picker {
+            bottom: calc(100% + 8px) !important;
             width: calc(100% - 1rem);
-            max-width: 360px;
+            max-width: 380px;
             height: 330px;
-            max-height: calc(var(--app-height, 100vh) - 120px);
+            max-height: calc(var(--app-height, 100vh) - 130px);
         }
 
         @media screen and (min-width: 640px) {
             #emoji-picker {
+                bottom: calc(100% + 12px) !important;
                 width: 360px;
                 max-width: 360px;
             }
@@ -68,25 +70,38 @@
         }
 
         @media screen and (max-width: 768px) {
+            html {
+                height: 100% !important;
+                height: 100svh !important;
+                height: 100dvh !important;
+                overflow: hidden !important;
+            }
             body {
                 position: fixed !important;
-                inset: 0 !important;
-                height: 100% !important;
-                height: var(--app-height, 100%) !important;
-                max-height: var(--app-height, 100%) !important;
+                top: 0 !important;
+                left: 0 !important;
+                right: 0 !important;
+                bottom: auto !important;
                 width: 100% !important;
+                height: 100% !important;
+                height: 100svh !important;
+                height: 100dvh !important;
+                height: var(--app-height, 100dvh) !important;
+                max-height: var(--app-height, 100dvh) !important;
                 overflow: hidden !important;
             }
             #app-root-container {
                 height: 100% !important;
-                height: var(--app-height, 100%) !important;
-                max-height: var(--app-height, 100%) !important;
+                height: 100svh !important;
+                height: 100dvh !important;
+                height: var(--app-height, 100dvh) !important;
+                max-height: 100% !important;
             }
         }
 
         /* Safe area support for notch and home bar / system navigation */
         .safe-area-bottom {
-            padding-bottom: max(0.85rem, env(safe-area-inset-bottom, 14px)) !important;
+            padding-bottom: max(1rem, env(safe-area-inset-bottom, 16px)) !important;
         }
         .safe-area-top {
             padding-top: max(0.5rem, env(safe-area-inset-top, 0px)) !important;
@@ -104,7 +119,7 @@
                 display: none !important;
             }
             #emoji-picker {
-                bottom: 3.5rem !important;
+                bottom: calc(100% + 4px) !important;
                 height: calc(var(--app-height, 100vh) - 4.5rem) !important;
                 max-height: calc(var(--app-height, 100vh) - 4.5rem) !important;
             }
@@ -491,7 +506,7 @@
                 <!-- Chat Input Area -->
                 <div class="relative bg-gray-100 border-t border-gray-200 safe-area-bottom flex-shrink-0">
                     <!-- Full Emoji Picker Popup -->
-                    <div id="emoji-picker" class="hidden absolute bottom-16 sm:bottom-20 left-2 sm:left-4 z-40 bg-white shadow-2xl rounded-2xl border border-gray-200 overflow-hidden flex flex-col">
+                    <div id="emoji-picker" class="hidden absolute bottom-[calc(100%+8px)] sm:bottom-[calc(100%+12px)] left-2 sm:left-4 z-40 bg-white shadow-2xl rounded-2xl border border-gray-200 overflow-hidden flex flex-col">
                         <div class="flex items-center justify-between px-3 py-1.5 bg-gray-50 border-b border-gray-200 flex-shrink-0">
                             <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Emojis</span>
                             <button type="button" onclick="toggleEmojiPicker()" class="p-1 text-gray-400 hover:text-gray-700 rounded-full hover:bg-gray-200 transition" title="Schließen">

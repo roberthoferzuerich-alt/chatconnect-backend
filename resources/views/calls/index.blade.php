@@ -28,25 +28,38 @@
         }
 
         @media screen and (max-width: 768px) {
+            html {
+                height: 100% !important;
+                height: 100svh !important;
+                height: 100dvh !important;
+                overflow: hidden !important;
+            }
             body {
                 position: fixed !important;
-                inset: 0 !important;
-                height: 100% !important;
-                height: var(--app-height, 100%) !important;
-                max-height: var(--app-height, 100%) !important;
+                top: 0 !important;
+                left: 0 !important;
+                right: 0 !important;
+                bottom: auto !important;
                 width: 100% !important;
+                height: 100% !important;
+                height: 100svh !important;
+                height: 100dvh !important;
+                height: var(--app-height, 100dvh) !important;
+                max-height: var(--app-height, 100dvh) !important;
                 overflow: hidden !important;
             }
             #app-root-container {
                 height: 100% !important;
-                height: var(--app-height, 100%) !important;
-                max-height: var(--app-height, 100%) !important;
+                height: 100svh !important;
+                height: 100dvh !important;
+                height: var(--app-height, 100dvh) !important;
+                max-height: 100% !important;
             }
         }
 
         /* Safe area support for notch and home bar / system navigation */
         .safe-area-bottom {
-            padding-bottom: max(0.85rem, env(safe-area-inset-bottom, 14px)) !important;
+            padding-bottom: max(1rem, env(safe-area-inset-bottom, 16px)) !important;
         }
         .safe-area-top {
             padding-top: max(0.5rem, env(safe-area-inset-top, 0px)) !important;
