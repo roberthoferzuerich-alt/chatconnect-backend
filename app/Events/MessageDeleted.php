@@ -29,3 +29,4 @@ class MessageDeleted implements ShouldBroadcastNow
         ];
     }
 }
+
