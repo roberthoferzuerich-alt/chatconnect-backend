@@ -26,10 +26,29 @@
         .msg-other { background-color: #ffffff; }
         emoji-picker {
             width: 100%;
-            max-width: 360px;
-            height: 350px;
+            height: 100%;
+            min-height: 180px;
             --background: #ffffff;
             --border-color: #e5e7eb;
+            --category-emoji-size: 1.15rem;
+            --category-emoji-padding: 0.25rem;
+            --emoji-size: 1.25rem;
+            --emoji-padding: 0.35rem;
+            --num-columns: 8;
+        }
+
+        #emoji-picker {
+            width: calc(100% - 1rem);
+            max-width: 360px;
+            height: 330px;
+            max-height: calc(var(--app-height, 100vh) - 120px);
+        }
+
+        @media screen and (min-width: 640px) {
+            #emoji-picker {
+                width: 360px;
+                max-width: 360px;
+            }
         }
 
         /* iOS & Android Input Zoom Fix: ensure inputs never zoom in */
@@ -83,6 +102,17 @@
             }
             .landscape-hide {
                 display: none !important;
+            }
+            #emoji-picker {
+                bottom: 3.5rem !important;
+                height: calc(var(--app-height, 100vh) - 4.5rem) !important;
+                max-height: calc(var(--app-height, 100vh) - 4.5rem) !important;
+            }
+            emoji-picker {
+                --category-emoji-size: 1.05rem !important;
+                --category-emoji-padding: 0.2rem !important;
+                --emoji-size: 1.15rem !important;
+                --emoji-padding: 0.25rem !important;
             }
         }
     </style>
@@ -461,8 +491,14 @@
                 <!-- Chat Input Area -->
                 <div class="relative bg-gray-100 border-t border-gray-200 safe-area-bottom flex-shrink-0">
                     <!-- Full Emoji Picker Popup -->
-                    <div id="emoji-picker" class="hidden absolute bottom-16 sm:bottom-20 left-2 right-2 sm:right-auto sm:left-4 z-40 bg-white shadow-2xl rounded-2xl border border-gray-200 overflow-hidden max-w-[calc(100vw-1rem)] sm:max-w-xs">
-                        <emoji-picker locale="de" id="emoji-picker-element"></emoji-picker>
+                    <div id="emoji-picker" class="hidden absolute bottom-16 sm:bottom-20 left-2 sm:left-4 z-40 bg-white shadow-2xl rounded-2xl border border-gray-200 overflow-hidden flex flex-col">
+                        <div class="flex items-center justify-between px-3 py-1.5 bg-gray-50 border-b border-gray-200 flex-shrink-0">
+                            <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Emojis</span>
+                            <button type="button" onclick="toggleEmojiPicker()" class="p-1 text-gray-400 hover:text-gray-700 rounded-full hover:bg-gray-200 transition" title="Schließen">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                            </button>
+                        </div>
+                        <emoji-picker locale="de" id="emoji-picker-element" class="w-full h-full flex-1"></emoji-picker>
                     </div>
 
                     <!-- Voice Recording Active Bar -->
@@ -1198,7 +1234,22 @@
     // Emoji Picker Logik
     function toggleEmojiPicker() {
         const picker = document.getElementById('emoji-picker');
-        picker.classList.toggle('hidden');
+        if (!picker) return;
+        const isHidden = picker.classList.contains('hidden');
+        if (isHidden) {
+            // Auf mobilen Geräten: Tastatur schließen (blur), damit der Picker volle Höhe hat
+            const input = document.getElementById('chat-input-field');
+            if (input && window.innerWidth <= 768) {
+                input.blur();
+            }
+            picker.classList.remove('hidden');
+            if (typeof updateAppHeight === 'function') {
+                setTimeout(updateAppHeight, 50);
+                setTimeout(updateAppHeight, 250);
+            }
+        } else {
+            picker.classList.add('hidden');
+        }
     }
 
     document.addEventListener('DOMContentLoaded', function() {
@@ -1218,11 +1269,20 @@
         const start = input.selectionStart || input.value.length;
         const end = input.selectionEnd || input.value.length;
         input.value = input.value.substring(0, start) + emoji + input.value.substring(end);
-        input.focus();
-        input.selectionStart = input.selectionEnd = start + emoji.length;
+        const newPos = start + emoji.length;
+        try {
+            input.setSelectionRange(newPos, newPos);
+        } catch (_) {}
+
+        // Nur auf Desktop Fokus ins Eingabefeld setzen.
+        // Auf Smartphones NICHT fokussieren, da sonst sofort die virtuelle Tastatur
+        // aufspringt und den Emoji-Picker verdeckt oder zusammenstaucht!
+        if (window.innerWidth > 768) {
+            input.focus();
+        }
     }
 
-    // Emoji-Picker schließen bei Klick außerhalb
+    // Emoji-Picker schließen bei Klick außerhalb oder in Chat-Nachrichten
     document.addEventListener('click', function(e) {
         const picker = document.getElementById('emoji-picker');
         const toggleBtn = e.target.closest('[title="Emojis"]');
@@ -1230,6 +1290,16 @@
             picker.classList.add('hidden');
         }
     });
+
+    const messagesContainer = document.getElementById('messages-container');
+    if (messagesContainer) {
+        messagesContainer.addEventListener('click', function() {
+            const picker = document.getElementById('emoji-picker');
+            if (picker && !picker.classList.contains('hidden')) {
+                picker.classList.add('hidden');
+            }
+        });
+    }
 
     // Cropper.js Logik
     let cropper = null;
@@ -1639,6 +1709,11 @@
     const chatInput = document.getElementById('chat-input-field');
     if (chatInput) {
         chatInput.addEventListener('focus', function() {
+            // Wenn der User ins Textfeld tippt, Emoji-Picker automatisch schließen
+            const picker = document.getElementById('emoji-picker');
+            if (picker && !picker.classList.contains('hidden')) {
+                picker.classList.add('hidden');
+            }
             setTimeout(updateAppHeight, 150);
             setTimeout(updateAppHeight, 350);
         });
