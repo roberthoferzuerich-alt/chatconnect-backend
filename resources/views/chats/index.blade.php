@@ -32,19 +32,45 @@
             --border-color: #e5e7eb;
         }
 
-        /* iOS Safari Input Zoom Fix: ensure inputs never zoom in */
+        /* iOS & Android Input Zoom Fix: ensure inputs never zoom in */
         @media screen and (max-width: 768px) {
             input, select, textarea {
                 font-size: 16px !important;
             }
         }
 
-        /* Safe area support for iPhone notch and home indicator */
+        /* Full height & system navbar fix for smartphones (Samsung Internet, Chrome, Safari) */
+        html, body {
+            height: 100%;
+            width: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        @media screen and (max-width: 768px) {
+            body {
+                position: fixed !important;
+                inset: 0 !important;
+                height: 100% !important;
+                height: var(--app-height, 100%) !important;
+                max-height: var(--app-height, 100%) !important;
+                width: 100% !important;
+                overflow: hidden !important;
+            }
+            #app-root-container {
+                height: 100% !important;
+                height: var(--app-height, 100%) !important;
+                max-height: var(--app-height, 100%) !important;
+            }
+        }
+
+        /* Safe area support for notch and home bar / system navigation */
         .safe-area-bottom {
-            padding-bottom: max(0.5rem, env(safe-area-inset-bottom, 0px));
+            padding-bottom: max(0.85rem, env(safe-area-inset-bottom, 14px)) !important;
         }
         .safe-area-top {
-            padding-top: max(0.5rem, env(safe-area-inset-top, 0px));
+            padding-top: max(0.5rem, env(safe-area-inset-top, 0px)) !important;
         }
 
         /* Landscape optimizations on smartphones (height <= 500px) */
@@ -61,9 +87,9 @@
         }
     </style>
 </head>
-<body class="bg-gray-200 h-screen h-[100dvh] w-full flex items-center justify-center p-0 md:p-4 overflow-hidden">
+<body class="bg-gray-200 h-screen w-full flex items-center justify-center p-0 md:p-4 overflow-hidden">
 
-<div class="w-full md:max-w-7xl h-full shadow-2xl bg-white flex overflow-hidden md:rounded-lg">
+<div id="app-root-container" class="w-full md:max-w-7xl h-full shadow-2xl bg-white flex overflow-hidden md:rounded-lg">
     
     <!-- Far Left Navigation Sidebar (Desktop only) -->
     <div class="hidden md:flex w-16 bg-gray-50 flex-col items-center py-4 border-r border-gray-200 z-20 justify-between flex-shrink-0">
@@ -1582,6 +1608,44 @@
         } catch (_) {}
         applyChatFontSize(saved);
     })();
+
+    // --- DYNAMISCHE VIEWPORT-HÖHE FÜR SMARTPHONES (SAMSUNG Z FLIP, IPHONE, CHROME) ---
+    function updateAppHeight() {
+        if (window.innerWidth > 768) return;
+        let h = window.innerHeight;
+        if (window.visualViewport && window.visualViewport.height) {
+            h = window.visualViewport.height;
+        }
+        document.documentElement.style.setProperty('--app-height', h + 'px');
+        
+        // Bei mobile: falls Tastatur geöffnet, zum neuesten Chat scrollen
+        const mc = document.getElementById('messages-container');
+        if (mc) {
+            mc.scrollTop = mc.scrollHeight;
+        }
+    }
+
+    window.addEventListener('resize', updateAppHeight);
+    window.addEventListener('orientationchange', function() {
+        setTimeout(updateAppHeight, 100);
+        setTimeout(updateAppHeight, 300);
+    });
+    if (window.visualViewport) {
+        window.visualViewport.addEventListener('resize', updateAppHeight);
+        window.visualViewport.addEventListener('scroll', updateAppHeight);
+    }
+    updateAppHeight();
+
+    const chatInput = document.getElementById('chat-input-field');
+    if (chatInput) {
+        chatInput.addEventListener('focus', function() {
+            setTimeout(updateAppHeight, 150);
+            setTimeout(updateAppHeight, 350);
+        });
+        chatInput.addEventListener('blur', function() {
+            setTimeout(updateAppHeight, 150);
+        });
+    }
 </script>
 </body>
 </html>
