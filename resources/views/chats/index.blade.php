@@ -660,6 +660,11 @@
                             <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-6 4h4"></path></svg>
                             <input type="file" id="document-file-input" accept=".pdf,.doc,.docx,.xls,.xlsx,.txt,.csv,.zip,.ppt,.pptx,.md,.markdown,.stl,.ctl,application/pdf,text/markdown,model/stl,application/sla" class="hidden" onchange="handleDocumentSelect(event)">
                         </label>
+
+                        <!-- 3D-Modell (.stl) Generator Button -->
+                        <button type="button" onclick="openStlGeneratorModal()" class="text-sky-600 hover:text-sky-700 hover:bg-sky-50 rounded-full cursor-pointer p-1.5 sm:p-2 transition flex-shrink-0" title="✨ 3D-Modell (.stl) aus Beschreibung erstellen">
+                            <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
+                        </button>
                         
                         <!-- Text Input -->
                         <div class="flex-1 min-w-0">
@@ -935,9 +940,9 @@
     </div>
 </div>
 
-<!-- Integrierter 3D STL / CAD Browser Modal (.stl / .ctl Dateien) -->
+<!-- Integrierter 3D STL / CAD Browser & Generator Modal (.stl / .ctl Dateien) -->
 <div id="stl-viewer-modal" class="hidden fixed inset-0 bg-black/75 z-50 flex items-center justify-center p-2 sm:p-4 backdrop-blur-sm">
-    <div class="bg-slate-900 rounded-2xl max-w-4xl w-full h-[88vh] max-h-[820px] overflow-hidden shadow-2xl flex flex-col border border-slate-700 text-white">
+    <div class="bg-slate-900 rounded-2xl max-w-4xl w-full h-[92vh] max-h-[860px] overflow-hidden shadow-2xl flex flex-col border border-slate-700 text-white">
         <!-- Header -->
         <div class="h-14 bg-slate-800 flex items-center justify-between px-4 sm:px-5 border-b border-slate-700 flex-shrink-0">
             <div class="flex items-center space-x-2.5 min-w-0">
@@ -945,16 +950,46 @@
                     3D
                 </div>
                 <div class="min-w-0">
-                    <h3 id="stl-viewer-title" class="font-bold text-white text-sm sm:text-base truncate">3D-Modell Viewer</h3>
-                    <p id="stl-viewer-stats" class="text-[11px] text-slate-400 truncate">Lade 3D-Geometrie...</p>
+                    <h3 id="stl-viewer-title" class="font-bold text-white text-sm sm:text-base truncate">3D-STL Browser & Generator</h3>
+                    <p id="stl-viewer-stats" class="text-[11px] text-slate-400 truncate">Bereit</p>
                 </div>
             </div>
             <div class="flex items-center space-x-2 flex-shrink-0">
-                <a id="stl-viewer-download" href="#" download class="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-slate-100 rounded-lg text-xs font-semibold transition flex items-center space-x-1" title="Original 3D-Datei herunterladen">
+                @if(isset($activeConversation) && $activeConversation)
+                    <button type="button" id="stl-send-to-chat-btn" onclick="sendCurrentStlToChat()" class="hidden px-3 py-1.5 bg-[#00a884] hover:bg-[#008f6f] text-white rounded-lg text-xs font-semibold transition flex items-center space-x-1 shadow-sm" title="Generiertes 3D-Modell direkt in diesen Chat senden">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+                        <span>In Chat senden</span>
+                    </button>
+                @endif
+                <a id="stl-viewer-download" href="#" download class="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-slate-100 rounded-lg text-xs font-semibold transition flex items-center space-x-1" title="3D-Datei (.stl) herunterladen">
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                    <span class="hidden sm:inline">Download</span>
+                    <span class="hidden sm:inline">Download .stl</span>
                 </a>
                 <button type="button" onclick="closeStlViewer()" class="text-slate-400 hover:text-white text-2xl font-bold leading-none px-1.5">&times;</button>
+            </div>
+        </div>
+
+        <!-- ✨ 3D-Modell aus Beschreibung erstellen (Eingabefeld) -->
+        <div class="bg-slate-800/95 px-3 sm:px-4 py-2.5 border-b border-slate-700 flex flex-col gap-2 flex-shrink-0">
+            <div class="flex items-center gap-2">
+                <div class="relative flex-1">
+                    <input type="text" id="stl-prompt-input" placeholder="3D-Modell beschreiben, z.B. „Mittelschnauzer liegend“, „Zahnrad 24 Zähne“, „Anhänger ROBI“, „Rakete“, „Burg“..." class="w-full bg-slate-900 text-white placeholder-slate-400 text-xs sm:text-sm rounded-lg pl-3 pr-3 py-2 border border-slate-600 focus:border-sky-400 outline-none" onkeydown="if(event.key==='Enter'){event.preventDefault();generateStlFromPrompt();}">
+                </div>
+                <button type="button" onclick="generateStlFromPrompt()" class="px-3.5 py-2 bg-sky-600 hover:bg-sky-500 text-white rounded-lg text-xs sm:text-sm font-semibold transition flex items-center space-x-1.5 flex-shrink-0 shadow-sm">
+                    <span>✨ 3D Erstellen</span>
+                </button>
+            </div>
+            <!-- Schnellwahl-Beispiele -->
+            <div class="flex items-center gap-1.5 overflow-x-auto pb-0.5 text-[11px] no-scrollbar">
+                <span class="text-slate-400 flex-shrink-0">Vorlagen:</span>
+                <button type="button" onclick="setStlPromptAndGenerate('Mittelschnauzer liegend')" class="px-2 py-0.5 bg-slate-700/80 hover:bg-slate-600 text-sky-300 rounded-full whitespace-nowrap transition">🐕 Mittelschnauzer liegend</button>
+                <button type="button" onclick="setStlPromptAndGenerate('Mittelschnauzer sitzend')" class="px-2 py-0.5 bg-slate-700/80 hover:bg-slate-600 text-sky-300 rounded-full whitespace-nowrap transition">🐕 Schnauzer sitzend</button>
+                <button type="button" onclick="setStlPromptAndGenerate('Schlüsselanhänger ROBI')" class="px-2 py-0.5 bg-slate-700/80 hover:bg-slate-600 text-sky-300 rounded-full whitespace-nowrap transition">🔑 Anhänger ROBI</button>
+                <button type="button" onclick="setStlPromptAndGenerate('Zahnrad 20 Zähne Loch 8')" class="px-2 py-0.5 bg-slate-700/80 hover:bg-slate-600 text-sky-300 rounded-full whitespace-nowrap transition">⚙️ Zahnrad 20 Zähne</button>
+                <button type="button" onclick="setStlPromptAndGenerate('Rakete')" class="px-2 py-0.5 bg-slate-700/80 hover:bg-slate-600 text-sky-300 rounded-full whitespace-nowrap transition">🚀 Rakete</button>
+                <button type="button" onclick="setStlPromptAndGenerate('Ritterburg mit 4 Türmen')" class="px-2 py-0.5 bg-slate-700/80 hover:bg-slate-600 text-sky-300 rounded-full whitespace-nowrap transition">🏰 Ritterburg</button>
+                <button type="button" onclick="setStlPromptAndGenerate('Herz')" class="px-2 py-0.5 bg-slate-700/80 hover:bg-slate-600 text-sky-300 rounded-full whitespace-nowrap transition">❤️ 3D-Herz</button>
+                <button type="button" onclick="setStlPromptAndGenerate('Pokal')" class="px-2 py-0.5 bg-slate-700/80 hover:bg-slate-600 text-sky-300 rounded-full whitespace-nowrap transition">🏆 Pokal</button>
             </div>
         </div>
 
@@ -1235,9 +1270,9 @@
         const file = e.target.files && e.target.files[0];
         if (!file) return;
 
-        // Maximal 20 MB prüfen
-        if (file.size > 20 * 1024 * 1024) {
-            alert('Die Datei ist zu groß (maximal 20 MB erlaubt).');
+        // Maximal 50 MB prüfen
+        if (file.size > 50 * 1024 * 1024) {
+            alert('Die Datei ist zu groß (maximal 50 MB erlaubt).');
             e.target.value = '';
             return;
         }
@@ -2323,30 +2358,15 @@
         domEl.addEventListener('touchend', () => { isDragging = false; });
     }
 
-    function openStlViewer(fileUrl, fileName) {
+    let stlGeneratedBlob = null;
+    let stlGeneratedFileName = 'modell.stl';
+    let stlGeneratedPrompt = '';
+
+    function ensureStlViewportInitialized() {
         const modal = document.getElementById('stl-viewer-modal');
-        const titleEl = document.getElementById('stl-viewer-title');
-        const statsEl = document.getElementById('stl-viewer-stats');
-        const dlBtn = document.getElementById('stl-viewer-download');
         const container = document.getElementById('stl-canvas-container');
-        const loadingOverlay = document.getElementById('stl-loading-overlay');
-        const loadingText = document.getElementById('stl-loading-text');
+        if (!modal || !container) return false;
 
-        if (!modal || !container) return;
-
-        titleEl.innerText = fileName || '3D-Modell (.stl)';
-        statsEl.innerText = 'Lade 3D-Geometrie...';
-        if (dlBtn) {
-            dlBtn.href = fileUrl;
-            dlBtn.setAttribute('download', fileName || 'modell.stl');
-        }
-        if (loadingOverlay) {
-            loadingOverlay.classList.remove('hidden');
-            if (loadingText) loadingText.innerText = 'Lade 3D-Modell...';
-        }
-        modal.classList.remove('hidden');
-
-        // Szene beim ersten Öffnen initialisieren
         if (!stlRenderer) {
             stlScene = new THREE.Scene();
             stlCamera = new THREE.PerspectiveCamera(45, container.clientWidth / Math.max(1, container.clientHeight), 0.1, 10000);
@@ -2355,7 +2375,6 @@
             stlRenderer.setSize(container.clientWidth, container.clientHeight);
             container.appendChild(stlRenderer.domElement);
 
-            // Beleuchtung (Studio 3-Punkt-Licht)
             const ambient = new THREE.AmbientLight(0xffffff, 0.55);
             stlScene.add(ambient);
             const dirLight1 = new THREE.DirectionalLight(0xffffff, 0.85);
@@ -2378,12 +2397,114 @@
             stlCamera.updateProjectionMatrix();
             stlRenderer.setSize(container.clientWidth, container.clientHeight);
         }
+        return true;
+    }
 
-        // Altes Modell entfernen
+    function renderStlArrayBufferInScene(buffer, fileName, isGenerated = false) {
+        const titleEl = document.getElementById('stl-viewer-title');
+        const statsEl = document.getElementById('stl-viewer-stats');
+        const dlBtn = document.getElementById('stl-viewer-download');
+        const sendBtn = document.getElementById('stl-send-to-chat-btn');
+        const loadingOverlay = document.getElementById('stl-loading-overlay');
+
         if (stlMesh) { stlScene.remove(stlMesh); stlMesh.geometry.dispose(); stlMesh = null; }
         if (stlWireframeMesh) { stlScene.remove(stlWireframeMesh); stlWireframeMesh = null; }
         if (stlGridHelper) { stlScene.remove(stlGridHelper); stlGridHelper = null; }
         if (stlAxesHelper) { stlScene.remove(stlAxesHelper); stlAxesHelper = null; }
+
+        const { geometry, triangles } = parseStlArrayBuffer(buffer);
+        geometry.computeBoundingBox();
+        const box = geometry.boundingBox;
+        const size = new THREE.Vector3();
+        box.getSize(size);
+        const center = new THREE.Vector3();
+        box.getCenter(center);
+
+        geometry.translate(-center.x, -box.min.y, -center.z);
+        geometry.computeBoundingSphere();
+        stlModelRadius = Math.max(1, geometry.boundingSphere.radius);
+
+        const material = new THREE.MeshStandardMaterial({
+            color: stlCurrentColor,
+            metalness: 0.2,
+            roughness: 0.45,
+            side: THREE.DoubleSide
+        });
+        stlMesh = new THREE.Mesh(geometry, material);
+        stlScene.add(stlMesh);
+
+        const wireMat = new THREE.MeshBasicMaterial({
+            color: 0x0f172a,
+            wireframe: true,
+            transparent: true,
+            opacity: 0.35
+        });
+        stlWireframeMesh = new THREE.Mesh(geometry, wireMat);
+        stlWireframeMesh.visible = stlShowWireframe;
+        stlScene.add(stlWireframeMesh);
+
+        const gridSize = Math.ceil((stlModelRadius * 3) / 10) * 10 || 100;
+        stlGridHelper = new THREE.GridHelper(gridSize, 20, 0x38bdf8, 0x334155);
+        stlGridHelper.visible = stlShowGrid;
+        stlScene.add(stlGridHelper);
+
+        stlAxesHelper = new THREE.AxesHelper(stlModelRadius * 1.2);
+        stlAxesHelper.visible = stlShowGrid;
+        stlScene.add(stlAxesHelper);
+
+        stlCamera.near = Math.max(0.05, stlModelRadius * 0.01);
+        stlCamera.far = stlModelRadius * 50;
+        stlCamera.updateProjectionMatrix();
+        stlSetCameraView('iso');
+
+        const dimX = size.x.toFixed(1);
+        const dimY = size.z.toFixed(1);
+        const dimZ = size.y.toFixed(1);
+        titleEl.innerText = fileName || '3D-Modell (.stl)';
+        statsEl.innerText = `${triangles.toLocaleString('de-CH')} Dreiecke · Maße: ${dimX} × ${dimY} × ${dimZ} mm`;
+
+        if (isGenerated) {
+            stlGeneratedBlob = new Blob([buffer], { type: 'model/stl' });
+            stlGeneratedFileName = fileName || 'modell.stl';
+            if (dlBtn) {
+                dlBtn.href = URL.createObjectURL(stlGeneratedBlob);
+                dlBtn.setAttribute('download', stlGeneratedFileName);
+            }
+            if (sendBtn) sendBtn.classList.remove('hidden');
+        } else {
+            stlGeneratedBlob = null;
+            if (sendBtn) sendBtn.classList.add('hidden');
+        }
+
+        if (loadingOverlay) loadingOverlay.classList.add('hidden');
+        startStlRenderLoop();
+    }
+
+    function openStlViewer(fileUrl, fileName) {
+        const modal = document.getElementById('stl-viewer-modal');
+        const titleEl = document.getElementById('stl-viewer-title');
+        const statsEl = document.getElementById('stl-viewer-stats');
+        const dlBtn = document.getElementById('stl-viewer-download');
+        const sendBtn = document.getElementById('stl-send-to-chat-btn');
+        const loadingOverlay = document.getElementById('stl-loading-overlay');
+        const loadingText = document.getElementById('stl-loading-text');
+
+        if (!modal) return;
+
+        titleEl.innerText = fileName || '3D-Modell (.stl)';
+        statsEl.innerText = 'Lade 3D-Geometrie...';
+        if (dlBtn) {
+            dlBtn.href = fileUrl;
+            dlBtn.setAttribute('download', fileName || 'modell.stl');
+        }
+        if (sendBtn) sendBtn.classList.add('hidden');
+        if (loadingOverlay) {
+            loadingOverlay.classList.remove('hidden');
+            if (loadingText) loadingText.innerText = 'Lade 3D-Modell...';
+        }
+        modal.classList.remove('hidden');
+
+        if (!ensureStlViewportInitialized()) return;
 
         fetch(fileUrl)
             .then(res => {
@@ -2391,68 +2512,584 @@
                 return res.arrayBuffer();
             })
             .then(buffer => {
-                const { geometry, triangles } = parseStlArrayBuffer(buffer);
-                geometry.computeBoundingBox();
-                const box = geometry.boundingBox;
-                const size = new THREE.Vector3();
-                box.getSize(size);
-                const center = new THREE.Vector3();
-                box.getCenter(center);
-
-                // Modell mittig auf das Druckbett (Y=0) setzen
-                geometry.translate(-center.x, -box.min.y, -center.z);
-                geometry.computeBoundingSphere();
-                stlModelRadius = Math.max(1, geometry.boundingSphere.radius);
-
-                const material = new THREE.MeshStandardMaterial({
-                    color: stlCurrentColor,
-                    metalness: 0.2,
-                    roughness: 0.45,
-                    side: THREE.DoubleSide
-                });
-                stlMesh = new THREE.Mesh(geometry, material);
-                stlScene.add(stlMesh);
-
-                const wireMat = new THREE.MeshBasicMaterial({
-                    color: 0x0f172a,
-                    wireframe: true,
-                    transparent: true,
-                    opacity: 0.35
-                });
-                stlWireframeMesh = new THREE.Mesh(geometry, wireMat);
-                stlWireframeMesh.visible = stlShowWireframe;
-                stlScene.add(stlWireframeMesh);
-
-                // Druckbett-Gitter & Achsen passend zur Modellgröße erstellen
-                const gridSize = Math.ceil((stlModelRadius * 3) / 10) * 10 || 100;
-                stlGridHelper = new THREE.GridHelper(gridSize, 20, 0x38bdf8, 0x334155);
-                stlGridHelper.visible = stlShowGrid;
-                stlScene.add(stlGridHelper);
-
-                stlAxesHelper = new THREE.AxesHelper(stlModelRadius * 1.2);
-                stlAxesHelper.visible = stlShowGrid;
-                stlScene.add(stlAxesHelper);
-
-                // Kamera auf Modell zentrieren
-                stlCamera.near = Math.max(0.05, stlModelRadius * 0.01);
-                stlCamera.far = stlModelRadius * 50;
-                stlCamera.updateProjectionMatrix();
-                stlSetCameraView('iso');
-
-                // Abmessungen & Dreiecke in der Statuszeile anzeigen
-                const dimX = size.x.toFixed(1);
-                const dimY = size.z.toFixed(1);
-                const dimZ = size.y.toFixed(1);
-                statsEl.innerText = `${triangles.toLocaleString('de-CH')} Dreiecke · Maße: ${dimX} × ${dimY} × ${dimZ} mm`;
-
-                if (loadingOverlay) loadingOverlay.classList.add('hidden');
-                startStlRenderLoop();
+                renderStlArrayBufferInScene(buffer, fileName, false);
             })
             .catch(err => {
                 console.error('STL Load Error:', err);
                 if (loadingText) loadingText.innerText = 'Fehler beim Laden: ' + err.message;
                 statsEl.innerText = 'Datei konnte nicht als 3D-STL gelesen werden.';
             });
+    }
+
+    function openStlGeneratorModal() {
+        const modal = document.getElementById('stl-viewer-modal');
+        const promptInput = document.getElementById('stl-prompt-input');
+        if (!modal) return;
+        modal.classList.remove('hidden');
+        ensureStlViewportInitialized();
+        if (promptInput) {
+            if (!promptInput.value.trim()) {
+                promptInput.value = 'Mittelschnauzer liegend';
+                generateStlFromPrompt();
+            }
+            setTimeout(() => promptInput.focus(), 100);
+        }
+    }
+
+    function setStlPromptAndGenerate(text) {
+        const promptInput = document.getElementById('stl-prompt-input');
+        if (promptInput) {
+            promptInput.value = text;
+            generateStlFromPrompt();
+        }
+    }
+
+    // --- 3D-STL GENERATOR AUS TEXTBESCHREIBUNG (SDF + Marching Tetrahedra) ---
+    function smin3d(a, b, k) {
+        const h = Math.max(k - Math.abs(a - b), 0.0) / k;
+        return Math.min(a, b) - h * h * k * 0.25;
+    }
+
+    function smax3d(a, b, k) {
+        return -smin3d(-a, -b, k);
+    }
+
+    function sdCap3d(px, py, pz, ax, ay, az, bx, by, bz, r1, r2) {
+        const pax = px - ax, pay = py - ay, paz = pz - az;
+        const bax = bx - ax, bay = by - ay, baz = bz - az;
+        const baba = bax * bax + bay * bay + baz * baz;
+        let h = baba > 0 ? (pax * bax + pay * bay + paz * baz) / baba : 0;
+        h = Math.max(0.0, Math.min(1.0, h));
+        const dx = pax - bax * h, dy = pay - bay * h, dz = paz - baz * h;
+        return Math.sqrt(dx * dx + dy * dy + dz * dz) - (r1 + (r2 - r1) * h);
+    }
+
+    function sdEllip3d(px, py, pz, cx, cy, cz, rx, ry, rz) {
+        const dx = (px - cx) / rx, dy = (py - cy) / ry, dz = (pz - cz) / rz;
+        const k0 = Math.sqrt(dx * dx + dy * dy + dz * dz);
+        if (k0 === 0) return -Math.min(rx, ry, rz);
+        const dx2 = dx / rx, dy2 = dy / ry, dz2 = dz / rz;
+        const k1 = Math.sqrt(dx2 * dx2 + dy2 * dy2 + dz2 * dz2);
+        return k0 * (k0 - 1.0) / k1;
+    }
+
+    function sdBox3d(px, py, pz, cx, cy, cz, bx, by, bz, r) {
+        const qx = Math.abs(px - cx) - bx, qy = Math.abs(py - cy) - by, qz = Math.abs(pz - cz) - bz;
+        const mx = Math.max(qx, 0.0), my = Math.max(qy, 0.0), mz = Math.max(qz, 0.0);
+        return Math.sqrt(mx * mx + my * my + mz * mz) + Math.min(Math.max(qx, Math.max(qy, qz)), 0.0) - r;
+    }
+
+    // 5x7 Pixel-Font für 3D-Text auf Schlüsselanhängern / Namensschildern
+    const FONT_5X7 = {
+        'A': [0x0E,0x11,0x11,0x1F,0x11,0x11,0x11], 'B': [0x1E,0x11,0x11,0x1E,0x11,0x11,0x1E],
+        'C': [0x0E,0x11,0x10,0x10,0x10,0x11,0x0E], 'D': [0x1E,0x11,0x11,0x11,0x11,0x11,0x1E],
+        'E': [0x1F,0x10,0x10,0x1E,0x10,0x10,0x1F], 'F': [0x1F,0x10,0x10,0x1E,0x10,0x10,0x10],
+        'G': [0x0E,0x11,0x10,0x17,0x11,0x11,0x0F], 'H': [0x11,0x11,0x11,0x1F,0x11,0x11,0x11],
+        'I': [0x0E,0x04,0x04,0x04,0x04,0x04,0x0E], 'J': [0x07,0x02,0x02,0x02,0x12,0x12,0x0C],
+        'K': [0x11,0x12,0x14,0x18,0x14,0x12,0x11], 'L': [0x10,0x10,0x10,0x10,0x10,0x10,0x1F],
+        'M': [0x11,0x1B,0x15,0x15,0x11,0x11,0x11], 'N': [0x11,0x19,0x15,0x13,0x11,0x11,0x11],
+        'O': [0x0E,0x11,0x11,0x11,0x11,0x11,0x0E], 'P': [0x1E,0x11,0x11,0x1E,0x10,0x10,0x10],
+        'Q': [0x0E,0x11,0x11,0x11,0x15,0x12,0x0D], 'R': [0x1E,0x11,0x11,0x1E,0x14,0x12,0x11],
+        'S': [0x0F,0x10,0x10,0x0E,0x01,0x01,0x1E], 'T': [0x1F,0x04,0x04,0x04,0x04,0x04,0x04],
+        'U': [0x11,0x11,0x11,0x11,0x11,0x11,0x0E], 'V': [0x11,0x11,0x11,0x11,0x11,0x0A,0x04],
+        'W': [0x11,0x11,0x11,0x15,0x15,0x1B,0x11], 'X': [0x11,0x11,0x0A,0x04,0x0A,0x11,0x11],
+        'Y': [0x11,0x11,0x0A,0x04,0x04,0x04,0x04], 'Z': [0x1F,0x01,0x02,0x04,0x08,0x10,0x1F],
+        '0': [0x0E,0x11,0x13,0x15,0x19,0x11,0x0E], '1': [0x04,0x0C,0x04,0x04,0x04,0x04,0x0E],
+        '2': [0x0E,0x11,0x01,0x06,0x08,0x10,0x1F], '3': [0x1F,0x02,0x04,0x06,0x01,0x11,0x0E],
+        '4': [0x02,0x06,0x0A,0x12,0x1F,0x02,0x02], '5': [0x1F,0x10,0x1E,0x01,0x01,0x11,0x0E],
+        '6': [0x06,0x08,0x10,0x1E,0x11,0x11,0x0E], '7': [0x1F,0x01,0x02,0x04,0x08,0x08,0x08],
+        '8': [0x0E,0x11,0x11,0x0E,0x11,0x11,0x0E], '9': [0x0E,0x11,0x11,0x0F,0x01,0x02,0x0C]
+    };
+
+    function buildSdfFromDescription(rawPrompt) {
+        const p = (rawPrompt || '').toLowerCase();
+
+        // 1. SCHLÜSSELANHÄNGER / NAMENSSCHILD MIT 3D-TEXT
+        if (p.includes('anhänger') || p.includes('schild') || p.includes('name') || p.includes('text')) {
+            let label = 'ROBI';
+            const words = rawPrompt.trim().split(/\s+/);
+            if (words.length >= 2) {
+                const candidate = words.slice(1).join(' ').replace(/[^a-zA-Z0-9ÄÖÜäöü\- ]/g, '').toUpperCase().trim();
+                if (candidate) label = candidate.slice(0, 12);
+            }
+            const charW = 7.5;
+            const totalTextW = label.length * charW;
+            const halfW = Math.max(24, totalTextW * 0.5 + 10);
+            const halfH = 12;
+
+            return {
+                fileName: `anhaenger_${label.toLowerCase().replace(/\s+/g, '_')}.stl`,
+                bounds: { minX: -halfW - 4, maxX: halfW + 4, minY: -halfH - 3, maxY: halfH + 3, minZ: -1, maxZ: 8, step: 0.9 },
+                sdf: (x, y, z) => {
+                    // Grundplatte mit abgerundeten Ecken
+                    let d = sdBox3d(x, y, z, 0, 0, 2.0, halfW - 3, halfH - 3, 2.0, 3.0);
+                    // Schlüsselring-Loch links
+                    const holeX = -halfW + 5.5;
+                    const dHole = Math.hypot(x - holeX, y) - 2.8;
+                    d = Math.max(d, -dHole);
+                    // Erhabener Rand
+                    const dRimOuter = sdBox3d(x, y, z, 0, 0, 4.2, halfW - 3, halfH - 3, 0.8, 3.0);
+                    const dRimInner = sdBox3d(x, y, z, 0, 0, 4.5, halfW - 4.8, halfH - 4.8, 1.5, 2.0);
+                    d = Math.min(d, Math.max(dRimOuter, -dRimInner));
+
+                    // 3D-Buchstaben
+                    const startX = -totalTextW * 0.5 + 3.5;
+                    for (let c = 0; c < label.length; c++) {
+                        const ch = label[c];
+                        const bitmap = FONT_5X7[ch];
+                        if (!bitmap) continue;
+                        const cx0 = startX + c * charW;
+                        if (x < cx0 - 2 || x > cx0 + 8) continue;
+                        for (let row = 0; row < 7; row++) {
+                            const bits = bitmap[row];
+                            for (let col = 0; col < 5; col++) {
+                                if ((bits >> (4 - col)) & 1) {
+                                    const px = cx0 + col * 1.25;
+                                    const py = (3 - row) * 1.6;
+                                    const dPix = sdBox3d(x, y, z, px, py, 4.5, 0.65, 0.8, 1.2, 0.15);
+                                    if (dPix < d) d = dPix;
+                                }
+                            }
+                        }
+                    }
+                    return Math.max(d, -z);
+                }
+            };
+        }
+
+        // 2. ZAHNRAD (GEAR)
+        if (p.includes('zahnrad') || p.includes('gear') || p.includes('ritzel')) {
+            const teethMatch = p.match(/(\d+)\s*z[äa]hn/);
+            const holeMatch = p.match(/loch\s*(\d+)/);
+            const numTeeth = teethMatch ? Math.max(6, Math.min(60, parseInt(teethMatch[1], 10))) : 20;
+            const holeDiam = holeMatch ? Math.max(2, Math.min(40, parseInt(holeMatch[1], 10))) : 8;
+            const pitchR = Math.max(14, numTeeth * 1.25);
+            const outerR = pitchR + 2.6;
+            const rootR = pitchR - 2.2;
+            const thickness = 8.0;
+
+            return {
+                fileName: `zahnrad_${numTeeth}_zaehne.stl`,
+                bounds: { minX: -outerR - 4, maxX: outerR + 4, minY: -outerR - 4, maxY: outerR + 4, minZ: -1, maxZ: thickness + 2, step: 0.9 },
+                sdf: (x, y, z) => {
+                    const r = Math.hypot(x, y);
+                    const angle = Math.atan2(y, x);
+                    const toothWave = Math.cos(angle * numTeeth);
+                    const targetR = rootR + (outerR - rootR) * Math.max(0, Math.min(1, 0.5 + 0.65 * toothWave));
+                    let dRadial = r - targetR;
+                    // Nabe & Aussparung
+                    let dZ = Math.abs(z - thickness * 0.5) - thickness * 0.5;
+                    let d = Math.max(dRadial, dZ);
+                    // Achsloch in der Mitte
+                    const dHole = (holeDiam * 0.5) - r;
+                    d = Math.max(d, dHole);
+                    return Math.max(d, -z);
+                }
+            };
+        }
+
+        // 3. RAKETE / RAUMSCHIFF
+        if (p.includes('rakete') || p.includes('rocket') || p.includes('raumschiff')) {
+            return {
+                fileName: 'rakete_3d.stl',
+                bounds: { minX: -26, maxX: 26, minY: -26, maxY: 26, minZ: -1, maxZ: 72, step: 1.1 },
+                sdf: (x, y, z) => {
+                    const r = Math.hypot(x, y);
+                    // Rumpf mit parabolischer Spitze
+                    const radiusAtZ = z < 45 ? (10.5 - 0.08 * Math.pow((z - 25) / 10, 2) * 8) : Math.max(0.2, 10.5 * (1 - (z - 45) / 22));
+                    let dBody = Math.max(r - Math.max(0.5, radiusAtZ), Math.abs(z - 34) - 32);
+                    // 4 Leitflossen (Fins)
+                    const ax = Math.abs(x), ay = Math.abs(y);
+                    const finX = sdBox3d(ax, y, z, 11.5, 0, 10, 7.5, 1.4, 10, 0.8);
+                    const finY = sdBox3d(x, ay, z, 0, 11.5, 10, 1.4, 7.5, 10, 0.8);
+                    let d = smin3d(dBody, Math.min(finX, finY), 1.8);
+                    // Bullauge
+                    const dWindow = sdEllip3d(x, y, z, 9.8, 0, 38, 2.5, 3.5, 3.5);
+                    d = smin3d(d, dWindow, 0.8);
+                    // Düse unten
+                    const dNozzle = sdCap3d(x, y, z, 0, 0, 0, 0, 0, 6, 7.5, 5.5);
+                    d = Math.min(d, dNozzle);
+                    return Math.max(d, -z);
+                }
+            };
+        }
+
+        // 4. RITTERBURG / BURG / TURM
+        if (p.includes('burg') || p.includes('turm') || p.includes('schloss') || p.includes('castle')) {
+            return {
+                fileName: 'ritterburg_3d.stl',
+                bounds: { minX: -34, maxX: 34, minY: -34, maxY: 34, minZ: -1, maxZ: 46, step: 1.2 },
+                sdf: (x, y, z) => {
+                    const ax = Math.abs(x), ay = Math.abs(y);
+                    // 4 Ecktürme
+                    const tr = Math.hypot(ax - 20, ay - 20);
+                    let dTower = Math.max(tr - 8.0, z - 38.0);
+                    // Zinnen auf den Türmen
+                    if (z > 35.0) {
+                        const ang = Math.atan2(ay - 20, ax - 20);
+                        if (Math.cos(ang * 6) < 0 && tr < 6.2) dTower = 1.5;
+                    }
+                    // Burgmauern
+                    const dWallX = sdBox3d(ax, y, z, 20, 0, 13, 2.8, 18, 13, 0.4);
+                    const dWallY = sdBox3d(x, ay, z, 0, 20, 13, 18, 2.8, 13, 0.4);
+                    // Bergfried (Hauptturm in der Mitte)
+                    const dKeep = sdBox3d(x, y, z, 0, 0, 21, 9, 9, 21, 1.0);
+                    // Bodenplatte
+                    const dBase = sdBox3d(x, y, z, 0, 0, 1.5, 29, 29, 1.5, 1.5);
+                    let d = Math.min(dBase, Math.min(dTower, Math.min(dWallX, Math.min(dWallY, dKeep))));
+                    // Torbogen vorne
+                    const dGate = sdCap3d(x, y, z, 15, 0, 2, 26, 0, 2, 5.5, 5.5);
+                    d = Math.max(d, -dGate);
+                    return Math.max(d, -z);
+                }
+            };
+        }
+
+        // 5. 3D-HERZ
+        if (p.includes('herz') || p.includes('heart')) {
+            return {
+                fileName: 'herz_3d.stl',
+                bounds: { minX: -30, maxX: 30, minY: -30, maxY: 30, minZ: -1, maxZ: 18, step: 1.0 },
+                sdf: (x, y, z) => {
+                    const px = x / 22.0, py = (y + 4) / 22.0;
+                    const a = px * px + py * py - Math.pow(Math.abs(px), 0.65) * py - 0.6;
+                    const d2d = a * 18.0;
+                    const dZ = Math.abs(z - 6.0) - 6.0;
+                    return Math.max(Math.max(d2d, dZ), -z);
+                }
+            };
+        }
+
+        // 6. POKAL / TROPHÄE / BECHER / TASSE
+        if (p.includes('pokal') || p.includes('troph') || p.includes('becher') || p.includes('tasse')) {
+            return {
+                fileName: 'pokal_3d.stl',
+                bounds: { minX: -26, maxX: 26, minY: -26, maxY: 26, minZ: -1, maxZ: 56, step: 1.1 },
+                sdf: (x, y, z) => {
+                    const r = Math.hypot(x, y);
+                    // Sockel
+                    const dBase = sdBox3d(x, y, z, 0, 0, 4, 12, 12, 4, 1.5);
+                    // Stiel
+                    const dStem = sdCap3d(x, y, z, 0, 0, 8, 0, 0, 24, 5.0, 3.8);
+                    // Kelch
+                    const cupR = 5.0 + Math.max(0, (z - 22) * 0.48);
+                    let dCup = Math.max(r - cupR, Math.abs(z - 37) - 15);
+                    // Kelch innen aushöhlen
+                    const dHollow = Math.max(r - (cupR - 2.6), z - 53, 30 - z);
+                    dCup = Math.max(dCup, -dHollow);
+                    // Henkel links & rechts
+                    const dHandle = sdEllip3d(Math.abs(x), y, z, 15.5, 0, 38, 6.5, 2.2, 9.5);
+                    const dHandleHole = sdEllip3d(Math.abs(x), y, z, 14.5, 0, 38, 4.2, 4.0, 6.8);
+                    let d = smin3d(dBase, dStem, 2.0);
+                    d = smin3d(d, dCup, 2.0);
+                    d = smin3d(d, Math.max(dHandle, -dHandleHole), 1.2);
+                    return Math.max(d, -z);
+                }
+            };
+        }
+
+        // 7. STANDARD & MITTELSCHNAUZER (LIEGEND, SITZEND ODER STEHEND)
+        const isSitting = p.includes('sitz');
+        const isStanding = p.includes('steh');
+        const poseSuffix = isSitting ? 'sitzend' : (isStanding ? 'stehend' : 'liegend');
+
+        return {
+            fileName: `mittelschnauzer_${poseSuffix}.stl`,
+            bounds: { minX: -52, maxX: 58, minY: -30, maxY: 30, minZ: -1, maxZ: isSitting || isStanding ? 64 : 53, step: 1.85 },
+            sdf: (x, y, z) => {
+                const ay = Math.abs(y);
+                let dBase = sdEllip3d(x - 3.0, y, z - 2.0, 0, 0, 0, 50.0, 26.0, 4.0);
+                dBase = Math.max(dBase, -z);
+
+                let dDog;
+                let headX = 22.0, headZ = 39.5;
+
+                if (isSitting) {
+                    // Sitzende Pose: aufgerichteter Brustkorb
+                    const dChest = sdEllip3d(x, y, z, 8.0, 0.0, 24.0, 14.0, 11.5, 13.0);
+                    const dBelly = sdCap3d(x, y, z, 8.0, 0.0, 23.0, -14.0, 0.0, 11.5, 11.5, 11.0);
+                    const dRump = sdEllip3d(x, y, z, -16.0, 0.0, 10.5, 12.0, 12.0, 9.5);
+                    dDog = smin3d(smin3d(dChest, dBelly, 4.5), dRump, 4.5);
+                    // Aufgestellte Vorderbeine
+                    const dFrontLeg = sdCap3d(x, ay, z, 11.0, 7.5, 22.0, 14.0, 7.5, 5.0, 4.4, 3.8);
+                    const dFrontPaw = sdEllip3d(x, ay, z, 17.0, 7.5, 4.8, 5.2, 4.2, 3.2);
+                    const dThigh = sdEllip3d(x, ay, z, -14.0, 11.0, 11.5, 10.5, 5.2, 8.5);
+                    const dHindPaw = sdEllip3d(x, ay, z, -4.0, 11.5, 4.8, 5.5, 4.0, 3.2);
+                    dDog = smin3d(dDog, dFrontLeg, 2.5);
+                    dDog = smin3d(dDog, dFrontPaw, 2.0);
+                    dDog = smin3d(dDog, dThigh, 3.0);
+                    dDog = smin3d(dDog, dHindPaw, 2.0);
+                    const dNeck = sdCap3d(x, y, z, 10.0, 0.0, 30.0, 16.0, 0.0, 44.0, 8.8, 7.4);
+                    dDog = smin3d(dDog, dNeck, 4.0);
+                    const dTail = sdCap3d(x, y, z, -25.0, 0.0, 14.0, -32.0, 0.0, 25.0, 2.8, 1.8);
+                    dDog = smin3d(dDog, dTail, 2.2);
+                    headX = 17.5;
+                    headZ = 48.0;
+                } else {
+                    // Klassisch liegende Sphinx-Pose
+                    const dChest = sdEllip3d(x, y, z, 8.0, 0.0, 14.5, 17.0, 12.5, 11.5);
+                    const dBelly = sdCap3d(x, y, z, 8.0, 0.0, 13.5, -24.0, 0.0, 12.0, 11.5, 10.2);
+                    const dRump = sdEllip3d(x, y, z, -26.0, 0.0, 13.0, 13.0, 11.5, 10.5);
+                    dDog = smin3d(smin3d(dChest, dBelly, 5.0), dRump, 5.0);
+
+                    const dThigh = sdEllip3d(x, ay, z, -24.0, 11.5, 11.5, 12.0, 5.5, 8.5);
+                    const dHindLower = sdCap3d(x, ay, z, -30.0, 13.0, 6.5, -10.0, 13.5, 5.5, 4.2, 3.6);
+                    const dHindPaw = sdEllip3d(x, ay, z, -7.0, 13.5, 5.2, 5.2, 4.0, 3.2);
+                    dDog = smin3d(smin3d(smin3d(dDog, dThigh, 3.5), dHindLower, 2.5), dHindPaw, 2.0);
+
+                    const dShoulder = sdEllip3d(x, ay, z, 13.0, 9.5, 14.5, 9.0, 5.0, 8.5);
+                    const dUpperArm = sdCap3d(x, ay, z, 14.0, 9.5, 14.0, 19.0, 9.0, 6.5, 4.8, 4.2);
+                    const dForearm = sdCap3d(x, ay, z, 19.0, 9.0, 6.2, 40.0, 8.2, 5.5, 4.5, 4.0);
+                    const dFrontPaw = sdEllip3d(x, ay, z, 43.0, 8.0, 5.2, 5.8, 4.4, 3.4);
+                    dDog = smin3d(smin3d(smin3d(smin3d(dDog, dShoulder, 3.5), dUpperArm, 2.5), dForearm, 2.5), dFrontPaw, 2.0);
+
+                    const dNeck = sdCap3d(x, y, z, 13.0, 0.0, 18.0, 21.0, 0.0, 35.0, 9.5, 7.6);
+                    dDog = smin3d(dDog, dNeck, 4.5);
+                    const dCollar = sdCap3d(x, y, z, 16.5, 0.0, 25.5, 17.5, 0.0, 27.0, 8.9, 8.7);
+                    dDog = smin3d(dDog, dCollar, 1.0);
+                    const dTail = sdCap3d(x, y, z, -36.5, 0.0, 16.0, -43.5, 0.0, 27.5, 3.0, 1.8);
+                    dDog = smin3d(dDog, dTail, 2.5);
+                }
+
+                // Charakteristischer Schnauzer-Kopf, Bart (mit korrektem y!), Brauen & Kippohren
+                const dxH = headX - 22.0, dzH = headZ - 39.5;
+                const dSkull = sdEllip3d(x - dxH, y, z - dzH, 22.0, 0.0, 39.5, 9.2, 7.6, 7.8);
+                const dMuzzle = sdBox3d(x - dxH, y, z - dzH, 32.0, 0.0, 37.5, 6.5, 4.5, 4.0, 2.2);
+                dDog = smin3d(smin3d(dDog, dSkull, 3.5), dMuzzle, 2.5);
+
+                const dBeardSide = sdCap3d(x - dxH, ay, z - dzH, 31.5, 3.2, 36.5, 34.5, 3.5, 27.0, 3.8, 2.5);
+                const dBeardFront = sdCap3d(x - dxH, ay, z - dzH, 35.0, 1.8, 35.5, 36.8, 1.6, 28.0, 3.2, 2.0);
+                const dChinBeard = sdCap3d(x - dxH, y, z - dzH, 30.5, 0.0, 34.0, 33.5, 0.0, 26.8, 3.6, 2.2);
+                dDog = smin3d(smin3d(smin3d(dDog, dBeardSide, 2.0), dBeardFront, 1.8), dChinBeard, 2.0);
+
+                const dBrow = sdCap3d(x - dxH, ay, z - dzH, 26.5, 2.2, 43.8, 29.5, 6.2, 42.5, 2.4, 1.9);
+                const dNose = sdEllip3d(x - dxH, y, z - dzH, 39.8, 0.0, 39.8, 2.4, 2.8, 2.0);
+                dDog = smin3d(smin3d(dDog, dBrow, 1.4), dNose, 0.8);
+
+                const dEarBase = sdCap3d(x - dxH, ay, z - dzH, 19.5, 5.8, 44.5, 21.5, 7.8, 49.0, 2.8, 2.2);
+                const dEarFlap = sdCap3d(x - dxH, ay, z - dzH, 21.5, 7.8, 49.0, 26.5, 8.8, 42.0, 2.6, 1.4);
+                dDog = smin3d(smin3d(dDog, dEarBase, 1.8), dEarFlap, 1.5);
+
+                let dTotal = smin3d(dDog, dBase, 2.2);
+                return Math.max(dTotal, -z);
+            }
+        };
+    }
+
+    function generateStlBufferFromSdf(spec) {
+        const { minX, maxX, minY, maxY, minZ, maxZ, step } = spec.bounds;
+        const sdf = spec.sdf;
+        const nx = Math.ceil((maxX - minX) / step) + 1;
+        const ny = Math.ceil((maxY - minY) / step) + 1;
+        const nz = Math.ceil((maxZ - minZ) / step) + 1;
+
+        const grid = new Float32Array(nx * ny * nz);
+        const idx = (ix, iy, iz) => (iz * ny + iy) * nx + ix;
+
+        for (let iz = 0; iz < nz; iz++) {
+            const z = minZ + iz * step;
+            for (let iy = 0; iy < ny; iy++) {
+                const y = minY + iy * step;
+                for (let ix = 0; ix < nx; ix++) {
+                    const x = minX + ix * step;
+                    grid[idx(ix, iy, iz)] = sdf(x, y, z);
+                }
+            }
+        }
+
+        const tets = [
+            [0, 5, 1, 6], [0, 1, 2, 6], [0, 2, 3, 6],
+            [0, 3, 7, 6], [0, 7, 4, 6], [0, 4, 5, 6]
+        ];
+        const triangles = [];
+
+        function interp(p1, p2, v1, v2) {
+            if (Math.abs(v1 - v2) < 1e-6) return p1;
+            const t = -v1 / (v2 - v1);
+            return [
+                p1[0] + t * (p2[0] - p1[0]),
+                p1[1] + t * (p2[1] - p1[1]),
+                p1[2] + t * (p2[2] - p1[2])
+            ];
+        }
+
+        function addTri(a, b, c) {
+            const cx = (a[0] + b[0] + c[0]) / 3;
+            const cy = (a[1] + b[1] + c[1]) / 3;
+            const cz = (a[2] + b[2] + c[2]) / 3;
+            const eps = 0.25;
+            const gx = sdf(cx + eps, cy, cz) - sdf(cx - eps, cy, cz);
+            const gy = sdf(cx, cy + eps, cz) - sdf(cx, cy - eps, cz);
+            const gz = sdf(cx, cy, cz + eps) - sdf(cx, cy, cz - eps);
+
+            const ux = b[0] - a[0], uy = b[1] - a[1], uz = b[2] - a[2];
+            const vx = c[0] - a[0], vy = c[1] - a[1], vz = c[2] - a[2];
+            let nX = uy * vz - uz * vy;
+            let nY = uz * vx - ux * vz;
+            let nZ = ux * vy - uy * vx;
+            const len = Math.hypot(nX, nY, nZ);
+            if (len < 1e-7) return;
+            nX /= len; nY /= len; nZ /= len;
+
+            if (nX * gx + nY * gy + nZ * gz < 0) {
+                triangles.push({ a, b: c, c: b, n: [-nX, -nY, -nZ] });
+            } else {
+                triangles.push({ a, b, c, n: [nX, nY, nZ] });
+            }
+        }
+
+        for (let iz = 0; iz < nz - 1; iz++) {
+            const z0 = minZ + iz * step, z1 = z0 + step;
+            for (let iy = 0; iy < ny - 1; iy++) {
+                const y0 = minY + iy * step, y1 = y0 + step;
+                for (let ix = 0; ix < nx - 1; ix++) {
+                    const x0 = minX + ix * step, x1 = x0 + step;
+                    const v = [
+                        grid[idx(ix, iy, iz)], grid[idx(ix + 1, iy, iz)],
+                        grid[idx(ix + 1, iy + 1, iz)], grid[idx(ix, iy + 1, iz)],
+                        grid[idx(ix, iy, iz + 1)], grid[idx(ix + 1, iy, iz + 1)],
+                        grid[idx(ix + 1, iy + 1, iz + 1)], grid[idx(ix, iy + 1, iz + 1)]
+                    ];
+                    let allPos = true, allNeg = true;
+                    for (let k = 0; k < 8; k++) {
+                        if (v[k] <= 0) allPos = false;
+                        else allNeg = false;
+                    }
+                    if (allPos || allNeg) continue;
+
+                    const p = [
+                        [x0, y0, z0], [x1, y0, z0], [x1, y1, z0], [x0, y1, z0],
+                        [x0, y0, z1], [x1, y0, z1], [x1, y1, z1], [x0, y1, z1]
+                    ];
+
+                    for (let t = 0; t < 6; t++) {
+                        const ti = tets[t];
+                        const inside = [], outside = [];
+                        for (let m = 0; m < 4; m++) {
+                            const vi = ti[m];
+                            if (v[vi] <= 0) inside.push(vi);
+                            else outside.push(vi);
+                        }
+                        if (inside.length === 0 || inside.length === 4) continue;
+                        if (inside.length === 1) {
+                            const i0 = inside[0], o0 = outside[0], o1 = outside[1], o2 = outside[2];
+                            addTri(interp(p[i0], p[o0], v[i0], v[o0]), interp(p[i0], p[o1], v[i0], v[o1]), interp(p[i0], p[o2], v[i0], v[o2]));
+                        } else if (inside.length === 3) {
+                            const o0 = outside[0], i0 = inside[0], i1 = inside[1], i2 = inside[2];
+                            addTri(interp(p[o0], p[i0], v[o0], v[i0]), interp(p[o0], p[i1], v[o0], v[i1]), interp(p[o0], p[i2], v[o0], v[i2]));
+                        } else if (inside.length === 2) {
+                            const i0 = inside[0], i1 = inside[1], o0 = outside[0], o1 = outside[1];
+                            const p00 = interp(p[i0], p[o0], v[i0], v[o0]);
+                            const p01 = interp(p[i0], p[o1], v[i0], v[o1]);
+                            const p10 = interp(p[i1], p[o0], v[i1], v[o0]);
+                            const p11 = interp(p[i1], p[o1], v[i1], v[o1]);
+                            addTri(p00, p01, p11);
+                            addTri(p00, p11, p10);
+                        }
+                    }
+                }
+            }
+        }
+
+        const numTri = triangles.length;
+        const arrayBuf = new ArrayBuffer(84 + numTri * 50);
+        const view = new DataView(arrayBuf);
+        view.setUint32(80, numTri, true);
+        let offset = 84;
+        for (let i = 0; i < numTri; i++) {
+            const tr = triangles[i];
+            view.setFloat32(offset, tr.n[0], true);
+            view.setFloat32(offset + 4, tr.n[1], true);
+            view.setFloat32(offset + 8, tr.n[2], true);
+            view.setFloat32(offset + 12, tr.a[0], true);
+            view.setFloat32(offset + 16, tr.a[1], true);
+            view.setFloat32(offset + 20, tr.a[2], true);
+            view.setFloat32(offset + 24, tr.b[0], true);
+            view.setFloat32(offset + 28, tr.b[1], true);
+            view.setFloat32(offset + 32, tr.b[2], true);
+            view.setFloat32(offset + 36, tr.c[0], true);
+            view.setFloat32(offset + 40, tr.c[1], true);
+            view.setFloat32(offset + 42 + 2, tr.c[2], true);
+            view.setUint16(offset + 48, 0, true);
+            offset += 50;
+        }
+        return arrayBuf;
+    }
+
+    function generateStlFromPrompt() {
+        const promptInput = document.getElementById('stl-prompt-input');
+        const loadingOverlay = document.getElementById('stl-loading-overlay');
+        const loadingText = document.getElementById('stl-loading-text');
+        const prompt = promptInput ? promptInput.value.trim() : '';
+        if (!prompt) {
+            alert('Bitte gib eine kurze Beschreibung für das 3D-Modell ein (z.B. „Mittelschnauzer liegend“ oder „Zahnrad 20 Zähne“).');
+            return;
+        }
+
+        if (loadingOverlay) {
+            loadingOverlay.classList.remove('hidden');
+            if (loadingText) loadingText.innerText = `Berechne 3D-Geometrie für „${prompt}“...`;
+        }
+
+        setTimeout(() => {
+            try {
+                ensureStlViewportInitialized();
+                const spec = buildSdfFromDescription(prompt);
+                const buffer = generateStlBufferFromSdf(spec);
+                stlGeneratedPrompt = prompt;
+                renderStlArrayBufferInScene(buffer, spec.fileName, true);
+            } catch (err) {
+                console.error('3D Generation Error:', err);
+                if (loadingOverlay) loadingOverlay.classList.add('hidden');
+                alert('Fehler beim Erstellen des 3D-Modells: ' + err.message);
+            }
+        }, 40);
+    }
+
+    function sendCurrentStlToChat() {
+        if (!stlGeneratedBlob) return;
+        const sendBtn = document.getElementById('stl-send-to-chat-btn');
+        if (sendBtn) {
+            sendBtn.disabled = true;
+            sendBtn.innerText = 'Sende...';
+        }
+
+        const file = new File([stlGeneratedBlob], stlGeneratedFileName, { type: 'model/stl' });
+        const formData = new FormData();
+        formData.append('document', file);
+        formData.append('content', '✨ 3D-Modell: ' + (stlGeneratedPrompt || stlGeneratedFileName));
+        formData.append('_token', '{{ csrf_token() }}');
+
+        fetch("{{ route('chats.store', $activeConversation->id ?? 0) }}", {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: formData
+        })
+        .then(async res => {
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) throw new Error(data.message || ('Upload-Fehler HTTP ' + res.status));
+            return data;
+        })
+        .then(data => {
+            if (sendBtn) {
+                sendBtn.disabled = false;
+                sendBtn.innerHTML = '<span>In Chat senden</span>';
+            }
+            if (data.status === 'success' && data.message) {
+                appendMessageToChat(data.message);
+                closeStlViewer();
+            }
+        })
+        .catch(err => {
+            if (sendBtn) {
+                sendBtn.disabled = false;
+                sendBtn.innerHTML = '<span>In Chat senden</span>';
+            }
+            alert('Fehler beim Senden in den Chat: ' + err.message);
+        });
     }
 
     function startStlRenderLoop() {
