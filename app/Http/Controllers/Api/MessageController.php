@@ -36,10 +36,10 @@ class MessageController extends Controller
             'document' => [
                 'nullable',
                 'file',
-                'max:20480',
+                'max:51200',
                 function ($attribute, $value, $fail) {
                     $ext = strtolower($value->getClientOriginalExtension());
-                    $allowed = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'txt', 'csv', 'zip', 'ppt', 'pptx', 'md', 'markdown'];
+                    $allowed = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'txt', 'csv', 'zip', 'ppt', 'pptx', 'md', 'markdown', 'stl', 'ctl'];
                     if (!in_array($ext, $allowed)) {
                         $fail('Dateityp .' . $ext . ' wird nicht unterstützt.');
                     }

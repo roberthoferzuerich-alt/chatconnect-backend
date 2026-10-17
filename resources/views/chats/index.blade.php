@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script type="module" src="https://cdn.jsdelivr.net/npm/emoji-picker-element@^1/index.js"></script>
     
     <style>
@@ -298,8 +299,10 @@
                     @php
                         $isGroup = $chat->is_group;
                         $partner = $isGroup ? null : $chat->users->where('id', '!=', $user->id)->first();
-                        $title = $isGroup ? ($chat->name ?? 'Gruppe') : ($partner ? $partner->name : 'Unbekannt');
-                        $avatarUrl = $isGroup ? null : ($partner ? ($partner->avatar_url ?? ($partner->avatar ? '/storage/' . ltrim($partner->avatar, '/') : null)) : null);
+                        $isSelfChat = !$isGroup && !$partner;
+                        $displayPartner = $isSelfChat ? $user : $partner;
+                        $title = $isGroup ? ($chat->name ?? 'Gruppe') : ($isSelfChat ? ($user->name . ' (Ich)') : ($partner ? $partner->name : 'Unbekannt'));
+                        $avatarUrl = $isGroup ? null : ($displayPartner ? ($displayPartner->avatar_url ?? ($displayPartner->avatar ? '/storage/' . ltrim($displayPartner->avatar, '/') : null)) : null);
                         $isActive = $activeConversation && $activeConversation->id === $chat->id;
                     @endphp
                     <a href="{{ route('chats.show', $chat->id) }}" data-search="{{ strtolower($title) }}" class="chat-list-item flex items-center px-3 py-3 hover:bg-gray-100 cursor-pointer border-b border-gray-50 transition {{ $isActive ? 'bg-gray-100' : '' }}">
@@ -358,8 +361,9 @@
                     @foreach($contacts as $contact)
                         @php
                             $contactAvatar = $contact->avatar_url ?? ($contact->avatar ? '/storage/' . ltrim($contact->avatar, '/') : null);
+                            $isContactMe = $contact->id === $user->id;
                         @endphp
-                        <a href="{{ route('chats.start', $contact->id) }}" data-search="{{ strtolower($contact->name . ' ' . $contact->phone . ' ' . $contact->email) }}" class="contact-list-item flex items-center px-3 py-2.5 hover:bg-gray-100 cursor-pointer border-b border-gray-50 transition">
+                        <a href="{{ route('chats.start', $contact->id) }}" data-search="{{ strtolower($contact->name . ' ' . $contact->phone . ' ' . $contact->email . ($isContactMe ? ' ich eigene dateien notizen' : '')) }}" class="contact-list-item flex items-center px-3 py-2.5 hover:bg-gray-100 cursor-pointer border-b border-gray-50 transition">
                             <div class="w-10 h-10 bg-teal-600 rounded-full flex-shrink-0 flex items-center justify-center text-white font-bold text-sm overflow-hidden shadow-sm">
                                 @if($contactAvatar)
                                     <img src="{{ $contactAvatar }}" alt="{{ $contact->name }}" class="w-full h-full object-cover">
@@ -368,8 +372,13 @@
                                 @endif
                             </div>
                             <div class="ml-3 flex-1 min-w-0">
-                                <div class="font-medium text-gray-900 text-sm truncate">{{ $contact->name }}</div>
-                                <div class="text-[11px] text-gray-500 truncate">{{ $contact->about ?? $contact->phone ?? 'ChatConnect Benutzer' }}</div>
+                                <div class="font-medium text-gray-900 text-sm truncate">
+                                    {{ $contact->name }}
+                                    @if($isContactMe)
+                                        <span class="text-xs font-semibold text-teal-600">(Ich / Eigene Dateien)</span>
+                                    @endif
+                                </div>
+                                <div class="text-[11px] text-gray-500 truncate">{{ $isContactMe ? 'Notizen & Dateien an mich selbst senden' : ($contact->about ?? $contact->phone ?? 'ChatConnect Benutzer') }}</div>
                             </div>
                         </a>
                     @endforeach
@@ -422,8 +431,9 @@
                 @php
                     $isGroup = $activeConversation->is_group;
                     $activePartner = $isGroup ? null : $activeConversation->users->where('id', '!=', $user->id)->first();
-                    $headerTitle = $isGroup ? ($activeConversation->name ?? 'Gruppe') : ($activePartner ? $activePartner->name : 'Unbekannt');
-                    $headerAvatar = $isGroup ? null : ($activePartner ? ($activePartner->avatar_url ?? ($activePartner->avatar ? '/storage/' . ltrim($activePartner->avatar, '/') : null)) : null);
+                    $isSelfChat = !$isGroup && !$activePartner;
+                    $headerTitle = $isGroup ? ($activeConversation->name ?? 'Gruppe') : ($isSelfChat ? ($user->name . ' (Ich / Eigene Dateien)') : ($activePartner ? $activePartner->name : 'Unbekannt'));
+                    $headerAvatar = $isGroup ? null : ($isSelfChat ? ($user->avatar_url ?? ($user->avatar ? '/storage/' . ltrim($user->avatar, '/') : null)) : ($activePartner ? ($activePartner->avatar_url ?? ($activePartner->avatar ? '/storage/' . ltrim($activePartner->avatar, '/') : null)) : null));
                 @endphp
                 
                 <!-- Chat Header -->
@@ -448,6 +458,8 @@
                             <p class="text-[11px] text-gray-500 truncate">
                                 @if($isGroup)
                                     {{ implode(', ', $activeConversation->users->pluck('name')->toArray()) }}
+                                @elseif($isSelfChat)
+                                    Persönliche Notizen, Dokumente & 3D-Dateien
                                 @else
                                     {{ $activePartner && $activePartner->is_online ? 'online' : ($activePartner ? ($activePartner->about ?? 'ChatConnect') : '') }}
                                 @endif
@@ -511,6 +523,7 @@
                                 @if($fileSrc)
                                     @php
                                         $isMarkdown = in_array($fileExt, ['MD', 'MARKDOWN']);
+                                        $isStl = in_array($fileExt, ['STL', 'CTL']);
                                     @endphp
                                     <div class="mb-2 mt-1 pr-5">
                                         @if($isMarkdown)
@@ -524,6 +537,18 @@
                                                     <div class="text-[11px] text-indigo-600 font-medium">Im Markdown-Viewer öffnen</div>
                                                 </div>
                                                 <svg class="w-4 h-4 text-indigo-400 group-hover/doc:text-indigo-700 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                            </button>
+                                        @elseif($isStl)
+                                            <button type="button" onclick="openStlViewer({{ Js::from($fileSrc) }}, {{ Js::from($fileName) }})" class="w-full text-left flex items-center gap-3 p-2.5 rounded-lg border {{ $isMe ? 'bg-black/5 border-black/10 hover:bg-black/10' : 'bg-gray-50 border-gray-200 hover:bg-gray-100' }} transition min-w-[210px] sm:min-w-[250px] max-w-xs group/doc">
+                                                <div class="w-10 h-10 rounded-lg bg-sky-100 text-sky-700 flex flex-col items-center justify-center flex-shrink-0 font-bold text-[10px] shadow-xs">
+                                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
+                                                    <span class="leading-none mt-0.5">3D</span>
+                                                </div>
+                                                <div class="flex-1 min-w-0">
+                                                    <div class="text-sm font-medium text-gray-900 truncate group-hover/doc:text-sky-700 transition" title="{{ $fileName }}">{{ $fileName }}</div>
+                                                    <div class="text-[11px] text-sky-600 font-medium">Im 3D-STL-Browser öffnen</div>
+                                                </div>
+                                                <svg class="w-4 h-4 text-sky-400 group-hover/doc:text-sky-700 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
                                             </button>
                                         @else
                                             <a href="{{ $fileSrc }}" target="_blank" rel="noopener noreferrer" class="flex items-center gap-3 p-2.5 rounded-lg border {{ $isMe ? 'bg-black/5 border-black/10 hover:bg-black/10' : 'bg-gray-50 border-gray-200 hover:bg-gray-100' }} transition min-w-[210px] sm:min-w-[250px] max-w-xs group/doc">
@@ -630,10 +655,10 @@
                             <input type="file" id="image-file-input" accept="image/*" class="hidden" onchange="openImageCropModal(event)">
                         </label>
 
-                        <!-- Document / PDF / Markdown Attachment -->
-                        <label class="text-gray-500 hover:text-teal-700 hover:bg-gray-200 rounded-full cursor-pointer p-1.5 sm:p-2 transition flex-shrink-0" title="Dokument, PDF oder Markdown (.md) senden">
+                        <!-- Document / PDF / Markdown / 3D STL Attachment -->
+                        <label class="text-gray-500 hover:text-teal-700 hover:bg-gray-200 rounded-full cursor-pointer p-1.5 sm:p-2 transition flex-shrink-0" title="Dokument, PDF, Markdown (.md) oder 3D-Modell (.stl / .ctl) senden">
                             <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-6 4h4"></path></svg>
-                            <input type="file" id="document-file-input" accept=".pdf,.doc,.docx,.xls,.xlsx,.txt,.csv,.zip,.ppt,.pptx,.md,.markdown,application/pdf,text/markdown" class="hidden" onchange="handleDocumentSelect(event)">
+                            <input type="file" id="document-file-input" accept=".pdf,.doc,.docx,.xls,.xlsx,.txt,.csv,.zip,.ppt,.pptx,.md,.markdown,.stl,.ctl,application/pdf,text/markdown,model/stl,application/sla" class="hidden" onchange="handleDocumentSelect(event)">
                         </label>
                         
                         <!-- Text Input -->
@@ -910,6 +935,76 @@
     </div>
 </div>
 
+<!-- Integrierter 3D STL / CAD Browser Modal (.stl / .ctl Dateien) -->
+<div id="stl-viewer-modal" class="hidden fixed inset-0 bg-black/75 z-50 flex items-center justify-center p-2 sm:p-4 backdrop-blur-sm">
+    <div class="bg-slate-900 rounded-2xl max-w-4xl w-full h-[88vh] max-h-[820px] overflow-hidden shadow-2xl flex flex-col border border-slate-700 text-white">
+        <!-- Header -->
+        <div class="h-14 bg-slate-800 flex items-center justify-between px-4 sm:px-5 border-b border-slate-700 flex-shrink-0">
+            <div class="flex items-center space-x-2.5 min-w-0">
+                <div class="w-8 h-8 rounded-lg bg-sky-500/20 text-sky-400 border border-sky-500/30 flex items-center justify-center font-bold text-xs flex-shrink-0">
+                    3D
+                </div>
+                <div class="min-w-0">
+                    <h3 id="stl-viewer-title" class="font-bold text-white text-sm sm:text-base truncate">3D-Modell Viewer</h3>
+                    <p id="stl-viewer-stats" class="text-[11px] text-slate-400 truncate">Lade 3D-Geometrie...</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-2 flex-shrink-0">
+                <a id="stl-viewer-download" href="#" download class="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-slate-100 rounded-lg text-xs font-semibold transition flex items-center space-x-1" title="Original 3D-Datei herunterladen">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                    <span class="hidden sm:inline">Download</span>
+                </a>
+                <button type="button" onclick="closeStlViewer()" class="text-slate-400 hover:text-white text-2xl font-bold leading-none px-1.5">&times;</button>
+            </div>
+        </div>
+
+        <!-- Klassische 3D-CAD Toolbar -->
+        <div class="bg-slate-800/90 px-3 sm:px-4 py-2 border-b border-slate-700 flex flex-wrap items-center justify-between gap-2 text-xs flex-shrink-0">
+            <!-- Kamera-Ansichten -->
+            <div class="flex items-center flex-wrap gap-1.5">
+                <span class="text-slate-400 font-medium mr-1 hidden sm:inline">Ansicht:</span>
+                <button type="button" onclick="stlSetCameraView('iso')" class="px-2.5 py-1 bg-slate-700 hover:bg-sky-600 text-white rounded-md font-medium transition" title="Isometrische 3D-Ansicht & Zentrieren">Iso (3D)</button>
+                <button type="button" onclick="stlSetCameraView('front')" class="px-2.5 py-1 bg-slate-700 hover:bg-sky-600 text-white rounded-md font-medium transition" title="Vorderansicht">Vorne</button>
+                <button type="button" onclick="stlSetCameraView('top')" class="px-2.5 py-1 bg-slate-700 hover:bg-sky-600 text-white rounded-md font-medium transition" title="Draufsicht (Oben)">Oben</button>
+                <button type="button" onclick="stlSetCameraView('side')" class="px-2.5 py-1 bg-slate-700 hover:bg-sky-600 text-white rounded-md font-medium transition" title="Seitenansicht (Rechts)">Seite</button>
+            </div>
+
+            <!-- Darstellungs-Optionen -->
+            <div class="flex items-center flex-wrap gap-1.5">
+                <button type="button" id="stl-btn-wireframe" onclick="stlToggleWireframe()" class="px-2.5 py-1 bg-slate-700 hover:bg-slate-600 text-slate-200 rounded-md font-medium transition" title="Drahtgitter-Netz ein-/ausblenden">Drahtgitter</button>
+                <button type="button" id="stl-btn-grid" onclick="stlToggleGrid()" class="px-2.5 py-1 bg-sky-600 text-white rounded-md font-medium transition" title="Druckbett-Gitter & X/Y/Z-Achsen">Gitter & Achsen</button>
+                <button type="button" id="stl-btn-autorotate" onclick="stlToggleAutoRotate()" class="px-2.5 py-1 bg-slate-700 hover:bg-slate-600 text-slate-200 rounded-md font-medium transition" title="Automatische Drehung">Auto-Drehen</button>
+                
+                <!-- Modell-Farbwahl -->
+                <div class="flex items-center space-x-1 ml-1 pl-2 border-l border-slate-600">
+                    <button type="button" onclick="stlSetColor(0x38bdf8)" class="w-4 h-4 rounded-full bg-sky-400 border border-white/50 hover:scale-110 transition" title="CAD-Blau"></button>
+                    <button type="button" onclick="stlSetColor(0x14b8a6)" class="w-4 h-4 rounded-full bg-teal-500 border border-white/50 hover:scale-110 transition" title="PLA-Türkis"></button>
+                    <button type="button" onclick="stlSetColor(0xcbd5e1)" class="w-4 h-4 rounded-full bg-slate-300 border border-white/50 hover:scale-110 transition" title="Silber / Metall"></button>
+                    <button type="button" onclick="stlSetColor(0xfb923c)" class="w-4 h-4 rounded-full bg-orange-400 border border-white/50 hover:scale-110 transition" title="Signal-Orange"></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3D Viewport Canvas Container -->
+        <div id="stl-canvas-container" class="flex-1 relative bg-gradient-to-b from-slate-900 to-slate-800 overflow-hidden select-none cursor-grab active:cursor-grabbing">
+            <div id="stl-loading-overlay" class="absolute inset-0 flex items-center justify-center bg-slate-900/80 z-10">
+                <div class="text-center">
+                    <div class="w-10 h-10 border-4 border-sky-400 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
+                    <div id="stl-loading-text" class="text-sm text-slate-200 font-medium">Lade 3D-Modell...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer / Bedienhilfe -->
+        <div class="h-11 bg-slate-800 flex items-center justify-between px-4 border-t border-slate-700 text-[11px] text-slate-400 flex-shrink-0">
+            <span class="truncate">🖱️ Links / 1 Finger: <b class="text-slate-200">Drehen</b> · Rechts / 2 Finger: <b class="text-slate-200">Verschieben</b> · Mausrad / Pinch: <b class="text-slate-200">Zoomen</b></span>
+            <button type="button" onclick="closeStlViewer()" class="px-4 py-1 bg-[#00a884] hover:bg-[#008f6f] text-white font-semibold rounded-lg text-xs shadow-sm transition flex-shrink-0 ml-2">
+                Schließen
+            </button>
+        </div>
+    </div>
+</div>
+
 <!-- Neuer Chat Modal (Hidden) -->
 <div id="new-chat-modal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center backdrop-blur-sm">
     <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[80vh] border border-gray-100">
@@ -950,7 +1045,17 @@
                             @else
                                 <div class="w-10 h-10 bg-teal-600 rounded-full flex items-center justify-center text-white font-bold">{{ substr($contact->name, 0, 1) }}</div>
                             @endif
-                            <span class="ml-4 font-medium text-gray-900">{{ $contact->name }}</span>
+                            <div class="ml-4 flex flex-col min-w-0">
+                                <span class="font-medium text-gray-900 truncate">
+                                    {{ $contact->name }}
+                                    @if($contact->id === $user->id)
+                                        <span class="text-xs font-semibold text-teal-600">(Ich / Eigene Dateien)</span>
+                                    @endif
+                                </span>
+                                @if($contact->id === $user->id)
+                                    <span class="text-xs text-gray-500">Notizen & Dateien an mich selbst senden</span>
+                                @endif
+                            </div>
                         </button>
                     </form>
                 @endforeach
@@ -1257,6 +1362,7 @@
             const rawExt = fName.includes('.') ? fName.split('.').pop().toUpperCase() : 'DOC';
             const extMatch = rawExt.slice(0, 4);
             const isMarkdown = (rawExt === 'MD' || rawExt === 'MARKDOWN');
+            const isStl = (rawExt === 'STL' || rawExt === 'CTL');
             const cardBg = isMe ? 'bg-black/5 border-black/10 hover:bg-black/10' : 'bg-gray-50 border-gray-200 hover:bg-gray-100';
 
             if (isMarkdown) {
@@ -1274,6 +1380,24 @@
                                 <div class="text-[11px] text-indigo-600 font-medium">Im Markdown-Viewer öffnen</div>
                             </div>
                             <svg class="w-4 h-4 text-indigo-400 group-hover/doc:text-indigo-700 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                        </button>
+                    </div>
+                `;
+            } else if (isStl) {
+                const safeUrl = msg.file_url.replace(/'/g, "\\'");
+                const safeName = fName.replace(/'/g, "\\'");
+                bodyHtml += `
+                    <div class="mb-2 mt-1 pr-5">
+                        <button type="button" onclick="openStlViewer('${safeUrl}', '${safeName}')" class="w-full text-left flex items-center gap-3 p-2.5 rounded-lg border ${cardBg} transition min-w-[210px] sm:min-w-[250px] max-w-xs group/doc">
+                            <div class="w-10 h-10 rounded-lg bg-sky-100 text-sky-700 flex flex-col items-center justify-center flex-shrink-0 font-bold text-[10px] shadow-xs">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
+                                <span class="leading-none mt-0.5">3D</span>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="text-sm font-medium text-gray-900 truncate group-hover/doc:text-sky-700 transition" title="${escapeHtml(fName)}">${escapeHtml(fName)}</div>
+                                <div class="text-[11px] text-sky-600 font-medium">Im 3D-STL-Browser öffnen</div>
+                            </div>
+                            <svg class="w-4 h-4 text-sky-400 group-hover/doc:text-sky-700 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
                         </button>
                     </div>
                 `;
@@ -1988,6 +2112,437 @@
     function closeMarkdownViewer() {
         const modal = document.getElementById('markdown-viewer-modal');
         if (modal) modal.classList.add('hidden');
+    }
+
+    // --- INTEGRIERTER 3D STL / CAD BROWSER (.stl / .ctl) ---
+    let stlScene = null;
+    let stlCamera = null;
+    let stlRenderer = null;
+    let stlMesh = null;
+    let stlWireframeMesh = null;
+    let stlGridHelper = null;
+    let stlAxesHelper = null;
+    let stlAnimFrameId = null;
+    let stlModelRadius = 50;
+    let stlAutoRotate = false;
+    let stlShowWireframe = false;
+    let stlShowGrid = true;
+    let stlCurrentColor = 0x38bdf8;
+
+    // Orbit / Pan / Zoom Kamerazustand (Kugelkoordinaten)
+    let stlSpherical = { radius: 120, theta: Math.PI / 4, phi: Math.PI / 3 };
+    let stlTarget = { x: 0, y: 0, z: 0 };
+
+    function parseStlArrayBuffer(buffer) {
+        const view = new DataView(buffer);
+        let isBinary = false;
+        if (buffer.byteLength >= 84) {
+            const numTriangles = view.getUint32(80, true);
+            const expectedSize = 84 + numTriangles * 50;
+            if (expectedSize === buffer.byteLength) {
+                isBinary = true;
+            } else {
+                // Prüfe, ob Header NICHT mit "solid" beginnt oder Binärzeichen enthält
+                const headerBytes = new Uint8Array(buffer, 0, Math.min(256, buffer.byteLength));
+                const headerStr = String.fromCharCode.apply(null, headerBytes);
+                if (!headerStr.trim().toLowerCase().startsWith('solid') && expectedSize <= buffer.byteLength + 512 && numTriangles > 0 && numTriangles < 5000000) {
+                    isBinary = true;
+                }
+            }
+        }
+
+        const geometry = new THREE.BufferGeometry();
+
+        if (isBinary) {
+            const faces = view.getUint32(80, true);
+            const positions = new Float32Array(faces * 9);
+            const normals = new Float32Array(faces * 9);
+            let offset = 84;
+            for (let i = 0; i < faces; i++) {
+                if (offset + 50 > buffer.byteLength) break;
+                const nx = view.getFloat32(offset, true);
+                const ny = view.getFloat32(offset + 4, true);
+                const nz = view.getFloat32(offset + 8, true);
+                for (let v = 0; v < 3; v++) {
+                    const vOffset = offset + 12 + v * 12;
+                    const idx = i * 9 + v * 3;
+                    // Z-up (CAD) -> Y-up (Three.js)
+                    const vx = view.getFloat32(vOffset, true);
+                    const vy = view.getFloat32(vOffset + 4, true);
+                    const vz = view.getFloat32(vOffset + 8, true);
+                    positions[idx] = vx;
+                    positions[idx + 1] = vz;
+                    positions[idx + 2] = -vy;
+
+                    normals[idx] = nx;
+                    normals[idx + 1] = nz;
+                    normals[idx + 2] = -ny;
+                }
+                offset += 50;
+            }
+            geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            geometry.setAttribute('normal', new THREE.BufferAttribute(normals, 3));
+            geometry.computeVertexNormals();
+            return { geometry, triangles: faces };
+        } else {
+            const text = new TextDecoder('utf-8').decode(buffer);
+            const vertexPattern = /vertex\s+([+\-]?\d*\.?\d+(?:[eE][+\-]?\d+)?)\s+([+\-]?\d*\.?\d+(?:[eE][+\-]?\d+)?)\s+([+\-]?\d*\.?\d+(?:[eE][+\-]?\d+)?)/gi;
+            const verts = [];
+            let match;
+            while ((match = vertexPattern.exec(text)) !== null) {
+                const vx = parseFloat(match[1]);
+                const vy = parseFloat(match[2]);
+                const vz = parseFloat(match[3]);
+                verts.push(vx, vz, -vy);
+            }
+            const positions = new Float32Array(verts);
+            geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            geometry.computeVertexNormals();
+            return { geometry, triangles: Math.floor(verts.length / 9) };
+        }
+    }
+
+    function updateStlCameraPosition() {
+        if (!stlCamera) return;
+        const sinPhi = Math.sin(stlSpherical.phi);
+        const cosPhi = Math.cos(stlSpherical.phi);
+        const sinTheta = Math.sin(stlSpherical.theta);
+        const cosTheta = Math.cos(stlSpherical.theta);
+
+        stlCamera.position.x = stlTarget.x + stlSpherical.radius * sinPhi * sinTheta;
+        stlCamera.position.y = stlTarget.y + stlSpherical.radius * cosPhi;
+        stlCamera.position.z = stlTarget.z + stlSpherical.radius * sinPhi * cosTheta;
+        stlCamera.lookAt(stlTarget.x, stlTarget.y, stlTarget.z);
+    }
+
+    function initStlViewportControls(domEl) {
+        let isDragging = false;
+        let dragMode = 'orbit'; // 'orbit' | 'pan'
+        let prevX = 0, prevY = 0;
+        let pinchStartDist = 0;
+
+        domEl.addEventListener('contextmenu', e => e.preventDefault());
+
+        domEl.addEventListener('mousedown', e => {
+            isDragging = true;
+            dragMode = (e.button === 2 || e.shiftKey) ? 'pan' : 'orbit';
+            prevX = e.clientX;
+            prevY = e.clientY;
+        });
+
+        window.addEventListener('mousemove', e => {
+            if (!isDragging || !stlCamera) return;
+            const dx = e.clientX - prevX;
+            const dy = e.clientY - prevY;
+            prevX = e.clientX;
+            prevY = e.clientY;
+
+            if (dragMode === 'orbit') {
+                stlSpherical.theta -= dx * 0.008;
+                stlSpherical.phi = Math.max(0.05, Math.min(Math.PI - 0.05, stlSpherical.phi - dy * 0.008));
+            } else {
+                const panFactor = stlSpherical.radius * 0.0015;
+                const right = new THREE.Vector3();
+                const up = new THREE.Vector3();
+                stlCamera.matrix.extractBasis(right, up, new THREE.Vector3());
+                stlTarget.x -= (right.x * dx - up.x * dy) * panFactor;
+                stlTarget.y -= (right.y * dx - up.y * dy) * panFactor;
+                stlTarget.z -= (right.z * dx - up.z * dy) * panFactor;
+            }
+            updateStlCameraPosition();
+        });
+
+        window.addEventListener('mouseup', () => { isDragging = false; });
+
+        domEl.addEventListener('wheel', e => {
+            e.preventDefault();
+            const factor = e.deltaY > 0 ? 1.12 : 0.89;
+            stlSpherical.radius = Math.max(stlModelRadius * 0.25, Math.min(stlModelRadius * 20, stlSpherical.radius * factor));
+            updateStlCameraPosition();
+        }, { passive: false });
+
+        // Touch-Steuerung (1 Finger = Drehen, 2 Finger = Zoom & Pan)
+        domEl.addEventListener('touchstart', e => {
+            if (e.touches.length === 1) {
+                isDragging = true;
+                dragMode = 'orbit';
+                prevX = e.touches[0].clientX;
+                prevY = e.touches[0].clientY;
+            } else if (e.touches.length === 2) {
+                isDragging = true;
+                dragMode = 'pan';
+                prevX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+                prevY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+                pinchStartDist = Math.hypot(
+                    e.touches[0].clientX - e.touches[1].clientX,
+                    e.touches[0].clientY - e.touches[1].clientY
+                );
+            }
+        }, { passive: true });
+
+        domEl.addEventListener('touchmove', e => {
+            if (!isDragging || !stlCamera) return;
+            e.preventDefault();
+            if (e.touches.length === 1 && dragMode === 'orbit') {
+                const dx = e.touches[0].clientX - prevX;
+                const dy = e.touches[0].clientY - prevY;
+                prevX = e.touches[0].clientX;
+                prevY = e.touches[0].clientY;
+                stlSpherical.theta -= dx * 0.009;
+                stlSpherical.phi = Math.max(0.05, Math.min(Math.PI - 0.05, stlSpherical.phi - dy * 0.009));
+                updateStlCameraPosition();
+            } else if (e.touches.length === 2) {
+                const curX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+                const curY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+                const dx = curX - prevX;
+                const dy = curY - prevY;
+                prevX = curX;
+                prevY = curY;
+
+                const panFactor = stlSpherical.radius * 0.0015;
+                const right = new THREE.Vector3();
+                const up = new THREE.Vector3();
+                stlCamera.matrix.extractBasis(right, up, new THREE.Vector3());
+                stlTarget.x -= (right.x * dx - up.x * dy) * panFactor;
+                stlTarget.y -= (right.y * dx - up.y * dy) * panFactor;
+                stlTarget.z -= (right.z * dx - up.z * dy) * panFactor;
+
+                const dist = Math.hypot(
+                    e.touches[0].clientX - e.touches[1].clientX,
+                    e.touches[0].clientY - e.touches[1].clientY
+                );
+                if (pinchStartDist > 0 && dist > 0) {
+                    const scale = pinchStartDist / dist;
+                    stlSpherical.radius = Math.max(stlModelRadius * 0.25, Math.min(stlModelRadius * 20, stlSpherical.radius * scale));
+                    pinchStartDist = dist;
+                }
+                updateStlCameraPosition();
+            }
+        }, { passive: false });
+
+        domEl.addEventListener('touchend', () => { isDragging = false; });
+    }
+
+    function openStlViewer(fileUrl, fileName) {
+        const modal = document.getElementById('stl-viewer-modal');
+        const titleEl = document.getElementById('stl-viewer-title');
+        const statsEl = document.getElementById('stl-viewer-stats');
+        const dlBtn = document.getElementById('stl-viewer-download');
+        const container = document.getElementById('stl-canvas-container');
+        const loadingOverlay = document.getElementById('stl-loading-overlay');
+        const loadingText = document.getElementById('stl-loading-text');
+
+        if (!modal || !container) return;
+
+        titleEl.innerText = fileName || '3D-Modell (.stl)';
+        statsEl.innerText = 'Lade 3D-Geometrie...';
+        if (dlBtn) {
+            dlBtn.href = fileUrl;
+            dlBtn.setAttribute('download', fileName || 'modell.stl');
+        }
+        if (loadingOverlay) {
+            loadingOverlay.classList.remove('hidden');
+            if (loadingText) loadingText.innerText = 'Lade 3D-Modell...';
+        }
+        modal.classList.remove('hidden');
+
+        // Szene beim ersten Öffnen initialisieren
+        if (!stlRenderer) {
+            stlScene = new THREE.Scene();
+            stlCamera = new THREE.PerspectiveCamera(45, container.clientWidth / Math.max(1, container.clientHeight), 0.1, 10000);
+            stlRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            stlRenderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+            stlRenderer.setSize(container.clientWidth, container.clientHeight);
+            container.appendChild(stlRenderer.domElement);
+
+            // Beleuchtung (Studio 3-Punkt-Licht)
+            const ambient = new THREE.AmbientLight(0xffffff, 0.55);
+            stlScene.add(ambient);
+            const dirLight1 = new THREE.DirectionalLight(0xffffff, 0.85);
+            dirLight1.position.set(1, 1.5, 1);
+            stlScene.add(dirLight1);
+            const dirLight2 = new THREE.DirectionalLight(0x93c5fd, 0.45);
+            dirLight2.position.set(-1, -0.8, -1);
+            stlScene.add(dirLight2);
+
+            initStlViewportControls(stlRenderer.domElement);
+
+            window.addEventListener('resize', () => {
+                if (!stlRenderer || modal.classList.contains('hidden')) return;
+                stlCamera.aspect = container.clientWidth / Math.max(1, container.clientHeight);
+                stlCamera.updateProjectionMatrix();
+                stlRenderer.setSize(container.clientWidth, container.clientHeight);
+            });
+        } else {
+            stlCamera.aspect = container.clientWidth / Math.max(1, container.clientHeight);
+            stlCamera.updateProjectionMatrix();
+            stlRenderer.setSize(container.clientWidth, container.clientHeight);
+        }
+
+        // Altes Modell entfernen
+        if (stlMesh) { stlScene.remove(stlMesh); stlMesh.geometry.dispose(); stlMesh = null; }
+        if (stlWireframeMesh) { stlScene.remove(stlWireframeMesh); stlWireframeMesh = null; }
+        if (stlGridHelper) { stlScene.remove(stlGridHelper); stlGridHelper = null; }
+        if (stlAxesHelper) { stlScene.remove(stlAxesHelper); stlAxesHelper = null; }
+
+        fetch(fileUrl)
+            .then(res => {
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                return res.arrayBuffer();
+            })
+            .then(buffer => {
+                const { geometry, triangles } = parseStlArrayBuffer(buffer);
+                geometry.computeBoundingBox();
+                const box = geometry.boundingBox;
+                const size = new THREE.Vector3();
+                box.getSize(size);
+                const center = new THREE.Vector3();
+                box.getCenter(center);
+
+                // Modell mittig auf das Druckbett (Y=0) setzen
+                geometry.translate(-center.x, -box.min.y, -center.z);
+                geometry.computeBoundingSphere();
+                stlModelRadius = Math.max(1, geometry.boundingSphere.radius);
+
+                const material = new THREE.MeshStandardMaterial({
+                    color: stlCurrentColor,
+                    metalness: 0.2,
+                    roughness: 0.45,
+                    side: THREE.DoubleSide
+                });
+                stlMesh = new THREE.Mesh(geometry, material);
+                stlScene.add(stlMesh);
+
+                const wireMat = new THREE.MeshBasicMaterial({
+                    color: 0x0f172a,
+                    wireframe: true,
+                    transparent: true,
+                    opacity: 0.35
+                });
+                stlWireframeMesh = new THREE.Mesh(geometry, wireMat);
+                stlWireframeMesh.visible = stlShowWireframe;
+                stlScene.add(stlWireframeMesh);
+
+                // Druckbett-Gitter & Achsen passend zur Modellgröße erstellen
+                const gridSize = Math.ceil((stlModelRadius * 3) / 10) * 10 || 100;
+                stlGridHelper = new THREE.GridHelper(gridSize, 20, 0x38bdf8, 0x334155);
+                stlGridHelper.visible = stlShowGrid;
+                stlScene.add(stlGridHelper);
+
+                stlAxesHelper = new THREE.AxesHelper(stlModelRadius * 1.2);
+                stlAxesHelper.visible = stlShowGrid;
+                stlScene.add(stlAxesHelper);
+
+                // Kamera auf Modell zentrieren
+                stlCamera.near = Math.max(0.05, stlModelRadius * 0.01);
+                stlCamera.far = stlModelRadius * 50;
+                stlCamera.updateProjectionMatrix();
+                stlSetCameraView('iso');
+
+                // Abmessungen & Dreiecke in der Statuszeile anzeigen
+                const dimX = size.x.toFixed(1);
+                const dimY = size.z.toFixed(1);
+                const dimZ = size.y.toFixed(1);
+                statsEl.innerText = `${triangles.toLocaleString('de-CH')} Dreiecke · Maße: ${dimX} × ${dimY} × ${dimZ} mm`;
+
+                if (loadingOverlay) loadingOverlay.classList.add('hidden');
+                startStlRenderLoop();
+            })
+            .catch(err => {
+                console.error('STL Load Error:', err);
+                if (loadingText) loadingText.innerText = 'Fehler beim Laden: ' + err.message;
+                statsEl.innerText = 'Datei konnte nicht als 3D-STL gelesen werden.';
+            });
+    }
+
+    function startStlRenderLoop() {
+        if (stlAnimFrameId) cancelAnimationFrame(stlAnimFrameId);
+        function animate() {
+            const modal = document.getElementById('stl-viewer-modal');
+            if (!modal || modal.classList.contains('hidden')) return;
+            stlAnimFrameId = requestAnimationFrame(animate);
+            if (stlAutoRotate) {
+                stlSpherical.theta += 0.008;
+                updateStlCameraPosition();
+            }
+            if (stlRenderer && stlScene && stlCamera) {
+                stlRenderer.render(stlScene, stlCamera);
+            }
+        }
+        animate();
+    }
+
+    function stlSetCameraView(view) {
+        const halfHeight = stlMesh && stlMesh.geometry.boundingBox
+            ? (stlMesh.geometry.boundingBox.max.y - stlMesh.geometry.boundingBox.min.y) * 0.5
+            : stlModelRadius * 0.5;
+        stlTarget = { x: 0, y: halfHeight, z: 0 };
+        stlSpherical.radius = stlModelRadius * 2.6;
+
+        if (view === 'front') {
+            stlSpherical.theta = 0;
+            stlSpherical.phi = Math.PI / 2;
+        } else if (view === 'top') {
+            stlSpherical.theta = 0;
+            stlSpherical.phi = 0.05;
+        } else if (view === 'side') {
+            stlSpherical.theta = Math.PI / 2;
+            stlSpherical.phi = Math.PI / 2;
+        } else {
+            // Isometrisch (3D)
+            stlSpherical.theta = Math.PI / 4;
+            stlSpherical.phi = Math.PI / 3;
+        }
+        updateStlCameraPosition();
+    }
+
+    function stlToggleWireframe() {
+        stlShowWireframe = !stlShowWireframe;
+        if (stlWireframeMesh) stlWireframeMesh.visible = stlShowWireframe;
+        const btn = document.getElementById('stl-btn-wireframe');
+        if (btn) {
+            btn.className = stlShowWireframe
+                ? 'px-2.5 py-1 bg-sky-600 text-white rounded-md font-medium transition'
+                : 'px-2.5 py-1 bg-slate-700 hover:bg-slate-600 text-slate-200 rounded-md font-medium transition';
+        }
+    }
+
+    function stlToggleGrid() {
+        stlShowGrid = !stlShowGrid;
+        if (stlGridHelper) stlGridHelper.visible = stlShowGrid;
+        if (stlAxesHelper) stlAxesHelper.visible = stlShowGrid;
+        const btn = document.getElementById('stl-btn-grid');
+        if (btn) {
+            btn.className = stlShowGrid
+                ? 'px-2.5 py-1 bg-sky-600 text-white rounded-md font-medium transition'
+                : 'px-2.5 py-1 bg-slate-700 hover:bg-slate-600 text-slate-200 rounded-md font-medium transition';
+        }
+    }
+
+    function stlToggleAutoRotate() {
+        stlAutoRotate = !stlAutoRotate;
+        const btn = document.getElementById('stl-btn-autorotate');
+        if (btn) {
+            btn.className = stlAutoRotate
+                ? 'px-2.5 py-1 bg-sky-600 text-white rounded-md font-medium transition'
+                : 'px-2.5 py-1 bg-slate-700 hover:bg-slate-600 text-slate-200 rounded-md font-medium transition';
+        }
+    }
+
+    function stlSetColor(hexColor) {
+        stlCurrentColor = hexColor;
+        if (stlMesh && stlMesh.material) {
+            stlMesh.material.color.setHex(hexColor);
+        }
+    }
+
+    function closeStlViewer() {
+        const modal = document.getElementById('stl-viewer-modal');
+        if (modal) modal.classList.add('hidden');
+        if (stlAnimFrameId) {
+            cancelAnimationFrame(stlAnimFrameId);
+            stlAnimFrameId = null;
+        }
     }
 </script>
 </body>

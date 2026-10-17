@@ -28,10 +28,20 @@ class ConversationController extends Controller
         ]);
 
         $me = $request->user();
-        $targetUserId = $request->user_id;
+        $targetUserId = (int) $request->user_id;
 
-        if ($me->id == $targetUserId) {
-            return response()->json(['message' => 'Cannot chat with yourself'], 400);
+        if ($me->id === $targetUserId) {
+            $conversation = $me->conversations()->where('is_group', false)
+                ->whereDoesntHave('users', function ($query) use ($me) {
+                    $query->where('users.id', '!=', $me->id);
+                })->first();
+
+            if (!$conversation) {
+                $conversation = Conversation::create(['is_group' => false]);
+                $conversation->users()->attach([$me->id]);
+            }
+
+            return response()->json($conversation->load(['users', 'lastMessage']));
         }
 
         // Check if a 1-on-1 conversation already exists between these two users

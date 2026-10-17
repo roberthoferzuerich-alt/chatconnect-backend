@@ -15,7 +15,7 @@ class ChatController extends Controller
         $user = Auth::user();
         
         $conversations = $user->conversations()->with(['users', 'lastMessage'])->get();
-        $contacts = User::where('id', '!=', $user->id)->orderBy('name')->get();
+        $contacts = User::orderByRaw('id = ? DESC, name ASC', [$user->id])->get();
 
         return view('chats.index', [
             'user' => $user,
@@ -36,7 +36,7 @@ class ChatController extends Controller
         }
 
         $conversations = $user->conversations()->with(['users', 'lastMessage'])->get();
-        $contacts = User::where('id', '!=', $user->id)->orderBy('name')->get();
+        $contacts = User::orderByRaw('id = ? DESC, name ASC', [$user->id])->get();
         $messages = $conversation->messages()->with('sender')->orderBy('created_at', 'asc')->get();
 
         // Mark as read
@@ -60,10 +60,10 @@ class ChatController extends Controller
             'document' => [
                 'nullable',
                 'file',
-                'max:20480',
+                'max:51200',
                 function ($attribute, $value, $fail) {
                     $ext = strtolower($value->getClientOriginalExtension());
-                    $allowed = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'txt', 'csv', 'zip', 'ppt', 'pptx', 'md', 'markdown'];
+                    $allowed = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'txt', 'csv', 'zip', 'ppt', 'pptx', 'md', 'markdown', 'stl', 'ctl'];
                     if (!in_array($ext, $allowed)) {
                         $fail('Dateityp .' . $ext . ' wird nicht unterstützt.');
                     }
@@ -222,17 +222,31 @@ class ChatController extends Controller
 
         $currentUser = Auth::user();
 
-        // Finde existierenden 1-zu-1 Chat zwischen den beiden
-        $conversation = $currentUser->conversations()
-            ->where('is_group', false)
-            ->whereHas('users', function($q) use ($targetUserId) {
-                $q->where('users.id', $targetUserId);
-            })->first();
+        if ((int) $targetUserId === (int) $currentUser->id) {
+            // Eigener Chat ("An mich selbst")
+            $conversation = $currentUser->conversations()
+                ->where('is_group', false)
+                ->whereDoesntHave('users', function($q) use ($currentUser) {
+                    $q->where('users.id', '!=', $currentUser->id);
+                })->first();
 
-        // Falls nicht vorhanden, neu erstellen
-        if (!$conversation) {
-            $conversation = Conversation::create(['is_group' => false]);
-            $conversation->users()->attach([$currentUser->id, $targetUserId]);
+            if (!$conversation) {
+                $conversation = Conversation::create(['is_group' => false]);
+                $conversation->users()->attach([$currentUser->id]);
+            }
+        } else {
+            // Finde existierenden 1-zu-1 Chat zwischen den beiden
+            $conversation = $currentUser->conversations()
+                ->where('is_group', false)
+                ->whereHas('users', function($q) use ($targetUserId) {
+                    $q->where('users.id', $targetUserId);
+                })->first();
+
+            // Falls nicht vorhanden, neu erstellen
+            if (!$conversation) {
+                $conversation = Conversation::create(['is_group' => false]);
+                $conversation->users()->attach([$currentUser->id, $targetUserId]);
+            }
         }
 
         return redirect()->route('chats.show', $conversation->id);

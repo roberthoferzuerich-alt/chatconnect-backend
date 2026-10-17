@@ -30,12 +30,15 @@ class UserController extends Controller
     public function index(Request $request)
     {
         $search = $request->query('q');
+        $meId = $request->user()->id;
         
-        $query = User::where('id', '!=', $request->user()->id);
+        $query = User::orderByRaw('id = ? DESC, name ASC', [$meId]);
 
         if ($search) {
-            $query->where('name', 'like', "%{$search}%")
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
                   ->orWhere('email', 'like', "%{$search}%");
+            });
         }
 
         $users = $query->get();
