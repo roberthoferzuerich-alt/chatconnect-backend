@@ -33,10 +33,11 @@ class MessageController extends Controller
             'content' => 'nullable|string',
             'image' => 'nullable|image|max:5120',
             'audio' => 'nullable|file|mimes:m4a,mp3,wav,aac,ogg,mp4|max:10240',
+            'document' => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,txt,csv,zip,ppt,pptx|max:20480',
         ]);
 
-        if (!$request->content && !$request->hasFile('image') && !$request->hasFile('audio')) {
-            return response()->json(['message' => 'Content, image or audio is required.'], 422);
+        if (!$request->content && !$request->hasFile('image') && !$request->hasFile('audio') && !$request->hasFile('document')) {
+            return response()->json(['message' => 'Content, image, audio or document is required.'], 422);
         }
 
         $imagePath = null;
@@ -49,11 +50,21 @@ class MessageController extends Controller
             $audioPath = $request->file('audio')->store('audio_messages', 'public');
         }
 
+        $filePath = null;
+        $fileName = null;
+        if ($request->hasFile('document')) {
+            $docFile = $request->file('document');
+            $fileName = $request->input('file_name') ?: $docFile->getClientOriginalName();
+            $filePath = $docFile->store('chat_documents', 'public');
+        }
+
         $message = $conversation->messages()->create([
             'sender_id' => $request->user()->id,
             'content' => $request->content ?? '',
             'image_path' => $imagePath,
             'audio_path' => $audioPath,
+            'file_path' => $filePath,
+            'file_name' => $fileName,
         ]);
 
         $message->load(['sender', 'reactions']);
@@ -76,6 +87,8 @@ class MessageController extends Controller
             $notificationBody = 'Neue Nachricht';
             if ($message->content) {
                 $notificationBody = $message->content;
+            } elseif ($message->file_path) {
+                $notificationBody = '📄 ' . ($message->file_name ?: 'Dokument');
             } elseif ($message->audio_path) {
                 $notificationBody = '🎤 Sprachnachricht';
             } elseif ($message->image_path) {
@@ -165,6 +178,11 @@ class MessageController extends Controller
             // Delete associated audio if it exists
             if ($message->audio_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($message->audio_path)) {
                 \Illuminate\Support\Facades\Storage::disk('public')->delete($message->audio_path);
+            }
+
+            // Delete associated document if it exists
+            if ($message->file_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($message->file_path)) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($message->file_path);
             }
 
             // Unset last_message_id to prevent foreign key constraint violations

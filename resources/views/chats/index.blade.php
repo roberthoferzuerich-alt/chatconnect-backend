@@ -300,6 +300,11 @@
                                             <svg class="w-3.5 h-3.5 mr-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/></svg>
                                             Sprachnachricht
                                         </span>
+                                    @elseif($chat->lastMessage->file_path || $chat->lastMessage->file_url)
+                                        <span class="flex items-center text-teal-600 font-medium truncate">
+                                            <svg class="w-3.5 h-3.5 mr-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+                                            {{ Str::limit($chat->lastMessage->file_name ?: 'Dokument', 24) }}
+                                        </span>
                                     @else
                                         <span class="truncate">{{ Str::limit($chat->lastMessage->content, 28) }}</span>
                                     @endif
@@ -450,6 +455,9 @@
                             $isMe = $msg->sender_id === $user->id;
                             $imgSrc = $msg->image_url ?: ($msg->image_path ? '/storage/' . ltrim($msg->image_path, '/') : null);
                             $audioSrc = $msg->audio_url ?: ($msg->audio_path ? '/storage/' . ltrim($msg->audio_path, '/') : null);
+                            $fileSrc = $msg->file_url ?: ($msg->file_path ? '/storage/' . ltrim($msg->file_path, '/') : null);
+                            $fileName = $msg->file_name ?: ($fileSrc ? basename($fileSrc) : 'Dokument');
+                            $fileExt = strtoupper(pathinfo($fileName, PATHINFO_EXTENSION) ?: 'DOC');
                         @endphp
                         <div class="flex {{ $isMe ? 'justify-end' : 'justify-start' }}" data-msg-id="{{ $msg->id }}">
                             <div class="group/msg max-w-[85%] sm:max-w-[70%] rounded-lg p-2 px-3 shadow-sm relative text-[15px] {{ $isMe ? 'msg-me rounded-tr-none' : 'msg-other rounded-tl-none' }}">
@@ -466,6 +474,22 @@
                                 @if($imgSrc)
                                     <div class="mb-2 max-w-sm rounded-lg overflow-hidden cursor-pointer shadow-sm hover:opacity-95 transition" onclick="window.open('{{ $imgSrc }}', '_blank')">
                                         <img src="{{ $imgSrc }}" alt="Bild" class="w-full max-h-72 object-cover rounded-lg" loading="lazy" />
+                                    </div>
+                                @endif
+
+                                @if($fileSrc)
+                                    <div class="mb-2 mt-1 pr-5">
+                                        <a href="{{ $fileSrc }}" target="_blank" rel="noopener noreferrer" class="flex items-center gap-3 p-2.5 rounded-lg border {{ $isMe ? 'bg-black/5 border-black/10 hover:bg-black/10' : 'bg-gray-50 border-gray-200 hover:bg-gray-100' }} transition min-w-[210px] sm:min-w-[250px] max-w-xs group/doc">
+                                            <div class="w-10 h-10 rounded-lg {{ $fileExt === 'PDF' ? 'bg-red-100 text-red-600' : 'bg-teal-100 text-teal-700' }} flex flex-col items-center justify-center flex-shrink-0 font-bold text-[10px] shadow-xs">
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                                                <span class="leading-none mt-0.5">{{ Str::limit($fileExt, 4, '') }}</span>
+                                            </div>
+                                            <div class="flex-1 min-w-0">
+                                                <div class="text-sm font-medium text-gray-900 truncate group-hover/doc:text-teal-700 transition" title="{{ $fileName }}">{{ $fileName }}</div>
+                                                <div class="text-[11px] text-gray-500">Tippen zum Öffnen ({{ $fileExt }})</div>
+                                            </div>
+                                            <svg class="w-4 h-4 text-gray-400 group-hover/doc:text-teal-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                                        </a>
                                     </div>
                                 @endif
 
@@ -541,7 +565,7 @@
                     </div>
 
                     <!-- Normal Chat Form -->
-                    <form id="chat-form" action="{{ route('chats.store', $activeConversation->id) }}" method="POST" enctype="multipart/form-data" class="h-16 landscape-input flex items-center px-2 sm:px-4 py-2 gap-1.5 sm:gap-2" onsubmit="handleChatSubmit(event)">
+                    <form id="chat-form" action="{{ route('chats.store', $activeConversation->id) }}" method="POST" enctype="multipart/form-data" class="h-16 landscape-input flex items-center px-2 sm:px-4 py-2 gap-1 sm:gap-2" onsubmit="handleChatSubmit(event)">
                         @csrf
                         
                         <!-- Emoji Button -->
@@ -556,6 +580,12 @@
                         <label class="text-gray-500 hover:text-gray-700 hover:bg-gray-200 rounded-full cursor-pointer p-1.5 sm:p-2 transition flex-shrink-0" title="Bild anhängen & zuschneiden">
                             <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path></svg>
                             <input type="file" id="image-file-input" accept="image/*" class="hidden" onchange="openImageCropModal(event)">
+                        </label>
+
+                        <!-- Document / PDF Attachment -->
+                        <label class="text-gray-500 hover:text-teal-700 hover:bg-gray-200 rounded-full cursor-pointer p-1.5 sm:p-2 transition flex-shrink-0" title="Dokument / PDF senden">
+                            <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-6 4h4"></path></svg>
+                            <input type="file" id="document-file-input" accept=".pdf,.doc,.docx,.xls,.xlsx,.txt,.csv,.zip,.ppt,.pptx,application/pdf" class="hidden" onchange="handleDocumentSelect(event)">
                         </label>
                         
                         <!-- Text Input -->
@@ -1013,6 +1043,63 @@
         }
     }
 
+    // --- DOKUMENT / PDF PER AJAX SENDEN ---
+    function handleDocumentSelect(e) {
+        const file = e.target.files && e.target.files[0];
+        if (!file) return;
+
+        // Maximal 20 MB prüfen
+        if (file.size > 20 * 1024 * 1024) {
+            alert('Die Datei ist zu groß (maximal 20 MB erlaubt).');
+            e.target.value = '';
+            return;
+        }
+
+        const inputField = document.getElementById('chat-input-field');
+        const content = inputField ? (inputField.value || '').trim() : '';
+
+        const formData = new FormData();
+        formData.append('document', file);
+        if (content) {
+            formData.append('content', content);
+            inputField.value = '';
+        }
+        formData.append('_token', '{{ csrf_token() }}');
+
+        // Button kurz visuell als ladend markieren
+        const sendBtn = document.getElementById('send-msg-btn');
+        if (sendBtn) sendBtn.disabled = true;
+
+        fetch("{{ route('chats.store', $activeConversation->id ?? 0) }}", {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: formData
+        })
+        .then(async res => {
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) {
+                throw new Error(data.message || ('Upload-Fehler HTTP ' + res.status));
+            }
+            return data;
+        })
+        .then(data => {
+            e.target.value = '';
+            if (sendBtn) sendBtn.disabled = false;
+            if (data.status === 'success' && data.message) {
+                appendMessageToChat(data.message);
+            }
+        })
+        .catch(err => {
+            console.error('Document Upload Error:', err);
+            e.target.value = '';
+            if (sendBtn) sendBtn.disabled = false;
+            alert('Fehler beim Senden des Dokuments: ' + err.message);
+        });
+    }
+
     // --- TEXTNACHRICHT PER AJAX SENDEN (ohne Neuladen) ---
     function handleChatSubmit(e) {
         // Falls Bild ausgewählt ist, normales Formular-Submit nutzen
@@ -1079,6 +1166,28 @@
             bodyHtml += `
                 <div class="mb-2 max-w-sm rounded-lg overflow-hidden cursor-pointer shadow-sm hover:opacity-95 transition" onclick="window.open('${msg.image_url}', '_blank')">
                     <img src="${msg.image_url}" alt="Bild" class="w-full max-h-72 object-cover rounded-lg" loading="lazy" />
+                </div>
+            `;
+        }
+
+        if (msg.file_url) {
+            const fName = msg.file_name || msg.file_url.split('/').pop() || 'Dokument';
+            const extMatch = fName.includes('.') ? fName.split('.').pop().toUpperCase().slice(0, 4) : 'DOC';
+            const badgeClass = extMatch === 'PDF' ? 'bg-red-100 text-red-600' : 'bg-teal-100 text-teal-700';
+            const cardBg = isMe ? 'bg-black/5 border-black/10 hover:bg-black/10' : 'bg-gray-50 border-gray-200 hover:bg-gray-100';
+            bodyHtml += `
+                <div class="mb-2 mt-1 pr-5">
+                    <a href="${msg.file_url}" target="_blank" rel="noopener noreferrer" class="flex items-center gap-3 p-2.5 rounded-lg border ${cardBg} transition min-w-[210px] sm:min-w-[250px] max-w-xs group/doc">
+                        <div class="w-10 h-10 rounded-lg ${badgeClass} flex flex-col items-center justify-center flex-shrink-0 font-bold text-[10px] shadow-xs">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                            <span class="leading-none mt-0.5">${escapeHtml(extMatch)}</span>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="text-sm font-medium text-gray-900 truncate group-hover/doc:text-teal-700 transition" title="${escapeHtml(fName)}">${escapeHtml(fName)}</div>
+                            <div class="text-[11px] text-gray-500">Tippen zum Öffnen (${escapeHtml(extMatch)})</div>
+                        </div>
+                        <svg class="w-4 h-4 text-gray-400 group-hover/doc:text-teal-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                    </a>
                 </div>
             `;
         }

@@ -54,9 +54,10 @@ class ChatController extends Controller
     public function store(Request $request, Conversation $conversation)
     {
         $request->validate([
-            'content' => 'required_without_all:image,audio|nullable|string|max:1000',
+            'content' => 'required_without_all:image,audio,document|nullable|string|max:1000',
             'image' => 'nullable|image|max:5120',
-            'audio' => 'nullable|file|max:15360'
+            'audio' => 'nullable|file|max:15360',
+            'document' => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,txt,csv,zip,ppt,pptx|max:20480',
         ]);
 
         $user = Auth::user();
@@ -75,11 +76,21 @@ class ChatController extends Controller
             $audioPath = $request->file('audio')->store('audio_messages', 'public');
         }
 
+        $filePath = null;
+        $fileName = null;
+        if ($request->hasFile('document')) {
+            $docFile = $request->file('document');
+            $fileName = $docFile->getClientOriginalName();
+            $filePath = $docFile->store('chat_documents', 'public');
+        }
+
         $message = $conversation->messages()->create([
             'sender_id' => $user->id,
-            'content' => $request->input('content', ''),
+            'content' => $request->input('content', '') ?? '',
             'image_path' => $imagePath,
             'audio_path' => $audioPath,
+            'file_path' => $filePath,
+            'file_name' => $fileName,
         ]);
 
         $conversation->update([
@@ -106,6 +117,8 @@ class ChatController extends Controller
                 $notificationBody = 'Neue Nachricht';
                 if ($message->content) {
                     $notificationBody = $message->content;
+                } elseif ($message->file_path) {
+                    $notificationBody = '📄 ' . ($message->file_name ?: 'Dokument');
                 } elseif ($message->audio_path) {
                     $notificationBody = '🎤 Sprachnachricht';
                 } elseif ($message->image_path) {
@@ -146,6 +159,8 @@ class ChatController extends Controller
                     'content' => $message->content,
                     'image_url' => $message->image_url ?: ($message->image_path ? '/storage/' . ltrim($message->image_path, '/') : null),
                     'audio_url' => $message->audio_url ?: ($message->audio_path ? '/storage/' . ltrim($message->audio_path, '/') : null),
+                    'file_url' => $message->file_url ?: ($message->file_path ? '/storage/' . ltrim($message->file_path, '/') : null),
+                    'file_name' => $message->file_name,
                     'time' => $message->created_at->format('H:i'),
                     'read' => false,
                 ]
@@ -178,6 +193,8 @@ class ChatController extends Controller
                     'content' => $msg->content,
                     'image_url' => $msg->image_url ?: ($msg->image_path ? '/storage/' . ltrim($msg->image_path, '/') : null),
                     'audio_url' => $msg->audio_url ?: ($msg->audio_path ? '/storage/' . ltrim($msg->audio_path, '/') : null),
+                    'file_url' => $msg->file_url ?: ($msg->file_path ? '/storage/' . ltrim($msg->file_path, '/') : null),
+                    'file_name' => $msg->file_name,
                     'time' => $msg->created_at->format('H:i'),
                     'read' => (bool)$msg->read_at,
                 ];
@@ -231,6 +248,10 @@ class ChatController extends Controller
 
             if ($message->audio_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($message->audio_path)) {
                 \Illuminate\Support\Facades\Storage::disk('public')->delete($message->audio_path);
+            }
+
+            if ($message->file_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($message->file_path)) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($message->file_path);
             }
 
             if ($conversation->last_message_id === $messageId) {

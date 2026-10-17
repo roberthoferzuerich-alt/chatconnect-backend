@@ -15,6 +15,8 @@ class Message extends Model
         'content',
         'image_path',
         'audio_path',
+        'file_path',
+        'file_name',
         'read_at',
     ];
 
@@ -22,7 +24,7 @@ class Message extends Model
         'read_at' => 'datetime',
     ];
 
-    protected $appends = ['image_url', 'audio_url'];
+    protected $appends = ['image_url', 'audio_url', 'file_url'];
 
     public function getImageUrlAttribute()
     {
@@ -44,6 +46,17 @@ class Message extends Model
             return $this->audio_path;
         }
         return '/storage/' . ltrim($this->audio_path, '/');
+    }
+
+    public function getFileUrlAttribute()
+    {
+        if (!$this->file_path) {
+            return null;
+        }
+        if (str_starts_with($this->file_path, 'http://') || str_starts_with($this->file_path, 'https://')) {
+            return $this->file_path;
+        }
+        return '/storage/' . ltrim($this->file_path, '/');
     }
 
     public function conversation()
