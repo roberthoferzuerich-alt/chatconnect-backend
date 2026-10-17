@@ -33,7 +33,18 @@ class MessageController extends Controller
             'content' => 'nullable|string',
             'image' => 'nullable|image|max:5120',
             'audio' => 'nullable|file|mimes:m4a,mp3,wav,aac,ogg,mp4|max:10240',
-            'document' => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,txt,csv,zip,ppt,pptx|max:20480',
+            'document' => [
+                'nullable',
+                'file',
+                'max:20480',
+                function ($attribute, $value, $fail) {
+                    $ext = strtolower($value->getClientOriginalExtension());
+                    $allowed = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'txt', 'csv', 'zip', 'ppt', 'pptx', 'md', 'markdown'];
+                    if (!in_array($ext, $allowed)) {
+                        $fail('Dateityp .' . $ext . ' wird nicht unterstützt.');
+                    }
+                },
+            ],
         ]);
 
         if (!$request->content && !$request->hasFile('image') && !$request->hasFile('audio') && !$request->hasFile('document')) {

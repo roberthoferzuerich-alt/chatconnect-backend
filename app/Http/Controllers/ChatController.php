@@ -57,7 +57,18 @@ class ChatController extends Controller
             'content' => 'required_without_all:image,audio,document|nullable|string|max:1000',
             'image' => 'nullable|image|max:5120',
             'audio' => 'nullable|file|max:15360',
-            'document' => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,txt,csv,zip,ppt,pptx|max:20480',
+            'document' => [
+                'nullable',
+                'file',
+                'max:20480',
+                function ($attribute, $value, $fail) {
+                    $ext = strtolower($value->getClientOriginalExtension());
+                    $allowed = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'txt', 'csv', 'zip', 'ppt', 'pptx', 'md', 'markdown'];
+                    if (!in_array($ext, $allowed)) {
+                        $fail('Dateityp .' . $ext . ' wird nicht unterstützt.');
+                    }
+                },
+            ],
         ]);
 
         $user = Auth::user();

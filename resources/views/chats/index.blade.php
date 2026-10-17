@@ -11,6 +11,7 @@
     @vite(['resources/css/app.css'])
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script type="module" src="https://cdn.jsdelivr.net/npm/emoji-picker-element@^1/index.js"></script>
     
     <style>
@@ -21,6 +22,22 @@
             font-size: var(--chat-font-size, 15px) !important;
             line-height: 1.45;
         }
+        .markdown-viewer-content h1 { font-size: 1.5rem; font-weight: 800; color: #0f766e; margin-top: 1rem; margin-bottom: 0.5rem; padding-bottom: 0.35rem; border-bottom: 1px solid #e5e7eb; }
+        .markdown-viewer-content h2 { font-size: 1.25rem; font-weight: 700; color: #111827; margin-top: 1.1rem; margin-bottom: 0.45rem; }
+        .markdown-viewer-content h3 { font-size: 1.05rem; font-weight: 600; color: #1f2937; margin-top: 0.9rem; margin-bottom: 0.35rem; }
+        .markdown-viewer-content p { margin-bottom: 0.75rem; line-height: 1.6; color: #374151; }
+        .markdown-viewer-content ul { list-style-type: disc; padding-left: 1.5rem; margin-bottom: 0.75rem; color: #374151; }
+        .markdown-viewer-content ol { list-style-type: decimal; padding-left: 1.5rem; margin-bottom: 0.75rem; color: #374151; }
+        .markdown-viewer-content li { margin-bottom: 0.25rem; line-height: 1.55; }
+        .markdown-viewer-content code { background-color: #f3f4f6; color: #0f766e; padding: 0.15rem 0.35rem; border-radius: 0.3rem; font-size: 0.875em; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+        .markdown-viewer-content pre { background-color: #1f2937; color: #f9fafb; padding: 0.85rem 1rem; border-radius: 0.6rem; overflow-x: auto; margin-bottom: 0.85rem; }
+        .markdown-viewer-content pre code { background-color: transparent; color: inherit; padding: 0; }
+        .markdown-viewer-content blockquote { border-left: 4px solid #14b8a6; background-color: #f0fdfa; padding: 0.6rem 1rem; border-radius: 0 0.5rem 0.5rem 0; margin-bottom: 0.85rem; color: #374151; }
+        .markdown-viewer-content hr { border: 0; border-top: 1px solid #e5e7eb; margin: 1rem 0; }
+        .markdown-viewer-content a { color: #0d9488; text-decoration: underline; }
+        .markdown-viewer-content table { width: 100%; border-collapse: collapse; margin-bottom: 1rem; font-size: 0.9rem; }
+        .markdown-viewer-content th, .markdown-viewer-content td { border: 1px solid #e5e7eb; padding: 0.5rem 0.75rem; text-align: left; }
+        .markdown-viewer-content th { background-color: #f9fafb; font-weight: 600; }
         .bg-chat { background-color: #efeae2; }
         .msg-me { background-color: #d9fdd3; }
         .msg-other { background-color: #ffffff; }
@@ -478,18 +495,35 @@
                                 @endif
 
                                 @if($fileSrc)
+                                    @php
+                                        $isMarkdown = in_array($fileExt, ['MD', 'MARKDOWN']);
+                                    @endphp
                                     <div class="mb-2 mt-1 pr-5">
-                                        <a href="{{ $fileSrc }}" target="_blank" rel="noopener noreferrer" class="flex items-center gap-3 p-2.5 rounded-lg border {{ $isMe ? 'bg-black/5 border-black/10 hover:bg-black/10' : 'bg-gray-50 border-gray-200 hover:bg-gray-100' }} transition min-w-[210px] sm:min-w-[250px] max-w-xs group/doc">
-                                            <div class="w-10 h-10 rounded-lg {{ $fileExt === 'PDF' ? 'bg-red-100 text-red-600' : 'bg-teal-100 text-teal-700' }} flex flex-col items-center justify-center flex-shrink-0 font-bold text-[10px] shadow-xs">
-                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
-                                                <span class="leading-none mt-0.5">{{ Str::limit($fileExt, 4, '') }}</span>
-                                            </div>
-                                            <div class="flex-1 min-w-0">
-                                                <div class="text-sm font-medium text-gray-900 truncate group-hover/doc:text-teal-700 transition" title="{{ $fileName }}">{{ $fileName }}</div>
-                                                <div class="text-[11px] text-gray-500">Tippen zum Öffnen ({{ $fileExt }})</div>
-                                            </div>
-                                            <svg class="w-4 h-4 text-gray-400 group-hover/doc:text-teal-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                                        </a>
+                                        @if($isMarkdown)
+                                            <button type="button" onclick="openMarkdownViewer({{ Js::from($fileSrc) }}, {{ Js::from($fileName) }})" class="w-full text-left flex items-center gap-3 p-2.5 rounded-lg border {{ $isMe ? 'bg-black/5 border-black/10 hover:bg-black/10' : 'bg-gray-50 border-gray-200 hover:bg-gray-100' }} transition min-w-[210px] sm:min-w-[250px] max-w-xs group/doc">
+                                                <div class="w-10 h-10 rounded-lg bg-indigo-100 text-indigo-700 flex flex-col items-center justify-center flex-shrink-0 font-bold text-[10px] shadow-xs">
+                                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                                                    <span class="leading-none mt-0.5">MD</span>
+                                                </div>
+                                                <div class="flex-1 min-w-0">
+                                                    <div class="text-sm font-medium text-gray-900 truncate group-hover/doc:text-indigo-700 transition" title="{{ $fileName }}">{{ $fileName }}</div>
+                                                    <div class="text-[11px] text-indigo-600 font-medium">Im Markdown-Viewer öffnen</div>
+                                                </div>
+                                                <svg class="w-4 h-4 text-indigo-400 group-hover/doc:text-indigo-700 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                            </button>
+                                        @else
+                                            <a href="{{ $fileSrc }}" target="_blank" rel="noopener noreferrer" class="flex items-center gap-3 p-2.5 rounded-lg border {{ $isMe ? 'bg-black/5 border-black/10 hover:bg-black/10' : 'bg-gray-50 border-gray-200 hover:bg-gray-100' }} transition min-w-[210px] sm:min-w-[250px] max-w-xs group/doc">
+                                                <div class="w-10 h-10 rounded-lg {{ $fileExt === 'PDF' ? 'bg-red-100 text-red-600' : 'bg-teal-100 text-teal-700' }} flex flex-col items-center justify-center flex-shrink-0 font-bold text-[10px] shadow-xs">
+                                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                                                    <span class="leading-none mt-0.5">{{ Str::limit($fileExt, 4, '') }}</span>
+                                                </div>
+                                                <div class="flex-1 min-w-0">
+                                                    <div class="text-sm font-medium text-gray-900 truncate group-hover/doc:text-teal-700 transition" title="{{ $fileName }}">{{ $fileName }}</div>
+                                                    <div class="text-[11px] text-gray-500">Tippen zum Öffnen ({{ $fileExt }})</div>
+                                                </div>
+                                                <svg class="w-4 h-4 text-gray-400 group-hover/doc:text-teal-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                                            </a>
+                                        @endif
                                     </div>
                                 @endif
 
@@ -582,10 +616,10 @@
                             <input type="file" id="image-file-input" accept="image/*" class="hidden" onchange="openImageCropModal(event)">
                         </label>
 
-                        <!-- Document / PDF Attachment -->
-                        <label class="text-gray-500 hover:text-teal-700 hover:bg-gray-200 rounded-full cursor-pointer p-1.5 sm:p-2 transition flex-shrink-0" title="Dokument / PDF senden">
+                        <!-- Document / PDF / Markdown Attachment -->
+                        <label class="text-gray-500 hover:text-teal-700 hover:bg-gray-200 rounded-full cursor-pointer p-1.5 sm:p-2 transition flex-shrink-0" title="Dokument, PDF oder Markdown (.md) senden">
                             <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-6 4h4"></path></svg>
-                            <input type="file" id="document-file-input" accept=".pdf,.doc,.docx,.xls,.xlsx,.txt,.csv,.zip,.ppt,.pptx,application/pdf" class="hidden" onchange="handleDocumentSelect(event)">
+                            <input type="file" id="document-file-input" accept=".pdf,.doc,.docx,.xls,.xlsx,.txt,.csv,.zip,.ppt,.pptx,.md,.markdown,application/pdf,text/markdown" class="hidden" onchange="handleDocumentSelect(event)">
                         </label>
                         
                         <!-- Text Input -->
@@ -823,6 +857,40 @@
             </button>
             <button type="button" onclick="closeFontSizeModal()" class="px-5 py-2 bg-[#00a884] hover:bg-[#008f6f] text-white font-semibold rounded-xl text-sm shadow-sm transition">
                 Fertig
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Integrierter Markdown-Viewer Modal (.md Dateien) -->
+<div id="markdown-viewer-modal" class="hidden fixed inset-0 bg-black/65 z-50 flex items-center justify-center p-2 sm:p-4 backdrop-blur-sm">
+    <div class="bg-white rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-hidden shadow-2xl flex flex-col border border-gray-200">
+        <!-- Header -->
+        <div class="h-14 bg-gray-50 flex items-center justify-between px-4 sm:px-5 border-b border-gray-200 flex-shrink-0">
+            <div class="flex items-center space-x-2.5 min-w-0">
+                <div class="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-xs flex-shrink-0">
+                    MD
+                </div>
+                <h3 id="markdown-viewer-title" class="font-bold text-gray-900 text-sm sm:text-base truncate">Markdown-Dokument</h3>
+            </div>
+            <div class="flex items-center space-x-2 flex-shrink-0">
+                <a id="markdown-viewer-download" href="#" download class="px-3 py-1.5 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg text-xs font-semibold transition flex items-center space-x-1" title="Original .md Datei herunterladen">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                    <span class="hidden sm:inline">Download</span>
+                </a>
+                <button type="button" onclick="closeMarkdownViewer()" class="text-gray-400 hover:text-gray-700 text-2xl font-bold leading-none px-1.5">&times;</button>
+            </div>
+        </div>
+
+        <!-- Scrollable Rendered Markdown Content -->
+        <div id="markdown-viewer-body" class="flex-1 overflow-y-auto p-4 sm:p-6 markdown-viewer-content text-sm sm:text-base">
+            <div class="text-center text-gray-400 py-8">Lade Dokument...</div>
+        </div>
+
+        <!-- Footer -->
+        <div class="h-14 bg-gray-50 flex items-center justify-end px-5 border-t border-gray-200 flex-shrink-0">
+            <button type="button" onclick="closeMarkdownViewer()" class="px-5 py-1.5 bg-[#00a884] hover:bg-[#008f6f] text-white font-semibold rounded-xl text-sm shadow-sm transition">
+                Schließen
             </button>
         </div>
     </div>
@@ -1172,24 +1240,47 @@
 
         if (msg.file_url) {
             const fName = msg.file_name || msg.file_url.split('/').pop() || 'Dokument';
-            const extMatch = fName.includes('.') ? fName.split('.').pop().toUpperCase().slice(0, 4) : 'DOC';
-            const badgeClass = extMatch === 'PDF' ? 'bg-red-100 text-red-600' : 'bg-teal-100 text-teal-700';
+            const rawExt = fName.includes('.') ? fName.split('.').pop().toUpperCase() : 'DOC';
+            const extMatch = rawExt.slice(0, 4);
+            const isMarkdown = (rawExt === 'MD' || rawExt === 'MARKDOWN');
             const cardBg = isMe ? 'bg-black/5 border-black/10 hover:bg-black/10' : 'bg-gray-50 border-gray-200 hover:bg-gray-100';
-            bodyHtml += `
-                <div class="mb-2 mt-1 pr-5">
-                    <a href="${msg.file_url}" target="_blank" rel="noopener noreferrer" class="flex items-center gap-3 p-2.5 rounded-lg border ${cardBg} transition min-w-[210px] sm:min-w-[250px] max-w-xs group/doc">
-                        <div class="w-10 h-10 rounded-lg ${badgeClass} flex flex-col items-center justify-center flex-shrink-0 font-bold text-[10px] shadow-xs">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
-                            <span class="leading-none mt-0.5">${escapeHtml(extMatch)}</span>
-                        </div>
-                        <div class="flex-1 min-w-0">
-                            <div class="text-sm font-medium text-gray-900 truncate group-hover/doc:text-teal-700 transition" title="${escapeHtml(fName)}">${escapeHtml(fName)}</div>
-                            <div class="text-[11px] text-gray-500">Tippen zum Öffnen (${escapeHtml(extMatch)})</div>
-                        </div>
-                        <svg class="w-4 h-4 text-gray-400 group-hover/doc:text-teal-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                    </a>
-                </div>
-            `;
+
+            if (isMarkdown) {
+                const safeUrl = msg.file_url.replace(/'/g, "\\'");
+                const safeName = fName.replace(/'/g, "\\'");
+                bodyHtml += `
+                    <div class="mb-2 mt-1 pr-5">
+                        <button type="button" onclick="openMarkdownViewer('${safeUrl}', '${safeName}')" class="w-full text-left flex items-center gap-3 p-2.5 rounded-lg border ${cardBg} transition min-w-[210px] sm:min-w-[250px] max-w-xs group/doc">
+                            <div class="w-10 h-10 rounded-lg bg-indigo-100 text-indigo-700 flex flex-col items-center justify-center flex-shrink-0 font-bold text-[10px] shadow-xs">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                                <span class="leading-none mt-0.5">MD</span>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="text-sm font-medium text-gray-900 truncate group-hover/doc:text-indigo-700 transition" title="${escapeHtml(fName)}">${escapeHtml(fName)}</div>
+                                <div class="text-[11px] text-indigo-600 font-medium">Im Markdown-Viewer öffnen</div>
+                            </div>
+                            <svg class="w-4 h-4 text-indigo-400 group-hover/doc:text-indigo-700 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                        </button>
+                    </div>
+                `;
+            } else {
+                const badgeClass = extMatch === 'PDF' ? 'bg-red-100 text-red-600' : 'bg-teal-100 text-teal-700';
+                bodyHtml += `
+                    <div class="mb-2 mt-1 pr-5">
+                        <a href="${msg.file_url}" target="_blank" rel="noopener noreferrer" class="flex items-center gap-3 p-2.5 rounded-lg border ${cardBg} transition min-w-[210px] sm:min-w-[250px] max-w-xs group/doc">
+                            <div class="w-10 h-10 rounded-lg ${badgeClass} flex flex-col items-center justify-center flex-shrink-0 font-bold text-[10px] shadow-xs">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                                <span class="leading-none mt-0.5">${escapeHtml(extMatch)}</span>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="text-sm font-medium text-gray-900 truncate group-hover/doc:text-teal-700 transition" title="${escapeHtml(fName)}">${escapeHtml(fName)}</div>
+                                <div class="text-[11px] text-gray-500">Tippen zum Öffnen (${escapeHtml(extMatch)})</div>
+                            </div>
+                            <svg class="w-4 h-4 text-gray-400 group-hover/doc:text-teal-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                        </a>
+                    </div>
+                `;
+            }
         }
 
         if (msg.audio_url) {
@@ -1844,6 +1935,45 @@
         chatInput.addEventListener('blur', function() {
             setTimeout(updateAppHeight, 150);
         });
+    }
+
+    // --- INTEGRIERTER MARKDOWN-VIEWER (.md / .markdown) ---
+    function openMarkdownViewer(fileUrl, fileName) {
+        const modal = document.getElementById('markdown-viewer-modal');
+        const titleEl = document.getElementById('markdown-viewer-title');
+        const bodyEl = document.getElementById('markdown-viewer-body');
+        const dlBtn = document.getElementById('markdown-viewer-download');
+
+        if (!modal || !bodyEl) return;
+
+        titleEl.innerText = fileName || 'Markdown-Dokument';
+        if (dlBtn) {
+            dlBtn.href = fileUrl;
+            dlBtn.setAttribute('download', fileName || 'dokument.md');
+        }
+        bodyEl.innerHTML = '<div class="text-center text-gray-400 py-8">Lade Markdown-Dokument...</div>';
+        modal.classList.remove('hidden');
+
+        fetch(fileUrl)
+            .then(res => {
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                return res.text();
+            })
+            .then(mdText => {
+                if (typeof marked !== 'undefined' && marked.parse) {
+                    bodyEl.innerHTML = marked.parse(mdText);
+                } else {
+                    bodyEl.innerHTML = '<pre class="whitespace-pre-wrap text-sm text-gray-800">' + escapeHtml(mdText) + '</pre>';
+                }
+            })
+            .catch(err => {
+                bodyEl.innerHTML = '<div class="text-red-500 text-center py-6">Fehler beim Laden der Datei: ' + escapeHtml(err.message) + '</div>';
+            });
+    }
+
+    function closeMarkdownViewer() {
+        const modal = document.getElementById('markdown-viewer-modal');
+        if (modal) modal.classList.add('hidden');
     }
 </script>
 </body>
