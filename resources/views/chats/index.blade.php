@@ -195,7 +195,21 @@
     <div class="{{ $activeConversation ? 'hidden md:flex' : 'flex' }} w-full md:w-1/3 lg:w-96 flex-col border-r border-gray-200 bg-white z-30 relative flex-shrink-0 h-full overflow-hidden">
         <!-- Header -->
         <div class="h-16 landscape-header bg-white flex items-center justify-between px-4 py-2 border-b border-gray-100 flex-shrink-0">
-            <h2 class="text-xl sm:text-2xl font-semibold text-gray-900">Chats</h2>
+            <div class="flex items-center space-x-2.5 min-w-0">
+                <a href="{{ route('profile.about') }}" class="flex-shrink-0 group" title="Mein Profil ({{ $user->name }})">
+                    @if($user->avatar_url)
+                        <img src="{{ $user->avatar_url }}" alt="{{ $user->name }}" class="w-9 h-9 rounded-full object-cover shadow-sm border border-gray-200 group-hover:ring-2 group-hover:ring-teal-500 transition">
+                    @elseif($user->avatar)
+                        <img src="/storage/{{ ltrim($user->avatar, '/') }}" alt="{{ $user->name }}" class="w-9 h-9 rounded-full object-cover shadow-sm border border-gray-200 group-hover:ring-2 group-hover:ring-teal-500 transition">
+                    @else
+                        <div class="w-9 h-9 bg-teal-600 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-sm group-hover:ring-2 group-hover:ring-teal-500 transition">{{ substr($user->name, 0, 1) }}</div>
+                    @endif
+                </a>
+                <div class="flex items-baseline space-x-2 min-w-0">
+                    <h2 class="text-xl sm:text-2xl font-semibold text-gray-900">Chats</h2>
+                    <span class="text-xs sm:text-sm font-medium text-teal-600 truncate" title="{{ $user->name }}">· {{ $user->name }}</span>
+                </div>
+            </div>
             
             <div class="flex items-center space-x-3 text-gray-600">
                 <!-- 3-Punkte Menu Button -->
