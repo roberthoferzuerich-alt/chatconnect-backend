@@ -47,12 +47,12 @@
             <section class="space-y-3">
                 <h2 class="text-xl font-bold text-gray-900 flex items-center space-x-2">
                     <span class="w-7 h-7 rounded-lg bg-teal-100 text-teal-700 flex items-center justify-center text-sm font-extrabold">1</span>
-                    <span>Erste Schritte & Profil</span>
+                    <span>Erste Schritte, Profil & Eigener Datei-Chat</span>
                 </h2>
                 <div class="bg-gray-50 p-4 rounded-xl border border-gray-100 space-y-2">
-                    <p><strong>Anmelden:</strong> Du kannst dich mit deiner E-Mail-Adresse und deinem Passwort auf allen Geräten einloggen.</p>
-                    <p><strong>Profil anpassen:</strong> Klicke auf dein Profilbild oder wähle im Menü <em>„Einstellungen“</em> ➔ <em>„Profil bearbeiten“</em>, um deinen Namen, dein Profilbild oder deinen Status zu ändern.</p>
-                    <p><strong>Neuen Chat öffnen:</strong> Klicke auf das runde, grüne <strong>Chat-Symbol</strong> und wähle den gewünschten Kontakt aus.</p>
+                    <p><strong>Anmelden:</strong> Du kannst dich mit deiner E-Mail-Adresse und deinem Passwort auf allen Geräten gleichzeitig einloggen.</p>
+                    <p><strong>Aktuelles Profilbild &amp; Name oben links:</strong> Neben dem Titel <em>„Chats“</em> siehst du jederzeit dein aktuelles Profilbild und deinen Namen. Ein Klick darauf öffnet direkt deine Profil-Einstellungen.</p>
+                    <p><strong>Eigener Notiz- &amp; Datei-Chat „(Ich / Eigene Dateien)“:</strong> In der Kontaktliste findest du deinen eigenen Kontakt mit dem blauen Hinweis <em>„(Ich / Eigene Dateien)“</em>. Ideal, um dir selbst aus der Schule oder von unterwegs 3D-Dateien (<code>.stl</code> / <code>.ctl</code>), Markdown-Dokumente (<code>.md</code>), PDFs oder Notizen nach Hause zu schicken.</p>
                 </div>
             </section>
 
@@ -60,20 +60,42 @@
             <section class="space-y-3">
                 <h2 class="text-xl font-bold text-gray-900 flex items-center space-x-2">
                     <span class="w-7 h-7 rounded-lg bg-teal-100 text-teal-700 flex items-center justify-center text-sm font-extrabold">2</span>
-                    <span>Nachrichten schreiben & Emojis</span>
+                    <span>Nachrichten, Emojis &amp; Dokumente (bis 50 MB)</span>
                 </h2>
                 <div class="bg-gray-50 p-4 rounded-xl border border-gray-100 space-y-2">
                     <p>Tippe deine Nachricht in das Eingabefeld ein und drücke die <strong>Enter-Taste</strong> oder klicke auf den <strong>grünen Senden-Pfeil</strong>.</p>
-                    <p>Über das <strong>Smiley-Symbol (😊)</strong> links neben dem Eingabefeld kannst du Emojis einfügen.</p>
-                    <p>Neue Nachrichten deiner Partner erscheinen automatisch in Echtzeit, begleitet von einem dezenten <strong>Benachrichtigungston („Pling“)</strong>.</p>
+                    <p>Über das <strong>Smiley-Symbol (😊)</strong> links neben dem Eingabefeld kannst du Emojis aus 9 Kategorien oder per deutscher Stichwortsuche einfügen.</p>
+                    <p>Über das <strong>Dokument-Symbol (📄)</strong> versendest du Dateien bis <strong>50 MB</strong> (PDF, Word, Excel, ZIP, Markdown <code>.md</code> sowie 3D-Modelle <code>.stl</code> / <code>.ctl</code>).</p>
                 </div>
             </section>
 
-            <!-- 3. Sprachnachrichten -->
+            <!-- 3. Markdown-Viewer & 3D-Browser / Generator -->
             <section class="space-y-3">
                 <h2 class="text-xl font-bold text-gray-900 flex items-center space-x-2">
                     <span class="w-7 h-7 rounded-lg bg-teal-100 text-teal-700 flex items-center justify-center text-sm font-extrabold">3</span>
-                    <span>Sprachnachrichten aufnehmen & senden 🎤</span>
+                    <span>Integrierter Markdown-Viewer (<code>.md</code>) &amp; 3D-STL/CTL-Browser 🧊</span>
+                </h2>
+                <div class="grid sm:grid-cols-2 gap-3">
+                    <div class="bg-purple-50 p-4 rounded-xl border border-purple-200 shadow-sm space-y-2">
+                        <h3 class="font-bold text-purple-950 flex items-center space-x-1.5 text-sm">
+                            <span>📖 Markdown-Viewer (<code>.md</code>)</span>
+                        </h3>
+                        <p class="text-xs sm:text-sm text-purple-900">Empfangene <code>.md</code>-Dateien erhalten ein violettes <strong>MD</strong>-Badge. Klicke auf <strong>„Im MD-Viewer öffnen“</strong>, um Anleitungen und Dokumentationen sauber formatiert mit Überschriften, Tabellen und Code-Blöcken direkt im Chat zu lesen.</p>
+                    </div>
+                    <div class="bg-cyan-50 p-4 rounded-xl border border-cyan-200 shadow-sm space-y-2">
+                        <h3 class="font-bold text-cyan-950 flex items-center space-x-1.5 text-sm">
+                            <span>🧊 3D-STL/CTL-Browser &amp; 3D-Generator</span>
+                        </h3>
+                        <p class="text-xs sm:text-sm text-cyan-900">Klicke bei einer <code>.stl</code>- oder <code>.ctl</code>-Datei auf <strong>„Im 3D-Browser öffnen“</strong> (Drehen, Verschieben, Zoomen, Ansichten <em>Iso/Vorne/Oben/Seite</em>, Drahtgitter, Maße in mm). Über den <strong><code>3D</code>-Button</strong> unten in der Chat-Leiste kannst du zudem per Textbeschreibung (z. B. <em>„Mittelschnauzer liegend“</em>, <em>„Anhänger ROBI“</em>, <em>„Zahnrad 20 Zähne“</em>, <em>„Rakete“</em>, <em>„Ritterburg“</em>) eigene 3D-Modelle erstellen und direkt in den Chat senden!</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 4. Sprachnachrichten -->
+            <section class="space-y-3">
+                <h2 class="text-xl font-bold text-gray-900 flex items-center space-x-2">
+                    <span class="w-7 h-7 rounded-lg bg-teal-100 text-teal-700 flex items-center justify-center text-sm font-extrabold">4</span>
+                    <span>Sprachnachrichten aufnehmen &amp; senden 🎤</span>
                 </h2>
                 <div class="grid sm:grid-cols-2 gap-3">
                     <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm space-y-2">
@@ -91,11 +113,11 @@
                 </div>
             </section>
 
-            <!-- 4. Bilder -->
+            <!-- 5. Bilder -->
             <section class="space-y-3">
                 <h2 class="text-xl font-bold text-gray-900 flex items-center space-x-2">
-                    <span class="w-7 h-7 rounded-lg bg-teal-100 text-teal-700 flex items-center justify-center text-sm font-extrabold">4</span>
-                    <span>Bilder aufnehmen, zuschneiden & teilen 📷</span>
+                    <span class="w-7 h-7 rounded-lg bg-teal-100 text-teal-700 flex items-center justify-center text-sm font-extrabold">5</span>
+                    <span>Bilder aufnehmen, zuschneiden &amp; teilen 📷</span>
                 </h2>
                 <div class="bg-gray-50 p-4 rounded-xl border border-gray-100 space-y-2">
                     <p>Klicke auf das <strong>Büroklammer- oder Foto-Symbol</strong> neben dem Eingabefeld.</p>
@@ -103,26 +125,26 @@
                 </div>
             </section>
 
-            <!-- 5. Löschen -->
+            <!-- 6. Löschen -->
             <section class="space-y-3">
                 <h2 class="text-xl font-bold text-gray-900 flex items-center space-x-2">
-                    <span class="w-7 h-7 rounded-lg bg-teal-100 text-teal-700 flex items-center justify-center text-sm font-extrabold">5</span>
+                    <span class="w-7 h-7 rounded-lg bg-teal-100 text-teal-700 flex items-center justify-center text-sm font-extrabold">6</span>
                     <span>Nachrichten für alle löschen 🗑️</span>
                 </h2>
                 <div class="bg-red-50 p-4 rounded-xl border border-red-100 space-y-2 text-red-950">
-                    <p>Jeder Chat-Teilnehmer kann jede beliebige Nachricht (auch empfangene Nachrichten und Sprachaufnahmen) dauerhaft aus dem Chat entfernen:</p>
+                    <p>Jeder Chat-Teilnehmer kann jede beliebige Nachricht (auch empfangene Nachrichten, Dokumente und Sprachaufnahmen) dauerhaft aus dem Chat entfernen:</p>
                     <ul class="list-disc list-inside space-y-1 text-xs sm:text-sm text-red-900">
                         <li><strong>Auf dem Tablet (App):</strong> Drücke <em>lange mit dem Finger</em> auf die Nachricht und tippe auf den roten Button <strong>„Löschen“</strong>.</li>
-                        <li><strong>Auf dem Laptop (Web):</strong> Klicke auf das kleine <strong>Mülleimer-Symbol</strong> oben rechts an der Nachricht und bestätige mit <strong>OK</strong>.</li>
+                        <li><strong>Auf dem Laptop / Smartphone (Web):</strong> Klicke auf das kleine <strong>Mülleimer-Symbol</strong> oben rechts an der Nachricht und bestätige mit <strong>OK</strong>.</li>
                     </ul>
                 </div>
             </section>
 
-            <!-- 6. Anrufe -->
+            <!-- 7. Anrufe -->
             <section class="space-y-3">
                 <h2 class="text-xl font-bold text-gray-900 flex items-center space-x-2">
-                    <span class="w-7 h-7 rounded-lg bg-teal-100 text-teal-700 flex items-center justify-center text-sm font-extrabold">6</span>
-                    <span>Sprach- & Videoanrufe 📞 📹</span>
+                    <span class="w-7 h-7 rounded-lg bg-teal-100 text-teal-700 flex items-center justify-center text-sm font-extrabold">7</span>
+                    <span>Sprach- &amp; Videoanrufe 📞 📹</span>
                 </h2>
                 <div class="bg-gray-50 p-4 rounded-xl border border-gray-100 space-y-2">
                     <p>Öffne einen Chat und tippe oben rechts auf den <strong>Telefonhörer (📞)</strong> für einen Sprachanruf oder die <strong>Videokamera (📹)</strong> für einen Videoanruf.</p>
@@ -130,27 +152,28 @@
                 </div>
             </section>
 
-            <!-- 7. Hintergrundbilder -->
-            <section class="space-y-3">
-                <h2 class="text-xl font-bold text-gray-900 flex items-center space-x-2">
-                    <span class="w-7 h-7 rounded-lg bg-teal-100 text-teal-700 flex items-center justify-center text-sm font-extrabold">7</span>
-                    <span>Chat-Hintergrundbilder 🎨</span>
-                </h2>
-                <div class="bg-gray-50 p-4 rounded-xl border border-gray-100 space-y-2">
-                    <p>Öffne das <strong>Drei-Punkte-Menü (⋮)</strong> und wähle <strong>„Chat-Hintergrundbild“</strong>.</p>
-                    <p>Wähle aus modernen Vorlagen wie <em>Neon Waves</em> oder <em>Cyber Mesh</em>, oder lade ein eigenes persönliches Foto hoch.</p>
-                </div>
-            </section>
-
-            <!-- 8. WebApp -->
+            <!-- 8. Hintergrundbilder & Schriftgröße -->
             <section class="space-y-3">
                 <h2 class="text-xl font-bold text-gray-900 flex items-center space-x-2">
                     <span class="w-7 h-7 rounded-lg bg-teal-100 text-teal-700 flex items-center justify-center text-sm font-extrabold">8</span>
+                    <span>Chat-Hintergrundbilder 🎨 &amp; Schriftgröße 🔠</span>
+                </h2>
+                <div class="bg-gray-50 p-4 rounded-xl border border-gray-100 space-y-2">
+                    <p>Öffne das <strong>Drei-Punkte-Menü (⋮)</strong> oben in der Chat-Übersicht:</p>
+                    <p><strong>Chat-Hintergrundbild:</strong> Wähle aus 10 Design-Vorlagen (inkl. <em>Cyber Lounge Neon</em> &amp; <em>Starry Horizon</em>), lade ein eigenes Foto hoch oder passe die Hintergrund-Abdunkelung für optimale Lesbarkeit an.</p>
+                    <p><strong>Chat-Schriftgröße:</strong> Stelle die Textgröße stufenlos per Schieberegler (12 px bis 24 px) mit Live-Vorschau ein.</p>
+                </div>
+            </section>
+
+            <!-- 9. WebApp -->
+            <section class="space-y-3">
+                <h2 class="text-xl font-bold text-gray-900 flex items-center space-x-2">
+                    <span class="w-7 h-7 rounded-lg bg-teal-100 text-teal-700 flex items-center justify-center text-sm font-extrabold">9</span>
                     <span>WebApp im Browser nutzen 🌐</span>
                 </h2>
                 <div class="bg-gray-50 p-4 rounded-xl border border-gray-100 space-y-2">
                     <p>Adresse: <code class="bg-white px-2 py-1 rounded text-teal-700 font-mono text-sm border border-gray-200">https://rhz.internet-box.ch:8443</code></p>
-                    <p>Läuft auf jedem Laptop, Mac, PC oder Tablet im Chrome-, Edge- oder Safari-Browser.</p>
+                    <p>Läuft auf jedem Smartphone (iPhone / Android / Galaxy Z Flip), Tablet, Laptop, Mac oder PC im Safari-, Chrome-, Edge- oder Firefox-Browser.</p>
                 </div>
             </section>
 
