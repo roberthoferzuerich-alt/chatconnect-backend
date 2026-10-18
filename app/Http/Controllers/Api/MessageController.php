@@ -39,7 +39,7 @@ class MessageController extends Controller
                 'max:51200',
                 function ($attribute, $value, $fail) {
                     $ext = strtolower($value->getClientOriginalExtension());
-                    $allowed = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'txt', 'csv', 'zip', 'ppt', 'pptx', 'md', 'markdown', 'stl', 'ctl'];
+                    $allowed = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'txt', 'csv', 'zip', '7z', 'z', 'rar', 'tar', 'gz', 'tgz', 'bz2', 'xz', 'ppt', 'pptx', 'md', 'markdown', 'stl', 'ctl'];
                     if (!in_array($ext, $allowed)) {
                         $fail('Dateityp .' . $ext . ' wird nicht unterstützt.');
                     }
@@ -66,7 +66,9 @@ class MessageController extends Controller
         if ($request->hasFile('document')) {
             $docFile = $request->file('document');
             $fileName = $request->input('file_name') ?: $docFile->getClientOriginalName();
-            $filePath = $docFile->store('chat_documents', 'public');
+            $origExt = strtolower($docFile->getClientOriginalExtension());
+            $storedName = \Illuminate\Support\Str::random(40) . ($origExt ? '.' . $origExt : '');
+            $filePath = $docFile->storeAs('chat_documents', $storedName, 'public');
         }
 
         $message = $conversation->messages()->create([

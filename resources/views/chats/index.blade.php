@@ -524,6 +524,7 @@
                                     @php
                                         $isMarkdown = in_array($fileExt, ['MD', 'MARKDOWN']);
                                         $isStl = in_array($fileExt, ['STL', 'CTL']);
+                                        $isArchive = in_array($fileExt, ['ZIP', '7Z', 'Z', 'RAR', 'TAR', 'GZ', 'TGZ', 'BZ2', 'XZ']);
                                     @endphp
                                     <div class="mb-2 mt-1 pr-5">
                                         @if($isMarkdown)
@@ -551,16 +552,20 @@
                                                 <svg class="w-4 h-4 text-sky-400 group-hover/doc:text-sky-700 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
                                             </button>
                                         @else
-                                            <a href="{{ $fileSrc }}" target="_blank" rel="noopener noreferrer" class="flex items-center gap-3 p-2.5 rounded-lg border {{ $isMe ? 'bg-black/5 border-black/10 hover:bg-black/10' : 'bg-gray-50 border-gray-200 hover:bg-gray-100' }} transition min-w-[210px] sm:min-w-[250px] max-w-xs group/doc">
-                                                <div class="w-10 h-10 rounded-lg {{ $fileExt === 'PDF' ? 'bg-red-100 text-red-600' : 'bg-teal-100 text-teal-700' }} flex flex-col items-center justify-center flex-shrink-0 font-bold text-[10px] shadow-xs">
-                                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                                            <a href="{{ $fileSrc }}" @if($fileExt !== 'PDF') download="{{ $fileName }}" @endif target="_blank" rel="noopener noreferrer" class="flex items-center gap-3 p-2.5 rounded-lg border {{ $isMe ? 'bg-black/5 border-black/10 hover:bg-black/10' : 'bg-gray-50 border-gray-200 hover:bg-gray-100' }} transition min-w-[210px] sm:min-w-[250px] max-w-xs group/doc">
+                                                <div class="w-10 h-10 rounded-lg {{ $fileExt === 'PDF' ? 'bg-red-100 text-red-600' : ($isArchive ? 'bg-amber-100 text-amber-700' : 'bg-teal-100 text-teal-700') }} flex flex-col items-center justify-center flex-shrink-0 font-bold text-[10px] shadow-xs">
+                                                    @if($isArchive)
+                                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"></path></svg>
+                                                    @else
+                                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                                                    @endif
                                                     <span class="leading-none mt-0.5">{{ Str::limit($fileExt, 4, '') }}</span>
                                                 </div>
                                                 <div class="flex-1 min-w-0">
-                                                    <div class="text-sm font-medium text-gray-900 truncate group-hover/doc:text-teal-700 transition" title="{{ $fileName }}">{{ $fileName }}</div>
-                                                    <div class="text-[11px] text-gray-500">Tippen zum Öffnen ({{ $fileExt }})</div>
+                                                    <div class="text-sm font-medium text-gray-900 truncate {{ $isArchive ? 'group-hover/doc:text-amber-700' : 'group-hover/doc:text-teal-700' }} transition" title="{{ $fileName }}">{{ $fileName }}</div>
+                                                    <div class="text-[11px] {{ $isArchive ? 'text-amber-700 font-medium' : 'text-gray-500' }}">{{ $isArchive ? 'Archiv herunterladen (.' . strtolower($fileExt) . ')' : 'Tippen zum Öffnen (' . $fileExt . ')' }}</div>
                                                 </div>
-                                                <svg class="w-4 h-4 text-gray-400 group-hover/doc:text-teal-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                                                <svg class="w-4 h-4 text-gray-400 {{ $isArchive ? 'group-hover/doc:text-amber-600' : 'group-hover/doc:text-teal-600' }} flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
                                             </a>
                                         @endif
                                     </div>
@@ -655,10 +660,10 @@
                             <input type="file" id="image-file-input" accept="image/*" class="hidden" onchange="openImageCropModal(event)">
                         </label>
 
-                        <!-- Document / PDF / Markdown / 3D STL Attachment -->
-                        <label class="text-gray-500 hover:text-teal-700 hover:bg-gray-200 rounded-full cursor-pointer p-1.5 sm:p-2 transition flex-shrink-0" title="Dokument, PDF, Markdown (.md) oder 3D-Modell (.stl / .ctl) senden">
+                        <!-- Document / PDF / Markdown / 3D STL / ZIP & 7-Zip Attachment -->
+                        <label class="text-gray-500 hover:text-teal-700 hover:bg-gray-200 rounded-full cursor-pointer p-1.5 sm:p-2 transition flex-shrink-0" title="Dokument, PDF, ZIP / 7-Zip (.zip / .7z), Markdown (.md) oder 3D-Modell (.stl / .ctl) senden">
                             <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-6 4h4"></path></svg>
-                            <input type="file" id="document-file-input" accept=".pdf,.doc,.docx,.xls,.xlsx,.txt,.csv,.zip,.ppt,.pptx,.md,.markdown,.stl,.ctl,application/pdf,text/markdown,model/stl,application/sla" class="hidden" onchange="handleDocumentSelect(event)">
+                            <input type="file" id="document-file-input" accept=".pdf,.doc,.docx,.xls,.xlsx,.txt,.csv,.zip,.7z,.z,.rar,.tar,.gz,.tgz,.bz2,.xz,.ppt,.pptx,.md,.markdown,.stl,.ctl,application/pdf,application/zip,application/x-zip-compressed,application/x-7z-compressed,application/x-rar-compressed,text/markdown,model/stl,application/sla" class="hidden" onchange="handleDocumentSelect(event)">
                         </label>
 
                         <!-- 3D-Modell (.stl) Generator Button -->
@@ -1398,6 +1403,7 @@
             const extMatch = rawExt.slice(0, 4);
             const isMarkdown = (rawExt === 'MD' || rawExt === 'MARKDOWN');
             const isStl = (rawExt === 'STL' || rawExt === 'CTL');
+            const isArchive = ['ZIP', '7Z', 'Z', 'RAR', 'TAR', 'GZ', 'TGZ', 'BZ2', 'XZ'].includes(rawExt);
             const cardBg = isMe ? 'bg-black/5 border-black/10 hover:bg-black/10' : 'bg-gray-50 border-gray-200 hover:bg-gray-100';
 
             if (isMarkdown) {
@@ -1437,19 +1443,24 @@
                     </div>
                 `;
             } else {
-                const badgeClass = extMatch === 'PDF' ? 'bg-red-100 text-red-600' : 'bg-teal-100 text-teal-700';
+                const badgeClass = extMatch === 'PDF' ? 'bg-red-100 text-red-600' : (isArchive ? 'bg-amber-100 text-amber-700' : 'bg-teal-100 text-teal-700');
+                const dlAttr = extMatch !== 'PDF' ? `download="${escapeHtml(fName)}"` : '';
+                const subText = isArchive ? `Archiv herunterladen (.${escapeHtml(rawExt.toLowerCase())})` : `Tippen zum Öffnen (${escapeHtml(extMatch)})`;
+                const iconSvg = isArchive
+                    ? `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"></path></svg>`
+                    : `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>`;
                 bodyHtml += `
                     <div class="mb-2 mt-1 pr-5">
-                        <a href="${msg.file_url}" target="_blank" rel="noopener noreferrer" class="flex items-center gap-3 p-2.5 rounded-lg border ${cardBg} transition min-w-[210px] sm:min-w-[250px] max-w-xs group/doc">
+                        <a href="${msg.file_url}" ${dlAttr} target="_blank" rel="noopener noreferrer" class="flex items-center gap-3 p-2.5 rounded-lg border ${cardBg} transition min-w-[210px] sm:min-w-[250px] max-w-xs group/doc">
                             <div class="w-10 h-10 rounded-lg ${badgeClass} flex flex-col items-center justify-center flex-shrink-0 font-bold text-[10px] shadow-xs">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                                ${iconSvg}
                                 <span class="leading-none mt-0.5">${escapeHtml(extMatch)}</span>
                             </div>
                             <div class="flex-1 min-w-0">
-                                <div class="text-sm font-medium text-gray-900 truncate group-hover/doc:text-teal-700 transition" title="${escapeHtml(fName)}">${escapeHtml(fName)}</div>
-                                <div class="text-[11px] text-gray-500">Tippen zum Öffnen (${escapeHtml(extMatch)})</div>
+                                <div class="text-sm font-medium text-gray-900 truncate ${isArchive ? 'group-hover/doc:text-amber-700' : 'group-hover/doc:text-teal-700'} transition" title="${escapeHtml(fName)}">${escapeHtml(fName)}</div>
+                                <div class="text-[11px] ${isArchive ? 'text-amber-700 font-medium' : 'text-gray-500'}">${subText}</div>
                             </div>
-                            <svg class="w-4 h-4 text-gray-400 group-hover/doc:text-teal-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                            <svg class="w-4 h-4 text-gray-400 ${isArchive ? 'group-hover/doc:text-amber-600' : 'group-hover/doc:text-teal-600'} flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
                         </a>
                     </div>
                 `;
