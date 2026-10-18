@@ -945,29 +945,355 @@
     </div>
 </div>
 
+<!-- Eigenständiges CAD-Studio CSS für den STLViewer PRO (unabhängig von Tailwind-Build) -->
+<style>
+    #stl-viewer-modal {
+        position: fixed;
+        inset: 0;
+        background: rgba(5, 8, 14, 0.84);
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 10px;
+        backdrop-filter: blur(4px);
+    }
+    #stl-viewer-modal.hidden {
+        display: none !important;
+    }
+    .stl-pro-window {
+        background: #0f131c;
+        border: 1px solid #283246;
+        border-radius: 12px;
+        width: 100%;
+        max-width: 1320px;
+        height: 92vh;
+        max-height: 900px;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85);
+        color: #e6ecf5;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        user-select: none;
+    }
+    .stl-pro-toolbar {
+        background: #161b26;
+        border-bottom: 1px solid #283246;
+        padding: 8px 12px;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        flex-shrink: 0;
+    }
+    .stl-pro-toolbar-group {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 6px;
+    }
+    .stl-pro-brand {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding-right: 10px;
+        margin-right: 4px;
+        border-right: 1px solid #2d3748;
+    }
+    .stl-pro-brand-title {
+        color: #38bdf8;
+        font-weight: 800;
+        font-size: 14px;
+        letter-spacing: 0.03em;
+    }
+    .stl-pro-brand-badge {
+        font-size: 10px;
+        padding: 1px 6px;
+        border-radius: 4px;
+        background: rgba(56, 189, 248, 0.18);
+        color: #7dd3fc;
+        font-weight: 700;
+        border: 1px solid rgba(56, 189, 248, 0.35);
+    }
+    .stl-pro-sep {
+        width: 1px;
+        height: 20px;
+        background: #2d3748;
+        margin: 0 4px;
+    }
+    .stl-pro-btn {
+        background: #232b3b;
+        color: #e6ecf5;
+        border: 1px solid #3a465e;
+        border-radius: 6px;
+        padding: 5px 10px;
+        font-size: 12px;
+        font-weight: 500;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        transition: background 0.15s, border-color 0.15s;
+        text-decoration: none;
+        line-height: 1.2;
+    }
+    .stl-pro-btn:hover {
+        background: #323d52;
+        border-color: #4b5a78;
+    }
+    .stl-pro-btn-primary {
+        background: #2563eb;
+        color: #ffffff;
+        border: 1px solid #3b82f6;
+        border-radius: 6px;
+        padding: 5px 11px;
+        font-size: 12px;
+        font-weight: 700;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        transition: background 0.15s;
+        line-height: 1.2;
+    }
+    .stl-pro-btn-primary:hover {
+        background: #1d4ed8;
+    }
+    .stl-pro-btn-green {
+        background: #00a884;
+        color: #ffffff;
+        border: 1px solid #10b981;
+        border-radius: 6px;
+        padding: 5px 11px;
+        font-size: 12px;
+        font-weight: 700;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        line-height: 1.2;
+    }
+    .stl-pro-btn-green:hover {
+        background: #008f6f;
+    }
+    .stl-pro-btn-close {
+        background: rgba(225, 29, 72, 0.2);
+        color: #fda4af;
+        border: 1px solid rgba(244, 63, 94, 0.35);
+        border-radius: 6px;
+        padding: 4px 10px;
+        font-size: 15px;
+        font-weight: 700;
+        cursor: pointer;
+        line-height: 1;
+    }
+    .stl-pro-btn-close:hover {
+        background: #e11d48;
+        color: #ffffff;
+    }
+    .stl-pro-select {
+        background: #232b3b;
+        color: #e6ecf5;
+        border: 1px solid #3a465e;
+        border-radius: 6px;
+        padding: 5px 8px;
+        font-size: 12px;
+        outline: none;
+        cursor: pointer;
+    }
+    .stl-pro-select:focus {
+        border-color: #38bdf8;
+    }
+    .stl-pro-promptbar {
+        background: #131822;
+        border-bottom: 1px solid #283246;
+        padding: 7px 12px;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 8px;
+        flex-shrink: 0;
+    }
+    .stl-pro-input {
+        flex: 1 1 220px;
+        background: #0b0e14;
+        color: #ffffff;
+        border: 1px solid #2d3748;
+        border-radius: 6px;
+        padding: 6px 10px;
+        font-size: 12px;
+        outline: none;
+        user-select: text;
+    }
+    .stl-pro-input:focus {
+        border-color: #38bdf8;
+    }
+    .stl-pro-main {
+        flex: 1 1 0%;
+        display: flex;
+        flex-direction: row;
+        min-height: 0;
+        overflow: hidden;
+    }
+    .stl-pro-viewport {
+        flex: 1 1 0%;
+        position: relative;
+        min-height: 300px;
+        overflow: hidden;
+        background: linear-gradient(180deg, #161b26 0%, #0c0f16 100%);
+        cursor: grab;
+    }
+    .stl-pro-viewport:active {
+        cursor: grabbing;
+    }
+    .stl-pro-hud {
+        position: absolute;
+        top: 12px;
+        left: 12px;
+        z-index: 10;
+        pointer-events: none;
+        background: rgba(15, 19, 28, 0.82);
+        border: 1px solid rgba(60, 75, 100, 0.75);
+        border-radius: 8px;
+        padding: 6px 12px;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        font-size: 11.5px;
+        color: #c8d2e6;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
+    }
+    .stl-pro-gizmo {
+        position: absolute;
+        bottom: 12px;
+        left: 12px;
+        z-index: 10;
+        pointer-events: none;
+    }
+    .stl-pro-loading {
+        position: absolute;
+        inset: 0;
+        background: rgba(15, 19, 28, 0.86);
+        z-index: 20;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .stl-pro-loading.hidden {
+        display: none !important;
+    }
+    .stl-pro-sidebar {
+        width: 300px;
+        flex-shrink: 0;
+        background: #161b26;
+        border-left: 1px solid #283246;
+        overflow-y: auto;
+        padding: 10px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        font-size: 12px;
+    }
+    .stl-pro-card {
+        background: #1e2533;
+        border: 1px solid #2d3748;
+        border-radius: 8px;
+        padding: 10px 12px;
+    }
+    .stl-pro-card-title {
+        color: #60a5fa;
+        font-weight: 700;
+        font-size: 12.5px;
+        margin-bottom: 8px;
+    }
+    .stl-pro-stats-grid {
+        display: grid;
+        grid-template-columns: 98px 1fr;
+        row-gap: 4px;
+        column-gap: 6px;
+        font-size: 11.5px;
+        align-items: center;
+    }
+    .stl-pro-stat-label {
+        color: #9aa5b8;
+    }
+    .stl-pro-stat-val {
+        color: #e6ecf5;
+        font-weight: 600;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .stl-pro-check-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 11.5px;
+        color: #e6ecf5;
+        cursor: pointer;
+        padding: 2px 0;
+    }
+    .stl-pro-check-row input[type="checkbox"] {
+        accent-color: #2563eb;
+        width: 14px;
+        height: 14px;
+        cursor: pointer;
+    }
+    .stl-pro-cam-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 6px;
+    }
+    .stl-pro-statusbar {
+        height: 28px;
+        background: #121620;
+        border-top: 1px solid #283246;
+        padding: 0 12px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 11px;
+        color: #9aa5b8;
+        flex-shrink: 0;
+    }
+    @media (max-width: 900px) {
+        .stl-pro-main {
+            flex-direction: column;
+        }
+        .stl-pro-sidebar {
+            width: 100%;
+            max-height: 38vh;
+            border-left: none;
+            border-top: 1px solid #283246;
+        }
+    }
+</style>
+
 <!-- Integrierter 3D STL / CAD Browser & Generator Modal (.stl / .ctl Dateien) - 1:1 STLViewer Pro Edition -->
-<div id="stl-viewer-modal" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-1.5 sm:p-3 backdrop-blur-sm">
-    <div class="bg-[#0f131c] rounded-xl max-w-[1260px] w-full h-[94vh] max-h-[900px] overflow-hidden shadow-2xl flex flex-col border border-[#283246] text-[#e6ecf5] select-none">
+<div id="stl-viewer-modal" class="hidden">
+    <div class="stl-pro-window">
 
         <!-- 1. TOP TOOLBAR (analog ToolbarPanel.java) -->
-        <div class="bg-[#161b26] px-3 py-2 border-b border-[#283246] flex flex-wrap items-center justify-between gap-2 flex-shrink-0">
-            <div class="flex items-center flex-wrap gap-1.5">
+        <div class="stl-pro-toolbar">
+            <div class="stl-pro-toolbar-group">
                 <!-- Brand -->
-                <div class="flex items-center space-x-1.5 pr-2 mr-1 border-r border-[#2d3748]">
-                    <span class="text-sky-400 font-extrabold text-sm tracking-wide">⬡ STLViewer</span>
-                    <span class="text-[10px] px-1.5 py-0.5 rounded bg-sky-500/20 text-sky-300 font-semibold border border-sky-500/30">PRO</span>
+                <div class="stl-pro-brand">
+                    <span class="stl-pro-brand-title">⬡ STLViewer</span>
+                    <span class="stl-pro-brand-badge">PRO</span>
                 </div>
 
                 <!-- 📁 STL öffnen -->
-                <label class="cursor-pointer px-2.5 py-1.5 bg-[#2563eb] hover:bg-[#1d4ed8] text-white rounded-md text-xs font-bold transition flex items-center space-x-1.5 shadow-sm" title="STL-Datei öffnen (Binär oder ASCII) vom Notebook/Handy">
+                <label class="stl-pro-btn-primary" title="STL-Datei öffnen (Binär oder ASCII) vom Notebook/Handy">
                     <span>📁 STL öffnen</span>
                     <input type="file" id="stl-local-file-input" accept=".stl,.ctl,model/stl,application/sla" class="hidden" onchange="loadLocalStlIntoViewer(event)">
                 </label>
 
                 <!-- Beispiel-Dropdown -->
-                <div class="flex items-center space-x-1 ml-1">
-                    <span class="text-[11px] text-[#9aa5b8] hidden md:inline">Beispiel:</span>
-                    <select id="stl-sample-select" onchange="stlLoadSelectedSample(this.value)" class="bg-[#232b3b] hover:bg-[#2d374d] text-[#e6ecf5] text-xs rounded-md px-2 py-1.5 border border-[#3a465e] focus:border-sky-400 outline-none cursor-pointer">
+                <div class="stl-pro-toolbar-group" style="margin-left: 4px;">
+                    <span style="font-size: 11.5px; color: #9aa5b8;">Beispiel:</span>
+                    <select id="stl-sample-select" onchange="stlLoadSelectedSample(this.value)" class="stl-pro-select">
                         <option value="Zahnrad 16 Zähne Loch 8">⚙️ Zahnrad (16 Zähne)</option>
                         <option value="Kalibrier-Würfel 20mm">🧊 Kalibrier-Würfel (20mm)</option>
                         <option value="Torus Ring">🍩 Torus (Ring)</option>
@@ -982,130 +1308,127 @@
                     </select>
                 </div>
 
-                <div class="h-5 w-[1px] bg-[#2d3748] mx-1 hidden sm:block"></div>
+                <div class="stl-pro-sep"></div>
 
                 <!-- Drahtgitter (W) -->
-                <button type="button" id="stl-btn-wireframe" onclick="stlCycleWireframeMode()" class="px-2.5 py-1.5 bg-[#232b3b] hover:bg-[#323d52] text-[#e6ecf5] border border-[#3a465e] rounded-md text-xs font-medium transition" title="Drahtgitter-Modus umschalten (Shortcut: W)">
+                <button type="button" id="stl-btn-wireframe" onclick="stlCycleWireframeMode()" class="stl-pro-btn" title="Drahtgitter-Modus umschalten (Shortcut: W)">
                     Drahtgitter
                 </button>
 
                 <!-- ⬇️ Druckbett (D) -->
-                <button type="button" onclick="stlPlaceOnBed()" class="px-2.5 py-1.5 bg-[#232b3b] hover:bg-[#323d52] text-[#e6ecf5] border border-[#3a465e] rounded-md text-xs font-medium transition" title="Auf Druckbett ausrichten: Flach auf Z=0 legen & zentrieren (Shortcut: D)">
+                <button type="button" onclick="stlPlaceOnBed()" class="stl-pro-btn" title="Auf Druckbett ausrichten: Flach auf Z=0 legen & zentrieren (Shortcut: D)">
                     ⬇️ Druckbett
                 </button>
 
                 <!-- 🔄 Auto-Drehen -->
-                <button type="button" id="stl-btn-autorotate" onclick="stlToggleAutoRotate()" class="px-2.5 py-1.5 bg-[#232b3b] hover:bg-[#323d52] text-[#e6ecf5] border border-[#3a465e] rounded-md text-xs font-medium transition" title="Kontinuierliche 360° Drehung ein/aus">
+                <button type="button" id="stl-btn-autorotate" onclick="stlToggleAutoRotate()" class="stl-pro-btn" title="Kontinuierliche 360° Drehung ein/aus">
                     🔄 Auto-Drehen
                 </button>
 
                 <!-- 🎯 Zentrieren (R) -->
-                <button type="button" onclick="stlResetCameraView()" class="px-2.5 py-1.5 bg-[#232b3b] hover:bg-[#323d52] text-[#e6ecf5] border border-[#3a465e] rounded-md text-xs font-medium transition" title="Kamera auf Modellmitte zurücksetzen (Shortcut: R)">
+                <button type="button" onclick="stlResetCameraView()" class="stl-pro-btn" title="Kamera auf Modellmitte zurücksetzen (Shortcut: R)">
                     🎯 Zentrieren
                 </button>
 
                 <!-- 📷 Screenshot -->
-                <button type="button" onclick="stlSaveScreenshot()" class="px-2.5 py-1.5 bg-[#232b3b] hover:bg-[#323d52] text-[#e6ecf5] border border-[#3a465e] rounded-md text-xs font-medium transition" title="Aktuelle 3D-Ansicht als PNG-Bild speichern">
+                <button type="button" onclick="stlSaveScreenshot()" class="stl-pro-btn" title="Aktuelle 3D-Ansicht als PNG-Bild speichern">
                     📷 Screenshot
                 </button>
             </div>
 
             <!-- Rechts: In Chat senden, Download .stl, Schließen -->
-            <div class="flex items-center space-x-1.5">
+            <div class="stl-pro-toolbar-group">
                 @if(isset($activeConversation) && $activeConversation)
-                    <button type="button" id="stl-send-to-chat-btn" onclick="sendCurrentStlToChat()" class="hidden px-2.5 py-1.5 bg-[#00a884] hover:bg-[#008f6f] text-white rounded-md text-xs font-bold transition flex items-center space-x-1 shadow-sm" title="Aktuelles 3D-Modell direkt in diesen Chat senden">
+                    <button type="button" id="stl-send-to-chat-btn" onclick="sendCurrentStlToChat()" class="stl-pro-btn-green hidden" title="Aktuelles 3D-Modell direkt in diesen Chat senden">
                         <span>📤 In Chat senden</span>
                     </button>
                 @endif
-                <a id="stl-viewer-download" href="#" download class="px-2.5 py-1.5 bg-[#232b3b] hover:bg-[#323d52] text-[#e6ecf5] border border-[#3a465e] rounded-md text-xs font-semibold transition flex items-center space-x-1" title="3D-Datei (.stl) herunterladen">
+                <a id="stl-viewer-download" href="#" download class="stl-pro-btn" title="3D-Datei (.stl) herunterladen">
                     <span>💾 .STL</span>
                 </a>
-                <button type="button" onclick="closeStlViewer()" class="px-2.5 py-1 bg-rose-600/20 hover:bg-rose-600 text-rose-300 hover:text-white border border-rose-500/30 rounded-md text-sm font-bold transition leading-none" title="Viewer schließen">&times;</button>
+                <button type="button" onclick="closeStlViewer()" class="stl-pro-btn-close" title="Viewer schließen">&times;</button>
             </div>
         </div>
 
         <!-- 2. ✨ KI / SDF 3D-MODELL GENERATOR LEISTE -->
-        <div class="bg-[#131822] px-3 py-2 border-b border-[#283246] flex flex-wrap items-center gap-2 flex-shrink-0">
-            <span class="text-[11px] font-bold text-sky-400 uppercase tracking-wider flex items-center gap-1">
-                <span>✨ Text → 3D:</span>
+        <div class="stl-pro-promptbar">
+            <span style="font-size: 11px; font-weight: 700; color: #38bdf8; text-transform: uppercase; letter-spacing: 0.04em;">
+                ✨ Text → 3D:
             </span>
-            <div class="relative flex-1 min-w-[200px]">
-                <input type="text" id="stl-prompt-input" placeholder="3D-Modell beschreiben, z.B. „Mittelschnauzer liegend“, „Zahnrad 24 Zähne Loch 8“, „Sechskantmutter M12“, „Anhänger LEON“..." class="w-full bg-[#0b0e14] text-white placeholder-[#6e7b91] text-xs rounded-md px-3 py-1.5 border border-[#2d3748] focus:border-sky-400 outline-none select-text" onkeydown="if(event.key==='Enter'){event.preventDefault();generateStlFromPrompt();}">
-            </div>
-            <button type="button" onclick="generateStlFromPrompt()" class="px-3 py-1.5 bg-sky-600 hover:bg-sky-500 text-white rounded-md text-xs font-bold transition flex items-center space-x-1 flex-shrink-0 shadow-sm">
+            <input type="text" id="stl-prompt-input" placeholder="3D-Modell beschreiben, z.B. „Mittelschnauzer liegend“, „Zahnrad 24 Zähne Loch 8“, „Sechskantmutter M12“, „Anhänger LEON“..." class="stl-pro-input" onkeydown="if(event.key==='Enter'){event.preventDefault();generateStlFromPrompt();}">
+            <button type="button" onclick="generateStlFromPrompt()" class="stl-pro-btn-primary">
                 <span>✨ 3D Erstellen</span>
             </button>
         </div>
 
-        <!-- 3. HAUPTBEREICH: 3D VIEWPORT LINKS + SIDEBAR RECHTS (analog ViewportPanel + SidebarPanel) -->
-        <div class="flex-1 flex flex-col lg:flex-row min-h-0 overflow-hidden">
+        <!-- 3. HAUPTBEREICH: 3D VIEWPORT LINKS + SIDEBAR RECHTS -->
+        <div class="stl-pro-main">
 
             <!-- 3D Viewport Canvas Container -->
-            <div id="stl-canvas-container" class="flex-1 relative overflow-hidden cursor-grab active:cursor-grabbing" style="background: linear-gradient(180deg, #161b26 0%, #0c0f16 100%);">
-                <!-- HUD Overlay Oben Links (analog drawHudOverlay in ViewportPanel.java) -->
-                <div id="stl-hud-pill" class="absolute top-3 left-3 z-10 pointer-events-none bg-[#0f131c]/80 border border-[#3c4b64]/70 rounded-lg px-3 py-1.5 text-[11px] font-mono text-[#c8d2e6] shadow-md backdrop-blur-xs">
+            <div id="stl-canvas-container" class="stl-pro-viewport">
+                <!-- HUD Overlay Oben Links -->
+                <div id="stl-hud-pill" class="stl-pro-hud">
                     Dreiecke: <span id="stl-hud-tris">0</span> &nbsp;|&nbsp; <span id="stl-hud-fps">60</span> FPS &nbsp;|&nbsp; Distanz: <span id="stl-hud-dist">120</span> mm
                 </div>
 
                 <!-- Drag & Drop Hinweis bei Hover -->
-                <div id="stl-drop-overlay" class="hidden absolute inset-3 z-20 pointer-events-none border-2 border-dashed border-sky-400 rounded-xl bg-sky-950/60 flex items-center justify-center">
-                    <div class="text-center text-sky-200 font-bold text-base">
+                <div id="stl-drop-overlay" class="hidden" style="position: absolute; inset: 14px; z-index: 20; pointer-events: none; border: 2px dashed #38bdf8; border-radius: 12px; background: rgba(8, 47, 73, 0.65); display: flex; align-items: center; justify-content: center;">
+                    <div style="color: #bae6fd; font-weight: 700; font-size: 15px;">
                         📥 .STL / .CTL Datei hier ablegen zum Öffnen
                     </div>
                 </div>
 
-                <!-- 3D-Achsen-Kompass Unten Links (analog drawOrientationGizmo in ViewportPanel.java) -->
-                <canvas id="stl-gizmo-canvas" width="88" height="88" class="absolute bottom-3 left-3 z-10 pointer-events-none"></canvas>
+                <!-- 3D-Achsen-Kompass Unten Links -->
+                <canvas id="stl-gizmo-canvas" width="88" height="88" class="stl-pro-gizmo"></canvas>
 
                 <!-- Lade-Overlay -->
-                <div id="stl-loading-overlay" class="absolute inset-0 flex items-center justify-center bg-[#0f131c]/85 z-20">
-                    <div class="text-center">
+                <div id="stl-loading-overlay" class="stl-pro-loading">
+                    <div style="text-align: center;">
                         <div class="w-10 h-10 border-4 border-sky-400 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
-                        <div id="stl-loading-text" class="text-sm text-slate-200 font-medium">Lade 3D-Modell...</div>
+                        <div id="stl-loading-text" style="font-size: 13px; color: #e2e8f0; font-weight: 600;">Lade 3D-Modell...</div>
                     </div>
                 </div>
             </div>
 
-            <!-- RECHTE SIDEBAR (analog SidebarPanel.java - 290px auf Desktop) -->
-            <div class="w-full lg:w-[295px] bg-[#161b26] border-t lg:border-t-0 lg:border-l border-[#283246] overflow-y-auto p-3 space-y-2.5 flex-shrink-0 max-h-[38vh] lg:max-h-none text-xs">
+            <!-- RECHTE SIDEBAR (analog SidebarPanel.java) -->
+            <div class="stl-pro-sidebar">
 
                 <!-- KARTE 1: Modell-Statistiken -->
-                <div class="bg-[#1e2533] border border-[#2d3748] rounded-lg p-3">
-                    <div class="text-[12px] font-bold text-[#60a5fa] mb-2">Modell-Statistiken</div>
-                    <div class="grid grid-cols-[95px_1fr] gap-y-1 text-[11.5px]">
-                        <span class="text-[#9aa5b8]">Name:</span>
-                        <span id="stl-stat-name" class="text-[#e6ecf5] font-semibold truncate" title="-">-</span>
+                <div class="stl-pro-card">
+                    <div class="stl-pro-card-title">Modell-Statistiken</div>
+                    <div class="stl-pro-stats-grid">
+                        <span class="stl-pro-stat-label">Name:</span>
+                        <span id="stl-stat-name" class="stl-pro-stat-val" title="-">-</span>
 
-                        <span class="text-[#9aa5b8]">Format:</span>
-                        <span id="stl-stat-format" class="text-[#e6ecf5] font-semibold">Binary STL</span>
+                        <span class="stl-pro-stat-label">Format:</span>
+                        <span id="stl-stat-format" class="stl-pro-stat-val">Binary STL</span>
 
-                        <span class="text-[#9aa5b8]">Dreiecke:</span>
-                        <span id="stl-stat-triangles" class="text-[#e6ecf5] font-semibold">0</span>
+                        <span class="stl-pro-stat-label">Dreiecke:</span>
+                        <span id="stl-stat-triangles" class="stl-pro-stat-val">0</span>
 
-                        <span class="text-[#9aa5b8]">Eckpunkte:</span>
-                        <span id="stl-stat-vertices" class="text-[#e6ecf5] font-semibold">0</span>
+                        <span class="stl-pro-stat-label">Eckpunkte:</span>
+                        <span id="stl-stat-vertices" class="stl-pro-stat-val">0</span>
 
-                        <span class="text-[#9aa5b8]">Maße (X×Y×Z):</span>
-                        <span id="stl-stat-dims" class="text-[#e6ecf5] font-semibold">0 × 0 × 0 mm</span>
+                        <span class="stl-pro-stat-label">Maße (X×Y×Z):</span>
+                        <span id="stl-stat-dims" class="stl-pro-stat-val">0 × 0 × 0 mm</span>
 
-                        <span class="text-[#9aa5b8]">Volumen:</span>
-                        <span id="stl-stat-volume" class="text-[#e6ecf5] font-semibold">0.00 cm³</span>
+                        <span class="stl-pro-stat-label">Volumen:</span>
+                        <span id="stl-stat-volume" class="stl-pro-stat-val">0.00 cm³</span>
 
-                        <span class="text-[#9aa5b8]">Oberfläche:</span>
-                        <span id="stl-stat-area" class="text-[#e6ecf5] font-semibold">0.00 cm²</span>
+                        <span class="stl-pro-stat-label">Oberfläche:</span>
+                        <span id="stl-stat-area" class="stl-pro-stat-val">0.00 cm²</span>
                     </div>
-                    <!-- Legacy unsichtbare IDs für Kompatibilität -->
                     <span id="stl-viewer-title" class="hidden"></span>
                     <span id="stl-viewer-stats" class="hidden"></span>
                 </div>
 
                 <!-- KARTE 2: Darstellung & Material -->
-                <div class="bg-[#1e2533] border border-[#2d3748] rounded-lg p-3 space-y-2">
-                    <div class="text-[12px] font-bold text-[#60a5fa]">Darstellung &amp; Material</div>
+                <div class="stl-pro-card">
+                    <div class="stl-pro-card-title">Darstellung &amp; Material</div>
 
-                    <div>
-                        <label class="block text-[11px] text-[#9aa5b8] mb-1">Render-Modus:</label>
-                        <select id="stl-render-mode-select" onchange="stlSetRenderMode(this.value)" class="w-full bg-[#232b3b] text-[#e6ecf5] text-xs rounded px-2 py-1.5 border border-[#3a465e] focus:border-sky-400 outline-none">
+                    <div style="margin-bottom: 8px;">
+                        <label style="display: block; font-size: 11px; color: #9aa5b8; margin-bottom: 3px;">Render-Modus:</label>
+                        <select id="stl-render-mode-select" onchange="stlSetRenderMode(this.value)" class="stl-pro-select" style="width: 100%;">
                             <option value="SMOOTH_SHADED" selected>Geglättet (Gouraud)</option>
                             <option value="FLAT_SHADED">Flächen-Schattiert (Flat)</option>
                             <option value="WIREFRAME">Drahtgitter (Wireframe)</option>
@@ -1115,9 +1438,9 @@
                         </select>
                     </div>
 
-                    <div>
-                        <label class="block text-[11px] text-[#9aa5b8] mb-1">Farbe / Material:</label>
-                        <select id="stl-color-theme-select" onchange="stlSetColorTheme(this.value)" class="w-full bg-[#232b3b] text-[#e6ecf5] text-xs rounded px-2 py-1.5 border border-[#3a465e] focus:border-sky-400 outline-none">
+                    <div style="margin-bottom: 8px;">
+                        <label style="display: block; font-size: 11px; color: #9aa5b8; margin-bottom: 3px;">Farbe / Material:</label>
+                        <select id="stl-color-theme-select" onchange="stlSetColorTheme(this.value)" class="stl-pro-select" style="width: 100%;">
                             <option value="TITANIUM" selected>Titanium Silber</option>
                             <option value="CYAN_TECH">Cyan High-Tech</option>
                             <option value="GOLD_SUNSET">Gold &amp; Bernstein</option>
@@ -1127,60 +1450,60 @@
                         </select>
                     </div>
 
-                    <div class="pt-1 space-y-1.5 text-[11.5px]">
-                        <label class="flex items-center space-x-2 cursor-pointer">
-                            <input type="checkbox" id="stl-chk-grid" checked onchange="stlToggleOption('grid', this.checked)" class="rounded bg-[#232b3b] border-[#3a465e] text-sky-500 focus:ring-0">
+                    <div style="display: flex; flex-direction: column; gap: 3px; padding-top: 2px;">
+                        <label class="stl-pro-check-row">
+                            <input type="checkbox" id="stl-chk-grid" checked onchange="stlToggleOption('grid', this.checked)">
                             <span>Bodenraster anzeigen</span>
                         </label>
-                        <label class="flex items-center space-x-2 cursor-pointer">
-                            <input type="checkbox" id="stl-chk-axes" checked onchange="stlToggleOption('axes', this.checked)" class="rounded bg-[#232b3b] border-[#3a465e] text-sky-500 focus:ring-0">
+                        <label class="stl-pro-check-row">
+                            <input type="checkbox" id="stl-chk-axes" checked onchange="stlToggleOption('axes', this.checked)">
                             <span>3D-Achsen-Kompass</span>
                         </label>
-                        <label class="flex items-center space-x-2 cursor-pointer">
-                            <input type="checkbox" id="stl-chk-cull" checked onchange="stlToggleOption('cull', this.checked)" class="rounded bg-[#232b3b] border-[#3a465e] text-sky-500 focus:ring-0">
+                        <label class="stl-pro-check-row">
+                            <input type="checkbox" id="stl-chk-cull" checked onchange="stlToggleOption('cull', this.checked)">
                             <span>Rückseiten verbergen</span>
                         </label>
-                        <label class="flex items-center space-x-2 cursor-pointer">
-                            <input type="checkbox" id="stl-chk-bbox" onchange="stlToggleOption('bbox', this.checked)" class="rounded bg-[#232b3b] border-[#3a465e] text-sky-500 focus:ring-0">
+                        <label class="stl-pro-check-row">
+                            <input type="checkbox" id="stl-chk-bbox" onchange="stlToggleOption('bbox', this.checked)">
                             <span>Bounding-Box Rahmen</span>
                         </label>
-                        <label class="flex items-center space-x-2 cursor-pointer">
-                            <input type="checkbox" id="stl-chk-headlight" checked onchange="stlToggleOption('headlight', this.checked)" class="rounded bg-[#232b3b] border-[#3a465e] text-sky-500 focus:ring-0">
+                        <label class="stl-pro-check-row">
+                            <input type="checkbox" id="stl-chk-headlight" checked onchange="stlToggleOption('headlight', this.checked)">
                             <span>Kamera-Licht (Headlight)</span>
                         </label>
-                        <label class="flex items-center space-x-2 cursor-pointer">
-                            <input type="checkbox" id="stl-chk-ortho" onchange="stlToggleOption('ortho', this.checked)" class="rounded bg-[#232b3b] border-[#3a465e] text-sky-500 focus:ring-0">
+                        <label class="stl-pro-check-row">
+                            <input type="checkbox" id="stl-chk-ortho" onchange="stlToggleOption('ortho', this.checked)">
                             <span>Orthografische Ansicht</span>
                         </label>
                     </div>
                 </div>
 
                 <!-- KARTE 3: Blickwinkel & Kamera -->
-                <div class="bg-[#1e2533] border border-[#2d3748] rounded-lg p-3">
-                    <div class="text-[12px] font-bold text-[#60a5fa] mb-2">Blickwinkel &amp; Kamera</div>
-                    <div class="grid grid-cols-2 gap-1.5 text-[11px]">
-                        <button type="button" onclick="stlSetCameraView('iso')" class="py-1.5 px-2 bg-[#232b3b] hover:bg-[#323d52] text-[#e6ecf5] border border-[#3a465e] rounded font-medium transition">Isometrisch</button>
-                        <button type="button" onclick="stlSetCameraView('top')" class="py-1.5 px-2 bg-[#232b3b] hover:bg-[#323d52] text-[#e6ecf5] border border-[#3a465e] rounded font-medium transition">Oben (Z+)</button>
-                        <button type="button" onclick="stlSetCameraView('front')" class="py-1.5 px-2 bg-[#232b3b] hover:bg-[#323d52] text-[#e6ecf5] border border-[#3a465e] rounded font-medium transition">Vorne (Y-)</button>
-                        <button type="button" onclick="stlSetCameraView('right')" class="py-1.5 px-2 bg-[#232b3b] hover:bg-[#323d52] text-[#e6ecf5] border border-[#3a465e] rounded font-medium transition">Rechts (X+)</button>
-                        <button type="button" onclick="stlSetCameraView('bottom')" class="py-1.5 px-2 bg-[#232b3b] hover:bg-[#323d52] text-[#e6ecf5] border border-[#3a465e] rounded font-medium transition">Unten (Z-)</button>
-                        <button type="button" onclick="stlResetCameraView()" class="py-1.5 px-2 bg-[#2563eb] hover:bg-[#1d4ed8] text-white rounded font-bold transition">🎯 Zentrieren</button>
-                        <button type="button" onclick="stlPlaceOnBed()" class="py-1.5 px-2 bg-[#232b3b] hover:bg-[#323d52] text-[#e6ecf5] border border-[#3a465e] rounded font-medium transition">⬇️ Auf Druckbett</button>
-                        <button type="button" onclick="stlToggleAutoRotate()" class="py-1.5 px-2 bg-[#232b3b] hover:bg-[#323d52] text-[#e6ecf5] border border-[#3a465e] rounded font-medium transition">🔄 Auto-Drehen</button>
+                <div class="stl-pro-card">
+                    <div class="stl-pro-card-title">Blickwinkel &amp; Kamera</div>
+                    <div class="stl-pro-cam-grid">
+                        <button type="button" onclick="stlSetCameraView('iso')" class="stl-pro-btn">Isometrisch</button>
+                        <button type="button" onclick="stlSetCameraView('top')" class="stl-pro-btn">Oben (Z+)</button>
+                        <button type="button" onclick="stlSetCameraView('front')" class="stl-pro-btn">Vorne (Y-)</button>
+                        <button type="button" onclick="stlSetCameraView('right')" class="stl-pro-btn">Rechts (X+)</button>
+                        <button type="button" onclick="stlSetCameraView('bottom')" class="stl-pro-btn">Unten (Z-)</button>
+                        <button type="button" onclick="stlResetCameraView()" class="stl-pro-btn-primary">🎯 Zentrieren</button>
+                        <button type="button" onclick="stlPlaceOnBed()" class="stl-pro-btn">⬇️ Auf Druckbett</button>
+                        <button type="button" onclick="stlToggleAutoRotate()" class="stl-pro-btn">🔄 Auto-Drehen</button>
                     </div>
                 </div>
 
                 <!-- KARTE 4: Tastatur & Maus -->
-                <div class="bg-[#1e2533] border border-[#2d3748] rounded-lg p-3">
-                    <div class="text-[12px] font-bold text-[#60a5fa] mb-1.5">Tastatur &amp; Maus</div>
-                    <div class="text-[11px] text-[#9aa5b8] space-y-1 leading-relaxed">
-                        <div><b class="text-[#e6ecf5]">Linke Maus / 1 Finger:</b> Modell drehen</div>
-                        <div><b class="text-[#e6ecf5]">Rechte Maus / Shift:</b> Verschieben (Pan)</div>
-                        <div><b class="text-[#e6ecf5]">Mausrad / Pinch:</b> Zoomen</div>
-                        <div><b class="text-[#e6ecf5]">Doppelklick:</b> Kamera einpassen</div>
-                        <div class="pt-1 border-t border-[#2d3748] mt-1">
-                            <b class="text-[#e6ecf5]">[R]</b> Reset &nbsp;·&nbsp; <b class="text-[#e6ecf5]">[W]</b> Drahtgitter<br>
-                            <b class="text-[#e6ecf5]">[D]</b> Auf Druckbett &nbsp;·&nbsp; <b class="text-[#e6ecf5]">[G]</b> Raster
+                <div class="stl-pro-card">
+                    <div class="stl-pro-card-title">Tastatur &amp; Maus</div>
+                    <div style="font-size: 11px; color: #9aa5b8; line-height: 1.55;">
+                        <div><b style="color: #e6ecf5;">Linke Maus / 1 Finger:</b> Modell drehen</div>
+                        <div><b style="color: #e6ecf5;">Rechte Maus / Shift:</b> Verschieben (Pan)</div>
+                        <div><b style="color: #e6ecf5;">Mausrad / Pinch:</b> Zoomen</div>
+                        <div><b style="color: #e6ecf5;">Doppelklick:</b> Kamera einpassen</div>
+                        <div style="border-top: 1px solid #2d3748; margin-top: 5px; padding-top: 5px;">
+                            <b style="color: #e6ecf5;">[R]</b> Reset &nbsp;·&nbsp; <b style="color: #e6ecf5;">[W]</b> Drahtgitter<br>
+                            <b style="color: #e6ecf5;">[D]</b> Auf Druckbett &nbsp;·&nbsp; <b style="color: #e6ecf5;">[G]</b> Raster
                         </div>
                     </div>
                 </div>
@@ -1188,10 +1511,10 @@
             </div>
         </div>
 
-        <!-- 4. BOTTOM STATUS BAR (analog StatusBar in MainWindow.java) -->
-        <div class="h-7 bg-[#121620] px-3 border-t border-[#283246] flex items-center justify-between text-[11px] text-[#9aa5b8] flex-shrink-0">
-            <span id="stl-status-left" class="truncate">Bereit – STL-Datei öffnen oder per Drag &amp; Drop hineinziehen</span>
-            <span id="stl-status-right" class="font-mono text-[#c8d2e6] truncate ml-2">Binary STL | 0 Dreiecke</span>
+        <!-- 4. BOTTOM STATUS BAR -->
+        <div class="stl-pro-statusbar">
+            <span id="stl-status-left" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Bereit – STL-Datei öffnen oder per Drag &amp; Drop hineinziehen</span>
+            <span id="stl-status-right" style="font-family: ui-monospace, monospace; color: #c8d2e6; margin-left: 10px; white-space: nowrap;">Binary STL | 0 Dreiecke</span>
         </div>
     </div>
 </div>
@@ -2537,7 +2860,7 @@
         }
 
         const distEl = document.getElementById('stl-hud-dist');
-        if (distEl) distEl.innerText = Math.round(stlSpherical.radius);
+        if (distEl) distEl.innerText = stlSpherical.radius < 10 ? stlSpherical.radius.toFixed(1) : Math.round(stlSpherical.radius);
     }
 
     function drawStlAxesGizmo() {
@@ -2821,6 +3144,18 @@
         return true;
     }
 
+    function ensureStlWireframeCreated() {
+        if (stlWireframeMesh || !stlMesh) return;
+        const wireMat = new THREE.MeshBasicMaterial({
+            color: 0x0b0f19,
+            wireframe: true,
+            transparent: true,
+            opacity: 0.38
+        });
+        stlWireframeMesh = new THREE.Mesh(stlMesh.geometry, wireMat);
+        stlScene.add(stlWireframeMesh);
+    }
+
     function applyStlMaterialAndRenderMode() {
         if (!stlMesh) return;
         const theme = STL_COLOR_THEMES[stlColorTheme] || STL_COLOR_THEMES.TITANIUM;
@@ -2846,6 +3181,7 @@
             stlMesh.visible = true;
             if (stlWireframeMesh) stlWireframeMesh.visible = false;
         } else if (stlRenderMode === 'WIREFRAME') {
+            ensureStlWireframeCreated();
             stlMesh.visible = false;
             if (stlWireframeMesh) {
                 stlWireframeMesh.material.color.setHex(theme.color);
@@ -2864,10 +3200,15 @@
             stlMesh.material.needsUpdate = true;
             stlMesh.visible = true;
 
-            if (stlWireframeMesh) {
-                stlWireframeMesh.material.color.setHex(0x0b0f19);
-                stlWireframeMesh.material.opacity = 0.38;
-                stlWireframeMesh.visible = (stlRenderMode === 'SOLID_WIREFRAME');
+            if (stlRenderMode === 'SOLID_WIREFRAME') {
+                ensureStlWireframeCreated();
+                if (stlWireframeMesh) {
+                    stlWireframeMesh.material.color.setHex(0x0b0f19);
+                    stlWireframeMesh.material.opacity = 0.38;
+                    stlWireframeMesh.visible = true;
+                }
+            } else if (stlWireframeMesh) {
+                stlWireframeMesh.visible = false;
             }
         }
 
@@ -2875,13 +3216,13 @@
         const wfBtn = document.getElementById('stl-btn-wireframe');
         if (wfBtn) {
             const isWfActive = (stlRenderMode === 'WIREFRAME' || stlRenderMode === 'SOLID_WIREFRAME');
-            wfBtn.className = isWfActive
-                ? 'px-2.5 py-1.5 bg-[#2563eb] text-white border border-sky-400 rounded-md text-xs font-bold transition'
-                : 'px-2.5 py-1.5 bg-[#232b3b] hover:bg-[#323d52] text-[#e6ecf5] border border-[#3a465e] rounded-md text-xs font-medium transition';
+            wfBtn.className = isWfActive ? 'stl-pro-btn-primary' : 'stl-pro-btn';
         }
     }
 
     function renderStlArrayBufferInScene(buffer, fileName, isGenerated = false) {
+        ensureStlViewportInitialized();
+
         const dlBtn = document.getElementById('stl-viewer-download');
         const sendBtn = document.getElementById('stl-send-to-chat-btn');
         const loadingOverlay = document.getElementById('stl-loading-overlay');
@@ -2905,24 +3246,15 @@
         geometry.translate(-center.x, -box.min.y, -center.z);
         geometry.computeBoundingBox();
         geometry.computeBoundingSphere();
-        stlModelRadius = Math.max(1, geometry.boundingSphere.radius);
+        stlModelRadius = Math.max(0.001, geometry.boundingSphere.radius);
 
         stlMesh = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial());
         stlScene.add(stlMesh);
 
-        const wireMat = new THREE.MeshBasicMaterial({
-            color: 0x0b0f19,
-            wireframe: true,
-            transparent: true,
-            opacity: 0.38
-        });
-        stlWireframeMesh = new THREE.Mesh(geometry, wireMat);
-        stlScene.add(stlWireframeMesh);
-
         applyStlMaterialAndRenderMode();
 
-        // Bodenraster (CAD Build-Plate Grid)
-        const gridSize = Math.max(60, Math.ceil((stlModelRadius * 3.2) / 10) * 10);
+        // Bodenraster proportional zur Modellgröße (funktioniert für 0.5m genauso wie für 200mm)
+        const gridSize = stlModelRadius * 3.2;
         stlGridHelper = new THREE.GridHelper(gridSize, 20, 0x3b82f6, 0x283246);
         stlGridHelper.visible = stlOptGrid;
         stlScene.add(stlGridHelper);
@@ -2937,20 +3269,26 @@
         stlBBoxHelper.visible = stlOptBBox;
         stlScene.add(stlBBoxHelper);
 
-        stlPerspCamera.near = Math.max(0.05, stlModelRadius * 0.01);
-        stlPerspCamera.far = stlModelRadius * 60;
+        stlPerspCamera.near = Math.max(0.0001, stlModelRadius * 0.005);
+        stlPerspCamera.far = stlModelRadius * 80;
         stlPerspCamera.updateProjectionMatrix();
         stlSetCameraView('iso');
 
         // CAD Maße (X = size.x, Y = size.z, Z = size.y)
-        const dimX = size.x.toFixed(1);
-        const dimY = size.z.toFixed(1);
-        const dimZ = size.y.toFixed(1);
+        const maxDim = Math.max(size.x, size.y, size.z);
+        const decimals = maxDim < 5 ? 2 : 1;
+        const dimX = size.x.toFixed(decimals);
+        const dimY = size.z.toFixed(decimals);
+        const dimZ = size.y.toFixed(decimals);
         const cleanName = fileName || 'Unbenannt.stl';
         const triStr = parsed.triangles.toLocaleString('de-CH');
         const vertStr = parsed.vertices.toLocaleString('de-CH');
-        const volStr = parsed.volumeCm3.toFixed(2) + ' cm³';
-        const areaStr = parsed.surfaceAreaCm2.toFixed(2) + ' cm²';
+        const volStr = (parsed.volumeCm3 < 0.01 && parsed.volumeCm3 > 0)
+            ? (parsed.volumeCm3 * 1000).toFixed(2) + ' mm³'
+            : parsed.volumeCm3.toFixed(2) + ' cm³';
+        const areaStr = (parsed.surfaceAreaCm2 < 0.1 && parsed.surfaceAreaCm2 > 0)
+            ? (parsed.surfaceAreaCm2 * 100).toFixed(1) + ' mm²'
+            : parsed.surfaceAreaCm2.toFixed(2) + ' cm²';
 
         // Sidebar-Statistiken aktualisieren (analog SidebarPanel.updateMeshStats)
         const setElText = (id, txt) => { const el = document.getElementById(id); if (el) el.innerText = txt; };
@@ -2977,8 +3315,7 @@
             dlBtn.setAttribute('download', stlGeneratedFileName);
         }
         if (sendBtn) {
-            if (isGenerated) sendBtn.classList.remove('hidden');
-            else sendBtn.classList.remove('hidden'); // Auch geöffnete Dateien können direkt gesendet werden
+            sendBtn.classList.remove('hidden');
         }
 
         if (loadingOverlay) loadingOverlay.classList.add('hidden');
@@ -3849,9 +4186,7 @@
         stlAutoRotate = !stlAutoRotate;
         const btn = document.getElementById('stl-btn-autorotate');
         if (btn) {
-            btn.className = stlAutoRotate
-                ? 'px-2.5 py-1.5 bg-[#2563eb] text-white border border-sky-400 rounded-md text-xs font-bold transition'
-                : 'px-2.5 py-1.5 bg-[#232b3b] hover:bg-[#323d52] text-[#e6ecf5] border border-[#3a465e] rounded-md text-xs font-medium transition';
+            btn.className = stlAutoRotate ? 'stl-pro-btn-primary' : 'stl-pro-btn';
         }
     }
 
