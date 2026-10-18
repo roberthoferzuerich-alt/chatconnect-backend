@@ -945,107 +945,253 @@
     </div>
 </div>
 
-<!-- Integrierter 3D STL / CAD Browser & Generator Modal (.stl / .ctl Dateien) -->
-<div id="stl-viewer-modal" class="hidden fixed inset-0 bg-black/75 z-50 flex items-center justify-center p-2 sm:p-4 backdrop-blur-sm">
-    <div class="bg-slate-900 rounded-2xl max-w-4xl w-full h-[92vh] max-h-[860px] overflow-hidden shadow-2xl flex flex-col border border-slate-700 text-white">
-        <!-- Header -->
-        <div class="h-14 bg-slate-800 flex items-center justify-between px-4 sm:px-5 border-b border-slate-700 flex-shrink-0">
-            <div class="flex items-center space-x-2.5 min-w-0">
-                <div class="w-8 h-8 rounded-lg bg-sky-500/20 text-sky-400 border border-sky-500/30 flex items-center justify-center font-bold text-xs flex-shrink-0">
-                    3D
+<!-- Integrierter 3D STL / CAD Browser & Generator Modal (.stl / .ctl Dateien) - 1:1 STLViewer Pro Edition -->
+<div id="stl-viewer-modal" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-1.5 sm:p-3 backdrop-blur-sm">
+    <div class="bg-[#0f131c] rounded-xl max-w-[1260px] w-full h-[94vh] max-h-[900px] overflow-hidden shadow-2xl flex flex-col border border-[#283246] text-[#e6ecf5] select-none">
+
+        <!-- 1. TOP TOOLBAR (analog ToolbarPanel.java) -->
+        <div class="bg-[#161b26] px-3 py-2 border-b border-[#283246] flex flex-wrap items-center justify-between gap-2 flex-shrink-0">
+            <div class="flex items-center flex-wrap gap-1.5">
+                <!-- Brand -->
+                <div class="flex items-center space-x-1.5 pr-2 mr-1 border-r border-[#2d3748]">
+                    <span class="text-sky-400 font-extrabold text-sm tracking-wide">⬡ STLViewer</span>
+                    <span class="text-[10px] px-1.5 py-0.5 rounded bg-sky-500/20 text-sky-300 font-semibold border border-sky-500/30">PRO</span>
                 </div>
-                <div class="min-w-0">
-                    <h3 id="stl-viewer-title" class="font-bold text-white text-sm sm:text-base truncate">3D-STL Browser & Generator</h3>
-                    <p id="stl-viewer-stats" class="text-[11px] text-slate-400 truncate">Bereit</p>
-                </div>
-            </div>
-            <div class="flex items-center space-x-2 flex-shrink-0">
-                <label class="cursor-pointer px-3 py-1.5 bg-sky-600/30 hover:bg-sky-600/50 border border-sky-400/40 text-sky-200 rounded-lg text-xs font-semibold transition flex items-center space-x-1" title="Lokale .stl / .ctl Datei vom Notebook im 3D-Viewer öffnen">
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path></svg>
-                    <span class="hidden sm:inline">.STL Öffnen</span>
+
+                <!-- 📁 STL öffnen -->
+                <label class="cursor-pointer px-2.5 py-1.5 bg-[#2563eb] hover:bg-[#1d4ed8] text-white rounded-md text-xs font-bold transition flex items-center space-x-1.5 shadow-sm" title="STL-Datei öffnen (Binär oder ASCII) vom Notebook/Handy">
+                    <span>📁 STL öffnen</span>
                     <input type="file" id="stl-local-file-input" accept=".stl,.ctl,model/stl,application/sla" class="hidden" onchange="loadLocalStlIntoViewer(event)">
                 </label>
-                @if(isset($activeConversation) && $activeConversation)
-                    <button type="button" id="stl-send-to-chat-btn" onclick="sendCurrentStlToChat()" class="hidden px-3 py-1.5 bg-[#00a884] hover:bg-[#008f6f] text-white rounded-lg text-xs font-semibold transition flex items-center space-x-1 shadow-sm" title="Aktuelles 3D-Modell direkt in diesen Chat senden">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
-                        <span>In Chat senden</span>
-                    </button>
-                @endif
-                <a id="stl-viewer-download" href="#" download class="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-slate-100 rounded-lg text-xs font-semibold transition flex items-center space-x-1" title="3D-Datei (.stl) herunterladen">
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                    <span class="hidden sm:inline">Download .stl</span>
-                </a>
-                <button type="button" onclick="closeStlViewer()" class="text-slate-400 hover:text-white text-2xl font-bold leading-none px-1.5">&times;</button>
-            </div>
-        </div>
 
-        <!-- ✨ 3D-Modell aus Beschreibung erstellen (Eingabefeld) -->
-        <div class="bg-slate-800/95 px-3 sm:px-4 py-2.5 border-b border-slate-700 flex flex-col gap-2 flex-shrink-0">
-            <div class="flex items-center gap-2">
-                <div class="relative flex-1">
-                    <input type="text" id="stl-prompt-input" placeholder="3D-Modell beschreiben, z.B. „Mittelschnauzer liegend“, „Zahnrad 24 Zähne“, „Anhänger ROBI“, „Rakete“, „Burg“..." class="w-full bg-slate-900 text-white placeholder-slate-400 text-xs sm:text-sm rounded-lg pl-3 pr-3 py-2 border border-slate-600 focus:border-sky-400 outline-none" onkeydown="if(event.key==='Enter'){event.preventDefault();generateStlFromPrompt();}">
+                <!-- Beispiel-Dropdown -->
+                <div class="flex items-center space-x-1 ml-1">
+                    <span class="text-[11px] text-[#9aa5b8] hidden md:inline">Beispiel:</span>
+                    <select id="stl-sample-select" onchange="stlLoadSelectedSample(this.value)" class="bg-[#232b3b] hover:bg-[#2d374d] text-[#e6ecf5] text-xs rounded-md px-2 py-1.5 border border-[#3a465e] focus:border-sky-400 outline-none cursor-pointer">
+                        <option value="Zahnrad 16 Zähne Loch 8">⚙️ Zahnrad (16 Zähne)</option>
+                        <option value="Kalibrier-Würfel 20mm">🧊 Kalibrier-Würfel (20mm)</option>
+                        <option value="Torus Ring">🍩 Torus (Ring)</option>
+                        <option value="Sechskantmutter M12">🔩 Sechskantmutter M12</option>
+                        <option value="Mittelschnauzer liegend" selected>🐕 Mittelschnauzer liegend</option>
+                        <option value="Mittelschnauzer sitzend">🐕 Mittelschnauzer sitzend</option>
+                        <option value="Schlüsselanhänger ROBI">🔑 Anhänger ROBI</option>
+                        <option value="Rakete">🚀 Rakete</option>
+                        <option value="Ritterburg mit 4 Türmen">🏰 Ritterburg</option>
+                        <option value="Herz">❤️ 3D-Herz</option>
+                        <option value="Pokal">🏆 Pokal</option>
+                    </select>
                 </div>
-                <button type="button" onclick="generateStlFromPrompt()" class="px-3.5 py-2 bg-sky-600 hover:bg-sky-500 text-white rounded-lg text-xs sm:text-sm font-semibold transition flex items-center space-x-1.5 flex-shrink-0 shadow-sm">
-                    <span>✨ 3D Erstellen</span>
+
+                <div class="h-5 w-[1px] bg-[#2d3748] mx-1 hidden sm:block"></div>
+
+                <!-- Drahtgitter (W) -->
+                <button type="button" id="stl-btn-wireframe" onclick="stlCycleWireframeMode()" class="px-2.5 py-1.5 bg-[#232b3b] hover:bg-[#323d52] text-[#e6ecf5] border border-[#3a465e] rounded-md text-xs font-medium transition" title="Drahtgitter-Modus umschalten (Shortcut: W)">
+                    Drahtgitter
+                </button>
+
+                <!-- ⬇️ Druckbett (D) -->
+                <button type="button" onclick="stlPlaceOnBed()" class="px-2.5 py-1.5 bg-[#232b3b] hover:bg-[#323d52] text-[#e6ecf5] border border-[#3a465e] rounded-md text-xs font-medium transition" title="Auf Druckbett ausrichten: Flach auf Z=0 legen & zentrieren (Shortcut: D)">
+                    ⬇️ Druckbett
+                </button>
+
+                <!-- 🔄 Auto-Drehen -->
+                <button type="button" id="stl-btn-autorotate" onclick="stlToggleAutoRotate()" class="px-2.5 py-1.5 bg-[#232b3b] hover:bg-[#323d52] text-[#e6ecf5] border border-[#3a465e] rounded-md text-xs font-medium transition" title="Kontinuierliche 360° Drehung ein/aus">
+                    🔄 Auto-Drehen
+                </button>
+
+                <!-- 🎯 Zentrieren (R) -->
+                <button type="button" onclick="stlResetCameraView()" class="px-2.5 py-1.5 bg-[#232b3b] hover:bg-[#323d52] text-[#e6ecf5] border border-[#3a465e] rounded-md text-xs font-medium transition" title="Kamera auf Modellmitte zurücksetzen (Shortcut: R)">
+                    🎯 Zentrieren
+                </button>
+
+                <!-- 📷 Screenshot -->
+                <button type="button" onclick="stlSaveScreenshot()" class="px-2.5 py-1.5 bg-[#232b3b] hover:bg-[#323d52] text-[#e6ecf5] border border-[#3a465e] rounded-md text-xs font-medium transition" title="Aktuelle 3D-Ansicht als PNG-Bild speichern">
+                    📷 Screenshot
                 </button>
             </div>
-            <!-- Schnellwahl-Beispiele -->
-            <div class="flex items-center gap-1.5 overflow-x-auto pb-0.5 text-[11px] no-scrollbar">
-                <span class="text-slate-400 flex-shrink-0">Vorlagen:</span>
-                <button type="button" onclick="setStlPromptAndGenerate('Mittelschnauzer liegend')" class="px-2 py-0.5 bg-slate-700/80 hover:bg-slate-600 text-sky-300 rounded-full whitespace-nowrap transition">🐕 Mittelschnauzer liegend</button>
-                <button type="button" onclick="setStlPromptAndGenerate('Mittelschnauzer sitzend')" class="px-2 py-0.5 bg-slate-700/80 hover:bg-slate-600 text-sky-300 rounded-full whitespace-nowrap transition">🐕 Schnauzer sitzend</button>
-                <button type="button" onclick="setStlPromptAndGenerate('Schlüsselanhänger ROBI')" class="px-2 py-0.5 bg-slate-700/80 hover:bg-slate-600 text-sky-300 rounded-full whitespace-nowrap transition">🔑 Anhänger ROBI</button>
-                <button type="button" onclick="setStlPromptAndGenerate('Zahnrad 20 Zähne Loch 8')" class="px-2 py-0.5 bg-slate-700/80 hover:bg-slate-600 text-sky-300 rounded-full whitespace-nowrap transition">⚙️ Zahnrad 20 Zähne</button>
-                <button type="button" onclick="setStlPromptAndGenerate('Rakete')" class="px-2 py-0.5 bg-slate-700/80 hover:bg-slate-600 text-sky-300 rounded-full whitespace-nowrap transition">🚀 Rakete</button>
-                <button type="button" onclick="setStlPromptAndGenerate('Ritterburg mit 4 Türmen')" class="px-2 py-0.5 bg-slate-700/80 hover:bg-slate-600 text-sky-300 rounded-full whitespace-nowrap transition">🏰 Ritterburg</button>
-                <button type="button" onclick="setStlPromptAndGenerate('Herz')" class="px-2 py-0.5 bg-slate-700/80 hover:bg-slate-600 text-sky-300 rounded-full whitespace-nowrap transition">❤️ 3D-Herz</button>
-                <button type="button" onclick="setStlPromptAndGenerate('Pokal')" class="px-2 py-0.5 bg-slate-700/80 hover:bg-slate-600 text-sky-300 rounded-full whitespace-nowrap transition">🏆 Pokal</button>
+
+            <!-- Rechts: In Chat senden, Download .stl, Schließen -->
+            <div class="flex items-center space-x-1.5">
+                @if(isset($activeConversation) && $activeConversation)
+                    <button type="button" id="stl-send-to-chat-btn" onclick="sendCurrentStlToChat()" class="hidden px-2.5 py-1.5 bg-[#00a884] hover:bg-[#008f6f] text-white rounded-md text-xs font-bold transition flex items-center space-x-1 shadow-sm" title="Aktuelles 3D-Modell direkt in diesen Chat senden">
+                        <span>📤 In Chat senden</span>
+                    </button>
+                @endif
+                <a id="stl-viewer-download" href="#" download class="px-2.5 py-1.5 bg-[#232b3b] hover:bg-[#323d52] text-[#e6ecf5] border border-[#3a465e] rounded-md text-xs font-semibold transition flex items-center space-x-1" title="3D-Datei (.stl) herunterladen">
+                    <span>💾 .STL</span>
+                </a>
+                <button type="button" onclick="closeStlViewer()" class="px-2.5 py-1 bg-rose-600/20 hover:bg-rose-600 text-rose-300 hover:text-white border border-rose-500/30 rounded-md text-sm font-bold transition leading-none" title="Viewer schließen">&times;</button>
             </div>
         </div>
 
-        <!-- Klassische 3D-CAD Toolbar -->
-        <div class="bg-slate-800/90 px-3 sm:px-4 py-2 border-b border-slate-700 flex flex-wrap items-center justify-between gap-2 text-xs flex-shrink-0">
-            <!-- Kamera-Ansichten -->
-            <div class="flex items-center flex-wrap gap-1.5">
-                <span class="text-slate-400 font-medium mr-1 hidden sm:inline">Ansicht:</span>
-                <button type="button" onclick="stlSetCameraView('iso')" class="px-2.5 py-1 bg-slate-700 hover:bg-sky-600 text-white rounded-md font-medium transition" title="Isometrische 3D-Ansicht & Zentrieren">Iso (3D)</button>
-                <button type="button" onclick="stlSetCameraView('front')" class="px-2.5 py-1 bg-slate-700 hover:bg-sky-600 text-white rounded-md font-medium transition" title="Vorderansicht">Vorne</button>
-                <button type="button" onclick="stlSetCameraView('top')" class="px-2.5 py-1 bg-slate-700 hover:bg-sky-600 text-white rounded-md font-medium transition" title="Draufsicht (Oben)">Oben</button>
-                <button type="button" onclick="stlSetCameraView('side')" class="px-2.5 py-1 bg-slate-700 hover:bg-sky-600 text-white rounded-md font-medium transition" title="Seitenansicht (Rechts)">Seite</button>
+        <!-- 2. ✨ KI / SDF 3D-MODELL GENERATOR LEISTE -->
+        <div class="bg-[#131822] px-3 py-2 border-b border-[#283246] flex flex-wrap items-center gap-2 flex-shrink-0">
+            <span class="text-[11px] font-bold text-sky-400 uppercase tracking-wider flex items-center gap-1">
+                <span>✨ Text → 3D:</span>
+            </span>
+            <div class="relative flex-1 min-w-[200px]">
+                <input type="text" id="stl-prompt-input" placeholder="3D-Modell beschreiben, z.B. „Mittelschnauzer liegend“, „Zahnrad 24 Zähne Loch 8“, „Sechskantmutter M12“, „Anhänger LEON“..." class="w-full bg-[#0b0e14] text-white placeholder-[#6e7b91] text-xs rounded-md px-3 py-1.5 border border-[#2d3748] focus:border-sky-400 outline-none select-text" onkeydown="if(event.key==='Enter'){event.preventDefault();generateStlFromPrompt();}">
             </div>
-
-            <!-- Darstellungs-Optionen -->
-            <div class="flex items-center flex-wrap gap-1.5">
-                <button type="button" id="stl-btn-wireframe" onclick="stlToggleWireframe()" class="px-2.5 py-1 bg-slate-700 hover:bg-slate-600 text-slate-200 rounded-md font-medium transition" title="Drahtgitter-Netz ein-/ausblenden">Drahtgitter</button>
-                <button type="button" id="stl-btn-grid" onclick="stlToggleGrid()" class="px-2.5 py-1 bg-sky-600 text-white rounded-md font-medium transition" title="Druckbett-Gitter & X/Y/Z-Achsen">Gitter & Achsen</button>
-                <button type="button" id="stl-btn-autorotate" onclick="stlToggleAutoRotate()" class="px-2.5 py-1 bg-slate-700 hover:bg-slate-600 text-slate-200 rounded-md font-medium transition" title="Automatische Drehung">Auto-Drehen</button>
-                
-                <!-- Modell-Farbwahl -->
-                <div class="flex items-center space-x-1 ml-1 pl-2 border-l border-slate-600">
-                    <button type="button" onclick="stlSetColor(0x38bdf8)" class="w-4 h-4 rounded-full bg-sky-400 border border-white/50 hover:scale-110 transition" title="CAD-Blau"></button>
-                    <button type="button" onclick="stlSetColor(0x14b8a6)" class="w-4 h-4 rounded-full bg-teal-500 border border-white/50 hover:scale-110 transition" title="PLA-Türkis"></button>
-                    <button type="button" onclick="stlSetColor(0xcbd5e1)" class="w-4 h-4 rounded-full bg-slate-300 border border-white/50 hover:scale-110 transition" title="Silber / Metall"></button>
-                    <button type="button" onclick="stlSetColor(0xfb923c)" class="w-4 h-4 rounded-full bg-orange-400 border border-white/50 hover:scale-110 transition" title="Signal-Orange"></button>
-                </div>
-            </div>
-        </div>
-
-        <!-- 3D Viewport Canvas Container -->
-        <div id="stl-canvas-container" class="flex-1 relative bg-gradient-to-b from-slate-900 to-slate-800 overflow-hidden select-none cursor-grab active:cursor-grabbing">
-            <div id="stl-loading-overlay" class="absolute inset-0 flex items-center justify-center bg-slate-900/80 z-10">
-                <div class="text-center">
-                    <div class="w-10 h-10 border-4 border-sky-400 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
-                    <div id="stl-loading-text" class="text-sm text-slate-200 font-medium">Lade 3D-Modell...</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Footer / Bedienhilfe -->
-        <div class="h-11 bg-slate-800 flex items-center justify-between px-4 border-t border-slate-700 text-[11px] text-slate-400 flex-shrink-0">
-            <span class="truncate">🖱️ Links / 1 Finger: <b class="text-slate-200">Drehen</b> · Rechts / 2 Finger: <b class="text-slate-200">Verschieben</b> · Mausrad / Pinch: <b class="text-slate-200">Zoomen</b></span>
-            <button type="button" onclick="closeStlViewer()" class="px-4 py-1 bg-[#00a884] hover:bg-[#008f6f] text-white font-semibold rounded-lg text-xs shadow-sm transition flex-shrink-0 ml-2">
-                Schließen
+            <button type="button" onclick="generateStlFromPrompt()" class="px-3 py-1.5 bg-sky-600 hover:bg-sky-500 text-white rounded-md text-xs font-bold transition flex items-center space-x-1 flex-shrink-0 shadow-sm">
+                <span>✨ 3D Erstellen</span>
             </button>
+        </div>
+
+        <!-- 3. HAUPTBEREICH: 3D VIEWPORT LINKS + SIDEBAR RECHTS (analog ViewportPanel + SidebarPanel) -->
+        <div class="flex-1 flex flex-col lg:flex-row min-h-0 overflow-hidden">
+
+            <!-- 3D Viewport Canvas Container -->
+            <div id="stl-canvas-container" class="flex-1 relative overflow-hidden cursor-grab active:cursor-grabbing" style="background: linear-gradient(180deg, #161b26 0%, #0c0f16 100%);">
+                <!-- HUD Overlay Oben Links (analog drawHudOverlay in ViewportPanel.java) -->
+                <div id="stl-hud-pill" class="absolute top-3 left-3 z-10 pointer-events-none bg-[#0f131c]/80 border border-[#3c4b64]/70 rounded-lg px-3 py-1.5 text-[11px] font-mono text-[#c8d2e6] shadow-md backdrop-blur-xs">
+                    Dreiecke: <span id="stl-hud-tris">0</span> &nbsp;|&nbsp; <span id="stl-hud-fps">60</span> FPS &nbsp;|&nbsp; Distanz: <span id="stl-hud-dist">120</span> mm
+                </div>
+
+                <!-- Drag & Drop Hinweis bei Hover -->
+                <div id="stl-drop-overlay" class="hidden absolute inset-3 z-20 pointer-events-none border-2 border-dashed border-sky-400 rounded-xl bg-sky-950/60 flex items-center justify-center">
+                    <div class="text-center text-sky-200 font-bold text-base">
+                        📥 .STL / .CTL Datei hier ablegen zum Öffnen
+                    </div>
+                </div>
+
+                <!-- 3D-Achsen-Kompass Unten Links (analog drawOrientationGizmo in ViewportPanel.java) -->
+                <canvas id="stl-gizmo-canvas" width="88" height="88" class="absolute bottom-3 left-3 z-10 pointer-events-none"></canvas>
+
+                <!-- Lade-Overlay -->
+                <div id="stl-loading-overlay" class="absolute inset-0 flex items-center justify-center bg-[#0f131c]/85 z-20">
+                    <div class="text-center">
+                        <div class="w-10 h-10 border-4 border-sky-400 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
+                        <div id="stl-loading-text" class="text-sm text-slate-200 font-medium">Lade 3D-Modell...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RECHTE SIDEBAR (analog SidebarPanel.java - 290px auf Desktop) -->
+            <div class="w-full lg:w-[295px] bg-[#161b26] border-t lg:border-t-0 lg:border-l border-[#283246] overflow-y-auto p-3 space-y-2.5 flex-shrink-0 max-h-[38vh] lg:max-h-none text-xs">
+
+                <!-- KARTE 1: Modell-Statistiken -->
+                <div class="bg-[#1e2533] border border-[#2d3748] rounded-lg p-3">
+                    <div class="text-[12px] font-bold text-[#60a5fa] mb-2">Modell-Statistiken</div>
+                    <div class="grid grid-cols-[95px_1fr] gap-y-1 text-[11.5px]">
+                        <span class="text-[#9aa5b8]">Name:</span>
+                        <span id="stl-stat-name" class="text-[#e6ecf5] font-semibold truncate" title="-">-</span>
+
+                        <span class="text-[#9aa5b8]">Format:</span>
+                        <span id="stl-stat-format" class="text-[#e6ecf5] font-semibold">Binary STL</span>
+
+                        <span class="text-[#9aa5b8]">Dreiecke:</span>
+                        <span id="stl-stat-triangles" class="text-[#e6ecf5] font-semibold">0</span>
+
+                        <span class="text-[#9aa5b8]">Eckpunkte:</span>
+                        <span id="stl-stat-vertices" class="text-[#e6ecf5] font-semibold">0</span>
+
+                        <span class="text-[#9aa5b8]">Maße (X×Y×Z):</span>
+                        <span id="stl-stat-dims" class="text-[#e6ecf5] font-semibold">0 × 0 × 0 mm</span>
+
+                        <span class="text-[#9aa5b8]">Volumen:</span>
+                        <span id="stl-stat-volume" class="text-[#e6ecf5] font-semibold">0.00 cm³</span>
+
+                        <span class="text-[#9aa5b8]">Oberfläche:</span>
+                        <span id="stl-stat-area" class="text-[#e6ecf5] font-semibold">0.00 cm²</span>
+                    </div>
+                    <!-- Legacy unsichtbare IDs für Kompatibilität -->
+                    <span id="stl-viewer-title" class="hidden"></span>
+                    <span id="stl-viewer-stats" class="hidden"></span>
+                </div>
+
+                <!-- KARTE 2: Darstellung & Material -->
+                <div class="bg-[#1e2533] border border-[#2d3748] rounded-lg p-3 space-y-2">
+                    <div class="text-[12px] font-bold text-[#60a5fa]">Darstellung &amp; Material</div>
+
+                    <div>
+                        <label class="block text-[11px] text-[#9aa5b8] mb-1">Render-Modus:</label>
+                        <select id="stl-render-mode-select" onchange="stlSetRenderMode(this.value)" class="w-full bg-[#232b3b] text-[#e6ecf5] text-xs rounded px-2 py-1.5 border border-[#3a465e] focus:border-sky-400 outline-none">
+                            <option value="SMOOTH_SHADED" selected>Geglättet (Gouraud)</option>
+                            <option value="FLAT_SHADED">Flächen-Schattiert (Flat)</option>
+                            <option value="WIREFRAME">Drahtgitter (Wireframe)</option>
+                            <option value="SOLID_WIREFRAME">Schattiert + Gitter</option>
+                            <option value="HEIGHT_MAP">Höhenprofil (Z-Gradient)</option>
+                            <option value="NORMAL_MAP">Normalen-Farben (RGB)</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-[11px] text-[#9aa5b8] mb-1">Farbe / Material:</label>
+                        <select id="stl-color-theme-select" onchange="stlSetColorTheme(this.value)" class="w-full bg-[#232b3b] text-[#e6ecf5] text-xs rounded px-2 py-1.5 border border-[#3a465e] focus:border-sky-400 outline-none">
+                            <option value="TITANIUM" selected>Titanium Silber</option>
+                            <option value="CYAN_TECH">Cyan High-Tech</option>
+                            <option value="GOLD_SUNSET">Gold &amp; Bernstein</option>
+                            <option value="EMERALD">Smaragd Grün</option>
+                            <option value="CRIMSON">Rubinrot</option>
+                            <option value="WHITE_RESIN">Weißes Harz / Clay</option>
+                        </select>
+                    </div>
+
+                    <div class="pt-1 space-y-1.5 text-[11.5px]">
+                        <label class="flex items-center space-x-2 cursor-pointer">
+                            <input type="checkbox" id="stl-chk-grid" checked onchange="stlToggleOption('grid', this.checked)" class="rounded bg-[#232b3b] border-[#3a465e] text-sky-500 focus:ring-0">
+                            <span>Bodenraster anzeigen</span>
+                        </label>
+                        <label class="flex items-center space-x-2 cursor-pointer">
+                            <input type="checkbox" id="stl-chk-axes" checked onchange="stlToggleOption('axes', this.checked)" class="rounded bg-[#232b3b] border-[#3a465e] text-sky-500 focus:ring-0">
+                            <span>3D-Achsen-Kompass</span>
+                        </label>
+                        <label class="flex items-center space-x-2 cursor-pointer">
+                            <input type="checkbox" id="stl-chk-cull" checked onchange="stlToggleOption('cull', this.checked)" class="rounded bg-[#232b3b] border-[#3a465e] text-sky-500 focus:ring-0">
+                            <span>Rückseiten verbergen</span>
+                        </label>
+                        <label class="flex items-center space-x-2 cursor-pointer">
+                            <input type="checkbox" id="stl-chk-bbox" onchange="stlToggleOption('bbox', this.checked)" class="rounded bg-[#232b3b] border-[#3a465e] text-sky-500 focus:ring-0">
+                            <span>Bounding-Box Rahmen</span>
+                        </label>
+                        <label class="flex items-center space-x-2 cursor-pointer">
+                            <input type="checkbox" id="stl-chk-headlight" checked onchange="stlToggleOption('headlight', this.checked)" class="rounded bg-[#232b3b] border-[#3a465e] text-sky-500 focus:ring-0">
+                            <span>Kamera-Licht (Headlight)</span>
+                        </label>
+                        <label class="flex items-center space-x-2 cursor-pointer">
+                            <input type="checkbox" id="stl-chk-ortho" onchange="stlToggleOption('ortho', this.checked)" class="rounded bg-[#232b3b] border-[#3a465e] text-sky-500 focus:ring-0">
+                            <span>Orthografische Ansicht</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- KARTE 3: Blickwinkel & Kamera -->
+                <div class="bg-[#1e2533] border border-[#2d3748] rounded-lg p-3">
+                    <div class="text-[12px] font-bold text-[#60a5fa] mb-2">Blickwinkel &amp; Kamera</div>
+                    <div class="grid grid-cols-2 gap-1.5 text-[11px]">
+                        <button type="button" onclick="stlSetCameraView('iso')" class="py-1.5 px-2 bg-[#232b3b] hover:bg-[#323d52] text-[#e6ecf5] border border-[#3a465e] rounded font-medium transition">Isometrisch</button>
+                        <button type="button" onclick="stlSetCameraView('top')" class="py-1.5 px-2 bg-[#232b3b] hover:bg-[#323d52] text-[#e6ecf5] border border-[#3a465e] rounded font-medium transition">Oben (Z+)</button>
+                        <button type="button" onclick="stlSetCameraView('front')" class="py-1.5 px-2 bg-[#232b3b] hover:bg-[#323d52] text-[#e6ecf5] border border-[#3a465e] rounded font-medium transition">Vorne (Y-)</button>
+                        <button type="button" onclick="stlSetCameraView('right')" class="py-1.5 px-2 bg-[#232b3b] hover:bg-[#323d52] text-[#e6ecf5] border border-[#3a465e] rounded font-medium transition">Rechts (X+)</button>
+                        <button type="button" onclick="stlSetCameraView('bottom')" class="py-1.5 px-2 bg-[#232b3b] hover:bg-[#323d52] text-[#e6ecf5] border border-[#3a465e] rounded font-medium transition">Unten (Z-)</button>
+                        <button type="button" onclick="stlResetCameraView()" class="py-1.5 px-2 bg-[#2563eb] hover:bg-[#1d4ed8] text-white rounded font-bold transition">🎯 Zentrieren</button>
+                        <button type="button" onclick="stlPlaceOnBed()" class="py-1.5 px-2 bg-[#232b3b] hover:bg-[#323d52] text-[#e6ecf5] border border-[#3a465e] rounded font-medium transition">⬇️ Auf Druckbett</button>
+                        <button type="button" onclick="stlToggleAutoRotate()" class="py-1.5 px-2 bg-[#232b3b] hover:bg-[#323d52] text-[#e6ecf5] border border-[#3a465e] rounded font-medium transition">🔄 Auto-Drehen</button>
+                    </div>
+                </div>
+
+                <!-- KARTE 4: Tastatur & Maus -->
+                <div class="bg-[#1e2533] border border-[#2d3748] rounded-lg p-3">
+                    <div class="text-[12px] font-bold text-[#60a5fa] mb-1.5">Tastatur &amp; Maus</div>
+                    <div class="text-[11px] text-[#9aa5b8] space-y-1 leading-relaxed">
+                        <div><b class="text-[#e6ecf5]">Linke Maus / 1 Finger:</b> Modell drehen</div>
+                        <div><b class="text-[#e6ecf5]">Rechte Maus / Shift:</b> Verschieben (Pan)</div>
+                        <div><b class="text-[#e6ecf5]">Mausrad / Pinch:</b> Zoomen</div>
+                        <div><b class="text-[#e6ecf5]">Doppelklick:</b> Kamera einpassen</div>
+                        <div class="pt-1 border-t border-[#2d3748] mt-1">
+                            <b class="text-[#e6ecf5]">[R]</b> Reset &nbsp;·&nbsp; <b class="text-[#e6ecf5]">[W]</b> Drahtgitter<br>
+                            <b class="text-[#e6ecf5]">[D]</b> Auf Druckbett &nbsp;·&nbsp; <b class="text-[#e6ecf5]">[G]</b> Raster
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- 4. BOTTOM STATUS BAR (analog StatusBar in MainWindow.java) -->
+        <div class="h-7 bg-[#121620] px-3 border-t border-[#283246] flex items-center justify-between text-[11px] text-[#9aa5b8] flex-shrink-0">
+            <span id="stl-status-left" class="truncate">Bereit – STL-Datei öffnen oder per Drag &amp; Drop hineinziehen</span>
+            <span id="stl-status-right" class="font-mono text-[#c8d2e6] truncate ml-2">Binary STL | 0 Dreiecke</span>
         </div>
     </div>
 </div>
@@ -2165,24 +2311,51 @@
         if (modal) modal.classList.add('hidden');
     }
 
-    // --- INTEGRIERTER 3D STL / CAD BROWSER (.stl / .ctl) ---
+    // --- INTEGRIERTER 3D STL / CAD BROWSER (.stl / .ctl) - 1:1 STLViewer Pro Edition ---
     let stlScene = null;
     let stlCamera = null;
+    let stlPerspCamera = null;
+    let stlOrthoCamera = null;
     let stlRenderer = null;
     let stlMesh = null;
     let stlWireframeMesh = null;
     let stlGridHelper = null;
     let stlAxesHelper = null;
+    let stlBBoxHelper = null;
+    let stlHeadLight = null;
+    let stlFillLight = null;
     let stlAnimFrameId = null;
     let stlModelRadius = 50;
+
+    // Optionen & Status (analog ViewportPanel.java & SidebarPanel.java)
     let stlAutoRotate = false;
-    let stlShowWireframe = false;
-    let stlShowGrid = true;
-    let stlCurrentColor = 0x38bdf8;
+    let stlRenderMode = 'SMOOTH_SHADED';
+    let stlColorTheme = 'TITANIUM';
+    let stlOptGrid = true;
+    let stlOptAxes = true;
+    let stlOptCull = true;
+    let stlOptBBox = false;
+    let stlOptHeadlight = true;
+    let stlOptOrtho = false;
+
+    const STL_COLOR_THEMES = {
+        TITANIUM:    { color: 0xb4bed2, metalness: 0.45, roughness: 0.32 },
+        CYAN_TECH:   { color: 0x28b4dc, metalness: 0.25, roughness: 0.35 },
+        GOLD_SUNSET: { color: 0xdca032, metalness: 0.55, roughness: 0.28 },
+        EMERALD:     { color: 0x2eb872, metalness: 0.25, roughness: 0.38 },
+        CRIMSON:     { color: 0xd23c46, metalness: 0.25, roughness: 0.38 },
+        WHITE_RESIN: { color: 0xe6e8f0, metalness: 0.08, roughness: 0.55 }
+    };
 
     // Orbit / Pan / Zoom Kamerazustand (Kugelkoordinaten)
     let stlSpherical = { radius: 120, theta: Math.PI / 4, phi: Math.PI / 3 };
     let stlTarget = { x: 0, y: 0, z: 0 };
+
+    // FPS Messung für HUD
+    let stlLastFrameTime = performance.now();
+    let stlFrameCount = 0;
+    let stlCurrentFps = 60;
+    let stlCurrentFrameMs = 16.6;
 
     function parseStlArrayBuffer(buffer) {
         const view = new DataView(buffer);
@@ -2193,7 +2366,6 @@
             if (expectedSize === buffer.byteLength) {
                 isBinary = true;
             } else {
-                // Prüfe, ob Header NICHT mit "solid" beginnt oder Binärzeichen enthält
                 const headerBytes = new Uint8Array(buffer, 0, Math.min(256, buffer.byteLength));
                 const headerStr = String.fromCharCode.apply(null, headerBytes);
                 if (!headerStr.trim().toLowerCase().startsWith('solid') && expectedSize <= buffer.byteLength + 512 && numTriangles > 0 && numTriangles < 5000000) {
@@ -2203,54 +2375,125 @@
         }
 
         const geometry = new THREE.BufferGeometry();
+        let faces = 0;
+        let positions = null;
+        let signedVolumeSum = 0.0;
+        let surfaceAreaMm2 = 0.0;
+        const uniqueVertSet = new Set();
+        const countUniqueVerts = true;
+
+        function processTriangleStats(ax, ay, az, bx, by, bz, cx, cy, cz) {
+            // Signed tetrahedron volume (CAD mm³)
+            signedVolumeSum += (ax * (by * cz - bz * cy) + ay * (bz * cx - bx * cz) + az * (bx * cy - by * cx)) / 6.0;
+            // Triangle area (0.5 * |AB x AC|)
+            const ux = bx - ax, uy = by - ay, uz = bz - az;
+            const vx = cx - ax, vy = cy - ay, vz = cz - az;
+            const nx = uy * vz - uz * vy;
+            const ny = uz * vx - ux * vz;
+            const nz = ux * vy - uy * vx;
+            surfaceAreaMm2 += 0.5 * Math.hypot(nx, ny, nz);
+
+            if (countUniqueVerts && uniqueVertSet.size < 250000) {
+                uniqueVertSet.add(`${Math.round(ax * 100)},${Math.round(ay * 100)},${Math.round(az * 100)}`);
+                uniqueVertSet.add(`${Math.round(bx * 100)},${Math.round(by * 100)},${Math.round(bz * 100)}`);
+                uniqueVertSet.add(`${Math.round(cx * 100)},${Math.round(cy * 100)},${Math.round(cz * 100)}`);
+            }
+        }
 
         if (isBinary) {
-            const faces = view.getUint32(80, true);
-            const positions = new Float32Array(faces * 9);
-            const normals = new Float32Array(faces * 9);
+            faces = view.getUint32(80, true);
+            positions = new Float32Array(faces * 9);
             let offset = 84;
             for (let i = 0; i < faces; i++) {
                 if (offset + 50 > buffer.byteLength) break;
-                const nx = view.getFloat32(offset, true);
-                const ny = view.getFloat32(offset + 4, true);
-                const nz = view.getFloat32(offset + 8, true);
-                for (let v = 0; v < 3; v++) {
-                    const vOffset = offset + 12 + v * 12;
-                    const idx = i * 9 + v * 3;
-                    // Z-up (CAD) -> Y-up (Three.js)
-                    const vx = view.getFloat32(vOffset, true);
-                    const vy = view.getFloat32(vOffset + 4, true);
-                    const vz = view.getFloat32(vOffset + 8, true);
-                    positions[idx] = vx;
-                    positions[idx + 1] = vz;
-                    positions[idx + 2] = -vy;
+                const ax = view.getFloat32(offset + 12, true);
+                const ay = view.getFloat32(offset + 16, true);
+                const az = view.getFloat32(offset + 20, true);
+                const bx = view.getFloat32(offset + 24, true);
+                const by = view.getFloat32(offset + 28, true);
+                const bz = view.getFloat32(offset + 32, true);
+                const cx = view.getFloat32(offset + 36, true);
+                const cy = view.getFloat32(offset + 40, true);
+                const cz = view.getFloat32(offset + 44, true);
 
-                    normals[idx] = nx;
-                    normals[idx + 1] = nz;
-                    normals[idx + 2] = -ny;
-                }
+                processTriangleStats(ax, ay, az, bx, by, bz, cx, cy, cz);
+
+                // Z-up (CAD) -> Y-up (Three.js)
+                const base = i * 9;
+                positions[base]     = ax; positions[base + 1] = az; positions[base + 2] = -ay;
+                positions[base + 3] = bx; positions[base + 4] = bz; positions[base + 5] = -by;
+                positions[base + 6] = cx; positions[base + 7] = cz; positions[base + 8] = -cy;
+
                 offset += 50;
             }
-            geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-            geometry.setAttribute('normal', new THREE.BufferAttribute(normals, 3));
-            geometry.computeVertexNormals();
-            return { geometry, triangles: faces };
         } else {
             const text = new TextDecoder('utf-8').decode(buffer);
             const vertexPattern = /vertex\s+([+\-]?\d*\.?\d+(?:[eE][+\-]?\d+)?)\s+([+\-]?\d*\.?\d+(?:[eE][+\-]?\d+)?)\s+([+\-]?\d*\.?\d+(?:[eE][+\-]?\d+)?)/gi;
-            const verts = [];
+            const cadVerts = [];
+            const threeVerts = [];
             let match;
             while ((match = vertexPattern.exec(text)) !== null) {
                 const vx = parseFloat(match[1]);
                 const vy = parseFloat(match[2]);
                 const vz = parseFloat(match[3]);
-                verts.push(vx, vz, -vy);
+                cadVerts.push(vx, vy, vz);
+                threeVerts.push(vx, vz, -vy);
             }
-            const positions = new Float32Array(verts);
-            geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-            geometry.computeVertexNormals();
-            return { geometry, triangles: Math.floor(verts.length / 9) };
+            faces = Math.floor(threeVerts.length / 9);
+            for (let i = 0; i < faces; i++) {
+                const b = i * 9;
+                processTriangleStats(
+                    cadVerts[b], cadVerts[b + 1], cadVerts[b + 2],
+                    cadVerts[b + 3], cadVerts[b + 4], cadVerts[b + 5],
+                    cadVerts[b + 6], cadVerts[b + 7], cadVerts[b + 8]
+                );
+            }
+            positions = new Float32Array(threeVerts);
         }
+
+        geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        geometry.computeVertexNormals();
+
+        return {
+            geometry,
+            triangles: faces,
+            vertices: uniqueVertSet.size || Math.round(faces * 0.52),
+            format: isBinary ? 'Binary STL' : 'ASCII STL',
+            volumeCm3: Math.abs(signedVolumeSum) / 1000.0,
+            surfaceAreaCm2: surfaceAreaMm2 / 100.0
+        };
+    }
+
+    function computeHeightMapColors(geometry) {
+        geometry.computeBoundingBox();
+        const box = geometry.boundingBox;
+        const minY = box.min.y;
+        const spanY = Math.max(0.001, box.max.y - minY);
+        const pos = geometry.attributes.position;
+        const colors = new Float32Array(pos.count * 3);
+
+        for (let i = 0; i < pos.count; i++) {
+            const t = Math.max(0, Math.min(1, (pos.getY(i) - minY) / spanY));
+            // 5-Stop Gradient: Blau -> Cyan -> Grün -> Gelb -> Rot (wie in STLViewer.jar)
+            let r = 0, g = 0, b = 0;
+            if (t < 0.25) {
+                const u = t / 0.25;
+                r = 0.1; g = 0.2 + 0.7 * u; b = 0.95;
+            } else if (t < 0.5) {
+                const u = (t - 0.25) / 0.25;
+                r = 0.1; g = 0.9; b = 0.95 * (1 - u) + 0.2 * u;
+            } else if (t < 0.75) {
+                const u = (t - 0.5) / 0.25;
+                r = 0.1 + 0.85 * u; g = 0.9; b = 0.15;
+            } else {
+                const u = (t - 0.75) / 0.25;
+                r = 0.95; g = 0.9 * (1 - u) + 0.15 * u; b = 0.15;
+            }
+            colors[i * 3]     = r;
+            colors[i * 3 + 1] = g;
+            colors[i * 3 + 2] = b;
+        }
+        geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
     }
 
     function updateStlCameraPosition() {
@@ -2264,6 +2507,96 @@
         stlCamera.position.y = stlTarget.y + stlSpherical.radius * cosPhi;
         stlCamera.position.z = stlTarget.z + stlSpherical.radius * sinPhi * cosTheta;
         stlCamera.lookAt(stlTarget.x, stlTarget.y, stlTarget.z);
+
+        if (stlOptOrtho && stlOrthoCamera) {
+            const container = document.getElementById('stl-canvas-container');
+            const aspect = container ? (container.clientWidth / Math.max(1, container.clientHeight)) : 1.33;
+            const halfH = stlSpherical.radius * 0.42;
+            const halfW = halfH * aspect;
+            stlOrthoCamera.left = -halfW;
+            stlOrthoCamera.right = halfW;
+            stlOrthoCamera.top = halfH;
+            stlOrthoCamera.bottom = -halfH;
+            stlOrthoCamera.updateProjectionMatrix();
+        }
+
+        if (stlHeadLight) {
+            if (stlOptHeadlight) {
+                stlHeadLight.position.copy(stlCamera.position);
+            } else {
+                stlHeadLight.position.set(stlModelRadius * 2, stlModelRadius * 3, stlModelRadius * 2);
+            }
+        }
+
+        const distEl = document.getElementById('stl-hud-dist');
+        if (distEl) distEl.innerText = Math.round(stlSpherical.radius);
+    }
+
+    function drawStlAxesGizmo() {
+        const canvas = document.getElementById('stl-gizmo-canvas');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        const w = canvas.width, h = canvas.height;
+        ctx.clearRect(0, 0, w, h);
+        if (!stlOptAxes || !stlCamera) return;
+
+        const cx = w / 2, cy = h / 2, r = 34;
+
+        // Kreis-Hintergrund wie in STLViewer.jar
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(cx, cy, r + 6, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(18, 23, 34, 0.78)';
+        ctx.fill();
+        ctx.lineWidth = 1.2;
+        ctx.strokeStyle = 'rgba(75, 92, 122, 0.7)';
+        ctx.stroke();
+
+        // Kamera-Basisvektoren für Projektion der CAD-Achsen
+        // CAD X = Three.js +X, CAD Y = Three.js -Z, CAD Z (Höhe) = Three.js +Y
+        const right = new THREE.Vector3();
+        const up = new THREE.Vector3();
+        const back = new THREE.Vector3();
+        stlCamera.matrixWorld.extractBasis(right, up, back);
+
+        const axes = [
+            { label: 'X', vec: new THREE.Vector3(1, 0, 0),  color: '#ef4444' }, // Rot
+            { label: 'Y', vec: new THREE.Vector3(0, 0, -1), color: '#22c55e' }, // Grün
+            { label: 'Z', vec: new THREE.Vector3(0, 1, 0),  color: '#3b82f6' }  // Blau
+        ];
+
+        // Sortieren nach Tiefe (Z-Order)
+        axes.forEach(a => {
+            a.sx = a.vec.dot(right);
+            a.sy = -a.vec.dot(up);
+            a.sz = -a.vec.dot(back);
+        });
+        axes.sort((a, b) => a.sz - b.sz);
+
+        axes.forEach(a => {
+            const ex = cx + a.sx * (r - 6);
+            const ey = cy + a.sy * (r - 6);
+
+            ctx.beginPath();
+            ctx.moveTo(cx, cy);
+            ctx.lineTo(ex, ey);
+            ctx.strokeStyle = a.color;
+            ctx.lineWidth = 2.4;
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.arc(ex, ey, 5.5, 0, Math.PI * 2);
+            ctx.fillStyle = a.color;
+            ctx.fill();
+
+            ctx.fillStyle = '#ffffff';
+            ctx.font = 'bold 9px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(a.label, ex, ey);
+        });
+
+        ctx.restore();
     }
 
     function initStlViewportControls(domEl) {
@@ -2274,9 +2607,14 @@
 
         domEl.addEventListener('contextmenu', e => e.preventDefault());
 
+        // Doppelklick -> Kamera einpassen
+        domEl.addEventListener('dblclick', () => {
+            stlResetCameraView();
+        });
+
         domEl.addEventListener('mousedown', e => {
             isDragging = true;
-            dragMode = (e.button === 2 || e.shiftKey) ? 'pan' : 'orbit';
+            dragMode = (e.button === 2 || e.button === 1 || e.shiftKey) ? 'pan' : 'orbit';
             prevX = e.clientX;
             prevY = e.clientY;
         });
@@ -2307,8 +2645,8 @@
 
         domEl.addEventListener('wheel', e => {
             e.preventDefault();
-            const factor = e.deltaY > 0 ? 1.12 : 0.89;
-            stlSpherical.radius = Math.max(stlModelRadius * 0.25, Math.min(stlModelRadius * 20, stlSpherical.radius * factor));
+            const factor = e.deltaY > 0 ? 1.11 : 0.90;
+            stlSpherical.radius = Math.max(stlModelRadius * 0.2, Math.min(stlModelRadius * 25, stlSpherical.radius * factor));
             updateStlCameraPosition();
         }, { passive: false });
 
@@ -2364,7 +2702,7 @@
                 );
                 if (pinchStartDist > 0 && dist > 0) {
                     const scale = pinchStartDist / dist;
-                    stlSpherical.radius = Math.max(stlModelRadius * 0.25, Math.min(stlModelRadius * 20, stlSpherical.radius * scale));
+                    stlSpherical.radius = Math.max(stlModelRadius * 0.2, Math.min(stlModelRadius * 25, stlSpherical.radius * scale));
                     pinchStartDist = dist;
                 }
                 updateStlCameraPosition();
@@ -2372,6 +2710,55 @@
         }, { passive: false });
 
         domEl.addEventListener('touchend', () => { isDragging = false; });
+
+        // Drag & Drop von lokalen .stl / .ctl Dateien direkt in das 3D-Fenster
+        const container = document.getElementById('stl-canvas-container');
+        const dropOverlay = document.getElementById('stl-drop-overlay');
+        if (container) {
+            container.addEventListener('dragover', e => {
+                e.preventDefault();
+                if (dropOverlay) dropOverlay.classList.remove('hidden');
+            });
+            container.addEventListener('dragleave', e => {
+                e.preventDefault();
+                if (dropOverlay) dropOverlay.classList.add('hidden');
+            });
+            container.addEventListener('drop', e => {
+                e.preventDefault();
+                if (dropOverlay) dropOverlay.classList.add('hidden');
+                const file = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+                if (file) {
+                    loadLocalStlFileObject(file);
+                }
+            });
+        }
+
+        // Tastatur-Shortcuts [R], [W], [D], [G] (analog MainWindow.java)
+        window.addEventListener('keydown', e => {
+            const modal = document.getElementById('stl-viewer-modal');
+            if (!modal || modal.classList.contains('hidden')) return;
+            if (document.activeElement && (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA' || document.activeElement.tagName === 'SELECT')) {
+                return;
+            }
+            const k = e.key.toLowerCase();
+            if (k === 'r') {
+                e.preventDefault();
+                stlResetCameraView();
+            } else if (k === 'w') {
+                e.preventDefault();
+                stlCycleWireframeMode();
+            } else if (k === 'd') {
+                e.preventDefault();
+                stlPlaceOnBed();
+            } else if (k === 'g') {
+                e.preventDefault();
+                const chk = document.getElementById('stl-chk-grid');
+                if (chk) {
+                    chk.checked = !chk.checked;
+                    stlToggleOption('grid', chk.checked);
+                }
+            }
+        });
     }
 
     let stlGeneratedBlob = null;
@@ -2383,42 +2770,110 @@
         const container = document.getElementById('stl-canvas-container');
         if (!modal || !container) return false;
 
+        const w = Math.max(100, container.clientWidth);
+        const h = Math.max(100, container.clientHeight);
+
         if (!stlRenderer) {
             stlScene = new THREE.Scene();
-            stlCamera = new THREE.PerspectiveCamera(45, container.clientWidth / Math.max(1, container.clientHeight), 0.1, 10000);
-            stlRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            stlPerspCamera = new THREE.PerspectiveCamera(45, w / h, 0.1, 10000);
+            stlOrthoCamera = new THREE.OrthographicCamera(-100, 100, 100, -100, -5000, 10000);
+            stlCamera = stlOptOrtho ? stlOrthoCamera : stlPerspCamera;
+
+            stlRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
             stlRenderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-            stlRenderer.setSize(container.clientWidth, container.clientHeight);
+            stlRenderer.setSize(w, h);
             container.appendChild(stlRenderer.domElement);
 
-            const ambient = new THREE.AmbientLight(0xffffff, 0.55);
+            const ambient = new THREE.AmbientLight(0xffffff, 0.52);
             stlScene.add(ambient);
-            const dirLight1 = new THREE.DirectionalLight(0xffffff, 0.85);
-            dirLight1.position.set(1, 1.5, 1);
-            stlScene.add(dirLight1);
-            const dirLight2 = new THREE.DirectionalLight(0x93c5fd, 0.45);
-            dirLight2.position.set(-1, -0.8, -1);
-            stlScene.add(dirLight2);
+            stlHeadLight = new THREE.DirectionalLight(0xffffff, 0.90);
+            stlHeadLight.position.set(100, 150, 100);
+            stlScene.add(stlHeadLight);
+            stlFillLight = new THREE.DirectionalLight(0x93c5fd, 0.38);
+            stlFillLight.position.set(-100, -80, -100);
+            stlScene.add(stlFillLight);
 
             initStlViewportControls(stlRenderer.domElement);
 
             window.addEventListener('resize', () => {
                 if (!stlRenderer || modal.classList.contains('hidden')) return;
-                stlCamera.aspect = container.clientWidth / Math.max(1, container.clientHeight);
-                stlCamera.updateProjectionMatrix();
-                stlRenderer.setSize(container.clientWidth, container.clientHeight);
+                const nw = Math.max(100, container.clientWidth);
+                const nh = Math.max(100, container.clientHeight);
+                stlPerspCamera.aspect = nw / nh;
+                stlPerspCamera.updateProjectionMatrix();
+                stlRenderer.setSize(nw, nh);
+                updateStlCameraPosition();
             });
         } else {
-            stlCamera.aspect = container.clientWidth / Math.max(1, container.clientHeight);
-            stlCamera.updateProjectionMatrix();
-            stlRenderer.setSize(container.clientWidth, container.clientHeight);
+            stlPerspCamera.aspect = w / h;
+            stlPerspCamera.updateProjectionMatrix();
+            stlRenderer.setSize(w, h);
+            updateStlCameraPosition();
         }
         return true;
     }
 
+    function applyStlMaterialAndRenderMode() {
+        if (!stlMesh) return;
+        const theme = STL_COLOR_THEMES[stlColorTheme] || STL_COLOR_THEMES.TITANIUM;
+        const sideMode = stlOptCull ? THREE.FrontSide : THREE.DoubleSide;
+        const geom = stlMesh.geometry;
+
+        if (stlRenderMode === 'NORMAL_MAP') {
+            stlMesh.material = new THREE.MeshNormalMaterial({
+                flatShading: false,
+                side: sideMode
+            });
+            stlMesh.visible = true;
+            if (stlWireframeMesh) stlWireframeMesh.visible = false;
+        } else if (stlRenderMode === 'HEIGHT_MAP') {
+            computeHeightMapColors(geom);
+            stlMesh.material = new THREE.MeshStandardMaterial({
+                vertexColors: true,
+                metalness: 0.15,
+                roughness: 0.45,
+                flatShading: false,
+                side: sideMode
+            });
+            stlMesh.visible = true;
+            if (stlWireframeMesh) stlWireframeMesh.visible = false;
+        } else if (stlRenderMode === 'WIREFRAME') {
+            stlMesh.visible = false;
+            if (stlWireframeMesh) {
+                stlWireframeMesh.material.color.setHex(theme.color);
+                stlWireframeMesh.material.opacity = 0.88;
+                stlWireframeMesh.visible = true;
+            }
+        } else {
+            const isFlat = (stlRenderMode === 'FLAT_SHADED');
+            stlMesh.material = new THREE.MeshStandardMaterial({
+                color: theme.color,
+                metalness: theme.metalness,
+                roughness: theme.roughness,
+                flatShading: isFlat,
+                side: sideMode
+            });
+            stlMesh.material.needsUpdate = true;
+            stlMesh.visible = true;
+
+            if (stlWireframeMesh) {
+                stlWireframeMesh.material.color.setHex(0x0b0f19);
+                stlWireframeMesh.material.opacity = 0.38;
+                stlWireframeMesh.visible = (stlRenderMode === 'SOLID_WIREFRAME');
+            }
+        }
+
+        // Toolbar Drahtgitter-Button hervorheben, wenn aktiv
+        const wfBtn = document.getElementById('stl-btn-wireframe');
+        if (wfBtn) {
+            const isWfActive = (stlRenderMode === 'WIREFRAME' || stlRenderMode === 'SOLID_WIREFRAME');
+            wfBtn.className = isWfActive
+                ? 'px-2.5 py-1.5 bg-[#2563eb] text-white border border-sky-400 rounded-md text-xs font-bold transition'
+                : 'px-2.5 py-1.5 bg-[#232b3b] hover:bg-[#323d52] text-[#e6ecf5] border border-[#3a465e] rounded-md text-xs font-medium transition';
+        }
+    }
+
     function renderStlArrayBufferInScene(buffer, fileName, isGenerated = false) {
-        const titleEl = document.getElementById('stl-viewer-title');
-        const statsEl = document.getElementById('stl-viewer-stats');
         const dlBtn = document.getElementById('stl-viewer-download');
         const sendBtn = document.getElementById('stl-send-to-chat-btn');
         const loadingOverlay = document.getElementById('stl-loading-overlay');
@@ -2427,8 +2882,10 @@
         if (stlWireframeMesh) { stlScene.remove(stlWireframeMesh); stlWireframeMesh = null; }
         if (stlGridHelper) { stlScene.remove(stlGridHelper); stlGridHelper = null; }
         if (stlAxesHelper) { stlScene.remove(stlAxesHelper); stlAxesHelper = null; }
+        if (stlBBoxHelper) { stlScene.remove(stlBBoxHelper); stlBBoxHelper = null; }
 
-        const { geometry, triangles } = parseStlArrayBuffer(buffer);
+        const parsed = parseStlArrayBuffer(buffer);
+        const geometry = parsed.geometry;
         geometry.computeBoundingBox();
         const box = geometry.boundingBox;
         const size = new THREE.Vector3();
@@ -2436,60 +2893,84 @@
         const center = new THREE.Vector3();
         box.getCenter(center);
 
+        // Automatisch auf Druckbett Z=0 (in Three.js Y=0) zentrieren
         geometry.translate(-center.x, -box.min.y, -center.z);
+        geometry.computeBoundingBox();
         geometry.computeBoundingSphere();
         stlModelRadius = Math.max(1, geometry.boundingSphere.radius);
 
-        const material = new THREE.MeshStandardMaterial({
-            color: stlCurrentColor,
-            metalness: 0.2,
-            roughness: 0.45,
-            side: THREE.DoubleSide
-        });
-        stlMesh = new THREE.Mesh(geometry, material);
+        stlMesh = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial());
         stlScene.add(stlMesh);
 
         const wireMat = new THREE.MeshBasicMaterial({
-            color: 0x0f172a,
+            color: 0x0b0f19,
             wireframe: true,
             transparent: true,
-            opacity: 0.35
+            opacity: 0.38
         });
         stlWireframeMesh = new THREE.Mesh(geometry, wireMat);
-        stlWireframeMesh.visible = stlShowWireframe;
         stlScene.add(stlWireframeMesh);
 
-        const gridSize = Math.ceil((stlModelRadius * 3) / 10) * 10 || 100;
-        stlGridHelper = new THREE.GridHelper(gridSize, 20, 0x38bdf8, 0x334155);
-        stlGridHelper.visible = stlShowGrid;
+        applyStlMaterialAndRenderMode();
+
+        // Bodenraster (CAD Build-Plate Grid)
+        const gridSize = Math.max(60, Math.ceil((stlModelRadius * 3.2) / 10) * 10);
+        stlGridHelper = new THREE.GridHelper(gridSize, 20, 0x3b82f6, 0x283246);
+        stlGridHelper.visible = stlOptGrid;
         stlScene.add(stlGridHelper);
 
-        stlAxesHelper = new THREE.AxesHelper(stlModelRadius * 1.2);
-        stlAxesHelper.visible = stlShowGrid;
+        // Ursprungs-Achsen im 3D-Raum
+        stlAxesHelper = new THREE.AxesHelper(stlModelRadius * 1.15);
+        stlAxesHelper.visible = stlOptAxes;
         stlScene.add(stlAxesHelper);
 
-        stlCamera.near = Math.max(0.05, stlModelRadius * 0.01);
-        stlCamera.far = stlModelRadius * 50;
-        stlCamera.updateProjectionMatrix();
+        // Bounding-Box Rahmen
+        stlBBoxHelper = new THREE.BoxHelper(stlMesh, 0xfacc15);
+        stlBBoxHelper.visible = stlOptBBox;
+        stlScene.add(stlBBoxHelper);
+
+        stlPerspCamera.near = Math.max(0.05, stlModelRadius * 0.01);
+        stlPerspCamera.far = stlModelRadius * 60;
+        stlPerspCamera.updateProjectionMatrix();
         stlSetCameraView('iso');
 
+        // CAD Maße (X = size.x, Y = size.z, Z = size.y)
         const dimX = size.x.toFixed(1);
         const dimY = size.z.toFixed(1);
         const dimZ = size.y.toFixed(1);
-        titleEl.innerText = fileName || '3D-Modell (.stl)';
-        statsEl.innerText = `${triangles.toLocaleString('de-CH')} Dreiecke · Maße: ${dimX} × ${dimY} × ${dimZ} mm`;
+        const cleanName = fileName || 'Unbenannt.stl';
+        const triStr = parsed.triangles.toLocaleString('de-CH');
+        const vertStr = parsed.vertices.toLocaleString('de-CH');
+        const volStr = parsed.volumeCm3.toFixed(2) + ' cm³';
+        const areaStr = parsed.surfaceAreaCm2.toFixed(2) + ' cm²';
 
-        if (isGenerated) {
-            stlGeneratedBlob = new Blob([buffer], { type: 'model/stl' });
-            stlGeneratedFileName = fileName || 'modell.stl';
-            if (dlBtn) {
-                dlBtn.href = URL.createObjectURL(stlGeneratedBlob);
-                dlBtn.setAttribute('download', stlGeneratedFileName);
-            }
-            if (sendBtn) sendBtn.classList.remove('hidden');
-        } else {
-            stlGeneratedBlob = null;
-            if (sendBtn) sendBtn.classList.add('hidden');
+        // Sidebar-Statistiken aktualisieren (analog SidebarPanel.updateMeshStats)
+        const setElText = (id, txt) => { const el = document.getElementById(id); if (el) el.innerText = txt; };
+        setElText('stl-stat-name', cleanName);
+        const nameEl = document.getElementById('stl-stat-name');
+        if (nameEl) nameEl.title = cleanName;
+        setElText('stl-stat-format', parsed.format);
+        setElText('stl-stat-triangles', triStr);
+        setElText('stl-stat-vertices', vertStr);
+        setElText('stl-stat-dims', `${dimX} × ${dimY} × ${dimZ} mm`);
+        setElText('stl-stat-volume', volStr);
+        setElText('stl-stat-area', areaStr);
+
+        // HUD & Statusleiste aktualisieren
+        setElText('stl-hud-tris', triStr);
+        setElText('stl-status-left', `Erfolgreich geladen: ${cleanName}`);
+        setElText('stl-status-right', `${parsed.format} | ${triStr} Dreiecke | ${vertStr} Vertices`);
+
+        // Immer Blob für Download & "In Chat senden" bereitstellen
+        stlGeneratedBlob = new Blob([buffer], { type: 'model/stl' });
+        stlGeneratedFileName = cleanName.endsWith('.stl') || cleanName.endsWith('.ctl') ? cleanName : (cleanName + '.stl');
+        if (dlBtn) {
+            dlBtn.href = URL.createObjectURL(stlGeneratedBlob);
+            dlBtn.setAttribute('download', stlGeneratedFileName);
+        }
+        if (sendBtn) {
+            if (isGenerated) sendBtn.classList.remove('hidden');
+            else sendBtn.classList.remove('hidden'); // Auch geöffnete Dateien können direkt gesendet werden
         }
 
         if (loadingOverlay) loadingOverlay.classList.add('hidden');
@@ -2498,22 +2979,16 @@
 
     function openStlViewer(fileUrl, fileName) {
         const modal = document.getElementById('stl-viewer-modal');
-        const titleEl = document.getElementById('stl-viewer-title');
-        const statsEl = document.getElementById('stl-viewer-stats');
         const dlBtn = document.getElementById('stl-viewer-download');
-        const sendBtn = document.getElementById('stl-send-to-chat-btn');
         const loadingOverlay = document.getElementById('stl-loading-overlay');
         const loadingText = document.getElementById('stl-loading-text');
 
         if (!modal) return;
 
-        titleEl.innerText = fileName || '3D-Modell (.stl)';
-        statsEl.innerText = 'Lade 3D-Geometrie...';
         if (dlBtn) {
             dlBtn.href = fileUrl;
             dlBtn.setAttribute('download', fileName || 'modell.stl');
         }
-        if (sendBtn) sendBtn.classList.add('hidden');
         if (loadingOverlay) {
             loadingOverlay.classList.remove('hidden');
             if (loadingText) loadingText.innerText = 'Lade 3D-Modell...';
@@ -2528,12 +3003,14 @@
                 return res.arrayBuffer();
             })
             .then(buffer => {
+                stlGeneratedPrompt = fileName || '3D-Modell';
                 renderStlArrayBufferInScene(buffer, fileName, false);
             })
             .catch(err => {
                 console.error('STL Load Error:', err);
                 if (loadingText) loadingText.innerText = 'Fehler beim Laden: ' + err.message;
-                statsEl.innerText = 'Datei konnte nicht als 3D-STL gelesen werden.';
+                const stLeft = document.getElementById('stl-status-left');
+                if (stLeft) stLeft.innerText = 'Datei konnte nicht als 3D-STL gelesen werden.';
             });
     }
 
@@ -2547,9 +3024,18 @@
             if (!promptInput.value.trim()) {
                 promptInput.value = 'Mittelschnauzer liegend';
                 generateStlFromPrompt();
+            } else if (!stlMesh) {
+                generateStlFromPrompt();
+            } else {
+                startStlRenderLoop();
             }
             setTimeout(() => promptInput.focus(), 100);
         }
+    }
+
+    function stlLoadSelectedSample(samplePrompt) {
+        if (!samplePrompt) return;
+        setStlPromptAndGenerate(samplePrompt);
     }
 
     function setStlPromptAndGenerate(text) {
@@ -2799,6 +3285,70 @@
                     let d = smin3d(dBase, dStem, 2.0);
                     d = smin3d(d, dCup, 2.0);
                     d = smin3d(d, Math.max(dHandle, -dHandleHole), 1.2);
+                    return Math.max(d, -z);
+                }
+            };
+        }
+
+        // 6b. KALIBRIER-WÜRFEL (20mm Calibration Cube - aus STLViewer.jar)
+        if (p.includes('würfel') || p.includes('wuerfel') || p.includes('cube') || p.includes('kalibrier')) {
+            return {
+                fileName: 'kalibrier_wuerfel_20mm.stl',
+                bounds: { minX: -13, maxX: 13, minY: -13, maxY: 13, minZ: -1, maxZ: 22, step: 0.7 },
+                sdf: (x, y, z) => {
+                    // 20x20x20mm Würfel mit leicht gefasten Kanten
+                    let d = sdBox3d(x, y, z, 0, 0, 10, 9.4, 9.4, 9.4, 0.6);
+                    // Zylindrische Bohrung oben als Kalibriertest
+                    const dHoleZ = Math.max(Math.hypot(x, y) - 4.0, 14.0 - z);
+                    d = Math.max(d, -dHoleZ);
+                    return Math.max(d, -z);
+                }
+            };
+        }
+
+        // 6c. TORUS (RING - aus STLViewer.jar)
+        if (p.includes('torus') || p.includes('ring') || p.includes('donut')) {
+            const majorR = 18.0;
+            const minorR = 6.0;
+            return {
+                fileName: 'torus_ring.stl',
+                bounds: { minX: -27, maxX: 27, minY: -27, maxY: 27, minZ: -1, maxZ: 15, step: 0.85 },
+                sdf: (x, y, z) => {
+                    const qx = Math.hypot(x, y) - majorR;
+                    const qz = z - minorR;
+                    return Math.hypot(qx, qz) - minorR;
+                }
+            };
+        }
+
+        // 6d. SECHSKANTMUTTER M12 (Hex Nut M12 - aus STLViewer.jar)
+        if (p.includes('mutter') || p.includes('sechskant') || p.includes('m12') || p.includes('nut')) {
+            const flatToFlat = 19.0; // Schlüsselweite SW19 für M12
+            const R = flatToFlat * 0.5;
+            const height = 10.0;
+            const boreR = 6.0;
+            return {
+                fileName: 'sechskantmutter_m12.stl',
+                bounds: { minX: -14, maxX: 14, minY: -14, maxY: 14, minZ: -1, maxZ: 12, step: 0.65 },
+                sdf: (x, y, z) => {
+                    // Exaktes 2D-Sechskant-SDF
+                    let px = Math.abs(x), py = Math.abs(y);
+                    const dot = -0.5 * px + 0.8660254 * py;
+                    if (dot < 0) {
+                        px -= 2.0 * dot * (-0.5);
+                        py -= 2.0 * dot * 0.8660254;
+                    }
+                    const dHex = py - R;
+                    const dZ = Math.abs(z - height * 0.5) - height * 0.5;
+                    let d = Math.max(dHex, dZ);
+                    // Äußere Fase oben und unten (Kegelabschnitt)
+                    const r = Math.hypot(x, y);
+                    const dChamfer = (r - R * 0.92) * 0.6 + Math.abs(z - height * 0.5) - height * 0.48;
+                    d = Math.max(d, dChamfer);
+                    // Innengewinde-Rillen (simuliertes M12 Gewinde)
+                    const threadWave = 0.45 * Math.sin(z * 3.6 + Math.atan2(y, x));
+                    const dBore = (boreR + threadWave) - r;
+                    d = Math.max(d, dBore);
                     return Math.max(d, -z);
                 }
             };
@@ -3062,14 +3612,13 @@
         }, 40);
     }
 
-    function loadLocalStlIntoViewer(event) {
-        const file = event.target.files && event.target.files[0];
+    function loadLocalStlFileObject(file) {
         if (!file) return;
         const loadingOverlay = document.getElementById('stl-loading-overlay');
         const loadingText = document.getElementById('stl-loading-text');
         if (loadingOverlay) {
             loadingOverlay.classList.remove('hidden');
-            if (loadingText) loadingText.innerText = `Lade „${file.name}“ vom Notebook...`;
+            if (loadingText) loadingText.innerText = `Lade „${file.name}“ vom Gerät...`;
         }
         const reader = new FileReader();
         reader.onload = function(e) {
@@ -3082,14 +3631,19 @@
                 if (loadingOverlay) loadingOverlay.classList.add('hidden');
                 alert('Fehler beim Laden der .stl-Datei: ' + err.message);
             }
-            event.target.value = '';
         };
         reader.onerror = function() {
             if (loadingOverlay) loadingOverlay.classList.add('hidden');
             alert('Datei konnte nicht gelesen werden.');
-            event.target.value = '';
         };
         reader.readAsArrayBuffer(file);
+    }
+
+    function loadLocalStlIntoViewer(event) {
+        const file = event.target.files && event.target.files[0];
+        if (!file) return;
+        loadLocalStlFileObject(file);
+        event.target.value = '';
     }
 
     function sendCurrentStlToChat() {
@@ -3122,7 +3676,7 @@
         .then(data => {
             if (sendBtn) {
                 sendBtn.disabled = false;
-                sendBtn.innerHTML = '<span>In Chat senden</span>';
+                sendBtn.innerHTML = '<span>📤 In Chat senden</span>';
             }
             if (data.status === 'success' && data.message) {
                 appendMessageToChat(data.message);
@@ -3132,7 +3686,7 @@
         .catch(err => {
             if (sendBtn) {
                 sendBtn.disabled = false;
-                sendBtn.innerHTML = '<span>In Chat senden</span>';
+                sendBtn.innerHTML = '<span>📤 In Chat senden</span>';
             }
             alert('Fehler beim Senden in den Chat: ' + err.message);
         });
@@ -3140,19 +3694,35 @@
 
     function startStlRenderLoop() {
         if (stlAnimFrameId) cancelAnimationFrame(stlAnimFrameId);
-        function animate() {
+        stlLastFrameTime = performance.now();
+        stlFrameCount = 0;
+
+        function animate(now) {
             const modal = document.getElementById('stl-viewer-modal');
             if (!modal || modal.classList.contains('hidden')) return;
             stlAnimFrameId = requestAnimationFrame(animate);
+
+            stlFrameCount++;
+            const elapsed = now - stlLastFrameTime;
+            if (elapsed >= 400) {
+                stlCurrentFps = Math.min(144, Math.max(1, Math.round((stlFrameCount * 1000) / elapsed)));
+                stlCurrentFrameMs = (elapsed / stlFrameCount).toFixed(1);
+                const fpsEl = document.getElementById('stl-hud-fps');
+                if (fpsEl) fpsEl.innerText = `${stlCurrentFps}`;
+                stlFrameCount = 0;
+                stlLastFrameTime = now;
+            }
+
             if (stlAutoRotate) {
                 stlSpherical.theta += 0.008;
                 updateStlCameraPosition();
             }
             if (stlRenderer && stlScene && stlCamera) {
                 stlRenderer.render(stlScene, stlCamera);
+                drawStlAxesGizmo();
             }
         }
-        animate();
+        requestAnimationFrame(animate);
     }
 
     function stlSetCameraView(view) {
@@ -3160,15 +3730,22 @@
             ? (stlMesh.geometry.boundingBox.max.y - stlMesh.geometry.boundingBox.min.y) * 0.5
             : stlModelRadius * 0.5;
         stlTarget = { x: 0, y: halfHeight, z: 0 };
-        stlSpherical.radius = stlModelRadius * 2.6;
+        stlSpherical.radius = stlModelRadius * 2.55;
 
         if (view === 'front') {
+            // Vorne (Y- in CAD = +Z in Three.js)
             stlSpherical.theta = 0;
             stlSpherical.phi = Math.PI / 2;
         } else if (view === 'top') {
+            // Oben (Z+ in CAD = +Y in Three.js)
             stlSpherical.theta = 0;
-            stlSpherical.phi = 0.05;
-        } else if (view === 'side') {
+            stlSpherical.phi = 0.02;
+        } else if (view === 'bottom') {
+            // Unten (Z- in CAD = -Y in Three.js)
+            stlSpherical.theta = 0;
+            stlSpherical.phi = Math.PI - 0.02;
+        } else if (view === 'right' || view === 'side') {
+            // Rechts (X+ in CAD = +X in Three.js)
             stlSpherical.theta = Math.PI / 2;
             stlSpherical.phi = Math.PI / 2;
         } else {
@@ -3179,26 +3756,84 @@
         updateStlCameraPosition();
     }
 
-    function stlToggleWireframe() {
-        stlShowWireframe = !stlShowWireframe;
-        if (stlWireframeMesh) stlWireframeMesh.visible = stlShowWireframe;
-        const btn = document.getElementById('stl-btn-wireframe');
-        if (btn) {
-            btn.className = stlShowWireframe
-                ? 'px-2.5 py-1 bg-sky-600 text-white rounded-md font-medium transition'
-                : 'px-2.5 py-1 bg-slate-700 hover:bg-slate-600 text-slate-200 rounded-md font-medium transition';
+    function stlResetCameraView() {
+        stlSetCameraView('iso');
+        const stLeft = document.getElementById('stl-status-left');
+        if (stLeft) stLeft.innerText = 'Kamera auf Modellmitte zentriert';
+    }
+
+    function stlPlaceOnBed() {
+        if (!stlMesh || !stlMesh.geometry) return;
+        const geom = stlMesh.geometry;
+        geom.computeBoundingBox();
+        const box = geom.boundingBox;
+        const center = new THREE.Vector3();
+        box.getCenter(center);
+
+        // Zentriere X & Z, lege Unterseite exakt auf Y=0 (CAD Druckbett Z=0)
+        geom.translate(-center.x, -box.min.y, -center.z);
+        geom.computeBoundingBox();
+        geom.computeBoundingSphere();
+
+        if (stlRenderMode === 'HEIGHT_MAP') {
+            computeHeightMapColors(geom);
+        }
+        if (stlBBoxHelper) {
+            stlBBoxHelper.update();
+        }
+        stlSetCameraView('iso');
+        const stLeft = document.getElementById('stl-status-left');
+        if (stLeft) stLeft.innerText = 'Modell flach auf Druckbett (Z=0) ausgerichtet & zentriert';
+    }
+
+    function stlSetRenderMode(mode) {
+        stlRenderMode = mode;
+        const sel = document.getElementById('stl-render-mode-select');
+        if (sel && sel.value !== mode) sel.value = mode;
+        applyStlMaterialAndRenderMode();
+    }
+
+    function stlSetColorTheme(themeKey) {
+        stlColorTheme = themeKey;
+        const sel = document.getElementById('stl-color-theme-select');
+        if (sel && sel.value !== themeKey) sel.value = themeKey;
+        applyStlMaterialAndRenderMode();
+    }
+
+    function stlCycleWireframeMode() {
+        // Zyklus analog ToolbarPanel.java: SMOOTH_SHADED -> SOLID_WIREFRAME -> WIREFRAME -> SMOOTH_SHADED
+        if (stlRenderMode === 'SMOOTH_SHADED' || stlRenderMode === 'FLAT_SHADED') {
+            stlSetRenderMode('SOLID_WIREFRAME');
+        } else if (stlRenderMode === 'SOLID_WIREFRAME') {
+            stlSetRenderMode('WIREFRAME');
+        } else {
+            stlSetRenderMode('SMOOTH_SHADED');
         }
     }
 
-    function stlToggleGrid() {
-        stlShowGrid = !stlShowGrid;
-        if (stlGridHelper) stlGridHelper.visible = stlShowGrid;
-        if (stlAxesHelper) stlAxesHelper.visible = stlShowGrid;
-        const btn = document.getElementById('stl-btn-grid');
-        if (btn) {
-            btn.className = stlShowGrid
-                ? 'px-2.5 py-1 bg-sky-600 text-white rounded-md font-medium transition'
-                : 'px-2.5 py-1 bg-slate-700 hover:bg-slate-600 text-slate-200 rounded-md font-medium transition';
+    function stlToggleOption(option, checked) {
+        if (option === 'grid') {
+            stlOptGrid = checked;
+            if (stlGridHelper) stlGridHelper.visible = checked;
+        } else if (option === 'axes') {
+            stlOptAxes = checked;
+            if (stlAxesHelper) stlAxesHelper.visible = checked;
+            drawStlAxesGizmo();
+        } else if (option === 'cull') {
+            stlOptCull = checked;
+            applyStlMaterialAndRenderMode();
+        } else if (option === 'bbox') {
+            stlOptBBox = checked;
+            if (stlBBoxHelper) stlBBoxHelper.visible = checked;
+        } else if (option === 'headlight') {
+            stlOptHeadlight = checked;
+            updateStlCameraPosition();
+        } else if (option === 'ortho') {
+            stlOptOrtho = checked;
+            if (stlPerspCamera && stlOrthoCamera) {
+                stlCamera = stlOptOrtho ? stlOrthoCamera : stlPerspCamera;
+                updateStlCameraPosition();
+            }
         }
     }
 
@@ -3207,15 +3842,27 @@
         const btn = document.getElementById('stl-btn-autorotate');
         if (btn) {
             btn.className = stlAutoRotate
-                ? 'px-2.5 py-1 bg-sky-600 text-white rounded-md font-medium transition'
-                : 'px-2.5 py-1 bg-slate-700 hover:bg-slate-600 text-slate-200 rounded-md font-medium transition';
+                ? 'px-2.5 py-1.5 bg-[#2563eb] text-white border border-sky-400 rounded-md text-xs font-bold transition'
+                : 'px-2.5 py-1.5 bg-[#232b3b] hover:bg-[#323d52] text-[#e6ecf5] border border-[#3a465e] rounded-md text-xs font-medium transition';
         }
     }
 
-    function stlSetColor(hexColor) {
-        stlCurrentColor = hexColor;
-        if (stlMesh && stlMesh.material) {
-            stlMesh.material.color.setHex(hexColor);
+    function stlSaveScreenshot() {
+        if (!stlRenderer || !stlScene || !stlCamera) return;
+        stlRenderer.render(stlScene, stlCamera);
+        try {
+            const dataUrl = stlRenderer.domElement.toDataURL('image/png');
+            const a = document.createElement('a');
+            const baseName = (stlGeneratedFileName || '3d_modell').replace(/\.(stl|ctl)$/i, '');
+            a.href = dataUrl;
+            a.download = `${baseName}_screenshot.png`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            const stLeft = document.getElementById('stl-status-left');
+            if (stLeft) stLeft.innerText = `Screenshot gespeichert: ${baseName}_screenshot.png`;
+        } catch (err) {
+            alert('Screenshot konnte nicht erstellt werden: ' + err.message);
         }
     }
 
