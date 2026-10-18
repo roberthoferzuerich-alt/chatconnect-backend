@@ -1421,14 +1421,23 @@
         }
     }
 
-    // --- DOKUMENT / PDF PER AJAX SENDEN ---
+    // --- DOKUMENT / PDF PER AJAX SENDEN (ODER .STL DIREKT IM 3D-VIEWER ÖFFNEN) ---
     function handleDocumentSelect(e) {
         const file = e.target.files && e.target.files[0];
         if (!file) return;
 
-        // Maximal 50 MB prüfen
-        if (file.size > 50 * 1024 * 1024) {
-            alert('Die Datei ist zu groß (maximal 50 MB erlaubt).');
+        // Wenn eine .stl oder .ctl Datei ausgewählt wird -> Direkt lokal im STLViewer PRO öffnen (ohne Größenlimit!)
+        if (/\.(stl|ctl)$/i.test(file.name)) {
+            const modal = document.getElementById('stl-viewer-modal');
+            if (modal) modal.classList.remove('hidden');
+            loadLocalStlFileObject(file);
+            e.target.value = '';
+            return;
+        }
+
+        // Maximal 500 MB prüfen für Chat-Datei-Uploads
+        if (file.size > 500 * 1024 * 1024) {
+            alert('Die Datei ist zu groß (maximal 500 MB erlaubt).');
             e.target.value = '';
             return;
         }
@@ -2368,19 +2377,19 @@
             } else {
                 const headerBytes = new Uint8Array(buffer, 0, Math.min(256, buffer.byteLength));
                 const headerStr = String.fromCharCode.apply(null, headerBytes);
-                if (!headerStr.trim().toLowerCase().startsWith('solid') && expectedSize <= buffer.byteLength + 512 && numTriangles > 0 && numTriangles < 5000000) {
+                if (!headerStr.trim().toLowerCase().startsWith('solid') && expectedSize <= buffer.byteLength + 512 && numTriangles > 0 && numTriangles < 25000000) {
                     isBinary = true;
                 }
             }
         }
 
         const geometry = new THREE.BufferGeometry();
-        let faces = 0;
+        let faces = isBinary ? view.getUint32(80, true) : 0;
         let positions = null;
         let signedVolumeSum = 0.0;
         let surfaceAreaMm2 = 0.0;
         const uniqueVertSet = new Set();
-        const countUniqueVerts = true;
+        const countUniqueVerts = (faces > 0 && faces <= 60000);
 
         function processTriangleStats(ax, ay, az, bx, by, bz, cx, cy, cz) {
             // Signed tetrahedron volume (CAD mm³)
@@ -2393,7 +2402,7 @@
             const nz = ux * vy - uy * vx;
             surfaceAreaMm2 += 0.5 * Math.hypot(nx, ny, nz);
 
-            if (countUniqueVerts && uniqueVertSet.size < 250000) {
+            if (countUniqueVerts) {
                 uniqueVertSet.add(`${Math.round(ax * 100)},${Math.round(ay * 100)},${Math.round(az * 100)}`);
                 uniqueVertSet.add(`${Math.round(bx * 100)},${Math.round(by * 100)},${Math.round(bz * 100)}`);
                 uniqueVertSet.add(`${Math.round(cx * 100)},${Math.round(cy * 100)},${Math.round(cz * 100)}`);
@@ -2401,7 +2410,6 @@
         }
 
         if (isBinary) {
-            faces = view.getUint32(80, true);
             positions = new Float32Array(faces * 9);
             let offset = 84;
             for (let i = 0; i < faces; i++) {
