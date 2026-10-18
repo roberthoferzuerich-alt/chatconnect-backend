@@ -39,7 +39,7 @@ class MessageController extends Controller
                 'max:51200',
                 function ($attribute, $value, $fail) {
                     $ext = strtolower($value->getClientOriginalExtension());
-                    $allowed = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'txt', 'csv', 'zip', '7z', 'z', 'rar', 'tar', 'gz', 'tgz', 'bz2', 'xz', 'ppt', 'pptx', 'md', 'markdown', 'stl', 'ctl'];
+                    $allowed = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'txt', 'csv', 'zip', '7z', 'z', 'rar', 'tar', 'gz', 'tgz', 'bz2', 'xz', 'jar', 'mcpack', 'mcworld', 'mcaddon', 'json', '3mf', 'obj', 'gcode', 'scad', 'ppt', 'pptx', 'md', 'markdown', 'stl', 'ctl'];
                     if (!in_array($ext, $allowed)) {
                         $fail('Dateityp .' . $ext . ' wird nicht unterstützt.');
                     }

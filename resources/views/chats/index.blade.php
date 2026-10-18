@@ -660,10 +660,10 @@
                             <input type="file" id="image-file-input" accept="image/*" class="hidden" onchange="openImageCropModal(event)">
                         </label>
 
-                        <!-- Document / PDF / Markdown / 3D STL / ZIP & 7-Zip Attachment -->
-                        <label class="text-gray-500 hover:text-teal-700 hover:bg-gray-200 rounded-full cursor-pointer p-1.5 sm:p-2 transition flex-shrink-0" title="Dokument, PDF, ZIP / 7-Zip (.zip / .7z), Markdown (.md) oder 3D-Modell (.stl / .ctl) senden">
+                        <!-- Document / PDF / Markdown / 3D STL / ZIP & 7-Zip / JAR Attachment -->
+                        <label class="text-gray-500 hover:text-teal-700 hover:bg-gray-200 rounded-full cursor-pointer p-1.5 sm:p-2 transition flex-shrink-0" title="Dokument, PDF, ZIP / 7-Zip (.zip / .7z), Minecraft-Mod (.jar), Markdown (.md) oder 3D-Modell (.stl / .ctl) senden">
                             <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-6 4h4"></path></svg>
-                            <input type="file" id="document-file-input" accept=".pdf,.doc,.docx,.xls,.xlsx,.txt,.csv,.zip,.7z,.z,.rar,.tar,.gz,.tgz,.bz2,.xz,.ppt,.pptx,.md,.markdown,.stl,.ctl,application/pdf,application/zip,application/x-zip-compressed,application/x-7z-compressed,application/x-rar-compressed,text/markdown,model/stl,application/sla" class="hidden" onchange="handleDocumentSelect(event)">
+                            <input type="file" id="document-file-input" accept=".pdf,.doc,.docx,.xls,.xlsx,.txt,.csv,.zip,.7z,.z,.rar,.tar,.gz,.tgz,.bz2,.xz,.jar,.mcpack,.mcworld,.mcaddon,.json,.3mf,.obj,.gcode,.scad,.ppt,.pptx,.md,.markdown,.stl,.ctl,application/pdf,application/zip,application/java-archive,application/x-java-archive,application/x-zip-compressed,application/x-7z-compressed,application/x-rar-compressed,text/markdown,model/stl,application/sla" class="hidden" onchange="handleDocumentSelect(event)">
                         </label>
 
                         <!-- 3D-Modell (.stl) Generator Button -->
