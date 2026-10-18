@@ -960,8 +960,13 @@
                 </div>
             </div>
             <div class="flex items-center space-x-2 flex-shrink-0">
+                <label class="cursor-pointer px-3 py-1.5 bg-sky-600/30 hover:bg-sky-600/50 border border-sky-400/40 text-sky-200 rounded-lg text-xs font-semibold transition flex items-center space-x-1" title="Lokale .stl / .ctl Datei vom Notebook im 3D-Viewer öffnen">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path></svg>
+                    <span class="hidden sm:inline">.STL Öffnen</span>
+                    <input type="file" id="stl-local-file-input" accept=".stl,.ctl,model/stl,application/sla" class="hidden" onchange="loadLocalStlIntoViewer(event)">
+                </label>
                 @if(isset($activeConversation) && $activeConversation)
-                    <button type="button" id="stl-send-to-chat-btn" onclick="sendCurrentStlToChat()" class="hidden px-3 py-1.5 bg-[#00a884] hover:bg-[#008f6f] text-white rounded-lg text-xs font-semibold transition flex items-center space-x-1 shadow-sm" title="Generiertes 3D-Modell direkt in diesen Chat senden">
+                    <button type="button" id="stl-send-to-chat-btn" onclick="sendCurrentStlToChat()" class="hidden px-3 py-1.5 bg-[#00a884] hover:bg-[#008f6f] text-white rounded-lg text-xs font-semibold transition flex items-center space-x-1 shadow-sm" title="Aktuelles 3D-Modell direkt in diesen Chat senden">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
                         <span>In Chat senden</span>
                     </button>
@@ -3055,6 +3060,36 @@
                 alert('Fehler beim Erstellen des 3D-Modells: ' + err.message);
             }
         }, 40);
+    }
+
+    function loadLocalStlIntoViewer(event) {
+        const file = event.target.files && event.target.files[0];
+        if (!file) return;
+        const loadingOverlay = document.getElementById('stl-loading-overlay');
+        const loadingText = document.getElementById('stl-loading-text');
+        if (loadingOverlay) {
+            loadingOverlay.classList.remove('hidden');
+            if (loadingText) loadingText.innerText = `Lade „${file.name}“ vom Notebook...`;
+        }
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                ensureStlViewportInitialized();
+                stlGeneratedPrompt = file.name;
+                renderStlArrayBufferInScene(e.target.result, file.name, true);
+            } catch (err) {
+                console.error('Local STL Load Error:', err);
+                if (loadingOverlay) loadingOverlay.classList.add('hidden');
+                alert('Fehler beim Laden der .stl-Datei: ' + err.message);
+            }
+            event.target.value = '';
+        };
+        reader.onerror = function() {
+            if (loadingOverlay) loadingOverlay.classList.add('hidden');
+            alert('Datei konnte nicht gelesen werden.');
+            event.target.value = '';
+        };
+        reader.readAsArrayBuffer(file);
     }
 
     function sendCurrentStlToChat() {
