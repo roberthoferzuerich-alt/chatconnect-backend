@@ -37,8 +37,13 @@ class ProfileController extends Controller
 
         if ($request->hasFile('avatar')) {
             // Delete old avatar if it exists
-            if ($user->avatar_path && Storage::disk('public')->exists($user->avatar_path)) {
-                Storage::disk('public')->delete($user->avatar_path);
+            $oldAvatar = $user->getRawOriginal('avatar');
+            $oldAvatarPath = $user->getRawOriginal('avatar_path');
+            if ($oldAvatar && Storage::disk('public')->exists($oldAvatar)) {
+                Storage::disk('public')->delete($oldAvatar);
+            }
+            if ($oldAvatarPath && $oldAvatarPath !== $oldAvatar && Storage::disk('public')->exists($oldAvatarPath)) {
+                Storage::disk('public')->delete($oldAvatarPath);
             }
             
             $path = $request->file('avatar')->store('avatars', 'public');
@@ -46,6 +51,7 @@ class ProfileController extends Controller
                 return response()->json(['message' => 'Fehler beim Speichern des Profilbildes auf dem Server.'], 500);
             }
             $user->avatar_path = $path;
+            $user->avatar = $path;
         }
 
         $user->save();

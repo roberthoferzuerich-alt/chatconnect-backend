@@ -43,9 +43,44 @@ class User extends Authenticatable
         'settings' => 'array',
     ];
 
+    public function resolveCurrentAvatarPath(): ?string
+    {
+        $avatar = $this->attributes['avatar'] ?? null;
+        $avatarPath = $this->attributes['avatar_path'] ?? null;
+
+        if ($avatar && $avatarPath && $avatar !== $avatarPath) {
+            $fileA = storage_path('app/public/' . ltrim($avatar, '/'));
+            $fileB = storage_path('app/public/' . ltrim($avatarPath, '/'));
+            $existsA = is_file($fileA);
+            $existsB = is_file($fileB);
+
+            if ($existsA && $existsB) {
+                return (@filemtime($fileA) >= @filemtime($fileB)) ? $avatar : $avatarPath;
+            }
+            if ($existsA) {
+                return $avatar;
+            }
+            if ($existsB) {
+                return $avatarPath;
+            }
+        }
+
+        return $avatar ?: ($avatarPath ?: null);
+    }
+
+    public function getAvatarAttribute($value)
+    {
+        return $this->resolveCurrentAvatarPath();
+    }
+
+    public function getAvatarPathAttribute($value)
+    {
+        return $this->resolveCurrentAvatarPath();
+    }
+
     public function getAvatarUrlAttribute()
     {
-        $path = $this->avatar_path ?? $this->avatar;
+        $path = $this->resolveCurrentAvatarPath();
         if (!$path) {
             return null;
         }
