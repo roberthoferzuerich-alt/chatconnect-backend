@@ -91,10 +91,50 @@
                 </div>
             </section>
 
-            <!-- 4. Sprachnachrichten -->
+                        <!-- 4. KI-Bildgenerator & Studio -->
             <section class="space-y-3">
                 <h2 class="text-xl font-bold text-gray-900 flex items-center space-x-2">
                     <span class="w-7 h-7 rounded-lg bg-teal-100 text-teal-700 flex items-center justify-center text-sm font-extrabold">4</span>
+                    <span>KI-Bildgenerator, Bild zuschneiden &amp; Web-Skalierung 🎨</span>
+                </h2>
+                <div class="bg-gradient-to-br from-emerald-50 to-teal-50/50 p-5 rounded-2xl border border-teal-200 shadow-sm space-y-4">
+                    <div class="space-y-1.5">
+                        <h3 class="font-bold text-teal-950 flex items-center gap-2 text-base">
+                            <span>✨ ChatConnect AI Studio v2.0 (100 % kostenlos)</span>
+                        </h3>
+                        <p class="text-xs sm:text-sm text-teal-900 leading-relaxed">
+                            Erstelle faszinierende KI-Bilder direkt im Browser oder in der App. Klicke oben neben dem Titel <em>„Chats“</em> auf den Button <strong>„🎨 KI-Studio“</strong> (oder im 3-Punkte-Menü <code>⋮</code> auf <em>„KI-Bildgenerator“</em>).
+                        </p>
+                    </div>
+
+                    <div class="grid sm:grid-cols-2 gap-3 text-xs sm:text-sm">
+                        <div class="bg-white p-3.5 rounded-xl border border-teal-100 shadow-xs space-y-1.5">
+                            <div class="font-bold text-gray-900 flex items-center gap-1.5">
+                                <span>✂️ Bild zuschneiden (Cropper)</span>
+                            </div>
+                            <p class="text-gray-600">Schneide KI-Bilder oder eigene Fotos präzise zu: <em>Frei</em>, <em>1:1 Quadrat</em> (Avatar), <em>16:9 Web-Breitbild</em>, <em>4:3 Foto</em> oder <em>9:16 Story</em> inkl. Drehfunktion (90°).</p>
+                        </div>
+
+                        <div class="bg-white p-3.5 rounded-xl border border-teal-100 shadow-xs space-y-1.5">
+                            <div class="font-bold text-gray-900 flex items-center gap-1.5">
+                                <span>📐 Auf Web-Grösse skalieren &amp; komprimieren</span>
+                            </div>
+                            <p class="text-gray-600">Optimiere Bilder mit 1 Klick auf <em>Full HD (1920×1080)</em>, <em>Web Standard (1200×675)</em>, <em>Chat (800×800)</em> oder <em>Avatar (400×400)</em>. Das moderne WebP-Format spart bis zu 85 % Speicherplatz bei voller Schärfe!</p>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-wrap items-center gap-2 pt-1 text-xs font-semibold text-teal-800">
+                        <span class="bg-white px-2.5 py-1 rounded-lg border border-teal-200">🚀 Flux Pro / Realism / Turbo</span>
+                        <span class="bg-white px-2.5 py-1 rounded-lg border border-teal-200">💬 Direkt in Chat senden</span>
+                        <span class="bg-white px-2.5 py-1 rounded-lg border border-teal-200">🖼️ Als Chat-Hintergrund</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 4. Sprachnachrichten -->
+            <section class="space-y-3">
+                <h2 class="text-xl font-bold text-gray-900 flex items-center space-x-2">
+                    <span class="w-7 h-7 rounded-lg bg-teal-100 text-teal-700 flex items-center justify-center text-sm font-extrabold">10</span>
                     <span>Sprachnachrichten aufnehmen &amp; senden 🎤</span>
                 </h2>
                 <div class="grid sm:grid-cols-2 gap-3">
@@ -116,7 +156,7 @@
             <!-- 5. Bilder -->
             <section class="space-y-3">
                 <h2 class="text-xl font-bold text-gray-900 flex items-center space-x-2">
-                    <span class="w-7 h-7 rounded-lg bg-teal-100 text-teal-700 flex items-center justify-center text-sm font-extrabold">5</span>
+                    <span class="w-7 h-7 rounded-lg bg-teal-100 text-teal-700 flex items-center justify-center text-sm font-extrabold">10</span>
                     <span>Bilder aufnehmen, zuschneiden &amp; teilen 📷</span>
                 </h2>
                 <div class="bg-gray-50 p-4 rounded-xl border border-gray-100 space-y-2">
@@ -128,7 +168,7 @@
             <!-- 6. Löschen -->
             <section class="space-y-3">
                 <h2 class="text-xl font-bold text-gray-900 flex items-center space-x-2">
-                    <span class="w-7 h-7 rounded-lg bg-teal-100 text-teal-700 flex items-center justify-center text-sm font-extrabold">6</span>
+                    <span class="w-7 h-7 rounded-lg bg-teal-100 text-teal-700 flex items-center justify-center text-sm font-extrabold">10</span>
                     <span>Nachrichten für alle löschen 🗑️</span>
                 </h2>
                 <div class="bg-red-50 p-4 rounded-xl border border-red-100 space-y-2 text-red-950">
@@ -143,7 +183,7 @@
             <!-- 7. Anrufe -->
             <section class="space-y-3">
                 <h2 class="text-xl font-bold text-gray-900 flex items-center space-x-2">
-                    <span class="w-7 h-7 rounded-lg bg-teal-100 text-teal-700 flex items-center justify-center text-sm font-extrabold">7</span>
+                    <span class="w-7 h-7 rounded-lg bg-teal-100 text-teal-700 flex items-center justify-center text-sm font-extrabold">10</span>
                     <span>Sprach- &amp; Videoanrufe 📞 📹</span>
                 </h2>
                 <div class="bg-gray-50 p-4 rounded-xl border border-gray-100 space-y-2">
@@ -155,7 +195,7 @@
             <!-- 8. Hintergrundbilder & Schriftgröße -->
             <section class="space-y-3">
                 <h2 class="text-xl font-bold text-gray-900 flex items-center space-x-2">
-                    <span class="w-7 h-7 rounded-lg bg-teal-100 text-teal-700 flex items-center justify-center text-sm font-extrabold">8</span>
+                    <span class="w-7 h-7 rounded-lg bg-teal-100 text-teal-700 flex items-center justify-center text-sm font-extrabold">10</span>
                     <span>Chat-Hintergrundbilder 🎨 &amp; Schriftgröße 🔠</span>
                 </h2>
                 <div class="bg-gray-50 p-4 rounded-xl border border-gray-100 space-y-2">
@@ -168,7 +208,7 @@
             <!-- 9. WebApp -->
             <section class="space-y-3">
                 <h2 class="text-xl font-bold text-gray-900 flex items-center space-x-2">
-                    <span class="w-7 h-7 rounded-lg bg-teal-100 text-teal-700 flex items-center justify-center text-sm font-extrabold">9</span>
+                    <span class="w-7 h-7 rounded-lg bg-teal-100 text-teal-700 flex items-center justify-center text-sm font-extrabold">10</span>
                     <span>WebApp im Browser nutzen 🌐</span>
                 </h2>
                 <div class="bg-gray-50 p-4 rounded-xl border border-gray-100 space-y-2">
