@@ -214,6 +214,10 @@
             
             <div class="flex items-center space-x-3 text-gray-600">
                 <!-- 3-Punkte Menu Button -->
+                <button type="button" id="top-ki-studio-btn" onclick="openAiImageModal()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 transition text-xs font-bold shadow-sm cursor-pointer" title="KI-Bildgenerator & Bild-Werkzeuge">
+                    <svg class="w-4 h-4 text-emerald-600" fill="currentColor" viewBox="0 0 24 24"><path d="M19 9l1.25-2.75L23 5l-2.75-1.25L19 1l-1.25 2.75L15 5l2.75 1.25L19 9zm-7.5.5L9 4 6.5 9.5 1 12l5.5 2.5L9 20l2.5-5.5L17 12l-5.5-2.5zM19 15l-1.25 2.75L15 19l2.75 1.25L19 23l1.25-2.75L23 19l-2.75-1.25L19 15z"/></svg>
+                    <span class="hidden sm:inline">KI-Studio</span>
+                </button>
                 <button type="button" id="menu-button" onclick="document.getElementById('chat-menu').classList.toggle('hidden')" class="hover:text-gray-900 p-2 rounded-full hover:bg-gray-100 transition focus:outline-none" title="Menü">
                     <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M12 7a2 2 0 1 0-.001-4.001A2 2 0 0 0 12 7zm0 2a2 2 0 1 0-.001 3.999A2 2 0 0 0 12 9zm0 6a2 2 0 1 0-.001 3.999A2 2 0 0 0 12 15z" />
@@ -1630,6 +1634,28 @@
             </div>
 
             <!-- EXAKTES 2-KARTEN-LAYOUT WIE BEI PIXELLA -->
+                        <!-- ======================================================== -->
+            <!-- 🌟 OBERE NAVIGATION: BILD ZUSCHNEIDEN & WEB-SKALIERUNG   -->
+            <!-- ======================================================== -->
+            <div class="max-w-3xl mx-auto w-full bg-white/10 backdrop-blur-md border border-white/20 p-2 sm:p-2.5 rounded-2xl shadow-xl flex flex-wrap items-center justify-center gap-2 sm:gap-4">
+                <span class="text-xs uppercase tracking-wider font-extrabold text-emerald-300 px-2 hidden sm:inline-flex items-center gap-1.5">
+                    <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/></svg>
+                    Navigation:
+                </span>
+
+                <!-- 1. Bild zuschneiden -->
+                <button type="button" onclick="aiOpenCropTool()" class="px-4 py-2 rounded-xl bg-white/15 hover:bg-emerald-500 hover:text-white text-white font-bold text-xs sm:text-sm border border-white/20 hover:border-emerald-400 shadow-sm transition flex items-center gap-2 group cursor-pointer" title="Bild zuschneiden mit Cropper">
+                    <svg class="w-4 h-4 text-emerald-300 group-hover:text-white transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.121 14.121L19 19m-7-7l7-7m-7 7l-2.879 2.879M12 12L4.929 4.929m0 14.142L12 12"/></svg>
+                    <span>✂️ Bild zuschneiden</span>
+                </button>
+
+                <!-- 2. Auf Web-Grösse skalieren -->
+                <button type="button" onclick="aiOpenScaleTool()" class="px-4 py-2 rounded-xl bg-white/15 hover:bg-teal-500 hover:text-white text-white font-bold text-xs sm:text-sm border border-white/20 hover:border-teal-400 shadow-sm transition flex items-center gap-2 group cursor-pointer" title="Auf Web-Grösse skalieren & komprimieren">
+                    <svg class="w-4 h-4 text-teal-300 group-hover:text-white transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/></svg>
+                    <span>📐 Auf Web-Grösse skalieren</span>
+                </button>
+            </div>
+
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
                 
                 <!-- LINKE KARTE: Bild hochladen / Vorschau (5 Cols) -->
@@ -1820,6 +1846,152 @@
                     </button>
                 </div>
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================== -->
+<!-- ✂️ MODAL: BILD ZUSCHNEIDEN (CROPPER PRO)       -->
+<!-- ============================================== -->
+<div id="ai-crop-modal" class="hidden fixed inset-0 z-[120] flex items-center justify-center p-3 bg-black/85 backdrop-blur-md">
+    <div class="relative w-full max-w-3xl bg-white rounded-2xl sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh] border border-white/20">
+        <div class="px-5 py-4 bg-gradient-to-r from-[#031d18] via-[#00382b] to-[#04293a] text-white flex items-center justify-between border-b border-teal-500/20">
+            <div class="flex items-center gap-2.5 font-bold text-base sm:text-lg">
+                <span class="w-8 h-8 rounded-lg bg-emerald-500/20 border border-emerald-400/30 flex items-center justify-center text-emerald-400 text-sm">✂️</span>
+                <span>Bild zuschneiden</span>
+                <span class="text-[11px] bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 px-2 py-0.5 rounded-full font-semibold">Cropper</span>
+            </div>
+            <button type="button" onclick="closeAiCropModal()" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center text-xl font-bold transition">&times;</button>
+        </div>
+        
+        <!-- Cropper View Area -->
+        <div class="p-3 sm:p-5 bg-slate-950 flex-1 flex items-center justify-center overflow-hidden min-h-[300px] max-h-[55vh]">
+            <img id="ai-crop-target-image" src="" alt="Zuschneiden" class="max-h-[50vh] max-w-full block rounded-lg">
+        </div>
+
+        <!-- Toolbar -->
+        <div class="p-4 bg-slate-50 border-t border-slate-200 flex flex-wrap items-center justify-between gap-3">
+            <div class="flex flex-wrap items-center gap-1.5 text-xs font-semibold">
+                <span class="text-slate-500 mr-1 font-bold">Format:</span>
+                <button type="button" onclick="aiSetCropRatio(NaN)" id="crop-ratio-free" class="crop-ratio-btn px-3 py-1.5 rounded-xl bg-emerald-600 text-white shadow-xs font-bold transition cursor-pointer">Frei</button>
+                <button type="button" onclick="aiSetCropRatio(1)" id="crop-ratio-1" class="crop-ratio-btn px-3 py-1.5 rounded-xl bg-white border border-slate-200 text-slate-700 hover:bg-slate-100 transition font-bold cursor-pointer">1:1 (Quadrat)</button>
+                <button type="button" onclick="aiSetCropRatio(16/9)" id="crop-ratio-16-9" class="crop-ratio-btn px-3 py-1.5 rounded-xl bg-white border border-slate-200 text-slate-700 hover:bg-slate-100 transition font-bold cursor-pointer">16:9 (Web)</button>
+                <button type="button" onclick="aiSetCropRatio(4/3)" id="crop-ratio-4-3" class="crop-ratio-btn px-3 py-1.5 rounded-xl bg-white border border-slate-200 text-slate-700 hover:bg-slate-100 transition font-bold cursor-pointer">4:3 (Foto)</button>
+                <button type="button" onclick="aiSetCropRatio(9/16)" id="crop-ratio-9-16" class="crop-ratio-btn px-3 py-1.5 rounded-xl bg-white border border-slate-200 text-slate-700 hover:bg-slate-100 transition font-bold cursor-pointer">9:16 (Story)</button>
+            </div>
+
+            <div class="flex items-center gap-1.5">
+                <button type="button" onclick="if(aiCropperInstance) aiCropperInstance.rotate(-90)" class="px-2.5 py-1.5 bg-white hover:bg-slate-100 border border-slate-200 rounded-xl text-slate-700 font-bold text-xs shadow-xs cursor-pointer" title="90° nach links drehen">↺ -90°</button>
+                <button type="button" onclick="if(aiCropperInstance) aiCropperInstance.rotate(90)" class="px-2.5 py-1.5 bg-white hover:bg-slate-100 border border-slate-200 rounded-xl text-slate-700 font-bold text-xs shadow-xs cursor-pointer" title="90° nach rechts drehen">↻ +90°</button>
+                <button type="button" onclick="if(aiCropperInstance) aiCropperInstance.reset()" class="px-2.5 py-1.5 bg-white hover:bg-slate-100 border border-slate-200 rounded-xl text-slate-700 font-bold text-xs shadow-xs cursor-pointer" title="Zurücksetzen">Reset</button>
+            </div>
+
+            <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
+                <button type="button" onclick="closeAiCropModal()" class="px-4 py-2 rounded-xl border border-slate-300 text-slate-700 text-sm font-semibold hover:bg-slate-100 transition cursor-pointer">Abbrechen</button>
+                <button type="button" onclick="aiApplyCrop()" style="background-color: #00a884 !important; color: #ffffff !important;" class="px-5 py-2 rounded-xl text-white text-sm font-bold shadow-md hover:opacity-90 transition flex items-center gap-1.5 cursor-pointer">
+                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                    <span>Zuschnitt übernehmen</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================== -->
+<!-- 📐 MODAL: AUF WEB-GRÖSSE SKALIEREN             -->
+<!-- ============================================== -->
+<div id="ai-scale-modal" class="hidden fixed inset-0 z-[120] flex items-center justify-center p-3 bg-black/85 backdrop-blur-md">
+    <div class="relative w-full max-w-lg bg-white rounded-2xl sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col border border-white/20">
+        <div class="px-5 py-4 bg-gradient-to-r from-[#031d18] via-[#00382b] to-[#04293a] text-white flex items-center justify-between border-b border-teal-500/20">
+            <div class="flex items-center gap-2.5 font-bold text-base sm:text-lg">
+                <span class="w-8 h-8 rounded-lg bg-teal-500/20 border border-teal-400/30 flex items-center justify-center text-teal-300 text-sm">📐</span>
+                <span>Auf Web-Grösse skalieren</span>
+            </div>
+            <button type="button" onclick="closeAiScaleModal()" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center text-xl font-bold transition">&times;</button>
+        </div>
+
+        <div class="p-5 space-y-4">
+            <!-- Aktuelle Information -->
+            <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between text-xs">
+                <span class="text-slate-500 font-medium">Aktuelle Bildgrösse:</span>
+                <span id="ai-scale-current-info" class="font-bold text-slate-800">1024 × 1024 px</span>
+            </div>
+
+            <!-- Schnellauswahl Web-Presets -->
+            <div>
+                <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">Web-Standards (1-Klick):</label>
+                <div class="grid grid-cols-2 gap-2 text-xs">
+                    <button type="button" onclick="aiSetScalePreset(1920, 1080)" class="p-2.5 rounded-xl border border-slate-200 hover:border-teal-500 hover:bg-teal-50/50 text-left transition group cursor-pointer">
+                        <div class="font-bold text-slate-800 group-hover:text-teal-700">🌟 Full HD</div>
+                        <div class="text-[11px] text-slate-500">1920 × 1080 px (Banner)</div>
+                    </button>
+                    <button type="button" onclick="aiSetScalePreset(1200, 675)" class="p-2.5 rounded-xl border border-slate-200 hover:border-teal-500 hover:bg-teal-50/50 text-left transition group cursor-pointer">
+                        <div class="font-bold text-slate-800 group-hover:text-teal-700">🌐 Web Standard</div>
+                        <div class="text-[11px] text-slate-500">1200 × 675 px (Webseite)</div>
+                    </button>
+                    <button type="button" onclick="aiSetScalePreset(800, 800)" class="p-2.5 rounded-xl border border-slate-200 hover:border-teal-500 hover:bg-teal-50/50 text-left transition group cursor-pointer">
+                        <div class="font-bold text-slate-800 group-hover:text-teal-700">💬 Chat & Mobil</div>
+                        <div class="text-[11px] text-slate-500">800 × 800 px (Kompakt)</div>
+                    </button>
+                    <button type="button" onclick="aiSetScalePreset(400, 400)" class="p-2.5 rounded-xl border border-slate-200 hover:border-teal-500 hover:bg-teal-50/50 text-left transition group cursor-pointer">
+                        <div class="font-bold text-slate-800 group-hover:text-teal-700">👤 Avatar / Icon</div>
+                        <div class="text-[11px] text-slate-500">400 × 400 px (Miniatur)</div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Manuelle Maße -->
+            <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold text-slate-700">Eigene Abmessungen:</span>
+                    <label class="flex items-center gap-1.5 text-xs text-slate-600 cursor-pointer font-medium">
+                        <input type="checkbox" id="ai-scale-lock-aspect" checked class="rounded text-teal-600 focus:ring-teal-500">
+                        <span>Seitenverhältnis sperren</span>
+                    </label>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <span class="text-[11px] text-slate-500 font-medium">Breite (px):</span>
+                        <input type="number" id="ai-scale-width" oninput="aiOnScaleWidthChange()" class="w-full mt-1 px-3 py-1.5 border border-slate-300 rounded-lg text-sm font-bold text-slate-800 focus:border-teal-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <span class="text-[11px] text-slate-500 font-medium">Höhe (px):</span>
+                        <input type="number" id="ai-scale-height" oninput="aiOnScaleHeightChange()" class="w-full mt-1 px-3 py-1.5 border border-slate-300 rounded-lg text-sm font-bold text-slate-800 focus:border-teal-500 focus:outline-none">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Format & Qualität -->
+            <div class="grid grid-cols-2 gap-3 text-xs">
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">Web-Format:</label>
+                    <select id="ai-scale-format" onchange="aiUpdateEstimatedSize()" class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white font-semibold text-slate-800 focus:border-teal-500 focus:outline-none cursor-pointer">
+                        <option value="image/webp">WebP (Modern & klein)</option>
+                        <option value="image/jpeg">JPEG (Standard)</option>
+                        <option value="image/png">PNG (Verlustfrei)</option>
+                    </select>
+                </div>
+                <div>
+                    <div class="flex items-center justify-between mb-1">
+                        <label class="font-bold text-slate-700">Qualität:</label>
+                        <span id="ai-scale-quality-val" class="font-bold text-teal-600">85 %</span>
+                    </div>
+                    <input type="range" id="ai-scale-quality" min="40" max="100" value="85" oninput="document.getElementById('ai-scale-quality-val').innerText = this.value + ' %'; aiUpdateEstimatedSize()" class="w-full accent-teal-600 cursor-pointer">
+                </div>
+            </div>
+
+            <!-- Vorschau-Ersparnis -->
+            <div id="ai-scale-estimate" class="p-2.5 bg-emerald-50 border border-emerald-200 rounded-xl text-center text-xs text-emerald-800 font-semibold">
+                Geschätzte Ladezeit-Optimierung: ~85 % Ersparnis
+            </div>
+        </div>
+
+        <div class="p-4 bg-slate-50 border-t border-slate-200 flex items-center justify-end gap-2">
+            <button type="button" onclick="closeAiScaleModal()" class="px-4 py-2 rounded-xl border border-slate-300 text-slate-700 text-sm font-semibold hover:bg-slate-100 transition cursor-pointer">Abbrechen</button>
+            <button type="button" onclick="aiApplyScale()" style="background-color: #00a884 !important; color: #ffffff !important;" class="px-5 py-2 rounded-xl text-white text-sm font-bold shadow-md hover:opacity-90 transition flex items-center gap-1.5 cursor-pointer">
+                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                <span>Skalieren & übernehmen</span>
+            </button>
         </div>
     </div>
 </div>
@@ -4566,6 +4738,7 @@
         document.getElementById('ai-empty-state').classList.add('hidden');
         document.getElementById('ai-preview-state').classList.remove('hidden');
         document.getElementById('ai-left-card-actions').classList.remove('hidden');
+        const qb = document.getElementById('ai-quick-tools-bar'); if(qb) qb.classList.remove('hidden');
         document.getElementById('ai-direct-actions').classList.remove('hidden');
         document.getElementById('ai-preview-img').src = dataUrl;
         document.getElementById('ai-status-badge-text').innerText = badgeText || "Bereit";
@@ -4578,6 +4751,7 @@
         document.getElementById('ai-empty-state').classList.remove('hidden');
         document.getElementById('ai-preview-state').classList.add('hidden');
         document.getElementById('ai-left-card-actions').classList.add('hidden');
+        const qb = document.getElementById('ai-quick-tools-bar'); if(qb) qb.classList.add('hidden');
         document.getElementById('ai-direct-actions').classList.add('hidden');
         document.getElementById('ai-preview-img').src = "";
         document.getElementById('ai-left-card-title').innerText = "Bild hochladen";
@@ -4793,6 +4967,219 @@
         a.click();
         document.body.removeChild(a);
     }
+
+    // ==========================================
+    // 🎨 CHATCONNECT WERKZEUGE (CROP & WEB-SCALE)
+    // ==========================================
+    let aiCropperInstance = null;
+    let aiScaleOriginalWidth = 1024;
+    let aiScaleOriginalHeight = 1024;
+
+    // --- 1. BILD ZUSCHNEIDEN (CROP) ---
+    function aiOpenCropTool() {
+        if (!aiCurrentDataUrl) {
+            alert('💡 Bitte lade zuerst ein Bild hoch oder erstelle eines im Generator, um es zuzuschneiden!');
+            const fileInput = document.getElementById('ai-file-input');
+            if (fileInput) fileInput.click();
+            return;
+        }
+
+        const cropModal = document.getElementById('ai-crop-modal');
+        const cropImg = document.getElementById('ai-crop-target-image');
+        if (!cropModal || !cropImg) return;
+
+        cropImg.src = aiCurrentDataUrl;
+        cropModal.classList.remove('hidden');
+
+        // Vorherige Cropper-Instanz auflösen
+        if (aiCropperInstance) {
+            aiCropperInstance.destroy();
+            aiCropperInstance = null;
+        }
+
+        // Cropper initialisieren
+        setTimeout(() => {
+            aiCropperInstance = new Cropper(cropImg, {
+                aspectRatio: NaN,
+                viewMode: 1,
+                autoCropArea: 0.9,
+                responsive: true,
+                restore: false,
+                guides: true,
+                center: true,
+                highlight: true,
+                cropBoxMovable: true,
+                cropBoxResizable: true,
+                toggleDragModeOnDblclick: false
+            });
+            aiUpdateCropRatioButtons(NaN);
+        }, 150);
+    }
+
+    function closeAiCropModal() {
+        const cropModal = document.getElementById('ai-crop-modal');
+        if (cropModal) cropModal.classList.add('hidden');
+        if (aiCropperInstance) {
+            aiCropperInstance.destroy();
+            aiCropperInstance = null;
+        }
+    }
+
+    function aiSetCropRatio(ratio) {
+        if (aiCropperInstance) {
+            aiCropperInstance.setAspectRatio(ratio);
+        }
+        aiUpdateCropRatioButtons(ratio);
+    }
+
+    function aiUpdateCropRatioButtons(currentRatio) {
+        const buttons = document.querySelectorAll('.crop-ratio-btn');
+        buttons.forEach(btn => {
+            btn.classList.remove('bg-emerald-600', 'text-white');
+            btn.classList.add('bg-white', 'border', 'border-slate-200', 'text-slate-700');
+        });
+        let activeId = 'crop-ratio-free';
+        if (currentRatio === 1) activeId = 'crop-ratio-1';
+        else if (Math.abs(currentRatio - (16/9)) < 0.01) activeId = 'crop-ratio-16-9';
+        else if (Math.abs(currentRatio - (4/3)) < 0.01) activeId = 'crop-ratio-4-3';
+        else if (Math.abs(currentRatio - (9/16)) < 0.01) activeId = 'crop-ratio-9-16';
+
+        const activeBtn = document.getElementById(activeId);
+        if (activeBtn) {
+            activeBtn.classList.remove('bg-white', 'border', 'border-slate-200', 'text-slate-700');
+            activeBtn.classList.add('bg-emerald-600', 'text-white');
+        }
+    }
+
+    function aiApplyCrop() {
+        if (!aiCropperInstance) return;
+        const canvas = aiCropperInstance.getCroppedCanvas({
+            imageSmoothingEnabled: true,
+            imageSmoothingQuality: 'high'
+        });
+        if (!canvas) {
+            alert('Fehler beim Zuschneiden.');
+            return;
+        }
+        canvas.toBlob((blob) => {
+            const newUrl = canvas.toDataURL('image/png');
+            aiSetImagePreview(newUrl, blob, "✂️ Zugeschnitten (" + canvas.width + "x" + canvas.height + ")");
+            closeAiCropModal();
+        }, 'image/png');
+    }
+
+    // --- 2. BILD AUF WEB-GRÖSSE SKALIEREN (SCALE) ---
+    function aiOpenScaleTool() {
+        if (!aiCurrentDataUrl) {
+            alert('💡 Bitte lade zuerst ein Bild hoch oder erstelle eines im Generator, um es zu skalieren!');
+            const fileInput = document.getElementById('ai-file-input');
+            if (fileInput) fileInput.click();
+            return;
+        }
+
+        const img = new Image();
+        img.onload = function() {
+            aiScaleOriginalWidth = img.naturalWidth || img.width;
+            aiScaleOriginalHeight = img.naturalHeight || img.height;
+
+            const infoEl = document.getElementById('ai-scale-current-info');
+            if (infoEl) infoEl.innerText = `${aiScaleOriginalWidth} × ${aiScaleOriginalHeight} px`;
+
+            const wInput = document.getElementById('ai-scale-width');
+            const hInput = document.getElementById('ai-scale-height');
+            if (wInput) wInput.value = aiScaleOriginalWidth;
+            if (hInput) hInput.value = aiScaleOriginalHeight;
+
+            aiUpdateEstimatedSize();
+
+            const modal = document.getElementById('ai-scale-modal');
+            if (modal) modal.classList.remove('hidden');
+        };
+        img.src = aiCurrentDataUrl;
+    }
+
+    function closeAiScaleModal() {
+        const modal = document.getElementById('ai-scale-modal');
+        if (modal) modal.classList.add('hidden');
+    }
+
+    function aiSetScalePreset(w, h) {
+        const wInput = document.getElementById('ai-scale-width');
+        const hInput = document.getElementById('ai-scale-height');
+        if (wInput) wInput.value = w;
+        if (hInput) hInput.value = h;
+        aiUpdateEstimatedSize();
+    }
+
+    function aiOnScaleWidthChange() {
+        const lock = document.getElementById('ai-scale-lock-aspect')?.checked;
+        const wInput = document.getElementById('ai-scale-width');
+        const hInput = document.getElementById('ai-scale-height');
+        if (lock && wInput && hInput && aiScaleOriginalWidth > 0) {
+            const newW = parseInt(wInput.value) || 0;
+            const ratio = aiScaleOriginalHeight / aiScaleOriginalWidth;
+            hInput.value = Math.round(newW * ratio);
+        }
+        aiUpdateEstimatedSize();
+    }
+
+    function aiOnScaleHeightChange() {
+        const lock = document.getElementById('ai-scale-lock-aspect')?.checked;
+        const wInput = document.getElementById('ai-scale-width');
+        const hInput = document.getElementById('ai-scale-height');
+        if (lock && wInput && hInput && aiScaleOriginalHeight > 0) {
+            const newH = parseInt(hInput.value) || 0;
+            const ratio = aiScaleOriginalWidth / aiScaleOriginalHeight;
+            wInput.value = Math.round(newH * ratio);
+        }
+        aiUpdateEstimatedSize();
+    }
+
+    function aiUpdateEstimatedSize() {
+        const w = parseInt(document.getElementById('ai-scale-width')?.value) || 1024;
+        const h = parseInt(document.getElementById('ai-scale-height')?.value) || 1024;
+        const fmt = document.getElementById('ai-scale-format')?.value || 'image/webp';
+        const q = (parseInt(document.getElementById('ai-scale-quality')?.value) || 85) / 100;
+
+        const pixels = w * h;
+        let bytesPerPixel = 0.08 * q;
+        if (fmt === 'image/jpeg') bytesPerPixel = 0.12 * q;
+        else if (fmt === 'image/png') bytesPerPixel = 0.45;
+
+        const estKb = Math.max(12, Math.round((pixels * bytesPerPixel) / 1024));
+        const estBox = document.getElementById('ai-scale-estimate');
+        if (estBox) {
+            estBox.innerText = `Ziel: ${w} × ${h} px • Geschätzte Dateigrösse: ca. ${estKb} KB (Web-optimiert)`;
+        }
+    }
+
+    function aiApplyScale() {
+        if (!aiCurrentDataUrl) return;
+        const targetW = parseInt(document.getElementById('ai-scale-width')?.value) || 800;
+        const targetH = parseInt(document.getElementById('ai-scale-height')?.value) || 800;
+        const format = document.getElementById('ai-scale-format')?.value || 'image/webp';
+        const quality = (parseInt(document.getElementById('ai-scale-quality')?.value) || 85) / 100;
+
+        const img = new Image();
+        img.onload = function() {
+            const canvas = document.createElement('canvas');
+            canvas.width = targetW;
+            canvas.height = targetH;
+            const ctx = canvas.getContext('2d');
+            ctx.imageSmoothingEnabled = true;
+            ctx.imageSmoothingQuality = 'high';
+            ctx.drawImage(img, 0, 0, targetW, targetH);
+
+            canvas.toBlob(function(blob) {
+                const newUrl = canvas.toDataURL(format, quality);
+                const kb = Math.round(blob.size / 1024);
+                aiSetImagePreview(newUrl, blob, `📐 Web-skaliert (${targetW}×${targetH}, ${kb} KB)`);
+                closeAiScaleModal();
+            }, format, quality);
+        };
+        img.src = aiCurrentDataUrl;
+    }
+
 </script>
 </body>
 </html>
