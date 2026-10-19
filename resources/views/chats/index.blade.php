@@ -1777,10 +1777,11 @@
 
                             <!-- 5. Grüner Button rechts: "✨ Bild generieren" -->
                             <button type="button" id="ai-generate-btn" onclick="aiTriggerGenerate()" 
-        style="background: linear-gradient(135deg, #00a884 0%, #25d366 100%) !important; color: #ffffff !important; box-shadow: 0 4px 16px rgba(0, 168, 132, 0.45) !important; font-weight: 700; cursor: pointer;"
-        class="px-6 py-3 rounded-xl text-white font-bold text-sm sm:text-base flex items-center gap-2.5 transition-all transform hover:scale-105 active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed">
-    <svg id="ai-btn-icon" class="w-5 h-5 text-white animate-pulse" fill="currentColor" viewBox="0 0 24 24"><path d="M19 9l1.25-2.75L23 5l-2.75-1.25L19 1l-1.25 2.75L15 5l2.75 1.25L19 9zm-7.5.5L9 4 6.5 9.5 1 12l5.5 2.5L9 20l2.5-5.5L17 12l-5.5-2.5zM19 15l-1.25 2.75L15 19l2.75 1.25L19 23l1.25-2.75L23 19l-2.75-1.25L19 15z"/></svg>
-    <span id="ai-btn-text" class="text-white font-bold tracking-wide">✨ Bild generieren</span>
+        style="background: #00a884 !important; background-color: #00a884 !important; color: #ffffff !important; padding: 12px 26px !important; border-radius: 14px !important; border: 2px solid #005c47 !important; box-shadow: 0 4px 18px rgba(0, 168, 132, 0.55) !important; cursor: pointer !important; font-family: inherit !important; display: inline-flex !important; align-items: center !important; justify-content: center !important; gap: 8px !important; min-width: 180px !important;"
+        onmouseover="this.style.filter='brightness(1.1)'" onmouseout="this.style.filter='none'"
+        class="transition-all transform active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed">
+    <svg id="ai-btn-icon" style="width: 20px !important; height: 20px !important; fill: #ffffff !important; flex-shrink: 0 !important;" viewBox="0 0 24 24"><path d="M19 9l1.25-2.75L23 5l-2.75-1.25L19 1l-1.25 2.75L15 5l2.75 1.25L19 9zm-7.5.5L9 4 6.5 9.5 1 12l5.5 2.5L9 20l2.5-5.5L17 12l-5.5-2.5zM19 15l-1.25 2.75L15 19l2.75 1.25L19 23l1.25-2.75L23 19l-2.75-1.25L19 15z"/></svg>
+    <span id="ai-btn-text" style="color: #ffffff !important; font-weight: 800 !important; font-size: 15px !important; letter-spacing: 0.3px !important; text-shadow: 0 1px 2px rgba(0,0,0,0.3) !important;">✨ Bild generieren</span>
 </button>
                         </div>
                     </div>
