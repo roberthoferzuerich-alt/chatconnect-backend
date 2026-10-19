@@ -30,6 +30,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/chats/{conversation}/messages', [ChatController::class, 'store'])->name('chats.store');
     Route::get('/chats/{conversation}/new-messages', [ChatController::class, 'newMessages'])->name('chats.newMessages');
     Route::delete('/messages/{message}', [ChatController::class, 'destroy'])->name('messages.destroy');
+    Route::post('/ai-image/generate', [ChatController::class, 'generateAiImage'])->name('chats.aiImage');
 
     // Calls
     Route::get('/calls', [CallController::class, 'index'])->name('calls.index');

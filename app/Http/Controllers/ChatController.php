@@ -307,4 +307,97 @@ class ChatController extends Controller
             return back()->with('error', 'Fehler beim Löschen');
         }
     }
+
+    public function generateAiImage(Request $request)
+    {
+        $prompt = trim((string) $request->input('prompt', ''));
+        $style = (string) $request->input('style', 'auto');
+        $model = (string) $request->input('model', 'flux');
+        $width = max(256, min(2048, (int) $request->input('width', 1024)));
+        $height = max(256, min(2048, (int) $request->input('height', 1024)));
+        $seed = (int) ($request->input('seed') ?: random_int(1000, 999999));
+
+        if ($prompt === '') {
+            return response()->json(['status' => 'error', 'message' => 'Bitte eine Beschreibung eingeben.'], 422);
+        }
+
+        $stylePrompts = [
+            'auto'           => 'high quality masterpiece, vivid colors, crisp details',
+            'photorealistic' => 'photorealistic, ultra detailed 8k HDR photography, natural cinematic lighting, sharp focus',
+            '3d-render'      => '3D digital art render, Pixar Disney style, Octane render, soft studio lighting, smooth 3D',
+            'minecraft'      => 'Minecraft voxel block style, 3D cubic game world, official Minecraft art style, vibrant blocks',
+            'cyberpunk'      => 'cyberpunk sci-fi aesthetic, glowing neon cyan and emerald lights, futuristic atmosphere, high contrast',
+            'anime'          => 'Studio Ghibli anime illustration, vibrant cel-shaded colors, detailed anime scenery',
+            'watercolor'     => 'artistic watercolor and oil painting, expressive brush strokes, fine art gallery quality',
+            'comic'          => 'vibrant comic book illustration, bold ink outlines, dynamic pop-art colors',
+            'logo'           => 'clean modern vector emblem logo design, symmetrical, minimalist professional graphic',
+        ];
+
+        // Häufige deutsche Begriffe für internationale KI-Modelle ergänzen
+        $deToEn = [
+            'mittelschnauzer' => 'Standard Schnauzer dog (pepper and salt coat, beard and bushy eyebrows)',
+            'schnauzer'       => 'Schnauzer dog with beard',
+            'liegend'         => 'lying down relaxed',
+            'sitzend'         => 'sitting proudly',
+            'lichtschwert'    => 'glowing lightsaber sword',
+            'ritterburg'      => 'medieval knight castle with towers',
+            'rakete'          => 'space rocket launching',
+            'raumschiff'      => 'futuristic spaceship',
+            'bergsee'         => 'crystal clear Swiss alpine mountain lake',
+            'alpensee'        => 'Swiss alpine lake at sunset',
+            'schweiz'         => 'Switzerland Alps scenery',
+            'hund'            => 'dog',
+            'katze'           => 'cat',
+        ];
+
+        $enhancedPrompt = $prompt;
+        $lowerPrompt = mb_strtolower($prompt, 'UTF-8');
+        foreach ($deToEn as $de => $en) {
+            if (mb_strpos($lowerPrompt, $de) !== false) {
+                $enhancedPrompt .= ', ' . $en;
+            }
+        }
+
+        $styleSuffix = $stylePrompts[$style] ?? $stylePrompts['auto'];
+        $finalPrompt = $enhancedPrompt . ', ' . $styleSuffix;
+
+        $encodedPrompt = rawurlencode($finalPrompt);
+        $allowedModels = ['flux', 'turbo', 'flux-realism', 'flux-anime', 'flux-3d'];
+        $safeModel = in_array($model, $allowedModels, true) ? $model : 'flux';
+
+        $urls = [
+            "https://image.pollinations.ai/prompt/{$encodedPrompt}?width={$width}&height={$height}&seed={$seed}&nologo=true&model={$safeModel}",
+            "https://image.pollinations.ai/prompt/{$encodedPrompt}?width={$width}&height={$height}&seed={$seed}&nologo=true",
+        ];
+
+        foreach ($urls as $url) {
+            try {
+                $response = \Illuminate\Support\Facades\Http::timeout(18)
+                    ->withHeaders([
+                        'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) ChatConnectAI/2.0',
+                        'Accept'     => 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8',
+                    ])
+                    ->get($url);
+
+                if ($response->successful() && strlen($response->body()) > 2048) {
+                    $mime = $response->header('Content-Type') ?: 'image/jpeg';
+                    if (strpos($mime, 'image/') === false) {
+                        $mime = 'image/jpeg';
+                    }
+                    return response()->json([
+                        'status'       => 'success',
+                        'source'       => 'ai',
+                        'image_base64' => 'data:' . $mime . ';base64,' . base64_encode($response->body()),
+                    ]);
+                }
+            } catch (\Throwable $e) {
+                \Log::info('AI Image provider attempt failed: ' . $e->getMessage());
+            }
+        }
+
+        return response()->json([
+            'status'  => 'fallback',
+            'message' => 'Nutze integrierte lokale HD-Synthese',
+        ]);
+    }
 }

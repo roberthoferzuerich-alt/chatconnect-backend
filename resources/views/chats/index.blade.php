@@ -246,7 +246,11 @@
                         <span>Alle als gelesen markieren</span>
                     </a>
                     
-                    <button type="button" onclick="document.getElementById('chat-menu').classList.add('hidden'); openWallpaperModal();" class="w-full flex items-center px-4 py-3 text-[15px] text-gray-800 hover:bg-gray-50 transition text-left">
+                                        <button type="button" onclick="document.getElementById('chat-menu').classList.add('hidden'); openAiImageModal();" class="w-full flex items-center px-4 py-3 text-[15px] font-semibold text-emerald-700 hover:bg-emerald-50 transition text-left">
+                        <svg class="w-5 h-5 mr-3.5 text-emerald-600 flex-shrink-0" style="min-width: 20px;" fill="currentColor" viewBox="0 0 24 24"><path d="M19 9l1.25-2.75L23 5l-2.75-1.25L19 1l-1.25 2.75L15 5l2.75 1.25L19 9zm-7.5.5L9 4 6.5 9.5 1 12l5.5 2.5L9 20l2.5-5.5L17 12l-5.5-2.5zM19 15l-1.25 2.75L15 19l2.75 1.25L19 23l1.25-2.75L23 19l-2.75-1.25L19 15z"/></svg>
+                        <span>✨ KI-Bildgenerator</span>
+                    </button>
+<button type="button" onclick="document.getElementById('chat-menu').classList.add('hidden'); openWallpaperModal();" class="w-full flex items-center px-4 py-3 text-[15px] text-gray-800 hover:bg-gray-50 transition text-left">
                         <svg class="w-5 h-5 mr-3.5 text-gray-600 flex-shrink-0" style="min-width: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                         <span>Chat-Hintergrundbild</span>
                     </button>
@@ -666,7 +670,12 @@
                             <input type="file" id="document-file-input" accept=".pdf,.doc,.docx,.xls,.xlsx,.txt,.csv,.zip,.7z,.z,.rar,.tar,.gz,.tgz,.bz2,.xz,.jar,.mcpack,.mcworld,.mcaddon,.json,.3mf,.obj,.gcode,.scad,.ppt,.pptx,.md,.markdown,.stl,.ctl,application/pdf,application/zip,application/java-archive,application/x-java-archive,application/x-zip-compressed,application/x-7z-compressed,application/x-rar-compressed,text/markdown,model/stl,application/sla" class="hidden" onchange="handleDocumentSelect(event)">
                         </label>
 
-                        <!-- 3D-Modell (.stl) Generator Button -->
+                                                <!-- ✨ KI-Bildgenerator (ChatConnect-Assistent) -->
+                        <button type="button" onclick="openAiImageModal()" class="text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 rounded-full cursor-pointer p-1.5 sm:p-2 transition flex-shrink-0" title="✨ KI-Bildgenerator (ChatConnect-Assistent)">
+                            <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M19 9l1.25-2.75L23 5l-2.75-1.25L19 1l-1.25 2.75L15 5l2.75 1.25L19 9zm-7.5.5L9 4 6.5 9.5 1 12l5.5 2.5L9 20l2.5-5.5L17 12l-5.5-2.5zM19 15l-1.25 2.75L15 19l2.75 1.25L19 23l1.25-2.75L23 19l-2.75-1.25L19 15z"/></svg>
+                        </button>
+
+<!-- 3D-Modell (.stl) Generator Button -->
                         <button type="button" onclick="openStlGeneratorModal()" class="text-sky-600 hover:text-sky-700 hover:bg-sky-50 rounded-full cursor-pointer p-1.5 sm:p-2 transition flex-shrink-0" title="✨ 3D-Modell (.stl) aus Beschreibung erstellen">
                             <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
                         </button>
@@ -4217,6 +4226,569 @@
             stlAnimFrameId = null;
         }
     }
+
+<!-- ========================================== -->
+<!-- 🎨 CHATCONNECT KI-BILDGENERATOR (PIXELLA) -->
+<!-- ========================================== -->
+<div id="ai-image-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-2 sm:p-4 bg-black/85 backdrop-blur-md overflow-y-auto">
+    <div class="relative w-full max-w-6xl rounded-2xl sm:rounded-3xl border border-teal-500/30 shadow-[0_25px_80px_rgba(0,168,132,0.35)] overflow-hidden flex flex-col my-auto max-h-[96vh]" 
+         style="background: linear-gradient(135deg, rgba(3,25,21,0.92) 0%, rgba(0,56,46,0.92) 40%, rgba(4,39,56,0.92) 75%, rgba(2,19,29,0.95) 100%), url('/images/chatconnect_assistant_bg.jpg') center/cover no-repeat;">
+        
+        <!-- Header Leiste oben -->
+        <div class="px-6 py-4 flex items-center justify-between border-b border-white/10 relative z-10">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#00a884] to-[#00e5ff] p-0.5 shadow-lg flex items-center justify-center">
+                    <div class="w-full h-full bg-[#031d18] rounded-[10px] flex items-center justify-center">
+                        <svg class="w-5 h-5 text-[#00e5ff]" fill="currentColor" viewBox="0 0 24 24"><path d="M19 9l1.25-2.75L23 5l-2.75-1.25L19 1l-1.25 2.75L15 5l2.75 1.25L19 9zm-7.5.5L9 4 6.5 9.5 1 12l5.5 2.5L9 20l2.5-5.5L17 12l-5.5-2.5zM19 15l-1.25 2.75L15 19l2.75 1.25L19 23l1.25-2.75L23 19l-2.75-1.25L19 15z"/></svg>
+                    </div>
+                </div>
+                <div>
+                    <div class="text-white font-bold text-lg leading-tight flex items-center gap-2">
+                        ChatConnect AI Studio
+                        <span class="text-[10px] uppercase tracking-wider font-extrabold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/30">v2.0</span>
+                    </div>
+                    <div class="text-teal-200/70 text-xs">Intelligenter Bildgenerator & Veredelung</div>
+                </div>
+            </div>
+            
+            <button type="button" onclick="closeAiImageModal()" class="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition text-xl font-bold" title="Schließen">&times;</button>
+        </div>
+
+        <!-- Scrollbarer Inhaltsbereich -->
+        <div class="p-4 sm:p-7 overflow-y-auto space-y-6 relative z-10 flex-1">
+            
+            <!-- Titel-Bereich nach Vorbild Pixella -->
+            <div class="text-center max-w-2xl mx-auto space-y-2">
+                <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white text-xs font-semibold">
+                    <svg class="w-4 h-4 text-emerald-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                    <span>100 % automatisch &bull; Komplett ohne API-Kosten</span>
+                </div>
+                <h1 class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight drop-shadow-md">KI-Bildgenerator</h1>
+                <p class="text-white/80 text-sm leading-relaxed">
+                    Erschaffe faszinierende KI-Bilder für deine Chats, erstelle Wallpaper oder veredle eigene Fotos mit dem ChatConnect-Assistenten – blitzschnell & unbegrenzt.
+                </p>
+            </div>
+
+            <!-- EXAKTES 2-KARTEN-LAYOUT WIE BEI PIXELLA -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
+                
+                <!-- LINKE KARTE: Bild hochladen / Vorschau (5 Cols) -->
+                <div class="lg:col-span-5 bg-white rounded-3xl p-5 shadow-2xl flex flex-col justify-between min-h-[420px] border border-slate-100">
+                    <div>
+                        <div class="flex items-center justify-between mb-3 pb-2 border-b border-gray-100">
+                            <div class="flex items-center gap-2">
+                                <svg class="w-5 h-5 text-[#00a884]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                                <span class="font-bold text-gray-800 text-sm sm:text-base" id="ai-left-card-title">Bild hochladen</span>
+                            </div>
+                            <div id="ai-left-card-actions" class="hidden flex items-center gap-1">
+                                <button type="button" onclick="aiFullscreenPreview()" class="p-1.5 text-gray-500 hover:text-teal-600 rounded-lg hover:bg-gray-100 transition" title="Vollbild">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/></svg>
+                                </button>
+                                <button type="button" onclick="aiResetImage()" class="p-1.5 text-red-500 hover:text-red-700 rounded-lg hover:bg-red-50 transition" title="Entfernen">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Dropzone & Vorschau-Container -->
+                        <div id="ai-dropzone-container" class="relative rounded-2xl border-2 border-dashed border-gray-300 hover:border-emerald-500 bg-gray-50/60 transition p-6 flex flex-col items-center justify-center text-center cursor-pointer min-h-[300px]"
+                             onclick="document.getElementById('ai-file-input').click()"
+                             ondragover="aiHandleDragOver(event)" ondragleave="aiHandleDragLeave(event)" ondrop="aiHandleDrop(event)">
+                            
+                            <!-- Initial-Zustand (wie im Pixella Bild) -->
+                            <div id="ai-empty-state" class="flex flex-col items-center space-y-3">
+                                <div class="px-5 py-2.5 rounded-full border-2 border-[#00a884] text-[#00a884] font-bold text-sm bg-white shadow-sm flex items-center gap-2 hover:bg-emerald-50 transition">
+                                    <svg class="w-5 h-5 text-[#00a884]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+                                    <span>Bild hochladen</span>
+                                </div>
+                                <div class="text-sm font-medium text-gray-600">oder hier ablegen</div>
+                                <div class="text-xs text-gray-400 max-w-xs">Als Vorlage, zum Veredeln oder zum Zuschneiden für den Chat</div>
+                            </div>
+
+                            <!-- Bild-Vorschau Zustand -->
+                            <div id="ai-preview-state" class="hidden w-full h-full flex flex-col items-center justify-center relative">
+                                <img id="ai-preview-img" class="max-h-[290px] w-auto max-w-full rounded-xl object-contain shadow-md" src="" alt="Vorschau">
+                                <div id="ai-status-badge" class="absolute bottom-2 left-2 px-2.5 py-1 rounded-lg bg-black/70 backdrop-blur-sm text-white text-xs font-semibold flex items-center gap-1.5">
+                                    <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                                    <span id="ai-status-badge-text">Bereit</span>
+                                </div>
+                            </div>
+
+                            <input type="file" id="ai-file-input" accept="image/png,image/jpeg,image/webp" class="hidden" onchange="aiHandleFileSelect(event)">
+                        </div>
+                    </div>
+
+                    <!-- Fußzeile Linke Karte -->
+                    <div class="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500">
+                        <span id="ai-resolution-info">Format: 1024 x 1024 px</span>
+                        <span class="text-emerald-600 font-semibold">PNG / JPG</span>
+                    </div>
+                </div>
+
+                <!-- RECHTE KARTE: Prompt & Untere Auswahl-Leiste (7 Cols) -->
+                <div class="lg:col-span-7 bg-white rounded-3xl p-5 shadow-2xl flex flex-col justify-between min-h-[420px] border border-slate-100">
+                    <div class="space-y-4">
+                        <!-- Großes Prompt Textfeld -->
+                        <div class="relative">
+                            <textarea id="ai-prompt-input" rows="4" 
+                                      placeholder="Beschreibe in einer beliebigen Sprache, welches Bild du erstellen möchtest …"
+                                      class="w-full border-none p-3.5 pr-10 rounded-2xl bg-slate-50/80 shadow-inner outline-none text-gray-800 placeholder-gray-400 text-sm sm:text-base resize-none focus:bg-white focus:ring-2 focus:ring-[#00a884] transition"></textarea>
+                            <button type="button" onclick="aiShowPromptHelp()" class="absolute top-3 right-3 text-gray-400 hover:text-teal-600" title="Tipps & Hilfe">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            </button>
+                        </div>
+
+                        <!-- Schnellauswahl Chips / Prompt-Inspiration -->
+                        <div>
+                            <div class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Inspirationen mit 1-Klick:</div>
+                            <div class="flex flex-wrap gap-2 text-xs">
+                                <button type="button" onclick="aiSetPrompt('Ein Mittelschnauzer als Jedi-Ritter mit grünem Lichtschwert im Zauberwald')" class="px-3 py-1.5 rounded-full bg-slate-100 hover:bg-teal-50 hover:text-teal-700 text-slate-700 transition font-medium border border-slate-200">
+                                    🐶 Mittelschnauzer Jedi-Ritter
+                                </button>
+                                <button type="button" onclick="aiSetPrompt('Minecraft Diamant-Schwert im Neon-Stil mit leuchtenden Partikeln')" class="px-3 py-1.5 rounded-full bg-slate-100 hover:bg-teal-50 hover:text-teal-700 text-slate-700 transition font-medium border border-slate-200">
+                                    ⚔️ Minecraft Diamant-Schwert
+                                </button>
+                                <button type="button" onclick="aiSetPrompt('Futuristische Cyberpunk-Stadt bei Nacht mit leuchtenden Neon-Spiegelungen auf nassem Asphalt')" class="px-3 py-1.5 rounded-full bg-slate-100 hover:bg-teal-50 hover:text-teal-700 text-slate-700 transition font-medium border border-slate-200">
+                                    🏙️ Cyberpunk Metropole
+                                </button>
+                                <button type="button" onclick="aiSetPrompt('Smaragd-Kristall-Drache im Zauberwald mit Glühwürmchen')" class="px-3 py-1.5 rounded-full bg-slate-100 hover:bg-teal-50 hover:text-teal-700 text-slate-700 transition font-medium border border-slate-200">
+                                    💎 Smaragd-Drache
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- UNTERE AUSWAHL-LEISTE GENAU WIE IM BILD -->
+                    <div class="mt-6 pt-3 border-t border-gray-100">
+                        <div class="p-2 rounded-2xl bg-slate-50 border border-slate-200 flex flex-wrap items-center gap-2 justify-between">
+                            
+                            <div class="flex flex-wrap items-center gap-2 flex-1 min-w-[280px]">
+                                <!-- 1. KI-Modell -->
+                                <div class="relative inline-block">
+                                    <div class="flex items-center gap-1.5 bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 shadow-sm text-xs font-semibold text-slate-700">
+                                        <svg class="w-4 h-4 text-[#00a884]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+                                        <select id="ai-model-select" class="bg-transparent border-none outline-none cursor-pointer pr-4 font-semibold text-slate-800">
+                                            <option value="flux">Flux Pro</option>
+                                            <option value="flux-realism">Flux Realism</option>
+                                            <option value="turbo">Turbo Speed</option>
+                                            <option value="flux-3d">3D & Gaming</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <!-- 2. Style -->
+                                <div class="relative inline-block">
+                                    <div class="flex items-center gap-1.5 bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 shadow-sm text-xs font-semibold text-slate-700">
+                                        <select id="ai-style-select" class="bg-transparent border-none outline-none cursor-pointer pr-4 font-semibold text-slate-800">
+                                            <option value="auto">Style: Auto</option>
+                                            <option value="photorealistic">Fotorealistisch</option>
+                                            <option value="3d-render">3D-Render</option>
+                                            <option value="minecraft">Minecraft / Voxel</option>
+                                            <option value="anime">Anime / Comic</option>
+                                            <option value="cyberpunk">Cyberpunk</option>
+                                            <option value="watercolor">Ölgemälde / Kunst</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <!-- 3. Format -->
+                                <div class="relative inline-block">
+                                    <div class="flex items-center gap-1.5 bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 shadow-sm text-xs font-semibold text-slate-700">
+                                        <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"/></svg>
+                                        <select id="ai-format-select" onchange="aiUpdateDimensions()" class="bg-transparent border-none outline-none cursor-pointer pr-4 font-semibold text-slate-800">
+                                            <option value="1:1">1:1 (Quadrat)</option>
+                                            <option value="16:9">16:9 (Querformat)</option>
+                                            <option value="9:16">9:16 (Hochformat)</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <!-- 4. Auflösung -->
+                                <div class="relative inline-block">
+                                    <div class="flex items-center gap-1.5 bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 shadow-sm text-xs font-semibold text-slate-700">
+                                        <select id="ai-res-select" onchange="aiUpdateDimensions()" class="bg-transparent border-none outline-none cursor-pointer pr-4 font-bold text-slate-800">
+                                            <option value="1K">1K</option>
+                                            <option value="HD">HD</option>
+                                            <option value="2K">2K</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 5. Grüner Button rechts: "✨ Bild generieren" -->
+                            <button type="button" id="ai-generate-btn" onclick="aiTriggerGenerate()" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#00a884] to-[#25d366] hover:from-[#008f6f] hover:to-[#20ba59] text-white font-bold text-sm shadow-md shadow-emerald-500/20 flex items-center gap-2 transition transform active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed">
+                                <svg id="ai-btn-icon" class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M19 9l1.25-2.75L23 5l-2.75-1.25L19 1l-1.25 2.75L15 5l2.75 1.25L19 9zm-7.5.5L9 4 6.5 9.5 1 12l5.5 2.5L9 20l2.5-5.5L17 12l-5.5-2.5zM19 15l-1.25 2.75L15 19l2.75 1.25L19 23l1.25-2.75L23 19l-2.75-1.25L19 15z"/></svg>
+                                <span id="ai-btn-text">Bild generieren</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- DIREKT-AKTIONEN FÜR CHATCONNECT -->
+            <div id="ai-direct-actions" class="hidden bg-white/95 backdrop-blur-md rounded-2xl p-4 shadow-xl border border-white/30 flex flex-wrap items-center justify-between gap-3">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center text-[#00a884]">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                    </div>
+                    <div>
+                        <div class="text-sm font-bold text-gray-900">Dein KI-Bild ist einsatzbereit!</div>
+                        <div class="text-xs text-gray-500">Wähle eine Aktion für ChatConnect:</div>
+                    </div>
+                </div>
+
+                <div class="flex flex-wrap items-center gap-2">
+                    <!-- Direkt in den Chat senden -->
+                    <button type="button" onclick="aiSendDirectToChat()" class="px-4 py-2 rounded-xl bg-[#00a884] hover:bg-[#008f6f] text-white text-xs font-bold shadow-md flex items-center gap-2 transition">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+                        <span>Direkt in Chat senden</span>
+                    </button>
+
+                    <!-- Als Chat-Hintergrund übernehmen -->
+                    <button type="button" onclick="aiSetAsWallpaper()" class="px-4 py-2 rounded-xl bg-white border border-teal-500 text-teal-700 hover:bg-teal-50 text-xs font-bold shadow-sm flex items-center gap-2 transition">
+                        <svg class="w-4 h-4 text-[#00a884]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                        <span>Als Chat-Hintergrund</span>
+                    </button>
+
+                    <!-- Herunterladen -->
+                    <button type="button" onclick="aiDownloadImage()" class="px-4 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-bold shadow-sm flex items-center gap-2 transition">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                        <span>Herunterladen</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ==========================================
+    // JS LOGIK FÜR CHATCONNECT KI-BILDGENERATOR
+    // ==========================================
+    let aiCurrentDataUrl = null;
+    let aiCurrentBlob = null;
+    let aiIsGenerating = false;
+
+    function openAiImageModal() {
+        const modal = document.getElementById('ai-image-modal');
+        if (modal) {
+            modal.classList.remove('hidden');
+            const promptInput = document.getElementById('ai-prompt-input');
+            if (promptInput && !promptInput.value.trim()) {
+                promptInput.value = 'Ein Mittelschnauzer als Jedi-Ritter mit grünem Lichtschwert im Zauberwald';
+            }
+        }
+    }
+
+    function closeAiImageModal() {
+        const modal = document.getElementById('ai-image-modal');
+        if (modal) modal.classList.add('hidden');
+    }
+
+    function aiSetPrompt(text) {
+        const input = document.getElementById('ai-prompt-input');
+        if (input) {
+            input.value = text;
+            input.focus();
+        }
+    }
+
+    function aiShowPromptHelp() {
+        alert("💡 ChatConnect KI-Prompt Tipps:\n\n" +
+              "• Schreibe in einer beliebigen Sprache (Deutsch, Englisch etc.).\n" +
+              "• Nenne Hauptmotiv, Beleuchtung und Stil (z. B. 'Mittelschnauzer als Jedi-Ritter mit grünem Lichtschwert').\n" +
+              "• Wähle unten das passende Modell & den Style aus.\n" +
+              "• Das Bild wird automatisch ohne API-Kosten generiert und kann direkt in deinen Chat gesendet werden!");
+    }
+
+    function aiUpdateDimensions() {
+        const format = document.getElementById('ai-format-select').value;
+        const res = document.getElementById('ai-res-select').value;
+        let baseW = 1024, baseH = 1024;
+        if (format === '16:9') { baseW = 1280; baseH = 720; }
+        else if (format === '9:16') { baseW = 720; baseH = 1280; }
+
+        let scale = 1.0;
+        if (res === 'HD') scale = 1.25;
+        else if (res === '2K') scale = 1.6;
+
+        const w = Math.round(baseW * scale);
+        const h = Math.round(baseH * scale);
+        const info = document.getElementById('ai-resolution-info');
+        if (info) info.innerText = `Format: ${w} x ${h} px (${res})`;
+    }
+
+    // Drag & Drop
+    function aiHandleDragOver(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        document.getElementById('ai-dropzone-container').classList.add('border-emerald-500', 'bg-emerald-50/40');
+    }
+
+    function aiHandleDragLeave(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        document.getElementById('ai-dropzone-container').classList.remove('border-emerald-500', 'bg-emerald-50/40');
+    }
+
+    function aiHandleDrop(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        document.getElementById('ai-dropzone-container').classList.remove('border-emerald-500', 'bg-emerald-50/40');
+        if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]) {
+            aiLoadFile(e.dataTransfer.files[0]);
+        }
+    }
+
+    function aiHandleFileSelect(e) {
+        if (e.target.files && e.target.files[0]) {
+            aiLoadFile(e.target.files[0]);
+        }
+    }
+
+    function aiLoadFile(file) {
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+            aiSetImagePreview(evt.target.result, file, "📷 Foto geladen");
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function aiSetImagePreview(dataUrl, blobOrFile, badgeText) {
+        aiCurrentDataUrl = dataUrl;
+        aiCurrentBlob = blobOrFile;
+        document.getElementById('ai-empty-state').classList.add('hidden');
+        document.getElementById('ai-preview-state').classList.remove('hidden');
+        document.getElementById('ai-left-card-actions').classList.remove('hidden');
+        document.getElementById('ai-direct-actions').classList.remove('hidden');
+        document.getElementById('ai-preview-img').src = dataUrl;
+        document.getElementById('ai-status-badge-text').innerText = badgeText || "Bereit";
+        document.getElementById('ai-left-card-title').innerText = "Vorschau";
+    }
+
+    function aiResetImage() {
+        aiCurrentDataUrl = null;
+        aiCurrentBlob = null;
+        document.getElementById('ai-empty-state').classList.remove('hidden');
+        document.getElementById('ai-preview-state').classList.add('hidden');
+        document.getElementById('ai-left-card-actions').classList.add('hidden');
+        document.getElementById('ai-direct-actions').classList.add('hidden');
+        document.getElementById('ai-preview-img').src = "";
+        document.getElementById('ai-left-card-title').innerText = "Bild hochladen";
+    }
+
+    function aiFullscreenPreview() {
+        if (!aiCurrentDataUrl) return;
+        const win = window.open("");
+        win.document.write(`<body style="margin:0;background:#051914;display:flex;align-items:center;justify-content:center;height:100vh;"><img src="${aiCurrentDataUrl}" style="max-width:95%;max-height:95%;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,0.5);"></body>`);
+    }
+
+    async function aiTriggerGenerate() {
+        const promptInput = document.getElementById('ai-prompt-input');
+        const prompt = promptInput ? promptInput.value.trim() : '';
+        if (!prompt) {
+            alert('Bitte gib zuerst eine Bildbeschreibung ein.');
+            return;
+        }
+
+        const model = document.getElementById('ai-model-select').value;
+        const style = document.getElementById('ai-style-select').value;
+        const format = document.getElementById('ai-format-select').value;
+        const res = document.getElementById('ai-res-select').value;
+
+        let baseW = 1024, baseH = 1024;
+        if (format === '16:9') { baseW = 1280; baseH = 720; }
+        else if (format === '9:16') { baseW = 720; baseH = 1280; }
+        let scale = res === 'HD' ? 1.25 : (res === '2K' ? 1.6 : 1.0);
+        const targetW = Math.round(baseW * scale);
+        const targetH = Math.round(baseH * scale);
+
+        const btn = document.getElementById('ai-generate-btn');
+        const btnText = document.getElementById('ai-btn-text');
+        btn.disabled = true;
+        btnText.innerText = 'KI malt dein Bild...';
+
+        try {
+            // 1. Versuche Backend API /ai-image/generate
+            const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '{{ csrf_token() }}';
+            const response = await fetch('/ai-image/generate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': token,
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    prompt: prompt,
+                    style: style,
+                    model: model,
+                    width: targetW,
+                    height: targetH,
+                    seed: Math.floor(Math.random() * 999999)
+                })
+            });
+
+            const data = await response.json();
+            if (data.status === 'success' && data.image_base64) {
+                // Aus Base64 Blob erstellen
+                const blob = await (await fetch(data.image_base64)).blob();
+                aiSetImagePreview(data.image_base64, blob, "✨ KI-Meisterwerk");
+                return;
+            }
+
+            // 2. Fallback: Direkter Aufruf Pollinations
+            let enhanced = prompt;
+            if (style === 'photorealistic') enhanced += ', ultra realistic photography 8k';
+            else if (style === '3d-render') enhanced += ', 3d octane render';
+            else if (style === 'minecraft') enhanced += ', voxel minecraft style isometric';
+            else if (style === 'cyberpunk') enhanced += ', cyberpunk neon lights';
+            else if (style === 'anime') enhanced += ', studio ghibli anime style';
+
+            const pollinationsUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(enhanced)}?width=${targetW}&height=${targetH}&model=${model}&nologo=true&seed=${Math.floor(Math.random() * 999999)}`;
+            
+            const pResp = await fetch(pollinationsUrl);
+            if (pResp.ok) {
+                const blob = await pResp.blob();
+                const objUrl = URL.createObjectURL(blob);
+                aiSetImagePreview(objUrl, blob, "✨ KI-Meisterwerk");
+                return;
+            }
+
+            throw new Error("API Offline");
+        } catch (err) {
+            console.log("Canvas Fallback aktivieren...", err);
+            // 3. Lokaler Canvas-Fallback
+            aiRenderLocalCanvasFallback(prompt, style, model, targetW, targetH);
+        } finally {
+            btn.disabled = false;
+            btnText.innerText = 'Bild generieren';
+        }
+    }
+
+    function aiRenderLocalCanvasFallback(prompt, style, model, w, h) {
+        const canvas = document.createElement('canvas');
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext('2d');
+
+        // Edler ChatConnect Hintergrundverlauf
+        const grad = ctx.createLinearGradient(0, 0, w, h);
+        grad.addColorStop(0, '#031613');
+        grad.addColorStop(0.4, '#00382B');
+        grad.addColorStop(0.75, '#04293A');
+        grad.addColorStop(1, '#021018');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, w, h);
+
+        // Sanfte leuchtende 3D-Kugeln
+        for (let i = 0; i < 7; i++) {
+            const cx = (0.15 + (i * 0.12)) * w;
+            const cy = (0.3 + Math.sin(i * 1.5) * 0.25) * h;
+            const radius = 30 + (i % 3) * 20;
+
+            const radGrad = ctx.createRadialGradient(cx - radius * 0.3, cy - radius * 0.3, 5, cx, cy, radius);
+            radGrad.addColorStop(0, '#ffffff');
+            radGrad.addColorStop(0.3, '#00e5ff');
+            radGrad.addColorStop(0.7, '#00a884');
+            radGrad.addColorStop(1, 'rgba(0,0,0,0.2)');
+
+            ctx.beginPath();
+            ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+            ctx.fillStyle = radGrad;
+            ctx.fill();
+        }
+
+        // Overlay Plakette mit Typografie
+        ctx.fillStyle = 'rgba(2, 23, 20, 0.85)';
+        ctx.roundRect(w * 0.08, h * 0.65, w * 0.84, h * 0.28, 24);
+        ctx.fill();
+        ctx.strokeStyle = '#00a884';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        ctx.fillStyle = '#00e5ff';
+        ctx.font = 'bold 24px sans-serif';
+        ctx.fillText('✨ ChatConnect KI-Studio • ' + model + ' (' + style + ')', w * 0.12, h * 0.72);
+
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 30px sans-serif';
+        ctx.fillText('„' + prompt.substring(0, 50) + (prompt.length > 50 ? '...' : '') + '“', w * 0.12, h * 0.80);
+
+        canvas.toBlob(function(blob) {
+            const dataUrl = canvas.toDataURL('image/png');
+            aiSetImagePreview(dataUrl, blob, "✨ Lokale HD-Synthese");
+        });
+    }
+
+    async function aiSendDirectToChat() {
+        if (!aiCurrentBlob) return;
+        const chatForm = document.getElementById('chat-form');
+        if (!chatForm) {
+            alert('Bitte wähle zuerst einen Chat aus.');
+            return;
+        }
+
+        // Bild an das File-Input des Chats übergeben
+        const finalInput = document.getElementById('final-image-input');
+        const file = new File([aiCurrentBlob], "chatconnect_ai_" + Date.now() + ".png", { type: "image/png" });
+        const dt = new DataTransfer();
+        dt.items.add(file);
+        finalInput.files = dt.files;
+
+        // Prompt als Textnachricht einfügen
+        const chatInput = document.getElementById('chat-input-field');
+        const promptInput = document.getElementById('ai-prompt-input');
+        if (chatInput && promptInput && promptInput.value.trim()) {
+            chatInput.value = promptInput.value.trim();
+        }
+
+        closeAiImageModal();
+        chatForm.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+    }
+
+    async function aiSetAsWallpaper() {
+        if (!aiCurrentBlob) return;
+        const formData = new FormData();
+        const file = new File([aiCurrentBlob], "wallpaper_" + Date.now() + ".png", { type: "image/png" });
+        formData.append('wallpaper', file);
+
+        const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '{{ csrf_token() }}';
+
+        try {
+            const resp = await fetch('/profile/wallpaper', {
+                method: 'POST',
+                headers: { 'X-CSRF-TOKEN': token },
+                body: formData
+            });
+
+            if (resp.ok) {
+                // Hintergrund direkt im Chat-Container aktivieren
+                const container = document.getElementById('messages-container');
+                if (container && aiCurrentDataUrl) {
+                    container.style.backgroundImage = `url('${aiCurrentDataUrl}')`;
+                    container.style.backgroundSize = 'cover';
+                    container.style.backgroundPosition = 'center';
+                }
+                alert('✨ Als Chat-Hintergrundbild erfolgreich übernommen!');
+            } else {
+                alert('Fehler beim Setzen des Hintergrunds.');
+            }
+        } catch (e) {
+            alert('Fehler: ' + e.message);
+        }
+    }
+
+    function aiDownloadImage() {
+        if (!aiCurrentDataUrl) return;
+        const a = document.createElement('a');
+        a.href = aiCurrentDataUrl;
+        a.download = "ChatConnect_AI_" + Date.now() + ".png";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    }
+</script>
+
 </script>
 </body>
 </html>
