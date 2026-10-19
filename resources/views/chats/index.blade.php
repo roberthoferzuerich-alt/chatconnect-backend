@@ -1776,10 +1776,12 @@
                             </div>
 
                             <!-- 5. Grüner Button rechts: "✨ Bild generieren" -->
-                            <button type="button" id="ai-generate-btn" onclick="aiTriggerGenerate()" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#00a884] to-[#25d366] hover:from-[#008f6f] hover:to-[#20ba59] text-white font-bold text-sm shadow-md shadow-emerald-500/20 flex items-center gap-2 transition transform active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed">
-                                <svg id="ai-btn-icon" class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M19 9l1.25-2.75L23 5l-2.75-1.25L19 1l-1.25 2.75L15 5l2.75 1.25L19 9zm-7.5.5L9 4 6.5 9.5 1 12l5.5 2.5L9 20l2.5-5.5L17 12l-5.5-2.5zM19 15l-1.25 2.75L15 19l2.75 1.25L19 23l1.25-2.75L23 19l-2.75-1.25L19 15z"/></svg>
-                                <span id="ai-btn-text">Bild generieren</span>
-                            </button>
+                            <button type="button" id="ai-generate-btn" onclick="aiTriggerGenerate()" 
+        style="background: linear-gradient(135deg, #00a884 0%, #25d366 100%) !important; color: #ffffff !important; box-shadow: 0 4px 16px rgba(0, 168, 132, 0.45) !important; font-weight: 700; cursor: pointer;"
+        class="px-6 py-3 rounded-xl text-white font-bold text-sm sm:text-base flex items-center gap-2.5 transition-all transform hover:scale-105 active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed">
+    <svg id="ai-btn-icon" class="w-5 h-5 text-white animate-pulse" fill="currentColor" viewBox="0 0 24 24"><path d="M19 9l1.25-2.75L23 5l-2.75-1.25L19 1l-1.25 2.75L15 5l2.75 1.25L19 9zm-7.5.5L9 4 6.5 9.5 1 12l5.5 2.5L9 20l2.5-5.5L17 12l-5.5-2.5zM19 15l-1.25 2.75L15 19l2.75 1.25L19 23l1.25-2.75L23 19l-2.75-1.25L19 15z"/></svg>
+    <span id="ai-btn-text" class="text-white font-bold tracking-wide">✨ Bild generieren</span>
+</button>
                         </div>
                     </div>
                 </div>
@@ -1799,19 +1801,19 @@
 
                 <div class="flex flex-wrap items-center gap-2">
                     <!-- Direkt in den Chat senden -->
-                    <button type="button" onclick="aiSendDirectToChat()" class="px-4 py-2 rounded-xl bg-[#00a884] hover:bg-[#008f6f] text-white text-xs font-bold shadow-md flex items-center gap-2 transition">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
-                        <span>Direkt in Chat senden</span>
+                    <button type="button" onclick="aiSendDirectToChat()" style="background-color: #00a884 !important; color: #ffffff !important; cursor: pointer;" class="px-5 py-2.5 rounded-xl text-white text-xs sm:text-sm font-bold shadow-md flex items-center gap-2 hover:opacity-90 transition">
+                        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+                        <span class="text-white">Direkt in Chat senden</span>
                     </button>
 
                     <!-- Als Chat-Hintergrund übernehmen -->
-                    <button type="button" onclick="aiSetAsWallpaper()" class="px-4 py-2 rounded-xl bg-white border border-teal-500 text-teal-700 hover:bg-teal-50 text-xs font-bold shadow-sm flex items-center gap-2 transition">
+                    <button type="button" onclick="aiSetAsWallpaper()" style="background-color: #ffffff !important; color: #008f6f !important; border: 1.5px solid #00a884 !important; cursor: pointer;" class="px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold shadow-sm flex items-center gap-2 hover:bg-emerald-50 transition">
                         <svg class="w-4 h-4 text-[#00a884]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                         <span>Als Chat-Hintergrund</span>
                     </button>
 
                     <!-- Herunterladen -->
-                    <button type="button" onclick="aiDownloadImage()" class="px-4 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-bold shadow-sm flex items-center gap-2 transition">
+                    <button type="button" onclick="aiDownloadImage()" style="background-color: #f3f4f6 !important; color: #374151 !important; border: 1px solid #d1d5db !important; cursor: pointer;" class="px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold shadow-sm flex items-center gap-2 hover:bg-gray-200 transition">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
                         <span>Herunterladen</span>
                     </button>
