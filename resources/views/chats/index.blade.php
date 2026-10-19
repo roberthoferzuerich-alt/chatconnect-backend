@@ -1594,7 +1594,7 @@
 <!-- ========================================== -->
 <!-- 🎨 CHATCONNECT KI-BILDGENERATOR (PIXELLA) -->
 <!-- ========================================== -->
-<div id="ai-image-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-2 sm:p-4 bg-black/85 backdrop-blur-md overflow-y-auto">
+<div id="ai-image-modal" class="hidden fixed inset-0 flex items-center justify-center p-2 sm:p-4 bg-black/85 backdrop-blur-md overflow-y-auto" style="display: none !important; z-index: 99990 !important;" onclick="if(event.target === this) closeAiImageModal()">
     <div class="relative w-full max-w-6xl rounded-2xl sm:rounded-3xl border border-teal-500/30 shadow-[0_25px_80px_rgba(0,168,132,0.35)] overflow-hidden flex flex-col my-auto max-h-[96vh]" 
          style="background: linear-gradient(135deg, rgba(3,25,21,0.92) 0%, rgba(0,56,46,0.92) 40%, rgba(4,39,56,0.92) 75%, rgba(2,19,29,0.95) 100%), url('/images/chatconnect_assistant_bg.jpg') center/cover no-repeat;">
         
@@ -1853,7 +1853,7 @@
 <!-- ============================================== -->
 <!-- ✂️ MODAL: BILD ZUSCHNEIDEN (CROPPER PRO)       -->
 <!-- ============================================== -->
-<div id="ai-crop-modal" class="hidden fixed inset-0 z-[120] flex items-center justify-center p-3 bg-black/85 backdrop-blur-md">
+<div id="ai-crop-modal" class="hidden fixed inset-0 flex items-center justify-center p-3 bg-black/85 backdrop-blur-md" style="display: none !important; z-index: 99999 !important;" onclick="if(event.target === this) closeAiCropModal()">
     <div class="relative w-full max-w-3xl bg-white rounded-2xl sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh] border border-white/20">
         <div class="px-5 py-4 bg-gradient-to-r from-[#031d18] via-[#00382b] to-[#04293a] text-white flex items-center justify-between border-b border-teal-500/20">
             <div class="flex items-center gap-2.5 font-bold text-base sm:text-lg">
@@ -1900,7 +1900,7 @@
 <!-- ============================================== -->
 <!-- 📐 MODAL: AUF WEB-GRÖSSE SKALIEREN             -->
 <!-- ============================================== -->
-<div id="ai-scale-modal" class="hidden fixed inset-0 z-[120] flex items-center justify-center p-3 bg-black/85 backdrop-blur-md">
+<div id="ai-scale-modal" class="hidden fixed inset-0 flex items-center justify-center p-3 bg-black/85 backdrop-blur-md" style="display: none !important; z-index: 99999 !important;" onclick="if(event.target === this) closeAiScaleModal()">
     <div class="relative w-full max-w-lg bg-white rounded-2xl sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col border border-white/20">
         <div class="px-5 py-4 bg-gradient-to-r from-[#031d18] via-[#00382b] to-[#04293a] text-white flex items-center justify-between border-b border-teal-500/20">
             <div class="flex items-center gap-2.5 font-bold text-base sm:text-lg">
@@ -4648,9 +4648,12 @@
     let aiIsGenerating = false;
 
     function openAiImageModal() {
+        closeAiCropModal();
+        closeAiScaleModal();
         const modal = document.getElementById('ai-image-modal');
         if (modal) {
             modal.classList.remove('hidden');
+            modal.style.setProperty('display', 'flex', 'important');
             const promptInput = document.getElementById('ai-prompt-input');
             if (promptInput && !promptInput.value.trim()) {
                 promptInput.value = 'Ein Mittelschnauzer als Jedi-Ritter mit grünem Lichtschwert im Zauberwald';
@@ -4659,8 +4662,13 @@
     }
 
     function closeAiImageModal() {
+        closeAiCropModal();
+        closeAiScaleModal();
         const modal = document.getElementById('ai-image-modal');
-        if (modal) modal.classList.add('hidden');
+        if (modal) {
+            modal.classList.add('hidden');
+            modal.style.setProperty('display', 'none', 'important');
+        }
     }
 
     function aiSetPrompt(text) {
@@ -4977,6 +4985,7 @@
 
     // --- 1. BILD ZUSCHNEIDEN (CROP) ---
     function aiOpenCropTool() {
+        closeAiScaleModal();
         if (!aiCurrentDataUrl) {
             alert('💡 Bitte lade zuerst ein Bild hoch oder erstelle eines im Generator, um es zuzuschneiden!');
             const fileInput = document.getElementById('ai-file-input');
@@ -4990,37 +4999,43 @@
 
         cropImg.src = aiCurrentDataUrl;
         cropModal.classList.remove('hidden');
+        cropModal.style.setProperty('display', 'flex', 'important');
 
-        // Vorherige Cropper-Instanz auflösen
         if (aiCropperInstance) {
-            aiCropperInstance.destroy();
+            try { aiCropperInstance.destroy(); } catch(e){}
             aiCropperInstance = null;
         }
 
-        // Cropper initialisieren
         setTimeout(() => {
-            aiCropperInstance = new Cropper(cropImg, {
-                aspectRatio: NaN,
-                viewMode: 1,
-                autoCropArea: 0.9,
-                responsive: true,
-                restore: false,
-                guides: true,
-                center: true,
-                highlight: true,
-                cropBoxMovable: true,
-                cropBoxResizable: true,
-                toggleDragModeOnDblclick: false
-            });
-            aiUpdateCropRatioButtons(NaN);
+            try {
+                aiCropperInstance = new Cropper(cropImg, {
+                    aspectRatio: NaN,
+                    viewMode: 1,
+                    autoCropArea: 0.9,
+                    responsive: true,
+                    restore: false,
+                    guides: true,
+                    center: true,
+                    highlight: true,
+                    cropBoxMovable: true,
+                    cropBoxResizable: true,
+                    toggleDragModeOnDblclick: false
+                });
+                aiUpdateCropRatioButtons(NaN);
+            } catch(err) {
+                console.error("Cropper init error:", err);
+            }
         }, 150);
     }
 
     function closeAiCropModal() {
         const cropModal = document.getElementById('ai-crop-modal');
-        if (cropModal) cropModal.classList.add('hidden');
+        if (cropModal) {
+            cropModal.classList.add('hidden');
+            cropModal.style.setProperty('display', 'none', 'important');
+        }
         if (aiCropperInstance) {
-            aiCropperInstance.destroy();
+            try { aiCropperInstance.destroy(); } catch(e){}
             aiCropperInstance = null;
         }
     }
@@ -5052,24 +5067,34 @@
     }
 
     function aiApplyCrop() {
-        if (!aiCropperInstance) return;
-        const canvas = aiCropperInstance.getCroppedCanvas({
-            imageSmoothingEnabled: true,
-            imageSmoothingQuality: 'high'
-        });
-        if (!canvas) {
-            alert('Fehler beim Zuschneiden.');
+        if (!aiCropperInstance) {
+            closeAiCropModal();
             return;
         }
-        canvas.toBlob((blob) => {
+        try {
+            const canvas = aiCropperInstance.getCroppedCanvas({
+                imageSmoothingEnabled: true,
+                imageSmoothingQuality: 'high'
+            });
+            if (!canvas) {
+                alert('Fehler beim Zuschneiden.');
+                closeAiCropModal();
+                return;
+            }
             const newUrl = canvas.toDataURL('image/png');
-            aiSetImagePreview(newUrl, blob, "✂️ Zugeschnitten (" + canvas.width + "x" + canvas.height + ")");
+            canvas.toBlob((blob) => {
+                aiSetImagePreview(newUrl, blob, "✂️ Zugeschnitten (" + canvas.width + "x" + canvas.height + ")");
+                closeAiCropModal();
+            }, 'image/png');
+        } catch(e) {
+            console.error("Crop error:", e);
             closeAiCropModal();
-        }, 'image/png');
+        }
     }
 
     // --- 2. BILD AUF WEB-GRÖSSE SKALIEREN (SCALE) ---
     function aiOpenScaleTool() {
+        closeAiCropModal();
         if (!aiCurrentDataUrl) {
             alert('💡 Bitte lade zuerst ein Bild hoch oder erstelle eines im Generator, um es zu skalieren!');
             const fileInput = document.getElementById('ai-file-input');
@@ -5093,14 +5118,23 @@
             aiUpdateEstimatedSize();
 
             const modal = document.getElementById('ai-scale-modal');
-            if (modal) modal.classList.remove('hidden');
+            if (modal) {
+                modal.classList.remove('hidden');
+                modal.style.setProperty('display', 'flex', 'important');
+            }
+        };
+        img.onerror = function() {
+            console.error("Image load error for scaling");
         };
         img.src = aiCurrentDataUrl;
     }
 
     function closeAiScaleModal() {
         const modal = document.getElementById('ai-scale-modal');
-        if (modal) modal.classList.add('hidden');
+        if (modal) {
+            modal.classList.add('hidden');
+            modal.style.setProperty('display', 'none', 'important');
+        }
     }
 
     function aiSetScalePreset(w, h) {
@@ -5154,7 +5188,10 @@
     }
 
     function aiApplyScale() {
-        if (!aiCurrentDataUrl) return;
+        if (!aiCurrentDataUrl) {
+            closeAiScaleModal();
+            return;
+        }
         const targetW = parseInt(document.getElementById('ai-scale-width')?.value) || 800;
         const targetH = parseInt(document.getElementById('ai-scale-height')?.value) || 800;
         const format = document.getElementById('ai-scale-format')?.value || 'image/webp';
@@ -5162,24 +5199,52 @@
 
         const img = new Image();
         img.onload = function() {
-            const canvas = document.createElement('canvas');
-            canvas.width = targetW;
-            canvas.height = targetH;
-            const ctx = canvas.getContext('2d');
-            ctx.imageSmoothingEnabled = true;
-            ctx.imageSmoothingQuality = 'high';
-            ctx.drawImage(img, 0, 0, targetW, targetH);
+            try {
+                const canvas = document.createElement('canvas');
+                canvas.width = targetW;
+                canvas.height = targetH;
+                const ctx = canvas.getContext('2d');
+                ctx.imageSmoothingEnabled = true;
+                ctx.imageSmoothingQuality = 'high';
+                ctx.drawImage(img, 0, 0, targetW, targetH);
 
-            canvas.toBlob(function(blob) {
-                const newUrl = canvas.toDataURL(format, quality);
-                const kb = Math.round(blob.size / 1024);
-                aiSetImagePreview(newUrl, blob, `📐 Web-skaliert (${targetW}×${targetH}, ${kb} KB)`);
+                let newUrl = null;
+                try {
+                    newUrl = canvas.toDataURL(format, quality);
+                } catch(e) {
+                    newUrl = canvas.toDataURL('image/jpeg', quality);
+                }
+
+                canvas.toBlob(function(blob) {
+                    const finalBlob = blob || (newUrl ? new Blob([newUrl], {type: format}) : null);
+                    const kb = finalBlob ? Math.round(finalBlob.size / 1024) : 0;
+                    aiSetImagePreview(newUrl, finalBlob, `📐 Web-skaliert (${targetW}×${targetH}, ${kb} KB)`);
+                    closeAiScaleModal();
+                }, format, quality);
+            } catch(err) {
+                console.error("Scale processing error:", err);
                 closeAiScaleModal();
-            }, format, quality);
+            }
+        };
+        img.onerror = function() {
+            console.error("Failed to load image for scale");
+            closeAiScaleModal();
         };
         img.src = aiCurrentDataUrl;
     }
 
+    // Esc key handler
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            const scaleModal = document.getElementById('ai-scale-modal');
+            const cropModal = document.getElementById('ai-crop-modal');
+            if (scaleModal && scaleModal.style.display !== 'none' && !scaleModal.classList.contains('hidden')) {
+                closeAiScaleModal();
+            } else if (cropModal && cropModal.style.display !== 'none' && !cropModal.classList.contains('hidden')) {
+                closeAiCropModal();
+            }
+        }
+    });
 </script>
 </body>
 </html>
