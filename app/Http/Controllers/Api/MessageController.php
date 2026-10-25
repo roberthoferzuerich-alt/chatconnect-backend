@@ -30,9 +30,9 @@ class MessageController extends Controller
         }
 
         $request->validate([
-            'content' => 'nullable|string',
-            'image' => 'nullable|image|max:5120',
-            'audio' => 'nullable|file|mimes:m4a,mp3,wav,aac,ogg,mp4|max:10240',
+            'content' => 'nullable|string|max:2000',
+            'image' => 'nullable|image|max:25600',
+            'audio' => 'nullable|file|mimes:m4a,mp3,wav,aac,ogg,mp4,webm,3gp|max:25600',
             'document' => [
                 'nullable',
                 'file',

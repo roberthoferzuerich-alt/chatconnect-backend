@@ -6284,6 +6284,37 @@
         `).join('');
     }
 
+    window.ccSyncLiveStates = function(states, activeIds) {
+        if (Array.isArray(activeIds)) {
+            const activeSet = new Set(activeIds.map(id => Number(id)));
+            document.querySelectorAll('#messages-container [data-msg-id]').forEach(row => {
+                const id = parseInt(row.getAttribute('data-msg-id'), 10);
+                if (id && !activeSet.has(id)) {
+                    row.remove();
+                }
+            });
+        }
+        if (!states) return;
+        Object.keys(states).forEach(idStr => {
+            const msgId = parseInt(idStr, 10);
+            const st = states[idStr];
+            if (!st) return;
+            const row = document.querySelector(`[data-msg-id="${msgId}"]`);
+            if (!row) return;
+
+            // 1. Live-Update für blaue Gelesen-Doppelhäkchen (✓✓)
+            if (st.read) {
+                row.querySelectorAll('.absolute.bottom-1.right-2 svg.text-gray-400').forEach(svg => {
+                    svg.classList.remove('text-gray-400');
+                    svg.classList.add('text-[#53bdeb]');
+                });
+            }
+
+            // 2. Live-Update für Emoji-Reaktionen
+            renderMessageReactions(msgId, st.reactions || []);
+        });
+    };
+
     function toggleReactionPopover(msgId, btnEl) {
         const existing = document.querySelector('.cc-reaction-popover');
         if (existing) {
@@ -6810,6 +6841,26 @@
         // Auto-show App Lock if locked in current session
         if (localStorage.getItem(PIN_KEY) && sessionStorage.getItem(LOCKED_STATE_KEY) === '1') {
             openAppLockModal(true);
+        }
+
+        // Hook into /new-messages polling response to live-sync reactions, read checkmarks & deletions
+        const origFetch = window.fetch;
+        if (origFetch && !window.__ccFetchHooked) {
+            window.__ccFetchHooked = true;
+            window.fetch = function(...args) {
+                const url = typeof args[0] === 'string' ? args[0] : (args[0]?.url || '');
+                const p = origFetch.apply(this, args);
+                if (url.includes('/new-messages')) {
+                    p.then(res => res.clone().json())
+                     .then(data => {
+                         if (data && data.states && typeof window.ccSyncLiveStates === 'function') {
+                             window.ccSyncLiveStates(data.states, data.active_ids || null);
+                         }
+                     })
+                     .catch(() => {});
+                }
+                return p;
+            };
         }
     }
 

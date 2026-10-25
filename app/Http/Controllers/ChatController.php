@@ -64,9 +64,9 @@ class ChatController extends Controller
     public function store(Request $request, Conversation $conversation)
     {
         $request->validate([
-            'content' => 'required_without_all:image,audio,document|nullable|string|max:1000',
-            'image' => 'nullable|image|max:5120',
-            'audio' => 'nullable|file|max:15360',
+            'content' => 'required_without_all:image,audio,document|nullable|string|max:2000',
+            'image' => 'nullable|image|max:25600',
+            'audio' => 'nullable|file|max:25600',
             'document' => [
                 'nullable',
                 'file',
@@ -200,12 +200,48 @@ class ChatController extends Controller
             return response()->json([], 403);
         }
 
+        // Mark incoming unread messages as read while chat is actively open
+        $conversation->messages()
+            ->where('sender_id', '!=', $user->id)
+            ->whereNull('read_at')
+            ->update(['read_at' => now()]);
+
         $afterId = (int)$request->query('after_id', 0);
         $newMessages = $conversation->messages()
-            ->with('sender')
+            ->with(['sender', 'reactions.user'])
             ->where('id', '>', $afterId)
             ->orderBy('id', 'asc')
             ->get();
+
+        // Sync read status & emoji reactions for recent messages
+        $recentMessages = $conversation->messages()
+            ->with('reactions.user')
+            ->orderBy('id', 'desc')
+            ->limit(100)
+            ->get();
+
+        $states = [];
+        foreach ($recentMessages as $m) {
+            $groupedReactions = $m->reactions
+                ->groupBy('reaction')
+                ->map(function ($items, $emoji) use ($user) {
+                    return [
+                        'emoji' => $emoji,
+                        'count' => $items->count(),
+                        'mine' => $items->contains('user_id', $user->id),
+                        'users' => $items->map(fn($r) => $r->user ? $r->user->name : 'Kontakt')->values()->all(),
+                    ];
+                })
+                ->values()
+                ->all();
+
+            $states[$m->id] = [
+                'read' => (bool)$m->read_at,
+                'reactions' => $groupedReactions,
+            ];
+        }
+
+        $activeIds = $conversation->messages()->pluck('id')->all();
 
         return response()->json([
             'messages' => $newMessages->map(function ($msg) use ($user) {
@@ -221,7 +257,9 @@ class ChatController extends Controller
                     'time' => $msg->created_at->format('H:i'),
                     'read' => (bool)$msg->read_at,
                 ];
-            })
+            }),
+            'states' => $states,
+            'active_ids' => $activeIds,
         ]);
     }
 
