@@ -6312,7 +6312,59 @@
 
             // 2. Live-Update für Emoji-Reaktionen
             renderMessageReactions(msgId, st.reactions || []);
+
+            // 3. Live-Update für bearbeitete Nachrichtentexte (✏️)
+            if (typeof st.content === 'string') {
+                const textEl = row.querySelector('.chat-message-text');
+                const prevRaw = row.getAttribute('data-cc-raw-content');
+                if (textEl && prevRaw !== null && prevRaw !== st.content) {
+                    row.setAttribute('data-cc-raw-content', st.content);
+                    textEl.removeAttribute('data-cc-quote-parsed');
+                    textEl.innerHTML = `<span>${escapeHtmlSimple(st.content)}</span>`;
+                    formatQuoteInMessageText(textEl);
+                }
+            }
         });
+    };
+
+    window.editChatMessage = function(msgId) {
+        const row = document.querySelector(`[data-msg-id="${msgId}"]`);
+        if (!row) return;
+        const raw = row.getAttribute('data-cc-raw-content') || '';
+        const match = raw.match(/^(> 💬 @[^:]+: "[^"]*"\r?\n)([\s\S]*)$/);
+        const quotePrefix = match ? match[1] : '';
+        let body = match ? match[2] : raw;
+        body = body.replace(/\s*\(bearbeitet\)\s*$/, '');
+
+        const updatedBody = prompt('✏️ Nachricht bearbeiten:', body);
+        if (updatedBody === null) return;
+        const cleanBody = updatedBody.trim();
+        if (!cleanBody || cleanBody === body.trim()) return;
+
+        const finalContent = quotePrefix + cleanBody;
+        fetch(`/messages/${msgId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': CSRF_TOKEN,
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify({ content: finalContent })
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.status === 'success' && typeof data.content === 'string') {
+                row.setAttribute('data-cc-raw-content', data.content);
+                const textEl = row.querySelector('.chat-message-text');
+                if (textEl) {
+                    textEl.removeAttribute('data-cc-quote-parsed');
+                    textEl.innerHTML = `<span>${escapeHtmlSimple(data.content)}</span>`;
+                    formatQuoteInMessageText(textEl);
+                }
+            }
+        })
+        .catch(err => alert('Bearbeiten fehlgeschlagen: ' + err.message));
     };
 
     function toggleReactionPopover(msgId, btnEl) {
@@ -6376,7 +6428,11 @@
         const senderName = isMe ? '{{ addslashes($user->name) }}' : (senderEl ? senderEl.textContent.trim() : '{{ isset($headerTitle) ? addslashes($headerTitle) : "Kontakt" }}');
 
         const textEl = bubble.querySelector('.chat-message-text');
-        if (textEl) formatQuoteInMessageText(textEl);
+        if (textEl) {
+            const rawSpan = textEl.querySelector('span') || textEl;
+            row.setAttribute('data-cc-raw-content', rawSpan.textContent || '');
+            formatQuoteInMessageText(textEl);
+        }
         const msgText = textEl ? textEl.textContent.trim() : '';
 
         const imgEl = bubble.querySelector('img[src*="/storage/"], img[alt="Bild"]');
@@ -6485,6 +6541,18 @@
         actionsBar.appendChild(reactBtn);
         actionsBar.appendChild(replyBtn);
         actionsBar.appendChild(starBtn);
+        if (isMe && textEl) {
+            const editBtn = document.createElement('button');
+            editBtn.type = 'button';
+            editBtn.className = 'cc-msg-action-btn';
+            editBtn.title = 'Nachricht bearbeiten';
+            editBtn.textContent = '✏️';
+            editBtn.onclick = (e) => {
+                e.stopPropagation();
+                editChatMessage(msgId);
+            };
+            actionsBar.appendChild(editBtn);
+        }
         actionsBar.appendChild(delBtn);
         bubble.appendChild(actionsBar);
 
@@ -6814,6 +6882,125 @@
         }
     });
 
+    // =========================================================================
+    // 8. 📋 STRG+V SCREENSHOT-PASTE & DRAG-AND-DROP INS CHATFENSTER
+    // =========================================================================
+    function uploadDroppedOrPastedFileToChat(file) {
+        if (!file || !ACTIVE_CONV_ID) return;
+        const inputField = document.getElementById('chat-input-field');
+        const caption = inputField ? (inputField.value || '').trim() : '';
+        const isImg = /^image\//i.test(file.type);
+
+        const formData = new FormData();
+        if (isImg) {
+            const ext = (file.type.split('/')[1] || 'png').replace('jpeg', 'jpg');
+            const namedFile = file.name && file.name !== 'image.png'
+                ? file
+                : new File([file], `screenshot_${Date.now()}.${ext}`, { type: file.type });
+            formData.append('image', namedFile);
+        } else {
+            formData.append('document', file);
+        }
+        if (caption) {
+            formData.append('content', caption);
+            if (inputField) inputField.value = '';
+        }
+        formData.append('_token', CSRF_TOKEN);
+
+        let toast = document.getElementById('cc-upload-toast');
+        if (!toast) {
+            toast = document.createElement('div');
+            toast.id = 'cc-upload-toast';
+            toast.className = 'fixed bottom-20 right-6 z-50 px-4 py-2.5 rounded-xl bg-[#00a884] text-white text-xs font-bold shadow-xl flex items-center gap-2';
+            document.body.appendChild(toast);
+        }
+        toast.textContent = `📤 Sende „${file.name || 'Screenshot'}“...`;
+        toast.style.display = 'flex';
+
+        fetch(`/chats/${ACTIVE_CONV_ID}/messages`, {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: formData
+        })
+        .then(r => r.json())
+        .then(data => {
+            toast.style.display = 'none';
+            if (data.status === 'success' && data.message && typeof appendMessageToChat === 'function') {
+                appendMessageToChat(data.message);
+            }
+        })
+        .catch(err => {
+            toast.style.display = 'none';
+            alert('Upload fehlgeschlagen: ' + err.message);
+        });
+    }
+
+    function initClipboardPasteAndDragDrop() {
+        if (!ACTIVE_CONV_ID) return;
+
+        // 1. Strg + V (Clipboard Paste for Screenshots & Files)
+        document.addEventListener('paste', function(e) {
+            const aiModal = document.getElementById('ai-image-modal');
+            if (aiModal && !aiModal.classList.contains('hidden')) return;
+            const items = e.clipboardData && e.clipboardData.items;
+            if (!items) return;
+            for (let i = 0; i < items.length; i++) {
+                if (items[i].kind === 'file') {
+                    const file = items[i].getAsFile();
+                    if (file) {
+                        e.preventDefault();
+                        uploadDroppedOrPastedFileToChat(file);
+                        return;
+                    }
+                }
+            }
+        });
+
+        // 2. Drag & Drop directly onto #messages-container
+        const mc = document.getElementById('messages-container');
+        if (!mc) return;
+
+        let dropBanner = document.getElementById('cc-chat-drop-banner');
+        if (!dropBanner) {
+            dropBanner = document.createElement('div');
+            dropBanner.id = 'cc-chat-drop-banner';
+            dropBanner.style.display = 'none';
+            dropBanner.className = 'fixed inset-0 z-40 bg-emerald-950/60 backdrop-blur-xs flex items-center justify-center pointer-events-none';
+            dropBanner.innerHTML = `
+                <div class="px-8 py-6 rounded-3xl bg-white shadow-2xl border-4 border-dashed border-[#00a884] text-center space-y-2">
+                    <div class="text-4xl">📥</div>
+                    <div class="text-lg font-extrabold text-gray-900">Datei, Bild oder 3D-Modell hier ablegen</div>
+                    <div class="text-xs text-gray-500">Wird sofort in den aktuellen Chat gesendet</div>
+                </div>
+            `;
+            document.body.appendChild(dropBanner);
+        }
+
+        mc.addEventListener('dragover', function(e) {
+            if (e.dataTransfer && Array.from(e.dataTransfer.types || []).includes('Files')) {
+                e.preventDefault();
+                dropBanner.style.display = 'flex';
+            }
+        });
+
+        window.addEventListener('dragleave', function(e) {
+            if (e.relatedTarget === null) {
+                dropBanner.style.display = 'none';
+            }
+        });
+
+        mc.addEventListener('drop', function(e) {
+            dropBanner.style.display = 'none';
+            if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                e.preventDefault();
+                Array.from(e.dataTransfer.files).forEach(f => uploadDroppedOrPastedFileToChat(f));
+            }
+        });
+    }
+
     // Initialize everything on DOMContentLoaded + observe #messages-container for live messages
     function initChatConnectProSuite() {
         upgradeMenuAndSidebar();
@@ -6821,6 +7008,7 @@
         updateAppLockBadge();
         injectChatHeaderTools();
         injectReplyPreviewBar();
+        initClipboardPasteAndDragDrop();
 
         const mc = document.getElementById('messages-container');
         if (mc) {

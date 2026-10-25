@@ -237,6 +237,7 @@ class ChatController extends Controller
 
             $states[$m->id] = [
                 'read' => (bool)$m->read_at,
+                'content' => $m->content,
                 'reactions' => $groupedReactions,
             ];
         }
@@ -413,6 +414,29 @@ class ChatController extends Controller
             'status' => 'success',
             'message_id' => $message->id,
             'reactions' => $reactions,
+        ]);
+    }
+
+    public function update(Request $request, Message $message)
+    {
+        $request->validate(['content' => 'required|string|max:2000']);
+        $user = Auth::user();
+
+        if ((int) $message->sender_id !== (int) $user->id) {
+            return response()->json(['status' => 'error', 'message' => 'Nur eigene Nachrichten können bearbeitet werden.'], 403);
+        }
+
+        $newText = trim($request->input('content'));
+        if (!str_ends_with($newText, '(bearbeitet)')) {
+            $newText .= ' (bearbeitet)';
+        }
+
+        $message->update(['content' => $newText]);
+
+        return response()->json([
+            'status' => 'success',
+            'message_id' => $message->id,
+            'content' => $message->content,
         ]);
     }
 

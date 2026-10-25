@@ -250,4 +250,24 @@ class MessageController extends Controller
 
         return response()->json($message);
     }
+
+    public function update(Request $request, Message $message)
+    {
+        $request->validate(['content' => 'required|string|max:2000']);
+        $user = $request->user();
+
+        if ((int) $message->sender_id !== (int) $user->id) {
+            return response()->json(['message' => 'Nur eigene Nachrichten können bearbeitet werden.'], 403);
+        }
+
+        $newText = trim($request->input('content'));
+        if (!str_ends_with($newText, '(bearbeitet)')) {
+            $newText .= ' (bearbeitet)';
+        }
+
+        $message->update(['content' => $newText]);
+        $message->load(['sender', 'reactions']);
+
+        return response()->json($message);
+    }
 }

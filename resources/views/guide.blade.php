@@ -66,6 +66,7 @@
                     <p>Tippe deine Nachricht in das Eingabefeld ein und drücke die <strong>Enter-Taste</strong> oder klicke auf den <strong>grünen Senden-Pfeil</strong>.</p>
                     <p>Über das <strong>Smiley-Symbol (😊)</strong> links neben dem Eingabefeld kannst du Emojis aus 9 Kategorien oder per deutscher Stichwortsuche einfügen.</p>
                     <p>Über das <strong>Kamera-/Bild-Symbol (📷)</strong> versendest du hochauflösende Fotos &amp; KI-Bilder bis <strong>25 MB</strong>, über das <strong>Dokument-Symbol (📄)</strong> Dateien bis <strong>500 MB</strong> (PDF, Word, Excel, ZIP, 7-Zip, Minecraft-Mods <code>.jar</code> / <code>.mcpack</code> / <code>.mcworld</code>, Markdown <code>.md</code> sowie 3D-Modelle <code>.stl</code> / <code>.ctl</code>).</p>
+                    <p><strong>📋 Strg + V &amp; Drag-and-Drop:</strong> Screenshots aus der Zwischenablage kannst du direkt mit <strong>Strg + V</strong> ins Chatfenster einfügen oder beliebige Dateien und 3D-Modelle per <strong>Drag &amp; Drop</strong> in den Chat ziehen.</p>
                 </div>
             </section>
 
@@ -73,15 +74,15 @@
             <section class="space-y-3">
                 <h2 class="text-xl font-bold text-gray-900 flex items-center space-x-2">
                     <span class="w-7 h-7 rounded-lg bg-teal-100 text-teal-700 flex items-center justify-center text-sm font-extrabold">3</span>
-                    <span>Emoji-Reaktionen, Antworten (Zitieren), Favoriten &amp; Volltextsuche 💬</span>
+                    <span>Emoji-Reaktionen, Antworten, Bearbeiten ✏️, Favoriten &amp; Volltextsuche 💬</span>
                 </h2>
                 <div class="grid sm:grid-cols-2 gap-3">
                     <div class="bg-emerald-50/70 p-4 rounded-xl border border-emerald-200 shadow-xs space-y-2">
                         <h3 class="font-bold text-emerald-950 flex items-center gap-1.5 text-sm">
-                            <span>😊 Reaktionen &amp; ↩️ Direkt-Antworten (Web &amp; Android)</span>
+                            <span>😊 Reaktionen, ↩️ Antworten &amp; ✏️ Bearbeiten</span>
                         </h3>
                         <p class="text-xs sm:text-sm text-emerald-900">
-                            <strong>Im Browser:</strong> Fahre mit der Maus über eine Sprechblase (Aktionsleiste oben rechts). <strong>Auf Android:</strong> Halte eine Nachricht lange gedrückt. Mit <strong>😊</strong> vergibst du Emoji-Reaktionen (<code>👍 ❤️ 😂 😮 🎉 🔥</code>), die live ohne Seiten-Reload synchronisiert werden. Mit <strong>↩️ Antworten / Zitieren</strong> antwortest du plattformübergreifend mit einer übersichtlichen Zitat-Box.
+                            <strong>Im Browser:</strong> Fahre mit der Maus über eine Sprechblase (Aktionsleiste oben rechts). <strong>Auf Android:</strong> Halte eine Nachricht lange gedrückt. Mit <strong>😊</strong> vergibst du Emoji-Reaktionen (<code>👍 ❤️ 😂 😮 🎉 🔥</code>), mit <strong>↩️</strong> antwortest du per Zitat-Box und mit <strong>✏️</strong> bearbeitest du eigene Nachrichten nachträglich – alles live synchronisiert.
                         </p>
                     </div>
                     <div class="bg-amber-50/70 p-4 rounded-xl border border-amber-200 shadow-xs space-y-2">
