@@ -14,7 +14,12 @@ class ChatController extends Controller
     {
         $user = Auth::user();
         
-        $conversations = $user->conversations()->with(['users', 'lastMessage'])->get();
+        $conversations = $user->conversations()
+            ->with(['users', 'lastMessage'])
+            ->withCount(['messages as unread_count' => function ($q) use ($user) {
+                $q->where('sender_id', '!=', $user->id)->whereNull('read_at');
+            }])
+            ->get();
         $contacts = User::orderByRaw('id = ? DESC, name ASC', [$user->id])->get();
 
         return view('chats.index', [
@@ -35,12 +40,17 @@ class ChatController extends Controller
             abort(403);
         }
 
-        $conversations = $user->conversations()->with(['users', 'lastMessage'])->get();
-        $contacts = User::orderByRaw('id = ? DESC, name ASC', [$user->id])->get();
-        $messages = $conversation->messages()->with('sender')->orderBy('created_at', 'asc')->get();
-
-        // Mark as read
+        // Mark as read first so sidebar unread_count reflects current state
         $conversation->messages()->where('sender_id', '!=', $user->id)->whereNull('read_at')->update(['read_at' => now()]);
+
+        $conversations = $user->conversations()
+            ->with(['users', 'lastMessage'])
+            ->withCount(['messages as unread_count' => function ($q) use ($user) {
+                $q->where('sender_id', '!=', $user->id)->whereNull('read_at');
+            }])
+            ->get();
+        $contacts = User::orderByRaw('id = ? DESC, name ASC', [$user->id])->get();
+        $messages = $conversation->messages()->with(['sender', 'reactions.user'])->orderBy('created_at', 'asc')->get();
 
         return view('chats.index', [
             'user' => $user,
@@ -306,6 +316,66 @@ class ChatController extends Controller
             }
             return back()->with('error', 'Fehler beim Löschen');
         }
+    }
+
+    public function markAllAsRead(Request $request)
+    {
+        $user = Auth::user();
+        $conversationIds = $user->conversations()->pluck('conversations.id');
+
+        $updatedCount = Message::whereIn('conversation_id', $conversationIds)
+            ->where('sender_id', '!=', $user->id)
+            ->whereNull('read_at')
+            ->update(['read_at' => now()]);
+
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json([
+                'status' => 'success',
+                'updated_count' => $updatedCount,
+            ]);
+        }
+
+        return back();
+    }
+
+    public function react(Request $request, Message $message)
+    {
+        $request->validate(['reaction' => 'required|string|max:16']);
+        $user = Auth::user();
+
+        $conversation = $message->conversation;
+        if (!$conversation || !$conversation->users()->where('users.id', $user->id)->exists()) {
+            return response()->json(['status' => 'error', 'message' => 'Unauthorized'], 403);
+        }
+
+        $existingReaction = $message->reactions()->where('user_id', $user->id)->first();
+        if ($existingReaction) {
+            if ($existingReaction->reaction === $request->reaction) {
+                $existingReaction->delete();
+            } else {
+                $existingReaction->update(['reaction' => $request->reaction]);
+            }
+        } else {
+            $message->reactions()->create([
+                'user_id' => $user->id,
+                'reaction' => $request->reaction,
+            ]);
+        }
+
+        $reactions = $message->reactions()->with('user')->get()->groupBy('reaction')->map(function ($group, $emoji) use ($user) {
+            return [
+                'emoji' => $emoji,
+                'count' => $group->count(),
+                'mine' => $group->contains('user_id', $user->id),
+                'users' => $group->map(fn($r) => $r->user ? $r->user->name : 'Benutzer')->values()->all(),
+            ];
+        })->values();
+
+        return response()->json([
+            'status' => 'success',
+            'message_id' => $message->id,
+            'reactions' => $reactions,
+        ]);
     }
 
     public function generateAiImage(Request $request)

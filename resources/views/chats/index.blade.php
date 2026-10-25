@@ -231,7 +231,7 @@
                     </svg>
                 </button>
 
-                <!-- Dropdown Menü -->
+                <!-- Dropdown Menü (ChatConnect) -->
                 <div id="chat-menu" class="hidden absolute top-14 left-2 w-64 bg-white rounded-2xl shadow-2xl border border-gray-100 py-2 z-50" style="left: 8px; right: auto; transform: none; width: 260px; max-width: calc(100vw - 20px); z-index: 999;">
                     <a href="{{ route('communities.index') }}" class="flex items-center px-4 py-3 text-[15px] text-gray-800 hover:bg-gray-50 transition">
                         <svg class="w-5 h-5 mr-3.5 text-gray-600 flex-shrink-0" style="min-width: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5V18a3 3 0 00-5-2.5M9 20H4V18a3 3 0 015-2.5M16 11a3 3 0 100-6 3 3 0 000 6zM9 11a3 3 0 100-6 3 3 0 000 6z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11v4m-2-2h4"></path></svg>
@@ -4768,7 +4768,7 @@
     function aiFullscreenPreview() {
         if (!aiCurrentDataUrl) return;
         const win = window.open("");
-        win.document.write(`<body style="margin:0;background:#051914;display:flex;align-items:center;justify-content:center;height:100vh;"><img src="${aiCurrentDataUrl}" style="max-width:95%;max-height:95%;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,0.5);"></body>`);
+        win.document.write(`<body style="margin:0;background:#051914;display:flex;align-items:center;justify-content:center;height:100vh;"><img src="${aiCurrentDataUrl}" style="max-width:95%;max-height:95%;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,0.5);">` + '</' + 'body>');
     }
 
     async function aiTriggerGenerate() {
@@ -5245,6 +5245,1580 @@
             }
         }
     });
+</script>
+<!-- ========================================================================= -->
+<!-- 🚀 CHATCONNECT PRO SUITE: MENÜ-TOOLS, REAKTIONEN, SUCHE, LIGHTBOX & ZIP  -->
+<!-- ========================================================================= -->
+<style>
+    /* Quick Filter Pills in Sidebar */
+    #cc-sidebar-filter-bar {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 4px 2px 4px;
+        overflow-x: auto;
+        scrollbar-width: none;
+    }
+    #cc-sidebar-filter-bar::-webkit-scrollbar { display: none; }
+    .cc-filter-pill {
+        padding: 4px 10px;
+        border-radius: 9999px;
+        font-size: 11px;
+        font-weight: 600;
+        background: #f1f5f9;
+        color: #475569;
+        border: 1px solid #e2e8f0;
+        cursor: pointer;
+        white-space: nowrap;
+        transition: all 0.15s ease;
+    }
+    .cc-filter-pill:hover {
+        background: #e2e8f0;
+        color: #0f172a;
+    }
+    .cc-filter-pill.cc-active {
+        background: #00a884;
+        color: #ffffff;
+        border-color: #008f6f;
+        box-shadow: 0 2px 6px rgba(0, 168, 132, 0.25);
+    }
+
+    /* Message Hover Action Bar */
+    .cc-msg-actions {
+        position: absolute;
+        top: -11px;
+        right: 6px;
+        display: flex;
+        align-items: center;
+        gap: 2px;
+        background: rgba(255, 255, 255, 0.96);
+        border: 1px solid rgba(15, 23, 42, 0.1);
+        border-radius: 9999px;
+        padding: 2px 5px;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.12);
+        opacity: 0;
+        pointer-events: none;
+        transform: translateY(3px);
+        transition: all 0.15s ease;
+        z-index: 25;
+    }
+    .group\/msg:hover .cc-msg-actions,
+    .cc-msg-actions.cc-force-visible {
+        opacity: 1;
+        pointer-events: auto;
+        transform: translateY(0);
+    }
+    .cc-msg-action-btn {
+        width: 24px;
+        height: 24px;
+        border-radius: 9999px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 13px;
+        color: #475569;
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        transition: background 0.15s, transform 0.12s;
+    }
+    .cc-msg-action-btn:hover {
+        background: #f1f5f9;
+        color: #0f172a;
+        transform: scale(1.12);
+    }
+    .cc-msg-action-btn.cc-starred {
+        color: #f59e0b;
+    }
+
+    /* Star Badge on Message */
+    .cc-star-indicator {
+        color: #f59e0b;
+        font-size: 11px;
+        margin-right: 3px;
+        display: none;
+    }
+    .cc-star-indicator.cc-active {
+        display: inline-block;
+    }
+
+    /* Reaction Picker Popover */
+    .cc-reaction-popover {
+        position: absolute;
+        top: -44px;
+        right: 4px;
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 9999px;
+        padding: 4px 8px;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.18);
+        z-index: 40;
+        animation: ccPopIn 0.14s ease-out;
+    }
+    @keyframes ccPopIn {
+        from { opacity: 0; transform: scale(0.85) translateY(5px); }
+        to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    .cc-reaction-Popover-emoji {
+        font-size: 18px;
+        line-height: 1;
+        padding: 4px;
+        border-radius: 9999px;
+        cursor: pointer;
+        border: none;
+        background: transparent;
+        transition: transform 0.12s ease, background 0.12s ease;
+    }
+    .cc-reaction-Popover-emoji:hover {
+        transform: scale(1.28);
+        background: #f1f5f9;
+    }
+
+    /* Reaction Pills Container */
+    .cc-reactions-bar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+        margin-top: 4px;
+        margin-bottom: 2px;
+    }
+    .cc-reaction-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 1px 7px;
+        border-radius: 9999px;
+        font-size: 12px;
+        background: rgba(255, 255, 255, 0.85);
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        cursor: pointer;
+        user-select: none;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        transition: all 0.15s;
+    }
+    .cc-reaction-pill.cc-mine {
+        background: #d1fae5;
+        border-color: #10b981;
+        color: #065f46;
+        font-weight: 600;
+    }
+    .cc-reaction-pill:hover {
+        transform: scale(1.06);
+    }
+
+    /* Quoted Reply Box inside Bubble */
+    .cc-quote-box {
+        background: rgba(0, 0, 0, 0.05);
+        border-left: 3.5px solid #00a884;
+        border-radius: 6px;
+        padding: 5px 9px;
+        margin-bottom: 6px;
+        font-size: 12.5px;
+        cursor: pointer;
+        transition: background 0.15s;
+    }
+    .cc-quote-box:hover {
+        background: rgba(0, 168, 132, 0.12);
+    }
+    .cc-quote-author {
+        font-weight: 700;
+        color: #008f6f;
+        font-size: 11.5px;
+        margin-bottom: 1px;
+    }
+    .cc-quote-text {
+        color: #475569;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    /* Search Highlight & Jump Pulse */
+    .cc-search-match-bubble {
+        outline: 2.5px solid #f59e0b !important;
+        box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.25) !important;
+    }
+    .cc-search-active-bubble {
+        outline: 3px solid #00a884 !important;
+        box-shadow: 0 0 0 6px rgba(0, 168, 132, 0.35) !important;
+        transition: all 0.3s ease;
+    }
+    mark.cc-hl {
+        background: #fde047;
+        color: #0f172a;
+        padding: 0 2px;
+        border-radius: 3px;
+        font-weight: 600;
+    }
+
+    /* Toast Notification */
+    #cc-toast-container {
+        position: fixed;
+        bottom: 24px;
+        right: 24px;
+        z-index: 100000;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        pointer-events: none;
+    }
+    .cc-toast {
+        background: linear-gradient(135deg, #042f2e 0%, #0f172a 100%);
+        color: #ffffff;
+        padding: 12px 18px;
+        border-radius: 14px;
+        border: 1px solid rgba(16, 185, 129, 0.4);
+        box-shadow: 0 12px 28px rgba(0, 0, 0, 0.3);
+        font-size: 13.5px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        pointer-events: auto;
+        animation: ccPopIn 0.2s ease-out;
+    }
+</style>
+
+<!-- Toast Container -->
+<div id="cc-toast-container"></div>
+
+<!-- ========================================================= -->
+<!-- ⭐ MODAL 1: MIT STERN MARKIERTE NACHRICHTEN                -->
+<!-- ========================================================= -->
+<div id="cc-starred-modal" class="hidden fixed inset-0 flex items-center justify-center p-3 sm:p-5 bg-black/75 backdrop-blur-sm" style="display: none; z-index: 99990;" onclick="if(event.target===this) closeStarredMessagesModal()">
+    <div class="bg-white w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[88vh] border border-gray-100">
+        <div class="px-5 py-4 flex items-center justify-between text-white" style="background: linear-gradient(135deg, #042f2e 0%, #0f766e 55%, #0e7490 100%);">
+            <div class="flex items-center gap-2.5">
+                <span class="w-9 h-9 rounded-xl bg-amber-400/20 border border-amber-300/40 flex items-center justify-center text-amber-300 text-lg">⭐</span>
+                <div>
+                    <h3 class="font-bold text-base sm:text-lg leading-tight">Mit Stern markierte Nachrichten</h3>
+                    <p class="text-xs text-teal-100/80">Wichtige Nachrichten, 3D-Modelle, Mods & Bilder schnell wiederfinden</p>
+                </div>
+            </div>
+            <button type="button" onclick="closeStarredMessagesModal()" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-xl font-bold">&times;</button>
+        </div>
+
+        <div class="p-3 bg-gray-50 border-b border-gray-200 flex items-center gap-2">
+            <input type="text" id="cc-starred-search" oninput="renderStarredMessagesList(this.value)" placeholder="In markierten Nachrichten suchen..." class="flex-1 bg-white border border-gray-200 rounded-xl px-3.5 py-2 text-sm outline-none focus:ring-2 focus:ring-teal-500">
+            <button type="button" onclick="clearAllStarredMessages()" class="px-3 py-2 text-xs font-semibold text-red-600 hover:bg-red-50 rounded-xl transition cursor-pointer">Alle leeren</button>
+        </div>
+
+        <div id="cc-starred-list" class="p-4 overflow-y-auto space-y-3 flex-1 bg-slate-50/60" style="min-height: 240px;"></div>
+    </div>
+</div>
+
+<!-- ========================================================= -->
+<!-- 🔒 MODAL 2: APP-SPERRE (PIN-SCHUTZ IM ASSISTENTEN-DESIGN)  -->
+<!-- ========================================================= -->
+<div id="cc-applock-modal" class="hidden fixed inset-0 flex items-center justify-center p-4" style="display: none; z-index: 99998; background: radial-gradient(circle at 20% 20%, rgba(16, 185, 129, 0.35), transparent 45%), radial-gradient(circle at 80% 80%, rgba(6, 182, 212, 0.35), transparent 45%), linear-gradient(135deg, #021713 0%, #052e2b 50%, #072235 100%); backdrop-filter: blur(16px);">
+    <div class="w-full max-w-sm bg-white/95 rounded-3xl shadow-2xl p-6 text-center border border-white/30 relative overflow-hidden">
+        <button type="button" id="cc-applock-close-btn" onclick="closeAppLockModal()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 flex items-center justify-center text-lg font-bold">&times;</button>
+
+        <div class="w-16 h-16 mx-auto mb-3 rounded-2xl flex items-center justify-center text-white shadow-lg" style="background: linear-gradient(135deg, #00a884, #0284c7);">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+        </div>
+
+        <h3 id="cc-applock-title" class="text-xl font-extrabold text-slate-900">ChatConnect App-Sperre</h3>
+        <p id="cc-applock-subtitle" class="text-xs text-slate-500 mt-1 mb-5">Schütze deine Chats mit einem 4-stelligen PIN-Code</p>
+
+        <!-- 4 PIN Dots -->
+        <div class="flex items-center justify-center gap-3.5 my-4" id="cc-pin-dots">
+            <div class="cc-pin-dot w-4 h-4 rounded-full border-2 border-teal-600 bg-transparent transition-all"></div>
+            <div class="cc-pin-dot w-4 h-4 rounded-full border-2 border-teal-600 bg-transparent transition-all"></div>
+            <div class="cc-pin-dot w-4 h-4 rounded-full border-2 border-teal-600 bg-transparent transition-all"></div>
+            <div class="cc-pin-dot w-4 h-4 rounded-full border-2 border-teal-600 bg-transparent transition-all"></div>
+        </div>
+        <div id="cc-applock-error" class="text-xs font-bold text-red-600 h-4 mb-2"></div>
+
+        <!-- Numpad -->
+        <div class="grid grid-cols-3 gap-2.5 max-w-[250px] mx-auto my-3">
+            @foreach([1,2,3,4,5,6,7,8,9] as $digit)
+                <button type="button" onclick="ccAppLockPress('{{ $digit }}')" class="h-12 rounded-2xl bg-slate-100 hover:bg-teal-50 hover:text-teal-700 active:scale-95 font-bold text-lg text-slate-800 transition shadow-xs cursor-pointer">{{ $digit }}</button>
+            @endforeach
+            <button type="button" onclick="ccAppLockClear()" class="h-12 rounded-2xl bg-slate-100 hover:bg-red-50 hover:text-red-600 font-semibold text-xs text-slate-600 transition cursor-pointer">Löschen</button>
+            <button type="button" onclick="ccAppLockPress('0')" class="h-12 rounded-2xl bg-slate-100 hover:bg-teal-50 hover:text-teal-700 active:scale-95 font-bold text-lg text-slate-800 transition shadow-xs cursor-pointer">0</button>
+            <button type="button" onclick="ccAppLockBackspace()" class="h-12 rounded-2xl bg-slate-100 hover:bg-slate-200 font-bold text-base text-slate-700 transition cursor-pointer">⌫</button>
+        </div>
+
+        <!-- Management Footer (visible when unlocked) -->
+        <div id="cc-applock-manage-bar" class="mt-4 pt-3 border-t border-slate-200 flex items-center justify-between text-xs">
+            <button type="button" onclick="ccAppLockRemovePin()" id="cc-applock-remove-btn" class="text-red-600 hover:underline font-semibold cursor-pointer" style="display:none;">PIN-Schutz deaktivieren</button>
+            <button type="button" onclick="ccAppLockNow()" id="cc-applock-locknow-btn" class="px-3.5 py-1.5 rounded-xl bg-teal-600 text-white font-bold hover:bg-teal-700 transition cursor-pointer" style="display:none;">🔒 Jetzt sperren</button>
+        </div>
+    </div>
+</div>
+
+<!-- ========================================================= -->
+<!-- 🖼️ MODAL 3: EDLE BILD-LIGHTBOX MIT ZOOM & KI-STUDIO       -->
+<!-- ========================================================= -->
+<div id="cc-lightbox-modal" class="hidden fixed inset-0 flex flex-col justify-between bg-black/92 backdrop-blur-md select-none" style="display: none; z-index: 99995;" onclick="if(event.target===this) closeChatImageLightbox()">
+    <!-- Top Bar -->
+    <div class="flex items-center justify-between px-4 sm:px-6 py-3.5 bg-gradient-to-b from-black/80 to-transparent text-white z-10">
+        <div class="flex items-center gap-3 min-w-0">
+            <span class="w-9 h-9 rounded-xl bg-teal-500/20 border border-teal-400/30 flex items-center justify-center text-teal-300">🖼️</span>
+            <div class="min-w-0">
+                <div id="cc-lightbox-title" class="font-bold text-sm sm:text-base truncate">Chat-Bild</div>
+                <div id="cc-lightbox-counter" class="text-xs text-gray-400">Mausrad zum Zoomen • Ziehen zum Verschieben</div>
+            </div>
+        </div>
+        <div class="flex items-center gap-2 flex-wrap justify-end">
+            <button type="button" onclick="ccLightboxZoom(-0.25)" class="px-2.5 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-bold cursor-pointer" title="Verkleinern">➖</button>
+            <span id="cc-lightbox-zoom-label" class="text-xs font-mono font-bold text-teal-300 min-w-[46px] text-center">100%</span>
+            <button type="button" onclick="ccLightboxZoom(0.25)" class="px-2.5 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-bold cursor-pointer" title="Vergrößern">➕</button>
+            <button type="button" onclick="ccLightboxResetZoom()" class="px-2.5 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-semibold cursor-pointer">1:1</button>
+            <button type="button" onclick="ccLightboxOpenInAiStudio()" style="background: #00a884;" class="px-3.5 py-1.5 rounded-xl text-white text-xs font-bold shadow-md hover:opacity-95 flex items-center gap-1.5 cursor-pointer">
+                <span>✨ Im KI-Studio bearbeiten / skalieren</span>
+            </button>
+            <a id="cc-lightbox-download" href="#" download="chatconnect-bild.jpg" class="px-3 py-1.5 rounded-xl bg-white/15 hover:bg-white/25 text-white text-xs font-bold flex items-center gap-1">
+                <span>💾 Speichern</span>
+            </a>
+            <button type="button" onclick="closeChatImageLightbox()" class="w-9 h-9 rounded-full bg-white/10 hover:bg-red-500/80 text-white text-xl font-bold flex items-center justify-center ml-1 cursor-pointer">&times;</button>
+        </div>
+    </div>
+
+    <!-- Center Image Canvas Area -->
+    <div id="cc-lightbox-stage" class="flex-1 flex items-center justify-center overflow-hidden relative cursor-grab active:cursor-grabbing" onwheel="ccLightboxWheel(event)">
+        <button type="button" id="cc-lightbox-prev" onclick="ccLightboxStep(-1)" class="absolute left-3 sm:left-6 w-11 h-11 rounded-full bg-black/60 hover:bg-teal-600 text-white flex items-center justify-center text-2xl font-bold z-20 transition cursor-pointer">‹</button>
+        <img id="cc-lightbox-img" src="" alt="Vollbild" class="max-h-[80vh] max-w-[90vw] object-contain rounded-lg shadow-2xl transition-transform duration-75" draggable="false">
+        <button type="button" id="cc-lightbox-next" onclick="ccLightboxStep(1)" class="absolute right-3 sm:right-6 w-11 h-11 rounded-full bg-black/60 hover:bg-teal-600 text-white flex items-center justify-center text-2xl font-bold z-20 transition cursor-pointer">›</button>
+    </div>
+
+    <div class="py-2.5 px-4 text-center text-xs text-gray-400 bg-gradient-to-t from-black/80 to-transparent">
+        Tipp: Mit <kbd class="px-1.5 py-0.5 bg-white/10 rounded">←</kbd> <kbd class="px-1.5 py-0.5 bg-white/10 rounded">→</kbd> durch alle Bilder im Chat blättern • <kbd class="px-1.5 py-0.5 bg-white/10 rounded">Esc</kbd> zum Schließen
+    </div>
+</div>
+
+<!-- ========================================================= -->
+<!-- 📦 MODAL 4: ZIP / MINECRAFT-JAR / 3MF INHALTS-INSPEKTOR    -->
+<!-- ========================================================= -->
+<div id="cc-archive-modal" class="hidden fixed inset-0 flex items-center justify-center p-3 sm:p-5 bg-black/75 backdrop-blur-sm" style="display: none; z-index: 99994;" onclick="if(event.target===this) closeArchiveInspector()">
+    <div class="bg-white w-full max-w-3xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[88vh] border border-gray-100">
+        <div class="px-5 py-4 flex items-center justify-between text-white" style="background: linear-gradient(135deg, #1e1b4b 0%, #0f766e 100%);">
+            <div class="flex items-center gap-3 min-w-0">
+                <span class="w-10 h-10 rounded-xl bg-amber-400/20 border border-amber-300/40 flex items-center justify-center text-amber-300 text-xl">📦</span>
+                <div class="min-w-0">
+                    <h3 id="cc-archive-title" class="font-bold text-base sm:text-lg truncate">Archiv-Inspektor</h3>
+                    <p id="cc-archive-subtitle" class="text-xs text-teal-100/90">Dateien, Ordner & Minecraft-Mod-Infos direkt im Browser prüfen</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <a id="cc-archive-dl-btn" href="#" download class="px-3 py-1.5 rounded-xl bg-white/15 hover:bg-white/25 text-white text-xs font-bold flex items-center gap-1">⬇ Herunterladen</a>
+                <button type="button" onclick="closeArchiveInspector()" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-xl font-bold cursor-pointer">&times;</button>
+            </div>
+        </div>
+
+        <!-- Mod / Archive Metadata Banner -->
+        <div id="cc-archive-meta-banner" class="hidden px-5 py-3 bg-emerald-50 border-b border-emerald-200 text-xs text-emerald-900"></div>
+
+        <!-- Filter Bar -->
+        <div class="p-3 bg-slate-50 border-b border-slate-200 flex items-center justify-between gap-3">
+            <input type="text" id="cc-archive-filter" oninput="filterArchiveEntries(this.value)" placeholder="Dateiname oder Endung im Archiv filtern (z.B. .json, .png, .class)..." class="flex-1 bg-white border border-slate-200 rounded-xl px-3.5 py-1.5 text-xs sm:text-sm outline-none focus:ring-2 focus:ring-teal-500">
+            <span id="cc-archive-stats" class="text-xs font-bold text-slate-600 whitespace-nowrap"></span>
+        </div>
+
+        <!-- File List & Optional Text Preview -->
+        <div class="flex-1 overflow-y-auto p-3 sm:p-4 space-y-1.5 bg-white" id="cc-archive-entries" style="min-height: 250px;"></div>
+        <div id="cc-archive-file-preview" class="hidden border-t border-slate-200 bg-slate-900 text-emerald-300 p-3 font-mono text-xs max-h-48 overflow-y-auto whitespace-pre-wrap"></div>
+    </div>
+</div>
+
+<script>
+(function() {
+    const CURRENT_USER_ID = {{ (int) ($user->id ?? 0) }};
+    const ACTIVE_CONV_ID = {{ isset($activeConversation) && $activeConversation ? (int) $activeConversation->id : 0 }};
+    const CSRF_TOKEN = '{{ csrf_token() }}';
+
+    // Server-side unread counts per conversation
+    const UNREAD_MAP = @json($conversations->pluck('unread_count', 'id'));
+
+    // Server-side initial reactions per message in active chat
+    @php
+        $initialReactionsMap = [];
+        if (isset($messages) && count($messages) > 0) {
+            foreach ($messages as $m) {
+                if ($m->relationLoaded('reactions') && $m->reactions->count() > 0) {
+                    $initialReactionsMap[$m->id] = $m->reactions->groupBy('reaction')->map(function ($grp, $emo) use ($user) {
+                        return [
+                            'emoji' => $emo,
+                            'count' => $grp->count(),
+                            'mine'  => $grp->contains('user_id', $user->id),
+                            'users' => $grp->map(fn($r) => $r->user ? $r->user->name : 'Benutzer')->values()->all(),
+                        ];
+                    })->values()->all();
+                }
+            }
+        }
+    @endphp
+    const INITIAL_REACTIONS = @json($initialReactionsMap);
+
+    // Toast Helper
+    window.ccShowToast = function(msg) {
+        const c = document.getElementById('cc-toast-container');
+        if (!c) return;
+        const t = document.createElement('div');
+        t.className = 'cc-toast';
+        t.innerHTML = `<span>${msg}</span>`;
+        c.appendChild(t);
+        setTimeout(() => {
+            t.style.opacity = '0';
+            t.style.transition = 'opacity 0.3s';
+            setTimeout(() => t.remove(), 300);
+        }, 2800);
+    };
+
+    // =========================================================================
+    // 1. 3-PUNKTE-MENÜ & SIDEBAR-FILTER AKTIVIEREN
+    // =========================================================================
+    function upgradeMenuAndSidebar() {
+        const chatMenu = document.getElementById('chat-menu');
+        if (chatMenu) {
+            const links = chatMenu.querySelectorAll('a[href="#"]');
+            links.forEach(a => {
+                const txt = (a.textContent || '').trim();
+                if (txt.includes('Stern')) {
+                    a.innerHTML = `
+                        <svg class="w-5 h-5 mr-3.5 text-amber-500 flex-shrink-0" style="min-width: 20px;" fill="currentColor" viewBox="0 0 24 24"><path d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path></svg>
+                        <span class="flex-1">Mit Stern markiert</span>
+                        <span id="cc-starred-count-badge" class="ml-2 px-2 py-0.5 text-xs font-bold rounded-full bg-amber-100 text-amber-700" style="display:none;">0</span>
+                    `;
+                    a.onclick = function(e) {
+                        e.preventDefault();
+                        chatMenu.classList.add('hidden');
+                        openStarredMessagesModal();
+                    };
+                } else if (txt.includes('Chats auswählen')) {
+                    a.innerHTML = `
+                        <svg class="w-5 h-5 mr-3.5 text-teal-600 flex-shrink-0" style="min-width: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path></svg>
+                        <span>Chats filtern & auswählen</span>
+                    `;
+                    a.onclick = function(e) {
+                        e.preventDefault();
+                        chatMenu.classList.add('hidden');
+                        const fb = document.getElementById('cc-sidebar-filter-bar');
+                        if (fb) {
+                            fb.scrollIntoView({ behavior: 'smooth' });
+                            ccShowToast('🔍 Wähle oben in der Sidebar einen Filter (Alle, Ungelesen, Gruppen, Ich)');
+                        }
+                    };
+                } else if (txt.includes('Alle als gelesen')) {
+                    a.onclick = function(e) {
+                        e.preventDefault();
+                        chatMenu.classList.add('hidden');
+                        markAllChatsAsRead();
+                    };
+                } else if (txt.includes('App-Sperre')) {
+                    a.innerHTML = `
+                        <svg class="w-5 h-5 mr-3.5 text-teal-600 flex-shrink-0" style="min-width: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                        <span class="flex-1">App-Sperre (PIN)</span>
+                        <span id="cc-applock-badge" class="ml-2 px-2 py-0.5 text-[11px] font-bold rounded-full bg-gray-100 text-gray-600">Aus</span>
+                    `;
+                    a.onclick = function(e) {
+                        e.preventDefault();
+                        chatMenu.classList.add('hidden');
+                        openAppLockModal();
+                    };
+                }
+            });
+        }
+
+        // Inject Quick Filter Pills below #sidebar-search-input
+        const searchInput = document.getElementById('sidebar-search-input');
+        if (searchInput && searchInput.parentElement && searchInput.parentElement.parentElement && !document.getElementById('cc-sidebar-filter-bar')) {
+            const bar = document.createElement('div');
+            bar.id = 'cc-sidebar-filter-bar';
+            bar.innerHTML = `
+                <button type="button" class="cc-filter-pill cc-active" data-filter="all" onclick="ccSetSidebarFilter('all')">Alle</button>
+                <button type="button" class="cc-filter-pill" data-filter="unread" onclick="ccSetSidebarFilter('unread')">Ungelesen</button>
+                <button type="button" class="cc-filter-pill" data-filter="groups" onclick="ccSetSidebarFilter('groups')">Gruppen</button>
+                <button type="button" class="cc-filter-pill" data-filter="self" onclick="ccSetSidebarFilter('self')">Eigene Dateien</button>
+            `;
+            searchInput.parentElement.parentElement.appendChild(bar);
+        }
+
+        // Decorate Sidebar Chat Items with Unread Badges & Filter Attributes
+        document.querySelectorAll('.chat-list-item').forEach(item => {
+            const href = item.getAttribute('href') || '';
+            const m = href.match(/\/chats\/(\d+)/);
+            const convId = m ? parseInt(m[1], 10) : 0;
+            const unread = convId && UNREAD_MAP[convId] ? parseInt(UNREAD_MAP[convId], 10) : 0;
+            const isGroup = !!item.querySelector('.bg-indigo-600');
+            const isSelf = (item.getAttribute('data-search') || '').includes('(ich)');
+
+            item.setAttribute('data-cc-unread', unread > 0 ? '1' : '0');
+            item.setAttribute('data-cc-group', isGroup ? '1' : '0');
+            item.setAttribute('data-cc-self', isSelf ? '1' : '0');
+
+            if (unread > 0 && !item.querySelector('.cc-unread-badge')) {
+                const row = item.querySelector('.text-xs.text-gray-500');
+                if (row) {
+                    row.classList.add('justify-between');
+                    const badge = document.createElement('span');
+                    badge.className = 'cc-unread-badge ml-2 px-1.5 py-0.5 min-w-[20px] text-center rounded-full bg-[#00a884] text-white text-[11px] font-bold leading-none flex-shrink-0';
+                    badge.textContent = unread;
+                    row.appendChild(badge);
+                }
+            }
+        });
+    }
+
+    window.ccSetSidebarFilter = function(mode) {
+        document.querySelectorAll('#cc-sidebar-filter-bar .cc-filter-pill').forEach(btn => {
+            btn.classList.toggle('cc-active', btn.getAttribute('data-filter') === mode);
+        });
+        document.querySelectorAll('.chat-list-item').forEach(item => {
+            let show = true;
+            if (mode === 'unread') show = item.getAttribute('data-cc-unread') === '1';
+            else if (mode === 'groups') show = item.getAttribute('data-cc-group') === '1';
+            else if (mode === 'self') show = item.getAttribute('data-cc-self') === '1';
+            item.style.display = show ? '' : 'none';
+        });
+    };
+
+    window.markAllChatsAsRead = function() {
+        fetch("{{ route('chats.markAllRead') }}", {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': CSRF_TOKEN,
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(r => r.json())
+        .then(data => {
+            document.querySelectorAll('.cc-unread-badge').forEach(el => el.remove());
+            document.querySelectorAll('.chat-list-item').forEach(el => el.setAttribute('data-cc-unread', '0'));
+            ccShowToast('✅ Alle Nachrichten wurden als gelesen markiert!');
+        })
+        .catch(() => {
+            ccShowToast('✅ Alle Nachrichten als gelesen markiert');
+        });
+    };
+
+    // =========================================================================
+    // 2. ⭐ MIT STERN MARKIERTE NACHRICHTEN
+    // =========================================================================
+    const STAR_STORAGE_KEY = 'cc_starred_msgs_u' + CURRENT_USER_ID;
+
+    function getStarredMap() {
+        try {
+            return JSON.parse(localStorage.getItem(STAR_STORAGE_KEY) || '{}');
+        } catch (_) {
+            return {};
+        }
+    }
+
+    function saveStarredMap(map) {
+        localStorage.setItem(STAR_STORAGE_KEY, JSON.stringify(map));
+        updateStarredBadgeCount();
+    }
+
+    function updateStarredBadgeCount() {
+        const count = Object.keys(getStarredMap()).length;
+        const badge = document.getElementById('cc-starred-count-badge');
+        if (badge) {
+            badge.textContent = count;
+            badge.style.display = count > 0 ? 'inline-block' : 'none';
+        }
+    }
+
+    window.toggleStarMessage = function(msgId, info) {
+        const map = getStarredMap();
+        const key = String(msgId);
+        const msgEl = document.querySelector(`[data-msg-id="${msgId}"]`);
+        if (map[key]) {
+            delete map[key];
+            ccShowToast('☆ Markierung entfernt');
+        } else {
+            map[key] = {
+                id: msgId,
+                convId: ACTIVE_CONV_ID,
+                sender: info.sender || 'Chat',
+                text: info.text || '',
+                imgSrc: info.imgSrc || '',
+                fileName: info.fileName || '',
+                time: info.time || ''
+            };
+            ccShowToast('⭐ Nachricht mit Stern markiert');
+        }
+        saveStarredMap(map);
+        if (msgEl) {
+            const starBtn = msgEl.querySelector('.cc-star-btn');
+            const starInd = msgEl.querySelector('.cc-star-indicator');
+            if (starBtn) starBtn.classList.toggle('cc-starred', !!map[key]);
+            if (starInd) starInd.classList.toggle('cc-active', !!map[key]);
+        }
+    };
+
+    window.openStarredMessagesModal = function() {
+        const modal = document.getElementById('cc-starred-modal');
+        if (!modal) return;
+        modal.classList.remove('hidden');
+        modal.style.display = 'flex';
+        renderStarredMessagesList('');
+    };
+
+    window.closeStarredMessagesModal = function() {
+        const modal = document.getElementById('cc-starred-modal');
+        if (!modal) return;
+        modal.classList.add('hidden');
+        modal.style.display = 'none';
+    };
+
+    window.clearAllStarredMessages = function() {
+        if (!confirm('Alle Stern-Markierungen wirklich entfernen?')) return;
+        saveStarredMap({});
+        document.querySelectorAll('.cc-star-btn.cc-starred').forEach(el => el.classList.remove('cc-starred'));
+        document.querySelectorAll('.cc-star-indicator.cc-active').forEach(el => el.classList.remove('cc-active'));
+        renderStarredMessagesList('');
+        ccShowToast('🗑️ Alle Stern-Markierungen gelöscht');
+    };
+
+    window.renderStarredMessagesList = function(query) {
+        const container = document.getElementById('cc-starred-list');
+        if (!container) return;
+        const map = getStarredMap();
+        const items = Object.values(map).reverse();
+        const q = (query || '').trim().toLowerCase();
+        const filtered = items.filter(it => {
+            if (!q) return true;
+            return (it.text || '').toLowerCase().includes(q) ||
+                   (it.fileName || '').toLowerCase().includes(q) ||
+                   (it.sender || '').toLowerCase().includes(q);
+        });
+
+        if (filtered.length === 0) {
+            container.innerHTML = `
+                <div class="text-center py-12 text-gray-400">
+                    <div class="text-4xl mb-2">⭐</div>
+                    <p class="font-semibold text-gray-600">Keine markierten Nachrichten gefunden</p>
+                    <p class="text-xs mt-1">Bewege die Maus im Chat über eine Nachricht und klicke oben rechts auf den Stern ⭐.</p>
+                </div>
+            `;
+            return;
+        }
+
+        container.innerHTML = filtered.map(it => `
+            <div class="bg-white rounded-xl p-3.5 border border-gray-200 shadow-xs flex items-start justify-between gap-3 hover:border-teal-400 transition">
+                <div class="min-w-0 flex-1">
+                    <div class="flex items-center gap-2 text-xs text-gray-500 mb-1">
+                        <span class="font-bold text-teal-700">⭐ ${escapeHtmlSimple(it.sender)}</span>
+                        <span>•</span>
+                        <span>${escapeHtmlSimple(it.time)}</span>
+                    </div>
+                    ${it.imgSrc ? `<img src="${escapeHtmlSimple(it.imgSrc)}" class="h-16 rounded-lg object-cover mb-1.5 border">` : ''}
+                    ${it.fileName ? `<div class="text-xs font-semibold text-indigo-700 bg-indigo-50 px-2.5 py-1 rounded-lg inline-block mb-1">📎 ${escapeHtmlSimple(it.fileName)}</div>` : ''}
+                    <div class="text-sm text-gray-800 break-words">${escapeHtmlSimple(it.text || (it.imgSrc ? '📷 Bildnachricht' : '📎 Datei'))}</div>
+                </div>
+                <div class="flex flex-col gap-1.5 flex-shrink-0">
+                    <button type="button" onclick="jumpToChatMessage(${it.id}, ${it.convId || 0})" class="px-3 py-1.5 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold cursor-pointer">Springen</button>
+                    <button type="button" onclick="toggleStarMessage(${it.id}, {}); renderStarredMessagesList(document.getElementById('cc-starred-search').value)" class="px-2.5 py-1 rounded-lg bg-gray-100 hover:bg-red-50 text-gray-600 hover:text-red-600 text-xs cursor-pointer">Entfernen</button>
+                </div>
+            </div>
+        `).join('');
+    };
+
+    window.jumpToChatMessage = function(msgId, convId) {
+        closeStarredMessagesModal();
+        const el = document.querySelector(`[data-msg-id="${msgId}"]`);
+        if (el) {
+            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            const bubble = el.querySelector('.group\\/msg') || el;
+            bubble.classList.add('cc-search-active-bubble');
+            setTimeout(() => bubble.classList.remove('cc-search-active-bubble'), 2600);
+        } else if (convId && convId !== ACTIVE_CONV_ID) {
+            window.location.href = '/chats/' + convId + '#msg-' + msgId;
+        } else {
+            ccShowToast('ℹ️ Nachricht befindet sich in einem anderen Chat');
+        }
+    };
+
+    // =========================================================================
+    // 3. 🔒 APP-SPERRE (4-STELLIGER PIN-SCHUTZ)
+    // =========================================================================
+    const PIN_KEY = 'cc_applock_pin_u' + CURRENT_USER_ID;
+    const LOCKED_STATE_KEY = 'cc_applock_locked_u' + CURRENT_USER_ID;
+    let currentPinInput = '';
+    let pinSetupMode = false;
+
+    function updateAppLockBadge() {
+        const hasPin = !!localStorage.getItem(PIN_KEY);
+        const b = document.getElementById('cc-applock-badge');
+        if (b) {
+            b.textContent = hasPin ? 'Aktiv' : 'Aus';
+            b.className = 'ml-2 px-2 py-0.5 text-[11px] font-bold rounded-full ' +
+                (hasPin ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-600');
+        }
+    }
+
+    function renderPinDots() {
+        document.querySelectorAll('#cc-pin-dots .cc-pin-dot').forEach((d, idx) => {
+            if (idx < currentPinInput.length) {
+                d.style.backgroundColor = '#00a884';
+                d.style.transform = 'scale(1.15)';
+            } else {
+                d.style.backgroundColor = 'transparent';
+                d.style.transform = 'scale(1)';
+            }
+        });
+    }
+
+    window.openAppLockModal = function(forceLock = false) {
+        const modal = document.getElementById('cc-applock-modal');
+        if (!modal) return;
+        currentPinInput = '';
+        renderPinDots();
+        document.getElementById('cc-applock-error').textContent = '';
+
+        const savedPin = localStorage.getItem(PIN_KEY);
+        const isLocked = forceLock || sessionStorage.getItem(LOCKED_STATE_KEY) === '1';
+
+        const closeBtn = document.getElementById('cc-applock-close-btn');
+        const removeBtn = document.getElementById('cc-applock-remove-btn');
+        const lockNowBtn = document.getElementById('cc-applock-locknow-btn');
+        const titleEl = document.getElementById('cc-applock-title');
+        const subEl = document.getElementById('cc-applock-subtitle');
+
+        if (!savedPin) {
+            pinSetupMode = true;
+            titleEl.textContent = 'Neue App-Sperre einrichten';
+            subEl.textContent = 'Wähle jetzt einen 4-stelligen PIN-Code zum Schutz deiner Chats';
+            if (closeBtn) closeBtn.style.display = 'flex';
+            if (removeBtn) removeBtn.style.display = 'none';
+            if (lockNowBtn) lockNowBtn.style.display = 'none';
+        } else if (isLocked) {
+            pinSetupMode = false;
+            titleEl.textContent = '🔒 ChatConnect ist gesperrt';
+            subEl.textContent = 'Bitte gib deinen 4-stelligen PIN-Code ein';
+            if (closeBtn) closeBtn.style.display = 'none';
+            if (removeBtn) removeBtn.style.display = 'none';
+            if (lockNowBtn) lockNowBtn.style.display = 'none';
+        } else {
+            pinSetupMode = false;
+            titleEl.textContent = 'App-Sperre verwalten';
+            subEl.textContent = 'Gib deinen PIN ein oder sperre ChatConnect sofort';
+            if (closeBtn) closeBtn.style.display = 'flex';
+            if (removeBtn) removeBtn.style.display = 'inline-block';
+            if (lockNowBtn) lockNowBtn.style.display = 'inline-block';
+        }
+
+        modal.classList.remove('hidden');
+        modal.style.display = 'flex';
+    };
+
+    window.closeAppLockModal = function() {
+        if (sessionStorage.getItem(LOCKED_STATE_KEY) === '1') return;
+        const modal = document.getElementById('cc-applock-modal');
+        if (modal) {
+            modal.classList.add('hidden');
+            modal.style.display = 'none';
+        }
+    };
+
+    window.ccAppLockPress = function(digit) {
+        if (currentPinInput.length >= 4) return;
+        currentPinInput += String(digit);
+        renderPinDots();
+        document.getElementById('cc-applock-error').textContent = '';
+
+        if (currentPinInput.length === 4) {
+            setTimeout(() => {
+                const savedPin = localStorage.getItem(PIN_KEY);
+                if (pinSetupMode || !savedPin) {
+                    localStorage.setItem(PIN_KEY, currentPinInput);
+                    sessionStorage.setItem(LOCKED_STATE_KEY, '0');
+                    updateAppLockBadge();
+                    closeAppLockModal();
+                    ccShowToast('🔒 App-Sperre aktiviert! Du kannst ChatConnect jederzeit sperren.');
+                } else if (currentPinInput === savedPin) {
+                    sessionStorage.setItem(LOCKED_STATE_KEY, '0');
+                    closeAppLockModal();
+                    ccShowToast('🔓 ChatConnect entsperrt');
+                } else {
+                    document.getElementById('cc-applock-error').textContent = '❌ Falscher PIN-Code!';
+                    currentPinInput = '';
+                    renderPinDots();
+                }
+            }, 140);
+        }
+    };
+
+    window.ccAppLockBackspace = function() {
+        currentPinInput = currentPinInput.slice(0, -1);
+        renderPinDots();
+    };
+
+    window.ccAppLockClear = function() {
+        currentPinInput = '';
+        renderPinDots();
+    };
+
+    window.ccAppLockNow = function() {
+        sessionStorage.setItem(LOCKED_STATE_KEY, '1');
+        openAppLockModal(true);
+    };
+
+    window.ccAppLockRemovePin = function() {
+        localStorage.removeItem(PIN_KEY);
+        sessionStorage.removeItem(LOCKED_STATE_KEY);
+        updateAppLockBadge();
+        closeAppLockModal();
+        ccShowToast('🔓 PIN-Schutz wurde deaktiviert');
+    };
+
+    // =========================================================================
+    // 4. 🔍 VOLLTEXTSUCHE IM AKTUELLEN CHAT
+    // =========================================================================
+    let searchMatches = [];
+    let searchCurrentIdx = 0;
+
+    function injectChatHeaderTools() {
+        const mc = document.getElementById('messages-container');
+        if (!mc) return;
+        const header = mc.previousElementSibling;
+        if (!header) return;
+
+        // Ensure right button container exists in Chat Header (also for Groups & Self-Chat!)
+        let rightBox = header.querySelector('.flex.items-center.space-x-0\\.5, .cc-header-tools');
+        if (!rightBox) {
+            rightBox = document.createElement('div');
+            rightBox.className = 'cc-header-tools flex items-center gap-1 text-gray-600 flex-shrink-0';
+            header.appendChild(rightBox);
+        }
+
+        if (!document.getElementById('cc-chat-search-toggle')) {
+            const searchBtn = document.createElement('button');
+            searchBtn.id = 'cc-chat-search-toggle';
+            searchBtn.type = 'button';
+            searchBtn.className = 'p-1.5 sm:p-2 hover:text-teal-600 hover:bg-gray-200 rounded-full transition cursor-pointer';
+            searchBtn.title = 'Im geöffneten Chat suchen (Strg+F)';
+            searchBtn.onclick = toggleInChatSearchBar;
+            searchBtn.innerHTML = `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>`;
+            rightBox.insertBefore(searchBtn, rightBox.firstChild);
+
+            const starBtn = document.createElement('button');
+            starBtn.type = 'button';
+            starBtn.className = 'p-1.5 sm:p-2 hover:text-amber-500 hover:bg-gray-200 rounded-full transition cursor-pointer';
+            starBtn.title = 'Mit Stern markierte Nachrichten';
+            starBtn.onclick = openStarredMessagesModal;
+            starBtn.innerHTML = `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>`;
+            rightBox.insertBefore(starBtn, rightBox.firstChild);
+        }
+
+        // Insert collapsible Search Bar right before #messages-container
+        if (!document.getElementById('cc-inchat-search-bar')) {
+            const bar = document.createElement('div');
+            bar.id = 'cc-inchat-search-bar';
+            bar.style.display = 'none';
+            bar.className = 'bg-white border-b border-gray-200 px-3 sm:px-4 py-2 flex items-center gap-2 shadow-xs z-10';
+            bar.innerHTML = `
+                <svg class="w-4 h-4 text-teal-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                <input type="text" id="cc-inchat-search-input" oninput="runInChatSearch(this.value)" onkeydown="if(event.key==='Enter'){event.preventDefault(); stepInChatSearch(event.shiftKey ? -1 : 1);}" placeholder="Nachricht, .stl, .jar, .zip oder Begriff im Chat suchen..." class="flex-1 text-sm bg-gray-50 border border-gray-200 rounded-xl px-3 py-1.5 outline-none focus:bg-white focus:ring-2 focus:ring-teal-500">
+                <span id="cc-inchat-search-count" class="text-xs font-bold text-gray-500 min-w-[48px] text-center">0 / 0</span>
+                <button type="button" onclick="stepInChatSearch(-1)" class="w-7 h-7 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-bold cursor-pointer" title="Vorheriger Treffer">▲</button>
+                <button type="button" onclick="stepInChatSearch(1)" class="w-7 h-7 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-bold cursor-pointer" title="Nächster Treffer">▼</button>
+                <button type="button" onclick="toggleInChatSearchBar()" class="w-7 h-7 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-600 text-lg font-bold leading-none cursor-pointer">&times;</button>
+            `;
+            mc.parentNode.insertBefore(bar, mc);
+        }
+    }
+
+    window.toggleInChatSearchBar = function() {
+        const bar = document.getElementById('cc-inchat-search-bar');
+        if (!bar) return;
+        const isHidden = bar.style.display === 'none';
+        bar.style.display = isHidden ? 'flex' : 'none';
+        if (isHidden) {
+            const inp = document.getElementById('cc-inchat-search-input');
+            if (inp) {
+                inp.focus();
+                inp.select();
+            }
+        } else {
+            runInChatSearch('');
+        }
+    };
+
+    window.runInChatSearch = function(query) {
+        const q = (query || '').trim().toLowerCase();
+        searchMatches = [];
+        searchCurrentIdx = 0;
+
+        document.querySelectorAll('#messages-container [data-msg-id]').forEach(row => {
+            const bubble = row.querySelector('.group\\/msg') || row;
+            bubble.classList.remove('cc-search-match-bubble', 'cc-search-active-bubble');
+            if (q && (row.textContent || '').toLowerCase().includes(q)) {
+                bubble.classList.add('cc-search-match-bubble');
+                searchMatches.push(bubble);
+            }
+        });
+
+        const countEl = document.getElementById('cc-inchat-search-count');
+        if (searchMatches.length > 0) {
+            searchCurrentIdx = searchMatches.length - 1; // newest match first
+            highlightActiveSearchMatch();
+        } else if (countEl) {
+            countEl.textContent = '0 / 0';
+        }
+    };
+
+    window.stepInChatSearch = function(delta) {
+        if (searchMatches.length === 0) return;
+        searchCurrentIdx = (searchCurrentIdx + delta + searchMatches.length) % searchMatches.length;
+        highlightActiveSearchMatch();
+    };
+
+    function highlightActiveSearchMatch() {
+        searchMatches.forEach((b, i) => {
+            b.classList.toggle('cc-search-active-bubble', i === searchCurrentIdx);
+        });
+        const active = searchMatches[searchCurrentIdx];
+        if (active) {
+            active.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        const countEl = document.getElementById('cc-inchat-search-count');
+        if (countEl) {
+            countEl.textContent = `${searchCurrentIdx + 1} / ${searchMatches.length}`;
+        }
+    }
+
+    // =========================================================================
+    // 5. 💬 EMOJI-REAKTIONEN & DIREKT-ANTWORTEN (ZITIEREN)
+    // =========================================================================
+    let activeReplyState = null;
+
+    function injectReplyPreviewBar() {
+        const chatForm = document.getElementById('chat-form');
+        if (!chatForm || document.getElementById('cc-reply-preview-bar')) return;
+
+        const bar = document.createElement('div');
+        bar.id = 'cc-reply-preview-bar';
+        bar.style.display = 'none';
+        bar.className = 'px-3 sm:px-4 py-2 bg-teal-50/90 border-t border-teal-200 flex items-center justify-between gap-3';
+        bar.innerHTML = `
+            <div class="flex items-center gap-2.5 min-w-0 flex-1 border-l-4 border-[#00a884] pl-2.5 py-0.5">
+                <div class="min-w-0 flex-1">
+                    <div id="cc-reply-author" class="text-xs font-bold text-[#008f6f] truncate">Antwort an</div>
+                    <div id="cc-reply-text" class="text-xs text-gray-600 truncate"></div>
+                </div>
+            </div>
+            <button type="button" onclick="cancelReplyMessage()" class="w-7 h-7 rounded-full hover:bg-teal-100 text-gray-500 hover:text-gray-800 font-bold text-lg leading-none flex items-center justify-center cursor-pointer">&times;</button>
+        `;
+        chatForm.parentNode.insertBefore(bar, chatForm);
+
+        // Hook into #chat-form submit in capture phase so quote is prepended before AJAX sends it
+        chatForm.addEventListener('submit', function() {
+            if (!activeReplyState) return;
+            const input = document.getElementById('chat-input-field');
+            if (input && input.value.trim() !== '') {
+                const cleanSnippet = activeReplyState.text.replace(/\r?\n/g, ' ').slice(0, 90);
+                input.value = `> 💬 @${activeReplyState.sender}: "${cleanSnippet}"\n${input.value}`;
+                cancelReplyMessage();
+            }
+        }, true);
+    }
+
+    window.startReplyToMessage = function(msgId, sender, text) {
+        activeReplyState = { id: msgId, sender: sender || 'Chat', text: text || 'Medien-Nachricht' };
+        const bar = document.getElementById('cc-reply-preview-bar');
+        if (bar) {
+            document.getElementById('cc-reply-author').textContent = '↩️ Antwort an ' + activeReplyState.sender;
+            document.getElementById('cc-reply-text').textContent = activeReplyState.text;
+            bar.style.display = 'flex';
+        }
+        const input = document.getElementById('chat-input-field');
+        if (input) input.focus();
+    };
+
+    window.cancelReplyMessage = function() {
+        activeReplyState = null;
+        const bar = document.getElementById('cc-reply-preview-bar');
+        if (bar) bar.style.display = 'none';
+    };
+
+    window.sendMessageReaction = function(msgId, emoji) {
+        document.querySelectorAll('.cc-reaction-popover').forEach(p => p.remove());
+        fetch(`/messages/${msgId}/react`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': CSRF_TOKEN,
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify({ reaction: emoji })
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.status === 'success') {
+                renderMessageReactions(msgId, data.reactions || []);
+            }
+        })
+        .catch(err => console.warn('Reaction error:', err));
+    };
+
+    function renderMessageReactions(msgId, reactions) {
+        const row = document.querySelector(`[data-msg-id="${msgId}"]`);
+        if (!row) return;
+        const bubble = row.querySelector('.group\\/msg');
+        if (!bubble) return;
+
+        let bar = bubble.querySelector('.cc-reactions-bar');
+        if (!reactions || reactions.length === 0) {
+            if (bar) bar.remove();
+            return;
+        }
+        if (!bar) {
+            bar = document.createElement('div');
+            bar.className = 'cc-reactions-bar pr-10';
+            bubble.appendChild(bar);
+        }
+        bar.innerHTML = reactions.map(r => `
+            <button type="button" onclick="sendMessageReaction(${msgId}, '${r.emoji}')" class="cc-reaction-pill ${r.mine ? 'cc-mine' : ''}" title="${escapeHtmlSimple((r.users || []).join(', '))}">
+                <span>${r.emoji}</span>
+                <span>${r.count}</span>
+            </button>
+        `).join('');
+    }
+
+    function toggleReactionPopover(msgId, btnEl) {
+        const existing = document.querySelector('.cc-reaction-popover');
+        if (existing) {
+            existing.remove();
+            return;
+        }
+        const bubble = btnEl.closest('.group\\/msg');
+        if (!bubble) return;
+
+        const pop = document.createElement('div');
+        pop.className = 'cc-reaction-popover';
+        ['👍', '❤️', '😂', '😮', '🎉', '🔥'].forEach(emo => {
+            const b = document.createElement('button');
+            b.type = 'button';
+            b.className = 'cc-reaction-Popover-emoji';
+            b.textContent = emo;
+            b.onclick = (e) => {
+                e.stopPropagation();
+                sendMessageReaction(msgId, emo);
+            };
+            pop.appendChild(b);
+        });
+        bubble.appendChild(pop);
+    }
+
+    // Format Quoted Replies inside Message Text (`> 💬 @Sender: "..."\nActual text`)
+    function formatQuoteInMessageText(textContainer) {
+        if (!textContainer || textContainer.getAttribute('data-cc-quote-parsed') === '1') return;
+        textContainer.setAttribute('data-cc-quote-parsed', '1');
+        const span = textContainer.querySelector('span') || textContainer;
+        const raw = span.textContent || '';
+        const match = raw.match(/^> 💬 @([^:]+): "([^"]*)"\r?\n([\s\S]*)$/);
+        if (match) {
+            const author = match[1];
+            const quoted = match[2];
+            const rest = match[3];
+            span.innerHTML = `
+                <div class="cc-quote-box">
+                    <div class="cc-quote-author">↩️ ${escapeHtmlSimple(author)}</div>
+                    <div class="cc-quote-text">${escapeHtmlSimple(quoted)}</div>
+                </div>
+                <div>${escapeHtmlSimple(rest)}</div>
+            `;
+        }
+    }
+
+    // Enhance every message bubble in #messages-container
+    function enhanceMessageNode(row) {
+        if (!row || row.getAttribute('data-cc-enhanced') === '1') return;
+        const msgId = parseInt(row.getAttribute('data-msg-id'), 10);
+        if (!msgId) return;
+        row.setAttribute('data-cc-enhanced', '1');
+
+        const bubble = row.querySelector('.group\\/msg');
+        if (!bubble) return;
+
+        const isMe = bubble.classList.contains('msg-me');
+        const senderEl = bubble.querySelector('.text-teal-700');
+        const senderName = isMe ? '{{ addslashes($user->name) }}' : (senderEl ? senderEl.textContent.trim() : '{{ isset($headerTitle) ? addslashes($headerTitle) : "Kontakt" }}');
+
+        const textEl = bubble.querySelector('.chat-message-text');
+        if (textEl) formatQuoteInMessageText(textEl);
+        const msgText = textEl ? textEl.textContent.trim() : '';
+
+        const imgEl = bubble.querySelector('img[src*="/storage/"], img[alt="Bild"]');
+        const imgSrc = imgEl ? imgEl.getAttribute('src') : '';
+
+        // Upgrade Image Click to Lightbox instead of window.open
+        if (imgEl && imgEl.parentElement) {
+            imgEl.parentElement.onclick = function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                openChatImageLightbox(imgSrc, msgText || 'Chat-Bild');
+            };
+        }
+
+        // Upgrade ZIP / JAR / 3MF Attachment Cards with "📦 Inhalt im Browser ansehen"
+        const docLink = bubble.querySelector('a[href*="/storage/"]');
+        let fileName = '';
+        if (docLink) {
+            const fileUrl = docLink.getAttribute('href') || '';
+            fileName = docLink.getAttribute('download') || (docLink.querySelector('.truncate')?.textContent || '').trim();
+            const ext = (fileName.split('.').pop() || '').toLowerCase();
+            if (['zip', 'jar', 'mcpack', 'mcworld', 'mcaddon', '3mf'].includes(ext) && !bubble.querySelector('.cc-archive-inspect-btn')) {
+                const inspectBtn = document.createElement('button');
+                inspectBtn.type = 'button';
+                inspectBtn.className = 'cc-archive-inspect-btn mt-1.5 w-full flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 text-amber-900 border border-amber-500/30 text-xs font-bold transition cursor-pointer';
+                inspectBtn.innerHTML = `<span>📦 Archiv-Inhalt & Mod-Infos ansehen</span>`;
+                inspectBtn.onclick = function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    openArchiveInspector(fileUrl, fileName);
+                };
+                docLink.parentElement.appendChild(inspectBtn);
+            }
+        }
+
+        const timeEl = bubble.querySelector('.absolute.bottom-1.right-2 span');
+        const timeStr = timeEl ? timeEl.textContent.trim() : '';
+
+        // Star Indicator in Timestamp Bar
+        const starredMap = getStarredMap();
+        const isStarred = !!starredMap[String(msgId)];
+        if (timeEl && !bubble.querySelector('.cc-star-indicator')) {
+            const starSpan = document.createElement('span');
+            starSpan.className = 'cc-star-indicator ' + (isStarred ? 'cc-active' : '');
+            starSpan.textContent = '⭐';
+            timeEl.parentNode.insertBefore(starSpan, timeEl);
+        }
+
+        // Hide old standalone delete button and build unified hover action pill
+        const oldDelBtn = bubble.querySelector('button[onclick^="deleteChatMessage"]');
+        if (oldDelBtn) oldDelBtn.style.display = 'none';
+
+        const actionsBar = document.createElement('div');
+        actionsBar.className = 'cc-msg-actions';
+
+        // 1. Reaction Button
+        const reactBtn = document.createElement('button');
+        reactBtn.type = 'button';
+        reactBtn.className = 'cc-msg-action-btn';
+        reactBtn.title = 'Mit Emoji reagieren';
+        reactBtn.textContent = '😊';
+        reactBtn.onclick = (e) => {
+            e.stopPropagation();
+            toggleReactionPopover(msgId, reactBtn);
+        };
+
+        // 2. Reply Button
+        const replyBtn = document.createElement('button');
+        replyBtn.type = 'button';
+        replyBtn.className = 'cc-msg-action-btn';
+        replyBtn.title = 'Auf Nachricht antworten / zitieren';
+        replyBtn.textContent = '↩️';
+        replyBtn.onclick = (e) => {
+            e.stopPropagation();
+            startReplyToMessage(msgId, senderName, msgText || fileName || (imgSrc ? '📷 Bild' : 'Nachricht'));
+        };
+
+        // 3. Star Button
+        const starBtn = document.createElement('button');
+        starBtn.type = 'button';
+        starBtn.className = 'cc-msg-action-btn cc-star-btn ' + (isStarred ? 'cc-starred' : '');
+        starBtn.title = 'Mit Stern markieren';
+        starBtn.textContent = '★';
+        starBtn.onclick = (e) => {
+            e.stopPropagation();
+            toggleStarMessage(msgId, {
+                sender: senderName,
+                text: msgText,
+                imgSrc: imgSrc,
+                fileName: fileName,
+                time: timeStr
+            });
+        };
+
+        // 4. Delete Button
+        const delBtn = document.createElement('button');
+        delBtn.type = 'button';
+        delBtn.className = 'cc-msg-action-btn hover:text-red-600';
+        delBtn.title = 'Nachricht löschen';
+        delBtn.innerHTML = '🗑️';
+        delBtn.onclick = (e) => {
+            e.stopPropagation();
+            deleteChatMessage(msgId);
+        };
+
+        actionsBar.appendChild(reactBtn);
+        actionsBar.appendChild(replyBtn);
+        actionsBar.appendChild(starBtn);
+        actionsBar.appendChild(delBtn);
+        bubble.appendChild(actionsBar);
+
+        // Render initial reactions if present
+        if (INITIAL_REACTIONS[msgId]) {
+            renderMessageReactions(msgId, INITIAL_REACTIONS[msgId]);
+        }
+    }
+
+    // =========================================================================
+    // 6. 🖼️ BILD-LIGHTBOX MIT ZOOM, GALERIE & KI-STUDIO-ÜBERGABE
+    // =========================================================================
+    let lbScale = 1;
+    let lbGallery = [];
+    let lbIndex = 0;
+    let lbCurrentSrc = '';
+
+    function collectChatImages() {
+        const imgs = [];
+        document.querySelectorAll('#messages-container img[src*="/storage/"], #messages-container img[alt="Bild"]').forEach(img => {
+            const src = img.getAttribute('src');
+            if (src && !imgs.includes(src)) imgs.push(src);
+        });
+        return imgs;
+    }
+
+    window.openChatImageLightbox = function(src, title) {
+        const modal = document.getElementById('cc-lightbox-modal');
+        const img = document.getElementById('cc-lightbox-img');
+        if (!modal || !img) return;
+
+        lbGallery = collectChatImages();
+        lbIndex = Math.max(0, lbGallery.indexOf(src));
+        lbCurrentSrc = src;
+        lbScale = 1;
+
+        img.src = src;
+        img.style.transform = 'scale(1)';
+        document.getElementById('cc-lightbox-zoom-label').textContent = '100%';
+        document.getElementById('cc-lightbox-title').textContent = title || 'Chat-Bild';
+        document.getElementById('cc-lightbox-counter').textContent =
+            lbGallery.length > 1 ? `Bild ${lbIndex + 1} von ${lbGallery.length} im Chat • Mausrad zum Zoomen` : 'Mausrad zum Zoomen';
+        document.getElementById('cc-lightbox-download').href = src;
+
+        document.getElementById('cc-lightbox-prev').style.display = lbGallery.length > 1 ? 'flex' : 'none';
+        document.getElementById('cc-lightbox-next').style.display = lbGallery.length > 1 ? 'flex' : 'none';
+
+        modal.classList.remove('hidden');
+        modal.style.display = 'flex';
+    };
+
+    window.closeChatImageLightbox = function() {
+        const modal = document.getElementById('cc-lightbox-modal');
+        if (modal) {
+            modal.classList.add('hidden');
+            modal.style.display = 'none';
+        }
+    };
+
+    window.ccLightboxZoom = function(delta) {
+        lbScale = Math.min(4, Math.max(0.5, lbScale + delta));
+        const img = document.getElementById('cc-lightbox-img');
+        if (img) img.style.transform = `scale(${lbScale})`;
+        document.getElementById('cc-lightbox-zoom-label').textContent = Math.round(lbScale * 100) + '%';
+    };
+
+    window.ccLightboxResetZoom = function() {
+        lbScale = 1;
+        const img = document.getElementById('cc-lightbox-img');
+        if (img) img.style.transform = 'scale(1)';
+        document.getElementById('cc-lightbox-zoom-label').textContent = '100%';
+    };
+
+    window.ccLightboxWheel = function(e) {
+        e.preventDefault();
+        ccLightboxZoom(e.deltaY < 0 ? 0.2 : -0.2);
+    };
+
+    window.ccLightboxStep = function(delta) {
+        if (lbGallery.length <= 1) return;
+        lbIndex = (lbIndex + delta + lbGallery.length) % lbGallery.length;
+        lbCurrentSrc = lbGallery[lbIndex];
+        ccLightboxResetZoom();
+        document.getElementById('cc-lightbox-img').src = lbCurrentSrc;
+        document.getElementById('cc-lightbox-download').href = lbCurrentSrc;
+        document.getElementById('cc-lightbox-counter').textContent = `Bild ${lbIndex + 1} von ${lbGallery.length} im Chat • Mausrad zum Zoomen`;
+    };
+
+    window.ccLightboxOpenInAiStudio = function() {
+        const targetSrc = lbCurrentSrc;
+        closeChatImageLightbox();
+        if (typeof openAiImageModal === 'function') {
+            openAiImageModal();
+            fetch(targetSrc)
+                .then(r => r.blob())
+                .then(blob => {
+                    const reader = new FileReader();
+                    reader.onload = function(ev) {
+                        if (typeof aiSetImagePreview === 'function') {
+                            aiSetImagePreview(ev.target.result, blob, 'Chat-Bild im Studio geladen');
+                        }
+                    };
+                    reader.readAsDataURL(blob);
+                })
+                .catch(() => {});
+        }
+    };
+
+    // =========================================================================
+    // 7. 📦 ZIP / MINECRAFT-JAR / 3MF INHALTS-INSPEKTOR (BROWSER ZIP PARSER)
+    // =========================================================================
+    let currentArchiveEntries = [];
+    let currentArchiveBuffer = null;
+
+    window.openArchiveInspector = async function(fileUrl, fileName) {
+        const modal = document.getElementById('cc-archive-modal');
+        const entriesBox = document.getElementById('cc-archive-entries');
+        const metaBanner = document.getElementById('cc-archive-meta-banner');
+        const previewBox = document.getElementById('cc-archive-file-preview');
+        if (!modal || !entriesBox) return;
+
+        document.getElementById('cc-archive-title').textContent = '📦 ' + (fileName || 'Archiv');
+        document.getElementById('cc-archive-dl-btn').href = fileUrl;
+        document.getElementById('cc-archive-dl-btn').setAttribute('download', fileName || 'archiv.zip');
+        metaBanner.classList.add('hidden');
+        previewBox.classList.add('hidden');
+        entriesBox.innerHTML = `<div class="py-12 text-center text-gray-500 text-sm">⏳ Lese Archiv-Struktur im Browser...</div>`;
+
+        modal.classList.remove('hidden');
+        modal.style.display = 'flex';
+
+        try {
+            const resp = await fetch(fileUrl);
+            const buf = await resp.arrayBuffer();
+            currentArchiveBuffer = buf;
+            currentArchiveEntries = parseZipCentralDirectory(buf);
+
+            const totalUncompressed = currentArchiveEntries.reduce((acc, e) => acc + e.uncompressedSize, 0);
+            document.getElementById('cc-archive-stats').textContent =
+                `${currentArchiveEntries.length} Einträge • ${(totalUncompressed / 1024).toFixed(1)} KB entpackt`;
+
+            // Check for Minecraft Mod metadata (fabric.mod.json, mcmod.info, pack.mcmeta)
+            const modEntry = currentArchiveEntries.find(e =>
+                e.name === 'fabric.mod.json' || e.name === 'pack.mcmeta' || e.name.endsWith('mods.toml')
+            );
+            if (modEntry) {
+                const text = await extractZipEntryText(buf, modEntry);
+                if (text) {
+                    try {
+                        const json = JSON.parse(text);
+                        const modName = json.name || json.id || (json.pack && json.pack.description) || fileName;
+                        const modVer = json.version ? `v${json.version}` : '';
+                        const modDesc = json.description || '';
+                        metaBanner.innerHTML = `<strong>🎮 Minecraft-Paket erkannt:</strong> ${escapeHtmlSimple(String(modName))} ${escapeHtmlSimple(String(modVer))} ${modDesc ? '— ' + escapeHtmlSimple(String(modDesc)) : ''}`;
+                        metaBanner.classList.remove('hidden');
+                    } catch (_) {
+                        metaBanner.innerHTML = `<strong>🎮 Minecraft-Mod-Metadaten (${escapeHtmlSimple(modEntry.name)}) gefunden!</strong> Klicke unten auf die Datei, um den Inhalt zu lesen.`;
+                        metaBanner.classList.remove('hidden');
+                    }
+                }
+            }
+
+            renderArchiveEntriesList(currentArchiveEntries);
+        } catch (err) {
+            entriesBox.innerHTML = `<div class="py-10 text-center text-red-600 text-sm">Archiv konnte nicht direkt gelesen werden (${escapeHtmlSimple(err.message)}).</div>`;
+        }
+    };
+
+    window.closeArchiveInspector = function() {
+        const modal = document.getElementById('cc-archive-modal');
+        if (modal) {
+            modal.classList.add('hidden');
+            modal.style.display = 'none';
+        }
+    };
+
+    window.filterArchiveEntries = function(q) {
+        const query = (q || '').trim().toLowerCase();
+        const filtered = currentArchiveEntries.filter(e => !query || e.name.toLowerCase().includes(query));
+        renderArchiveEntriesList(filtered);
+    };
+
+    function renderArchiveEntriesList(list) {
+        const entriesBox = document.getElementById('cc-archive-entries');
+        if (!entriesBox) return;
+        if (list.length === 0) {
+            entriesBox.innerHTML = `<div class="py-10 text-center text-gray-400 text-sm">Keine passenden Dateien im Archiv gefunden.</div>`;
+            return;
+        }
+        entriesBox.innerHTML = list.slice(0, 300).map((e, idx) => {
+            const isText = /\.(json|toml|mcmeta|txt|md|cfg|properties|yml|yaml|xml|scad)$/i.test(e.name);
+            const icon = e.isDir ? '📁' : (/\.(png|jpg|jpeg|webp|gif)$/i.test(e.name) ? '🖼️' : (/\.(class|jar)$/i.test(e.name) ? '☕' : (isText ? '📄' : '🔹')));
+            const sizeStr = e.isDir ? 'Ordner' : (e.uncompressedSize < 1024 ? e.uncompressedSize + ' B' : (e.uncompressedSize / 1024).toFixed(1) + ' KB');
+            return `
+                <div class="flex items-center justify-between px-3 py-1.5 rounded-lg hover:bg-slate-50 border border-transparent hover:border-slate-200 text-xs">
+                    <div class="flex items-center gap-2 min-w-0 flex-1">
+                        <span>${icon}</span>
+                        <span class="font-mono text-slate-800 truncate" title="${escapeHtmlSimple(e.name)}">${escapeHtmlSimple(e.name)}</span>
+                    </div>
+                    <div class="flex items-center gap-2 flex-shrink-0 ml-2">
+                        <span class="text-slate-400 font-mono">${sizeStr}</span>
+                        ${isText && !e.isDir ? `<button type="button" onclick="previewArchiveTextFile('${escapeHtmlSimple(e.name.replace(/'/g, "\\'"))}')" class="px-2 py-0.5 rounded bg-teal-50 hover:bg-teal-100 text-teal-700 font-bold cursor-pointer">Lesen</button>` : ''}
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    window.previewArchiveTextFile = async function(entryName) {
+        const entry = currentArchiveEntries.find(e => e.name === entryName);
+        const previewBox = document.getElementById('cc-archive-file-preview');
+        if (!entry || !currentArchiveBuffer || !previewBox) return;
+        previewBox.classList.remove('hidden');
+        previewBox.textContent = 'Lade Datei-Vorschau...';
+        const txt = await extractZipEntryText(currentArchiveBuffer, entry);
+        previewBox.textContent = txt ? `// === ${entry.name} ===\n` + txt.slice(0, 8000) : 'Datei ist komprimiert oder binär.';
+    };
+
+    function parseZipCentralDirectory(buffer) {
+        const view = new DataView(buffer);
+        const bytes = new Uint8Array(buffer);
+        let eocdOffset = -1;
+        const minOffset = Math.max(0, bytes.length - 65557);
+        for (let i = bytes.length - 22; i >= minOffset; i--) {
+            if (view.getUint32(i, true) === 0x06054b50) {
+                eocdOffset = i;
+                break;
+            }
+        }
+        if (eocdOffset === -1) throw new Error('Kein gültiges ZIP/JAR Central Directory gefunden');
+
+        const totalEntries = view.getUint16(eocdOffset + 10, true);
+        const cdOffset = view.getUint32(eocdOffset + 16, true);
+        const decoder = new TextDecoder('utf-8');
+        const entries = [];
+        let ptr = cdOffset;
+
+        for (let i = 0; i < totalEntries && ptr + 46 <= bytes.length; i++) {
+            if (view.getUint32(ptr, true) !== 0x02014b50) break;
+            const compression = view.getUint16(ptr + 10, true);
+            const compressedSize = view.getUint32(ptr + 20, true);
+            const uncompressedSize = view.getUint32(ptr + 24, true);
+            const nameLen = view.getUint16(ptr + 28, true);
+            const extraLen = view.getUint16(ptr + 30, true);
+            const commentLen = view.getUint16(ptr + 32, true);
+            const localHeaderOffset = view.getUint32(ptr + 42, true);
+            const name = decoder.decode(bytes.subarray(ptr + 46, ptr + 46 + nameLen));
+
+            entries.push({
+                name,
+                isDir: name.endsWith('/'),
+                compression,
+                compressedSize,
+                uncompressedSize,
+                localHeaderOffset
+            });
+            ptr += 46 + nameLen + extraLen + commentLen;
+        }
+        return entries;
+    }
+
+    async function extractZipEntryText(buffer, entry) {
+        try {
+            const view = new DataView(buffer);
+            const bytes = new Uint8Array(buffer);
+            const lh = entry.localHeaderOffset;
+            if (view.getUint32(lh, true) !== 0x04034b50) return null;
+            const nameLen = view.getUint16(lh + 26, true);
+            const extraLen = view.getUint16(lh + 28, true);
+            const dataStart = lh + 30 + nameLen + extraLen;
+            const slice = bytes.subarray(dataStart, dataStart + entry.compressedSize);
+
+            if (entry.compression === 0) {
+                return new TextDecoder('utf-8').decode(slice);
+            } else if (entry.compression === 8 && typeof DecompressionStream !== 'undefined') {
+                const ds = new DecompressionStream('deflate-raw');
+                const writer = ds.writable.getWriter();
+                writer.write(slice);
+                writer.close();
+                const outBuf = await new Response(ds.readable).arrayBuffer();
+                return new TextDecoder('utf-8').decode(outBuf);
+            }
+        } catch (_) {}
+        return null;
+    }
+
+    function escapeHtmlSimple(str) {
+        if (!str) return '';
+        const d = document.createElement('div');
+        d.textContent = str;
+        return d.innerHTML;
+    }
+
+    // Close popovers & modals on Escape / Outside click
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.cc-reaction-popover')) {
+            document.querySelectorAll('.cc-reaction-popover').forEach(p => p.remove());
+        }
+    });
+
+    document.addEventListener('keydown', function(e) {
+        const lockModal = document.getElementById('cc-applock-modal');
+        if (lockModal && lockModal.style.display === 'flex') {
+            if (e.key >= '0' && e.key <= '9') ccAppLockPress(e.key);
+            else if (e.key === 'Backspace') ccAppLockBackspace();
+            else if (e.key === 'Escape') closeAppLockModal();
+            return;
+        }
+        const lbModal = document.getElementById('cc-lightbox-modal');
+        if (lbModal && lbModal.style.display === 'flex') {
+            if (e.key === 'Escape') closeChatImageLightbox();
+            else if (e.key === 'ArrowLeft') ccLightboxStep(-1);
+            else if (e.key === 'ArrowRight') ccLightboxStep(1);
+            return;
+        }
+        if (e.key === 'Escape') {
+            closeStarredMessagesModal();
+            closeArchiveInspector();
+        }
+        if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'f' && ACTIVE_CONV_ID > 0) {
+            const bar = document.getElementById('cc-inchat-search-bar');
+            if (bar) {
+                e.preventDefault();
+                if (bar.style.display === 'none') toggleInChatSearchBar();
+                else document.getElementById('cc-inchat-search-input')?.focus();
+            }
+        }
+    });
+
+    // Initialize everything on DOMContentLoaded + observe #messages-container for live messages
+    function initChatConnectProSuite() {
+        upgradeMenuAndSidebar();
+        updateStarredBadgeCount();
+        updateAppLockBadge();
+        injectChatHeaderTools();
+        injectReplyPreviewBar();
+
+        const mc = document.getElementById('messages-container');
+        if (mc) {
+            mc.querySelectorAll('[data-msg-id]').forEach(enhanceMessageNode);
+            const obs = new MutationObserver(mutations => {
+                mutations.forEach(m => {
+                    m.addedNodes.forEach(n => {
+                        if (n.nodeType === 1) {
+                            if (n.hasAttribute('data-msg-id')) enhanceMessageNode(n);
+                            n.querySelectorAll?.('[data-msg-id]').forEach(enhanceMessageNode);
+                        }
+                    });
+                });
+            });
+            obs.observe(mc, { childList: true, subtree: true });
+        }
+
+        // Auto-show App Lock if locked in current session
+        if (localStorage.getItem(PIN_KEY) && sessionStorage.getItem(LOCKED_STATE_KEY) === '1') {
+            openAppLockModal(true);
+        }
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initChatConnectProSuite);
+    } else {
+        initChatConnectProSuite();
+    }
+})();
 </script>
 </body>
 </html>
