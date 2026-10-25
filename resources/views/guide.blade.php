@@ -65,7 +65,7 @@
                 <div class="bg-gray-50 p-4 rounded-xl border border-gray-100 space-y-2">
                     <p>Tippe deine Nachricht in das Eingabefeld ein und drücke die <strong>Enter-Taste</strong> oder klicke auf den <strong>grünen Senden-Pfeil</strong>.</p>
                     <p>Über das <strong>Smiley-Symbol (😊)</strong> links neben dem Eingabefeld kannst du Emojis aus 9 Kategorien oder per deutscher Stichwortsuche einfügen.</p>
-                    <p>Über das <strong>Dokument-Symbol (📄)</strong> versendest du Dateien bis <strong>500 MB</strong> (PDF, Word, Excel, ZIP, 7-Zip, Minecraft-Mods <code>.jar</code> / <code>.mcpack</code> / <code>.mcworld</code>, Markdown <code>.md</code> sowie 3D-Modelle <code>.stl</code> / <code>.ctl</code>).</p>
+                    <p>Über das <strong>Kamera-/Bild-Symbol (📷)</strong> versendest du hochauflösende Fotos &amp; KI-Bilder bis <strong>25 MB</strong>, über das <strong>Dokument-Symbol (📄)</strong> Dateien bis <strong>500 MB</strong> (PDF, Word, Excel, ZIP, 7-Zip, Minecraft-Mods <code>.jar</code> / <code>.mcpack</code> / <code>.mcworld</code>, Markdown <code>.md</code> sowie 3D-Modelle <code>.stl</code> / <code>.ctl</code>).</p>
                 </div>
             </section>
 
@@ -78,10 +78,10 @@
                 <div class="grid sm:grid-cols-2 gap-3">
                     <div class="bg-emerald-50/70 p-4 rounded-xl border border-emerald-200 shadow-xs space-y-2">
                         <h3 class="font-bold text-emerald-950 flex items-center gap-1.5 text-sm">
-                            <span>😊 Reaktionen &amp; ↩️ Direkt-Antworten</span>
+                            <span>😊 Reaktionen &amp; ↩️ Direkt-Antworten (Web &amp; Android)</span>
                         </h3>
                         <p class="text-xs sm:text-sm text-emerald-900">
-                            Fahre mit der Maus über eine Sprechblase: Oben rechts erscheint die Schnellleiste. Mit <strong>😊</strong> vergibst du Emoji-Reaktionen (<code>👍 ❤️ 😂 😮 🎉 🔥</code>), die für alle sichtbar unter der Nachricht gespeichert werden. Mit <strong>↩️</strong> antwortest du direkt mit einer schicken Zitat-Box auf die Nachricht.
+                            <strong>Im Browser:</strong> Fahre mit der Maus über eine Sprechblase (Aktionsleiste oben rechts). <strong>Auf Android:</strong> Halte eine Nachricht lange gedrückt. Mit <strong>😊</strong> vergibst du Emoji-Reaktionen (<code>👍 ❤️ 😂 😮 🎉 🔥</code>), die live ohne Seiten-Reload synchronisiert werden. Mit <strong>↩️ Antworten / Zitieren</strong> antwortest du plattformübergreifend mit einer übersichtlichen Zitat-Box.
                         </p>
                     </div>
                     <div class="bg-amber-50/70 p-4 rounded-xl border border-amber-200 shadow-xs space-y-2">
@@ -89,7 +89,7 @@
                             <span>⭐ Stern-Favoriten &amp; 🔍 Chat-Suche</span>
                         </h3>
                         <p class="text-xs sm:text-sm text-amber-900">
-                            Klicke an einer wichtigen Nachricht auf den <strong>Stern (★)</strong>, um sie als Favorit zu speichern. Über das 3-Punkte-Menü (oder den Stern oben im Chat-Header) öffnest du alle <strong>Mit Stern markierten Nachrichten</strong> und springst mit 1 Klick direkt zur Stelle im Chat. Mit der <strong>Lupe (🔍 / Strg+F)</strong> durchsuchst du den aktuellen Chatverlauf in Echtzeit.
+                            Markiere wichtige Nachrichten per <strong>Stern (★ / ⭐)</strong> dauerhaft als Favorit. Über das 3-Punkte-Menü (oder den Stern-Filter im Chat) zeigst du alle <strong>Mit Stern markierten Nachrichten</strong> an. Mit der <strong>Lupe (🔍 / Strg+F)</strong> oben im geöffneten Chat durchsuchst du den aktuellen Verlauf auf PC und Smartphone sofort in Echtzeit.
                         </p>
                     </div>
                 </div>
