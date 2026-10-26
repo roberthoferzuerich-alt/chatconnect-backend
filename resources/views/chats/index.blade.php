@@ -5626,6 +5626,122 @@
     </div>
 </div>
 
+<!-- ========================================================= -->
+<!-- 📊 MODAL 5: INTERAKTIVE UMFRAGE (POLL) ERSTELLEN           -->
+<!-- ========================================================= -->
+<div id="cc-poll-modal" class="hidden fixed inset-0 flex items-center justify-center p-3 sm:p-5 bg-black/75 backdrop-blur-sm" style="display: none; z-index: 99996;" onclick="if(event.target===this) closePollCreatorModal()">
+    <div class="bg-white w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] border border-gray-100">
+        <div class="px-5 py-4 flex items-center justify-between text-white" style="background: linear-gradient(135deg, #008069 0%, #0284c7 100%);">
+            <div class="flex items-center gap-3">
+                <span class="w-10 h-10 rounded-xl bg-white/15 flex items-center justify-center text-xl">📊</span>
+                <div>
+                    <h3 class="font-bold text-base sm:text-lg">Interaktive Umfrage erstellen</h3>
+                    <p class="text-xs text-teal-100">Teilnehmer können direkt im Chat & in der Android-App abstimmen</p>
+                </div>
+            </div>
+            <button type="button" onclick="closePollCreatorModal()" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-xl font-bold cursor-pointer">&times;</button>
+        </div>
+
+        <div class="p-4 sm:p-5 overflow-y-auto space-y-4 flex-1 bg-slate-50/50">
+            <div class="flex items-center gap-2 flex-wrap">
+                <span class="text-xs font-semibold text-gray-500">Schnellvorlagen:</span>
+                <button type="button" onclick="fillPollTemplate('date')" class="px-2.5 py-1 rounded-lg bg-teal-50 hover:bg-teal-100 text-teal-700 text-xs font-bold border border-teal-200 cursor-pointer">📅 Treffen / Termin</button>
+                <button type="button" onclick="fillPollTemplate('food')" class="px-2.5 py-1 rounded-lg bg-sky-50 hover:bg-sky-100 text-sky-700 text-xs font-bold border border-sky-200 cursor-pointer">🍕 Essen bestellen</button>
+                <button type="button" onclick="fillPollTemplate('3d')" class="px-2.5 py-1 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-bold border border-indigo-200 cursor-pointer">🧊 3D-Druck-Farbe</button>
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Frage / Thema der Umfrage</label>
+                <input type="text" id="cc-poll-question" placeholder="z.B. Wann wollen wir uns am Wochenende treffen?" class="w-full bg-white border border-gray-300 rounded-xl px-3.5 py-2.5 text-sm outline-none focus:ring-2 focus:ring-teal-500">
+            </div>
+
+            <div>
+                <div class="flex items-center justify-between mb-1.5">
+                    <label class="text-xs font-bold text-gray-700 uppercase tracking-wider">Antwortoptionen (2 bis 5)</label>
+                    <button type="button" onclick="addPollOptionInput()" class="text-xs font-bold text-teal-700 hover:underline cursor-pointer">+ Option hinzufügen</button>
+                </div>
+                <div id="cc-poll-options-list" class="space-y-2">
+                    <div class="flex items-center gap-2">
+                        <span class="text-base">1️⃣</span>
+                        <input type="text" class="cc-poll-opt-input flex-1 bg-white border border-gray-300 rounded-xl px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-teal-500" placeholder="Option 1">
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-base">2️⃣</span>
+                        <input type="text" class="cc-poll-opt-input flex-1 bg-white border border-gray-300 rounded-xl px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-teal-500" placeholder="Option 2">
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-base">3️⃣</span>
+                        <input type="text" class="cc-poll-opt-input flex-1 bg-white border border-gray-300 rounded-xl px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-teal-500" placeholder="Option 3 (optional)">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="p-4 bg-white border-t border-gray-200 flex items-center justify-end gap-2">
+            <button type="button" onclick="closePollCreatorModal()" class="px-4 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-semibold cursor-pointer">Abbrechen</button>
+            <button type="button" onclick="submitPollToChat()" class="px-5 py-2 rounded-xl bg-[#00a884] hover:bg-[#008f6f] text-white text-sm font-bold shadow-md cursor-pointer">📊 Umfrage senden</button>
+        </div>
+    </div>
+</div>
+
+<!-- ========================================================= -->
+<!-- ↪️ MODAL 6: NACHRICHT ODER DATEI WEITERLEITEN              -->
+<!-- ========================================================= -->
+<div id="cc-forward-modal" class="hidden fixed inset-0 flex items-center justify-center p-3 sm:p-5 bg-black/75 backdrop-blur-sm" style="display: none; z-index: 99996;" onclick="if(event.target===this) closeForwardMessageModal()">
+    <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh] border border-gray-100">
+        <div class="px-5 py-4 flex items-center justify-between text-white" style="background: linear-gradient(135deg, #0f766e 0%, #0284c7 100%);">
+            <div class="flex items-center gap-3">
+                <span class="w-10 h-10 rounded-xl bg-white/15 flex items-center justify-center text-xl">↪️</span>
+                <div>
+                    <h3 class="font-bold text-base sm:text-lg">Nachricht / Datei weiterleiten</h3>
+                    <p class="text-xs text-teal-100">Wähle einen Chat, eine Gruppe oder „Eigene Dateien“</p>
+                </div>
+            </div>
+            <button type="button" onclick="closeForwardMessageModal()" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-xl font-bold cursor-pointer">&times;</button>
+        </div>
+
+        <div id="cc-forward-preview" class="px-4 py-2.5 bg-teal-50/80 border-b border-teal-200 text-xs text-teal-900 truncate font-medium"></div>
+
+        <div class="p-3 bg-gray-50 border-b border-gray-200">
+            <input type="text" id="cc-forward-search" oninput="filterForwardTargets(this.value)" placeholder="Ziel-Chat oder Kontakt suchen..." class="w-full bg-white border border-gray-200 rounded-xl px-3.5 py-2 text-sm outline-none focus:ring-2 focus:ring-teal-500">
+        </div>
+
+        <div id="cc-forward-targets-list" class="p-3 overflow-y-auto space-y-1.5 flex-1 bg-white" style="min-height: 220px;"></div>
+    </div>
+</div>
+
+<!-- ========================================================= -->
+<!-- 🖼️ MODAL 7: MEDIEN-, DOKUMENTEN- & 3D-GALERIE PRO CHAT     -->
+<!-- ========================================================= -->
+<div id="cc-media-gallery-modal" class="hidden fixed inset-0 flex items-center justify-center p-3 sm:p-5 bg-black/75 backdrop-blur-sm" style="display: none; z-index: 99994;" onclick="if(event.target===this) closeChatMediaGalleryModal()">
+    <div class="bg-white w-full max-w-3xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[88vh] border border-gray-100">
+        <div class="px-5 py-4 flex items-center justify-between text-white" style="background: linear-gradient(135deg, #008069 0%, #0f172a 100%);">
+            <div class="flex items-center gap-3 min-w-0">
+                <span class="w-10 h-10 rounded-xl bg-teal-400/20 border border-teal-300/30 flex items-center justify-center text-xl">🗂️</span>
+                <div class="min-w-0">
+                    <h3 class="font-bold text-base sm:text-lg truncate">Chat-Medien, Dokumente & 3D-Modelle</h3>
+                    <p class="text-xs text-teal-100/90 truncate">Alle geteilten Fotos, PDFs, Archive & .STL-Dateien in diesem Chat</p>
+                </div>
+            </div>
+            <button type="button" onclick="closeChatMediaGalleryModal()" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-xl font-bold cursor-pointer">&times;</button>
+        </div>
+
+        <div class="flex border-b border-gray-200 bg-gray-50 px-3 pt-2 gap-2">
+            <button type="button" id="cc-gal-tab-images" onclick="switchChatMediaGalleryTab('images')" class="px-4 py-2 text-xs sm:text-sm font-bold rounded-t-xl border-b-2 border-[#00a884] text-[#008069] bg-white cursor-pointer">
+                📷 Fotos (<span id="cc-gal-count-images">0</span>)
+            </button>
+            <button type="button" id="cc-gal-tab-docs" onclick="switchChatMediaGalleryTab('docs')" class="px-4 py-2 text-xs sm:text-sm font-bold rounded-t-xl border-b-2 border-transparent text-gray-600 hover:text-gray-900 cursor-pointer">
+                📄 Dokumente & Archive (<span id="cc-gal-count-docs">0</span>)
+            </button>
+            <button type="button" id="cc-gal-tab-stl" onclick="switchChatMediaGalleryTab('stl')" class="px-4 py-2 text-xs sm:text-sm font-bold rounded-t-xl border-b-2 border-transparent text-gray-600 hover:text-gray-900 cursor-pointer">
+                🧊 3D-STL-Modelle (<span id="cc-gal-count-stl">0</span>)
+            </button>
+        </div>
+
+        <div id="cc-media-gallery-body" class="p-4 overflow-y-auto flex-1 bg-slate-50/60" style="min-height: 280px;"></div>
+    </div>
+</div>
+
 <script>
 (function() {
     const CURRENT_USER_ID = {{ (int) ($user->id ?? 0) }};
@@ -6081,6 +6197,15 @@
         const header = mc.previousElementSibling;
         if (!header) return;
 
+        // Make header title area clickable to open the Media/Docs/3D Gallery
+        const headerTitleWrap = header.querySelector('.ml-2\\.5, .sm\\:ml-3');
+        if (headerTitleWrap && !headerTitleWrap.getAttribute('data-cc-gal-bound')) {
+            headerTitleWrap.setAttribute('data-cc-gal-bound', '1');
+            headerTitleWrap.classList.add('cursor-pointer', 'hover:opacity-80', 'transition');
+            headerTitleWrap.title = 'Klicken für Chat-Medien, Dokumente & 3D-Modelle';
+            headerTitleWrap.onclick = openChatMediaGalleryModal;
+        }
+
         // Ensure right button container exists in Chat Header (also for Groups & Self-Chat!)
         let rightBox = header.querySelector('.flex.items-center.space-x-0\\.5, .cc-header-tools');
         if (!rightBox) {
@@ -6090,6 +6215,25 @@
         }
 
         if (!document.getElementById('cc-chat-search-toggle')) {
+            // 1. Media / Docs / 3D Gallery Button
+            const galBtn = document.createElement('button');
+            galBtn.type = 'button';
+            galBtn.className = 'p-1.5 sm:p-2 hover:text-teal-600 hover:bg-gray-200 rounded-full transition cursor-pointer';
+            galBtn.title = 'Medien, Dokumente & 3D-Modelle in diesem Chat';
+            galBtn.onclick = openChatMediaGalleryModal;
+            galBtn.innerHTML = `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>`;
+            rightBox.insertBefore(galBtn, rightBox.firstChild);
+
+            // 2. Poll Creator Button
+            const pollHeaderBtn = document.createElement('button');
+            pollHeaderBtn.type = 'button';
+            pollHeaderBtn.className = 'p-1.5 sm:p-2 hover:text-sky-600 hover:bg-gray-200 rounded-full transition cursor-pointer';
+            pollHeaderBtn.title = '📊 Umfrage (Poll) im Chat erstellen';
+            pollHeaderBtn.onclick = openPollCreatorModal;
+            pollHeaderBtn.innerHTML = `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>`;
+            rightBox.insertBefore(pollHeaderBtn, rightBox.firstChild);
+
+            // 3. Search Toggle Button
             const searchBtn = document.createElement('button');
             searchBtn.id = 'cc-chat-search-toggle';
             searchBtn.type = 'button';
@@ -6099,6 +6243,7 @@
             searchBtn.innerHTML = `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>`;
             rightBox.insertBefore(searchBtn, rightBox.firstChild);
 
+            // 4. Starred Messages Button
             const starBtn = document.createElement('button');
             starBtn.type = 'button';
             starBtn.className = 'p-1.5 sm:p-2 hover:text-amber-500 hover:bg-gray-200 rounded-full transition cursor-pointer';
@@ -6108,12 +6253,38 @@
             rightBox.insertBefore(starBtn, rightBox.firstChild);
         }
 
+        // Also inject Poll Button in #chat-form toolbar next to 3D generator button
+        const chatForm = document.getElementById('chat-form');
+        if (chatForm && !document.getElementById('cc-form-poll-btn')) {
+            const stlBtn = chatForm.querySelector('button[onclick="openStlGeneratorModal()"]');
+            if (stlBtn) {
+                const pollBtn = document.createElement('button');
+                pollBtn.id = 'cc-form-poll-btn';
+                pollBtn.type = 'button';
+                pollBtn.onclick = openPollCreatorModal;
+                pollBtn.className = 'text-amber-600 hover:text-amber-700 hover:bg-amber-50 rounded-full cursor-pointer p-1.5 sm:p-2 transition flex-shrink-0';
+                pollBtn.title = '📊 Interaktive Umfrage erstellen';
+                pollBtn.innerHTML = `<svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>`;
+                stlBtn.insertAdjacentElement('afterend', pollBtn);
+            }
+        }
+
+        // Insert Pinned Message Banner right before #messages-container
+        if (!document.getElementById('cc-pinned-banner')) {
+            const pinBanner = document.createElement('div');
+            pinBanner.id = 'cc-pinned-banner';
+            pinBanner.style.display = 'none';
+            pinBanner.className = 'bg-amber-50/95 border-b border-amber-200 px-3 sm:px-4 py-2 flex items-center justify-between gap-2 shadow-xs z-10 flex-shrink-0';
+            mc.parentNode.insertBefore(pinBanner, mc);
+            renderPinnedBanner();
+        }
+
         // Insert collapsible Search Bar right before #messages-container
         if (!document.getElementById('cc-inchat-search-bar')) {
             const bar = document.createElement('div');
             bar.id = 'cc-inchat-search-bar';
             bar.style.display = 'none';
-            bar.className = 'bg-white border-b border-gray-200 px-3 sm:px-4 py-2 flex items-center gap-2 shadow-xs z-10';
+            bar.className = 'bg-white border-b border-gray-200 px-3 sm:px-4 py-2 flex items-center gap-2 shadow-xs z-10 flex-shrink-0';
             bar.innerHTML = `
                 <svg class="w-4 h-4 text-teal-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                 <input type="text" id="cc-inchat-search-input" oninput="runInChatSearch(this.value)" onkeydown="if(event.key==='Enter'){event.preventDefault(); stepInChatSearch(event.shiftKey ? -1 : 1);}" placeholder="Nachricht, .stl, .jar, .zip oder Begriff im Chat suchen..." class="flex-1 text-sm bg-gray-50 border border-gray-200 rounded-xl px-3 py-1.5 outline-none focus:bg-white focus:ring-2 focus:ring-teal-500">
@@ -6125,6 +6296,528 @@
             mc.parentNode.insertBefore(bar, mc);
         }
     }
+
+    // =========================================================================
+    // 4b. 📌 NACHRICHTEN OBEN IM CHAT ANPINNEN (PINNED MESSAGES)
+    // =========================================================================
+    const PIN_MSG_KEY_PREFIX = 'cc_pinned_msg_c';
+
+    function getPinnedMessage(convId) {
+        if (!convId) return null;
+        try {
+            const raw = localStorage.getItem(PIN_MSG_KEY_PREFIX + convId);
+            return raw ? JSON.parse(raw) : null;
+        } catch (_) {
+            return null;
+        }
+    }
+
+    window.togglePinMessage = function(msgId, info) {
+        if (!ACTIVE_CONV_ID) return;
+        const current = getPinnedMessage(ACTIVE_CONV_ID);
+        if (current && Number(current.id) === Number(msgId)) {
+            localStorage.removeItem(PIN_MSG_KEY_PREFIX + ACTIVE_CONV_ID);
+            ccShowToast('📌 Anpinnen aufgehoben');
+        } else {
+            const cleanText = (info.text || '').replace(/^> 💬 @[^:]+: "[^"]*"\r?\n/, '').replace(/\r?\n/g, ' ').trim();
+            const pinObj = {
+                id: msgId,
+                sender: info.sender || 'Chat',
+                text: cleanText || info.fileName || (info.imgSrc ? '📷 Bildnachricht' : 'Nachricht'),
+                time: info.time || ''
+            };
+            localStorage.setItem(PIN_MSG_KEY_PREFIX + ACTIVE_CONV_ID, JSON.stringify(pinObj));
+            ccShowToast('📌 Nachricht oben im Chat angepinnt');
+        }
+        renderPinnedBanner();
+    };
+
+    window.unpinCurrentChatMessage = function() {
+        if (!ACTIVE_CONV_ID) return;
+        localStorage.removeItem(PIN_MSG_KEY_PREFIX + ACTIVE_CONV_ID);
+        renderPinnedBanner();
+        ccShowToast('📌 Angepinnte Nachricht entfernt');
+    };
+
+    function renderPinnedBanner() {
+        const banner = document.getElementById('cc-pinned-banner');
+        if (!banner || !ACTIVE_CONV_ID) return;
+        const pin = getPinnedMessage(ACTIVE_CONV_ID);
+        if (!pin) {
+            banner.style.display = 'none';
+            banner.innerHTML = '';
+            return;
+        }
+        banner.style.display = 'flex';
+        banner.innerHTML = `
+            <div onclick="jumpToChatMessage(${pin.id}, ${ACTIVE_CONV_ID})" class="flex items-center gap-2.5 min-w-0 flex-1 cursor-pointer group">
+                <span class="w-7 h-7 rounded-lg bg-amber-500/20 text-amber-800 flex items-center justify-center flex-shrink-0 text-sm">📌</span>
+                <div class="min-w-0 flex-1 border-l-3 border-amber-500 pl-2">
+                    <div class="text-[11px] font-bold text-amber-800 flex items-center gap-1.5">
+                        <span>Angepinnt • ${escapeHtmlSimple(pin.sender)}</span>
+                        <span class="text-[10px] font-normal text-amber-700/80 group-hover:underline">(Klicken zum Springen)</span>
+                    </div>
+                    <div class="text-xs text-gray-800 truncate font-medium">${escapeHtmlSimple(pin.text)}</div>
+                </div>
+            </div>
+            <button type="button" onclick="unpinCurrentChatMessage()" class="w-7 h-7 rounded-full hover:bg-amber-200/70 text-gray-500 hover:text-gray-900 font-bold text-base leading-none flex items-center justify-center cursor-pointer flex-shrink-0" title="Anpinnen aufheben">&times;</button>
+        `;
+    }
+
+    // =========================================================================
+    // 4c. 📊 INTERAKTIVE UMFRAGEN (POLLS) ERSTELLEN & ABSTIMMEN
+    // =========================================================================
+    const POLL_EMOJIS = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣'];
+
+    window.openPollCreatorModal = function() {
+        const modal = document.getElementById('cc-poll-modal');
+        if (!modal) return;
+        modal.classList.remove('hidden');
+        modal.style.display = 'flex';
+        setTimeout(() => document.getElementById('cc-poll-question')?.focus(), 80);
+    };
+
+    window.closePollCreatorModal = function() {
+        const modal = document.getElementById('cc-poll-modal');
+        if (modal) {
+            modal.classList.add('hidden');
+            modal.style.display = 'none';
+        }
+    };
+
+    window.addPollOptionInput = function() {
+        const list = document.getElementById('cc-poll-options-list');
+        if (!list) return;
+        const count = list.querySelectorAll('.cc-poll-opt-input').length;
+        if (count >= 5) {
+            ccShowToast('ℹ️ Maximal 5 Antwortoptionen pro Umfrage möglich');
+            return;
+        }
+        const row = document.createElement('div');
+        row.className = 'flex items-center gap-2';
+        row.innerHTML = `
+            <span class="text-base">${POLL_EMOJIS[count]}</span>
+            <input type="text" class="cc-poll-opt-input flex-1 bg-white border border-gray-300 rounded-xl px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-teal-500" placeholder="Option ${count + 1}">
+        `;
+        list.appendChild(row);
+        row.querySelector('input')?.focus();
+    };
+
+    window.fillPollTemplate = function(type) {
+        const qInput = document.getElementById('cc-poll-question');
+        const list = document.getElementById('cc-poll-options-list');
+        if (!qInput || !list) return;
+        let q = '';
+        let opts = [];
+        if (type === 'date') {
+            q = 'Wann passt es euch am besten für unser nächstes Treffen?';
+            opts = ['Samstag Nachmittag (15:00 Uhr)', 'Samstag Abend (19:00 Uhr)', 'Sonntag gemütlich (14:00 Uhr)'];
+        } else if (type === 'food') {
+            q = 'Was wollen wir heute zusammen bestellen?';
+            opts = ['🍕 Italienische Steinofen-Pizza', '🍔 Burger & Pommes', '🍣 Sushi & Asiatisch'];
+        } else if (type === '3d') {
+            q = 'In welcher Filament-Farbe soll das 3D-Modell gedruckt werden?';
+            opts = ['✨ Titan-Silber Metallic (PLA)', '🟢 Smaragd-Grün (PETG)', '⚫ Matt-Schwarz Carbon'];
+        }
+        qInput.value = q;
+        const inputs = list.querySelectorAll('.cc-poll-opt-input');
+        opts.forEach((val, idx) => {
+            if (inputs[idx]) inputs[idx].value = val;
+        });
+    };
+
+    window.submitPollToChat = function() {
+        if (!ACTIVE_CONV_ID) return;
+        const q = (document.getElementById('cc-poll-question')?.value || '').trim();
+        const opts = Array.from(document.querySelectorAll('#cc-poll-options-list .cc-poll-opt-input'))
+            .map(i => i.value.trim())
+            .filter(Boolean);
+
+        if (!q) {
+            alert('Bitte gib eine Frage für die Umfrage ein.');
+            return;
+        }
+        if (opts.length < 2) {
+            alert('Bitte gib mindestens 2 Antwortoptionen an.');
+            return;
+        }
+
+        const lines = [`📊 [UMFRAGE] ${q}`];
+        opts.slice(0, 5).forEach((opt, idx) => {
+            lines.push(`${POLL_EMOJIS[idx]} ${opt}`);
+        });
+        const pollContent = lines.join('\n');
+
+        const formData = new FormData();
+        formData.append('content', pollContent);
+        formData.append('_token', CSRF_TOKEN);
+
+        closePollCreatorModal();
+
+        fetch(`/chats/${ACTIVE_CONV_ID}/messages`, {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: formData
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.status === 'success' && data.message && typeof appendMessageToChat === 'function') {
+                appendMessageToChat(data.message);
+                ccShowToast('📊 Umfrage wurde veröffentlicht!');
+            }
+        })
+        .catch(err => alert('Fehler beim Senden der Umfrage: ' + err.message));
+    };
+
+    function updatePollCardReactions(bubble, msgId, reactions) {
+        const pollCard = bubble.querySelector('.cc-poll-card');
+        if (!pollCard) return;
+
+        const map = {};
+        let totalVotes = 0;
+        (reactions || []).forEach(r => {
+            if (POLL_EMOJIS.includes(r.emoji)) {
+                map[r.emoji] = r;
+                totalVotes += (r.count || 0);
+            }
+        });
+
+        pollCard.querySelectorAll('.cc-poll-option-btn').forEach(btn => {
+            const emo = btn.getAttribute('data-poll-emoji');
+            const r = map[emo] || { count: 0, mine: false, users: [] };
+            const pct = totalVotes > 0 ? Math.round((r.count / totalVotes) * 100) : 0;
+
+            btn.classList.toggle('ring-2', !!r.mine);
+            btn.classList.toggle('ring-[#00a884]', !!r.mine);
+            btn.classList.toggle('bg-teal-50/90', !!r.mine);
+
+            const barFill = btn.querySelector('.cc-poll-bar-fill');
+            if (barFill) barFill.style.width = `${pct}%`;
+
+            const statEl = btn.querySelector('.cc-poll-opt-stat');
+            if (statEl) statEl.textContent = `${r.count} (${pct}%)`;
+
+            const votersEl = btn.querySelector('.cc-poll-opt-voters');
+            if (votersEl) {
+                votersEl.textContent = (r.users && r.users.length > 0) ? '✓ ' + r.users.join(', ') : '';
+                votersEl.style.display = (r.users && r.users.length > 0) ? 'block' : 'none';
+            }
+        });
+
+        const totalEl = pollCard.querySelector('.cc-poll-total-votes');
+        if (totalEl) {
+            totalEl.textContent = totalVotes === 1 ? '1 Stimme abgegeben • Tippe zum Abstimmen' : `${totalVotes} Stimmen abgegeben • Tippe zum Abstimmen`;
+        }
+    }
+
+    // =========================================================================
+    // 4d. ↪️ NACHRICHTEN & DATEIEN WEITERLEITEN (FORWARDING)
+    // =========================================================================
+    let forwardMessageId = 0;
+
+    window.openForwardMessageModal = function(msgId, info) {
+        forwardMessageId = msgId;
+        const modal = document.getElementById('cc-forward-modal');
+        const preview = document.getElementById('cc-forward-preview');
+        const search = document.getElementById('cc-forward-search');
+        if (!modal) return;
+
+        if (preview) {
+            const label = info.fileName ? `📎 Datei: ${info.fileName}` : (info.imgSrc ? `📷 Bild ${info.text || ''}` : (info.text || 'Nachricht'));
+            preview.textContent = `↪️ Weiterleiten: "${label.slice(0, 90)}"`;
+        }
+        if (search) search.value = '';
+        buildForwardTargetsList('');
+        modal.classList.remove('hidden');
+        modal.style.display = 'flex';
+    };
+
+    window.closeForwardMessageModal = function() {
+        const modal = document.getElementById('cc-forward-modal');
+        if (modal) {
+            modal.classList.add('hidden');
+            modal.style.display = 'none';
+        }
+    };
+
+    window.filterForwardTargets = function(q) {
+        buildForwardTargetsList(q);
+    };
+
+    function buildForwardTargetsList(query) {
+        const listEl = document.getElementById('cc-forward-targets-list');
+        if (!listEl) return;
+        const q = (query || '').trim().toLowerCase();
+        const items = [];
+        const seenConvIds = new Set();
+
+        // 1. Existing Conversations from Sidebar
+        document.querySelectorAll('#chats-list-container .chat-list-item').forEach(a => {
+            const href = a.getAttribute('href') || '';
+            const m = href.match(/\/chats\/(\d+)/);
+            const convId = m ? parseInt(m[1], 10) : 0;
+            if (!convId || seenConvIds.has(convId)) return;
+            seenConvIds.add(convId);
+            const title = (a.querySelector('.font-medium')?.textContent || 'Chat').trim();
+            const isGroup = a.getAttribute('data-cc-group') === '1';
+            const isSelf = a.getAttribute('data-cc-self') === '1';
+            if (!q || title.toLowerCase().includes(q)) {
+                items.push({
+                    type: 'conv',
+                    id: convId,
+                    title: isSelf && !title.includes('Eigene') ? `${title} / Eigene Dateien` : title,
+                    badge: isSelf ? '📌 Eigene Dateien' : (isGroup ? '👥 Gruppe' : '💬 Chat')
+                });
+            }
+        });
+
+        // 2. Contacts from Sidebar
+        document.querySelectorAll('#contacts-list-container .contact-list-item').forEach(a => {
+            const href = a.getAttribute('href') || '';
+            const m = href.match(/\/chats\/start\/(\d+)/);
+            const userId = m ? parseInt(m[1], 10) : 0;
+            if (!userId) return;
+            const title = (a.querySelector('.font-medium')?.textContent || 'Kontakt').replace(/\s+/g, ' ').trim();
+            if (!q || title.toLowerCase().includes(q)) {
+                items.push({
+                    type: 'user',
+                    id: userId,
+                    title: title,
+                    badge: userId === CURRENT_USER_ID ? '📌 Ich / Notizen' : '👤 Kontakt'
+                });
+            }
+        });
+
+        if (items.length === 0) {
+            listEl.innerHTML = `<div class="py-8 text-center text-gray-400 text-sm">Keine passenden Chats oder Kontakte gefunden.</div>`;
+            return;
+        }
+
+        listEl.innerHTML = items.map(it => `
+            <div class="flex items-center justify-between px-3 py-2 rounded-xl hover:bg-slate-50 border border-gray-100 hover:border-teal-300 transition">
+                <div class="min-w-0 flex-1 pr-2">
+                    <div class="text-sm font-bold text-gray-900 truncate">${escapeHtmlSimple(it.title)}</div>
+                    <div class="text-[11px] text-teal-700 font-medium">${escapeHtmlSimple(it.badge)}</div>
+                </div>
+                <button type="button" onclick="executeForwardMessage('${it.type}', ${it.id}, '${escapeHtmlSimple(it.title.replace(/'/g, "\\'"))}')" class="px-3.5 py-1.5 rounded-xl bg-[#00a884] hover:bg-[#008f6f] text-white text-xs font-bold shadow-xs cursor-pointer flex-shrink-0">
+                    ↪️ Senden
+                </button>
+            </div>
+        `).join('');
+    }
+
+    window.executeForwardMessage = function(targetType, targetId, targetTitle) {
+        if (!forwardMessageId) return;
+        const payload = targetType === 'conv'
+            ? { target_conversation_id: targetId }
+            : { target_user_id: targetId };
+
+        fetch(`/messages/${forwardMessageId}/forward`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': CSRF_TOKEN,
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify(payload)
+        })
+        .then(r => r.json())
+        .then(data => {
+            closeForwardMessageModal();
+            if (data.status === 'success') {
+                if (Number(data.target_conversation_id) === Number(ACTIVE_CONV_ID) && data.message && typeof appendMessageToChat === 'function') {
+                    appendMessageToChat(data.message);
+                }
+                ccShowToast(`↪️ Weitergeleitet an „${targetTitle}“!`);
+            } else {
+                alert('Weiterleiten fehlgeschlagen: ' + (data.message || 'Unbekannter Fehler'));
+            }
+        })
+        .catch(err => alert('Fehler beim Weiterleiten: ' + err.message));
+    };
+
+    // =========================================================================
+    // 4e. 🖼️ MEDIEN-, DOKUMENTEN- & 3D-GALERIE PRO CHAT
+    // =========================================================================
+    let currentGalleryTab = 'images';
+
+    window.openChatMediaGalleryModal = function() {
+        const modal = document.getElementById('cc-media-gallery-modal');
+        if (!modal) return;
+        modal.classList.remove('hidden');
+        modal.style.display = 'flex';
+        switchChatMediaGalleryTab(currentGalleryTab || 'images');
+    };
+
+    window.closeChatMediaGalleryModal = function() {
+        const modal = document.getElementById('cc-media-gallery-modal');
+        if (modal) {
+            modal.classList.add('hidden');
+            modal.style.display = 'none';
+        }
+    };
+
+    function collectActiveChatMedia() {
+        const images = [];
+        const docs = [];
+        const stls = [];
+
+        document.querySelectorAll('#messages-container [data-msg-id]').forEach(row => {
+            const msgId = parseInt(row.getAttribute('data-msg-id'), 10);
+            const timeStr = (row.querySelector('.absolute.bottom-1.right-2 span')?.textContent || '').trim();
+            const caption = (row.querySelector('.chat-message-text')?.textContent || '').trim();
+
+            // 1. Images
+            const imgEl = row.querySelector('img[src*="/storage/"], img[alt="Bild"]');
+            if (imgEl) {
+                images.push({
+                    msgId,
+                    src: imgEl.getAttribute('src'),
+                    caption: caption || 'Chat-Foto',
+                    time: timeStr
+                });
+            }
+
+            // 2. 3D STL Buttons
+            const stlBtn = row.querySelector('button[onclick^="openStlViewer"]');
+            if (stlBtn) {
+                const onclickAttr = stlBtn.getAttribute('onclick') || '';
+                const titleEl = stlBtn.querySelector('.truncate');
+                const fileName = titleEl ? titleEl.textContent.trim() : '3d-modell.stl';
+                stls.push({
+                    msgId,
+                    fileName,
+                    onclickAttr,
+                    time: timeStr
+                });
+            }
+
+            // 3. Markdown Buttons & Document Links
+            const mdBtn = row.querySelector('button[onclick^="openMarkdownViewer"]');
+            if (mdBtn) {
+                const onclickAttr = mdBtn.getAttribute('onclick') || '';
+                const fileName = (mdBtn.querySelector('.truncate')?.textContent || 'dokument.md').trim();
+                docs.push({
+                    msgId,
+                    fileName,
+                    ext: 'MD',
+                    onclickAttr,
+                    href: '',
+                    time: timeStr
+                });
+            }
+
+            const docLink = row.querySelector('a[href*="/storage/"]');
+            if (docLink) {
+                const href = docLink.getAttribute('href') || '';
+                const fileName = docLink.getAttribute('download') || (docLink.querySelector('.truncate')?.textContent || 'Dokument').trim();
+                const ext = (fileName.split('.').pop() || 'DOC').toUpperCase();
+                docs.push({
+                    msgId,
+                    fileName,
+                    ext,
+                    onclickAttr: '',
+                    href,
+                    time: timeStr
+                });
+            }
+        });
+
+        return { images: images.reverse(), docs: docs.reverse(), stls: stls.reverse() };
+    }
+
+    window.switchChatMediaGalleryTab = function(tab) {
+        currentGalleryTab = tab;
+        const data = collectActiveChatMedia();
+
+        const cImg = document.getElementById('cc-gal-count-images');
+        const cDoc = document.getElementById('cc-gal-count-docs');
+        const cStl = document.getElementById('cc-gal-count-stl');
+        if (cImg) cImg.textContent = data.images.length;
+        if (cDoc) cDoc.textContent = data.docs.length;
+        if (cStl) cStl.textContent = data.stls.length;
+
+        ['images', 'docs', 'stl'].forEach(t => {
+            const btn = document.getElementById('cc-gal-tab-' + t);
+            if (!btn) return;
+            if (t === tab) {
+                btn.className = 'px-4 py-2 text-xs sm:text-sm font-bold rounded-t-xl border-b-2 border-[#00a884] text-[#008069] bg-white cursor-pointer';
+            } else {
+                btn.className = 'px-4 py-2 text-xs sm:text-sm font-bold rounded-t-xl border-b-2 border-transparent text-gray-600 hover:text-gray-900 cursor-pointer';
+            }
+        });
+
+        const body = document.getElementById('cc-media-gallery-body');
+        if (!body) return;
+
+        if (tab === 'images') {
+            if (data.images.length === 0) {
+                body.innerHTML = `<div class="py-14 text-center text-gray-400"><div class="text-4xl mb-2">📷</div><p class="font-semibold text-gray-600">Noch keine Fotos in diesem Chat</p></div>`;
+                return;
+            }
+            body.innerHTML = `<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">` +
+                data.images.map(im => `
+                    <div class="group relative rounded-xl overflow-hidden border border-gray-200 bg-white shadow-xs aspect-square cursor-pointer" onclick="closeChatMediaGalleryModal(); openChatImageLightbox('${escapeHtmlSimple(im.src)}', '${escapeHtmlSimple(im.caption.replace(/'/g, "\\'"))}')">
+                        <img src="${escapeHtmlSimple(im.src)}" class="w-full h-full object-cover group-hover:scale-105 transition duration-200" loading="lazy">
+                        <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/75 via-black/30 to-transparent p-2 flex items-center justify-between text-white text-[11px]">
+                            <span>${escapeHtmlSimple(im.time)}</span>
+                            <button type="button" onclick="event.stopPropagation(); closeChatMediaGalleryModal(); jumpToChatMessage(${im.msgId}, ${ACTIVE_CONV_ID});" class="px-1.5 py-0.5 rounded bg-white/20 hover:bg-white/35 text-[10px] font-bold">Im Chat</button>
+                        </div>
+                    </div>
+                `).join('') + `</div>`;
+        } else if (tab === 'docs') {
+            if (data.docs.length === 0) {
+                body.innerHTML = `<div class="py-14 text-center text-gray-400"><div class="text-4xl mb-2">📄</div><p class="font-semibold text-gray-600">Noch keine Dokumente oder Archive in diesem Chat</p></div>`;
+                return;
+            }
+            body.innerHTML = `<div class="space-y-2">` +
+                data.docs.map(d => {
+                    const isArch = ['ZIP', 'JAR', 'MCPACK', 'MCWORLD', 'MCADDON', '3MF'].includes(d.ext);
+                    return `
+                        <div class="bg-white rounded-xl p-3 border border-gray-200 flex items-center justify-between gap-3 hover:border-teal-400 transition">
+                            <div class="flex items-center gap-3 min-w-0 flex-1">
+                                <span class="w-10 h-10 rounded-lg bg-teal-50 text-teal-700 font-bold text-xs flex items-center justify-center flex-shrink-0 border border-teal-200">${escapeHtmlSimple(d.ext.slice(0, 4))}</span>
+                                <div class="min-w-0 flex-1">
+                                    <div class="text-sm font-bold text-gray-900 truncate">${escapeHtmlSimple(d.fileName)}</div>
+                                    <div class="text-xs text-gray-500">${escapeHtmlSimple(d.time)}</div>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-1.5 flex-shrink-0">
+                                ${isArch && d.href ? `<button type="button" onclick="closeChatMediaGalleryModal(); openArchiveInspector('${escapeHtmlSimple(d.href)}', '${escapeHtmlSimple(d.fileName.replace(/'/g, "\\'"))}')" class="px-3 py-1.5 rounded-lg bg-amber-100 hover:bg-amber-200 text-amber-900 text-xs font-bold cursor-pointer">📦 Prüfen</button>` : ''}
+                                ${d.onclickAttr ? `<button type="button" onclick="closeChatMediaGalleryModal(); ${d.onclickAttr}" class="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold cursor-pointer">Öffnen</button>` : ''}
+                                ${d.href ? `<a href="${escapeHtmlSimple(d.href)}" download="${escapeHtmlSimple(d.fileName)}" target="_blank" class="px-3 py-1.5 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold">⬇ Laden</a>` : ''}
+                                <button type="button" onclick="closeChatMediaGalleryModal(); jumpToChatMessage(${d.msgId}, ${ACTIVE_CONV_ID})" class="px-2.5 py-1.5 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-semibold cursor-pointer">Zum Chat</button>
+                            </div>
+                        </div>
+                    `;
+                }).join('') + `</div>`;
+        } else if (tab === 'stl') {
+            if (data.stls.length === 0) {
+                body.innerHTML = `<div class="py-14 text-center text-gray-400"><div class="text-4xl mb-2">🧊</div><p class="font-semibold text-gray-600">Noch keine 3D-STL-Modelle in diesem Chat</p><button type="button" onclick="closeChatMediaGalleryModal(); openStlGeneratorModal();" class="mt-3 px-4 py-2 rounded-xl bg-sky-600 text-white text-xs font-bold cursor-pointer">✨ Jetzt 3D-Modell erstellen</button></div>`;
+                return;
+            }
+            body.innerHTML = `<div class="space-y-2">` +
+                data.stls.map(s => `
+                    <div class="bg-white rounded-xl p-3 border border-sky-200 flex items-center justify-between gap-3 hover:border-sky-400 transition">
+                        <div class="flex items-center gap-3 min-w-0 flex-1">
+                            <span class="w-10 h-10 rounded-lg bg-sky-100 text-sky-700 font-bold text-xs flex items-center justify-center flex-shrink-0">🧊 3D</span>
+                            <div class="min-w-0 flex-1">
+                                <div class="text-sm font-bold text-gray-900 truncate">${escapeHtmlSimple(s.fileName)}</div>
+                                <div class="text-xs text-sky-700">3D-CAD / STL-Modell • ${escapeHtmlSimple(s.time)}</div>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-1.5 flex-shrink-0">
+                            <button type="button" onclick="closeChatMediaGalleryModal(); ${s.onclickAttr}" class="px-3.5 py-1.5 rounded-lg bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold cursor-pointer">🧊 Im 3D-Viewer öffnen</button>
+                            <button type="button" onclick="closeChatMediaGalleryModal(); jumpToChatMessage(${s.msgId}, ${ACTIVE_CONV_ID})" class="px-2.5 py-1.5 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-semibold cursor-pointer">Zum Chat</button>
+                        </div>
+                    </div>
+                `).join('') + `</div>`;
+        }
+    };
 
     window.toggleInChatSearchBar = function() {
         const bar = document.getElementById('cc-inchat-search-bar');
@@ -6266,6 +6959,9 @@
         const bubble = row.querySelector('.group\\/msg');
         if (!bubble) return;
 
+        // Update interactive Poll card if this message is a Poll
+        updatePollCardReactions(bubble, msgId, reactions || []);
+
         let bar = bubble.querySelector('.cc-reactions-bar');
         if (!reactions || reactions.length === 0) {
             if (bar) bar.remove();
@@ -6310,7 +7006,7 @@
                 });
             }
 
-            // 2. Live-Update für Emoji-Reaktionen
+            // 2. Live-Update für Emoji-Reaktionen & Umfrage-Stimmen
             renderMessageReactions(msgId, st.reactions || []);
 
             // 3. Live-Update für bearbeitete Nachrichtentexte (✏️)
@@ -6392,12 +7088,61 @@
         bubble.appendChild(pop);
     }
 
-    // Format Quoted Replies inside Message Text (`> 💬 @Sender: "..."\nActual text`)
+    // Format Quoted Replies, Forwarded Badges & Interactive Polls inside Message Text
     function formatQuoteInMessageText(textContainer) {
         if (!textContainer || textContainer.getAttribute('data-cc-quote-parsed') === '1') return;
         textContainer.setAttribute('data-cc-quote-parsed', '1');
         const span = textContainer.querySelector('span') || textContainer;
-        const raw = span.textContent || '';
+        const raw = (span.textContent || '').trim();
+        const row = textContainer.closest('[data-msg-id]');
+        const msgId = row ? parseInt(row.getAttribute('data-msg-id'), 10) : 0;
+
+        // 1. Check if Interactive Poll (`📊 [UMFRAGE] ...`)
+        if (raw.startsWith('📊 [UMFRAGE]')) {
+            const lines = raw.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+            const question = lines[0].replace(/^📊\s*\[UMFRAGE\]\s*/, '').trim() || 'Umfrage';
+            const optLines = lines.slice(1);
+            const optsHtml = optLines.map((line, idx) => {
+                const emo = POLL_EMOJIS.find(e => line.startsWith(e)) || POLL_EMOJIS[idx] || '1️⃣';
+                const label = line.replace(emo, '').trim();
+                return `
+                    <button type="button" data-poll-emoji="${emo}" onclick="sendMessageReaction(${msgId}, '${emo}')" class="cc-poll-option-btn w-full text-left rounded-xl border border-teal-600/25 bg-white/90 hover:bg-teal-50/70 p-2.5 transition relative overflow-hidden cursor-pointer shadow-2xs">
+                        <div class="cc-poll-bar-fill absolute inset-y-0 left-0 bg-teal-500/20 transition-all duration-300 pointer-events-none" style="width: 0%;"></div>
+                        <div class="relative z-10 flex items-center justify-between gap-2 text-xs sm:text-sm font-semibold text-gray-900">
+                            <span>${emo} ${escapeHtmlSimple(label)}</span>
+                            <span class="cc-poll-opt-stat text-xs font-bold text-teal-800 whitespace-nowrap">0 (0%)</span>
+                        </div>
+                        <div class="cc-poll-opt-voters relative z-10 text-[10px] text-teal-700 font-medium mt-0.5 truncate" style="display:none;"></div>
+                    </button>
+                `;
+            }).join('');
+
+            span.innerHTML = `
+                <div class="cc-poll-card min-w-[230px] sm:min-w-[280px] py-1 space-y-2">
+                    <div class="flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-wider text-teal-800">
+                        <span>📊 Live-Umfrage</span>
+                    </div>
+                    <div class="font-bold text-gray-900 text-sm sm:text-base leading-snug">${escapeHtmlSimple(question)}</div>
+                    <div class="space-y-1.5 pt-1">${optsHtml}</div>
+                    <div class="cc-poll-total-votes text-[11px] text-gray-500 font-medium pt-0.5">0 Stimmen abgegeben • Tippe zum Abstimmen</div>
+                </div>
+            `;
+            return;
+        }
+
+        // 2. Check if Forwarded Message (`↪️ Weitergeleitet:\n...`)
+        const fwdMatch = raw.match(/^↪️\s*Weitergeleitet:\r?\n([\s\S]*)$/);
+        if (fwdMatch) {
+            span.innerHTML = `
+                <div class="text-[11px] italic font-semibold text-teal-700 mb-1 flex items-center gap-1">
+                    <span>↪️ Weitergeleitet</span>
+                </div>
+                <div>${escapeHtmlSimple(fwdMatch[1])}</div>
+            `;
+            return;
+        }
+
+        // 3. Check if Quoted Reply (`> 💬 @Sender: "..."\nActual text`)
         const match = raw.match(/^> 💬 @([^:]+): "([^"]*)"\r?\n([\s\S]*)$/);
         if (match) {
             const author = match[1];
@@ -6433,7 +7178,7 @@
             row.setAttribute('data-cc-raw-content', rawSpan.textContent || '');
             formatQuoteInMessageText(textEl);
         }
-        const msgText = textEl ? textEl.textContent.trim() : '';
+        const msgText = (row.getAttribute('data-cc-raw-content') || (textEl ? textEl.textContent : '')).trim();
 
         const imgEl = bubble.querySelector('img[src*="/storage/"], img[alt="Bild"]');
         const imgSrc = imgEl ? imgEl.getAttribute('src') : '';
@@ -6488,6 +7233,14 @@
         const actionsBar = document.createElement('div');
         actionsBar.className = 'cc-msg-actions';
 
+        const msgInfo = {
+            sender: senderName,
+            text: msgText,
+            imgSrc: imgSrc,
+            fileName: fileName,
+            time: timeStr
+        };
+
         // 1. Reaction Button
         const reactBtn = document.createElement('button');
         reactBtn.type = 'button';
@@ -6510,7 +7263,29 @@
             startReplyToMessage(msgId, senderName, msgText || fileName || (imgSrc ? '📷 Bild' : 'Nachricht'));
         };
 
-        // 3. Star Button
+        // 3. Forward Button (↪️ Weiterleiten)
+        const fwdBtn = document.createElement('button');
+        fwdBtn.type = 'button';
+        fwdBtn.className = 'cc-msg-action-btn';
+        fwdBtn.title = 'Nachricht / Datei weiterleiten';
+        fwdBtn.textContent = '↪️';
+        fwdBtn.onclick = (e) => {
+            e.stopPropagation();
+            openForwardMessageModal(msgId, msgInfo);
+        };
+
+        // 4. Pin Button (📌 Oben im Chat anpinnen)
+        const pinBtn = document.createElement('button');
+        pinBtn.type = 'button';
+        pinBtn.className = 'cc-msg-action-btn';
+        pinBtn.title = 'Oben im Chat anpinnen';
+        pinBtn.textContent = '📌';
+        pinBtn.onclick = (e) => {
+            e.stopPropagation();
+            togglePinMessage(msgId, msgInfo);
+        };
+
+        // 5. Star Button
         const starBtn = document.createElement('button');
         starBtn.type = 'button';
         starBtn.className = 'cc-msg-action-btn cc-star-btn ' + (isStarred ? 'cc-starred' : '');
@@ -6518,16 +7293,10 @@
         starBtn.textContent = '★';
         starBtn.onclick = (e) => {
             e.stopPropagation();
-            toggleStarMessage(msgId, {
-                sender: senderName,
-                text: msgText,
-                imgSrc: imgSrc,
-                fileName: fileName,
-                time: timeStr
-            });
+            toggleStarMessage(msgId, msgInfo);
         };
 
-        // 4. Delete Button
+        // 6. Delete Button
         const delBtn = document.createElement('button');
         delBtn.type = 'button';
         delBtn.className = 'cc-msg-action-btn hover:text-red-600';
@@ -6540,6 +7309,8 @@
 
         actionsBar.appendChild(reactBtn);
         actionsBar.appendChild(replyBtn);
+        actionsBar.appendChild(fwdBtn);
+        actionsBar.appendChild(pinBtn);
         actionsBar.appendChild(starBtn);
         if (isMe && textEl) {
             const editBtn = document.createElement('button');
@@ -6871,6 +7642,9 @@
         if (e.key === 'Escape') {
             closeStarredMessagesModal();
             closeArchiveInspector();
+            closePollCreatorModal();
+            closeForwardMessageModal();
+            closeChatMediaGalleryModal();
         }
         if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'f' && ACTIVE_CONV_ID > 0) {
             const bar = document.getElementById('cc-inchat-search-bar');

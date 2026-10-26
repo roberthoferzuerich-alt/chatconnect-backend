@@ -183,18 +183,18 @@ class MessageController extends Controller
 
             $messageId = $message->id;
 
-            // Delete associated image if it exists
-            if ($message->image_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($message->image_path)) {
+            // Delete associated image if it exists and is not shared by a forwarded message
+            if ($message->image_path && !\App\Models\Message::where('id', '!=', $messageId)->where('image_path', $message->image_path)->exists() && \Illuminate\Support\Facades\Storage::disk('public')->exists($message->image_path)) {
                 \Illuminate\Support\Facades\Storage::disk('public')->delete($message->image_path);
             }
 
-            // Delete associated audio if it exists
-            if ($message->audio_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($message->audio_path)) {
+            // Delete associated audio if it exists and is not shared by a forwarded message
+            if ($message->audio_path && !\App\Models\Message::where('id', '!=', $messageId)->where('audio_path', $message->audio_path)->exists() && \Illuminate\Support\Facades\Storage::disk('public')->exists($message->audio_path)) {
                 \Illuminate\Support\Facades\Storage::disk('public')->delete($message->audio_path);
             }
 
-            // Delete associated document if it exists
-            if ($message->file_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($message->file_path)) {
+            // Delete associated document if it exists and is not shared by a forwarded message
+            if ($message->file_path && !\App\Models\Message::where('id', '!=', $messageId)->where('file_path', $message->file_path)->exists() && \Illuminate\Support\Facades\Storage::disk('public')->exists($message->file_path)) {
                 \Illuminate\Support\Facades\Storage::disk('public')->delete($message->file_path);
             }
 
@@ -269,5 +269,51 @@ class MessageController extends Controller
         $message->load(['sender', 'reactions']);
 
         return response()->json($message);
+    }
+
+    public function forward(Request $request, Message $message)
+    {
+        $request->validate([
+            'target_conversation_id' => 'required|integer|exists:conversations,id',
+        ]);
+
+        $user = $request->user();
+        $sourceConv = $message->conversation;
+        if (!$sourceConv || !$sourceConv->users()->where('users.id', $user->id)->exists()) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $targetConversation = Conversation::find((int) $request->input('target_conversation_id'));
+        if (!$targetConversation || !$targetConversation->users()->where('users.id', $user->id)->exists()) {
+            return response()->json(['message' => 'Ziel-Chat nicht gefunden.'], 404);
+        }
+
+        $rawContent = trim((string) $message->content);
+        if ($rawContent !== '' && !str_starts_with($rawContent, '↪️') && !str_starts_with($rawContent, '📊 [UMFRAGE]')) {
+            $rawContent = preg_replace('/^> 💬 @[^:]+: "[^"]*"\r?\n/', '', $rawContent);
+            $forwardedContent = "↪️ Weitergeleitet:\n" . $rawContent;
+        } else {
+            $forwardedContent = $rawContent;
+        }
+
+        $newMsg = $targetConversation->messages()->create([
+            'sender_id' => $user->id,
+            'content' => $forwardedContent,
+            'image_path' => $message->image_path,
+            'audio_path' => $message->audio_path,
+            'file_path' => $message->file_path,
+            'file_name' => $message->file_name,
+        ]);
+
+        $targetConversation->update(['last_message_id' => $newMsg->id]);
+        $newMsg->load(['sender', 'reactions']);
+
+        try {
+            broadcast(new \App\Events\MessageSent($newMsg))->toOthers();
+        } catch (\Throwable $e) {
+            \Log::warning('Broadcast forward failed: ' . $e->getMessage());
+        }
+
+        return response()->json($newMsg, 201);
     }
 }

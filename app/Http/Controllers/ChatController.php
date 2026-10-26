@@ -318,15 +318,15 @@ class ChatController extends Controller
 
             $messageId = $message->id;
 
-            if ($message->image_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($message->image_path)) {
+            if ($message->image_path && !Message::where('id', '!=', $messageId)->where('image_path', $message->image_path)->exists() && \Illuminate\Support\Facades\Storage::disk('public')->exists($message->image_path)) {
                 \Illuminate\Support\Facades\Storage::disk('public')->delete($message->image_path);
             }
 
-            if ($message->audio_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($message->audio_path)) {
+            if ($message->audio_path && !Message::where('id', '!=', $messageId)->where('audio_path', $message->audio_path)->exists() && \Illuminate\Support\Facades\Storage::disk('public')->exists($message->audio_path)) {
                 \Illuminate\Support\Facades\Storage::disk('public')->delete($message->audio_path);
             }
 
-            if ($message->file_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($message->file_path)) {
+            if ($message->file_path && !Message::where('id', '!=', $messageId)->where('file_path', $message->file_path)->exists() && \Illuminate\Support\Facades\Storage::disk('public')->exists($message->file_path)) {
                 \Illuminate\Support\Facades\Storage::disk('public')->delete($message->file_path);
             }
 
@@ -437,6 +437,93 @@ class ChatController extends Controller
             'status' => 'success',
             'message_id' => $message->id,
             'content' => $message->content,
+        ]);
+    }
+
+    public function forward(Request $request, Message $message)
+    {
+        $user = Auth::user();
+        $sourceConv = $message->conversation;
+        if (!$sourceConv || !$sourceConv->users()->where('users.id', $user->id)->exists()) {
+            return response()->json(['status' => 'error', 'message' => 'Unauthorized'], 403);
+        }
+
+        $targetConversation = null;
+        if ($request->filled('target_conversation_id')) {
+            $targetConversation = Conversation::find((int) $request->input('target_conversation_id'));
+            if (!$targetConversation || !$targetConversation->users()->where('users.id', $user->id)->exists()) {
+                return response()->json(['status' => 'error', 'message' => 'Ziel-Chat nicht gefunden.'], 404);
+            }
+        } elseif ($request->filled('target_user_id')) {
+            $targetUserId = (int) $request->input('target_user_id');
+            if ($targetUserId === (int) $user->id) {
+                $targetConversation = $user->conversations()
+                    ->where('is_group', false)
+                    ->whereDoesntHave('users', function ($q) use ($user) {
+                        $q->where('users.id', '!=', $user->id);
+                    })->first();
+                if (!$targetConversation) {
+                    $targetConversation = Conversation::create(['is_group' => false]);
+                    $targetConversation->users()->attach([$user->id]);
+                }
+            } else {
+                $targetConversation = $user->conversations()
+                    ->where('is_group', false)
+                    ->whereHas('users', function ($q) use ($targetUserId) {
+                        $q->where('users.id', $targetUserId);
+                    })->first();
+                if (!$targetConversation) {
+                    $targetConversation = Conversation::create(['is_group' => false]);
+                    $targetConversation->users()->attach([$user->id, $targetUserId]);
+                }
+            }
+        }
+
+        if (!$targetConversation) {
+            return response()->json(['status' => 'error', 'message' => 'Bitte einen Ziel-Chat auswählen.'], 422);
+        }
+
+        $rawContent = trim((string) $message->content);
+        if ($rawContent !== '' && !str_starts_with($rawContent, '↪️') && !str_starts_with($rawContent, '📊 [UMFRAGE]')) {
+            // Strip old quote header if present
+            $rawContent = preg_replace('/^> 💬 @[^:]+: "[^"]*"\r?\n/', '', $rawContent);
+            $forwardedContent = "↪️ Weitergeleitet:\n" . $rawContent;
+        } else {
+            $forwardedContent = $rawContent;
+        }
+
+        $newMsg = $targetConversation->messages()->create([
+            'sender_id' => $user->id,
+            'content' => $forwardedContent,
+            'image_path' => $message->image_path,
+            'audio_path' => $message->audio_path,
+            'file_path' => $message->file_path,
+            'file_name' => $message->file_name,
+        ]);
+
+        $targetConversation->update(['last_message_id' => $newMsg->id]);
+
+        try {
+            broadcast(new \App\Events\MessageSent($newMsg))->toOthers();
+        } catch (\Throwable $e) {
+            \Log::warning('Broadcast forward failed: ' . $e->getMessage());
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'target_conversation_id' => $targetConversation->id,
+            'message' => [
+                'id' => $newMsg->id,
+                'is_me' => true,
+                'sender_name' => $user->name,
+                'content' => $newMsg->content,
+                'image_url' => $newMsg->image_url ?: ($newMsg->image_path ? '/storage/' . ltrim($newMsg->image_path, '/') : null),
+                'audio_url' => $newMsg->audio_url ?: ($newMsg->audio_path ? '/storage/' . ltrim($newMsg->audio_path, '/') : null),
+                'file_url' => $newMsg->file_url ?: ($newMsg->file_path ? '/storage/' . ltrim($newMsg->file_path, '/') : null),
+                'file_name' => $newMsg->file_name,
+                'time' => $newMsg->created_at->format('H:i'),
+                'read' => false,
+            ],
         ]);
     }
 

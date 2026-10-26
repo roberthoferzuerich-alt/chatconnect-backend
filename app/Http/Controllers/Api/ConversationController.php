@@ -12,7 +12,20 @@ class ConversationController extends Controller
     // List all conversations for the authenticated user
     public function index(Request $request)
     {
-        $conversations = $request->user()->conversations()
+        $me = $request->user();
+
+        // Ensure Self-Chat ("Ich / Eigene Dateien") always exists
+        $selfChat = $me->conversations()->where('is_group', false)
+            ->whereDoesntHave('users', function ($query) use ($me) {
+                $query->where('users.id', '!=', $me->id);
+            })->first();
+
+        if (!$selfChat) {
+            $selfChat = Conversation::create(['is_group' => false]);
+            $selfChat->users()->attach([$me->id]);
+        }
+
+        $conversations = $me->conversations()
             ->with(['users', 'lastMessage'])
             ->orderByDesc('updated_at')
             ->get();

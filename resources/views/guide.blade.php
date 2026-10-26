@@ -74,23 +74,39 @@
             <section class="space-y-3">
                 <h2 class="text-xl font-bold text-gray-900 flex items-center space-x-2">
                     <span class="w-7 h-7 rounded-lg bg-teal-100 text-teal-700 flex items-center justify-center text-sm font-extrabold">3</span>
-                    <span>Emoji-Reaktionen, Antworten, Bearbeiten ✏️, Favoriten &amp; Volltextsuche 💬</span>
+                    <span>Reaktionen, Antworten, Weiterleiten ↪️, Anpinnen 📌, Live-Umfragen 📊 &amp; Medien-Galerie 🗂️</span>
                 </h2>
                 <div class="grid sm:grid-cols-2 gap-3">
                     <div class="bg-emerald-50/70 p-4 rounded-xl border border-emerald-200 shadow-xs space-y-2">
                         <h3 class="font-bold text-emerald-950 flex items-center gap-1.5 text-sm">
-                            <span>😊 Reaktionen, ↩️ Antworten &amp; ✏️ Bearbeiten</span>
+                            <span>😊 Reaktionen, ↩️ Antworten, ↪️ Weiterleiten &amp; ✏️ Bearbeiten</span>
                         </h3>
                         <p class="text-xs sm:text-sm text-emerald-900">
-                            <strong>Im Browser:</strong> Fahre mit der Maus über eine Sprechblase (Aktionsleiste oben rechts). <strong>Auf Android:</strong> Halte eine Nachricht lange gedrückt. Mit <strong>😊</strong> vergibst du Emoji-Reaktionen (<code>👍 ❤️ 😂 😮 🎉 🔥</code>), mit <strong>↩️</strong> antwortest du per Zitat-Box und mit <strong>✏️</strong> bearbeitest du eigene Nachrichten nachträglich – alles live synchronisiert.
+                            <strong>Im Browser:</strong> Fahre mit der Maus über eine Sprechblase (Aktionsleiste oben rechts). <strong>Auf Android:</strong> Halte eine Nachricht lange gedrückt. Mit <strong>😊</strong> vergibst du Emoji-Reaktionen (<code>👍 ❤️ 😂 😮 🎉 🔥</code>), mit <strong>↩️</strong> antwortest du per Zitat-Box, mit <strong>↪️</strong> leitest du Nachrichten, Fotos, Dokumente oder 3D-Modelle an Kontakte/Gruppen oder <em>„Ich / Eigene Dateien“</em> weiter und mit <strong>✏️</strong> bearbeitest du eigene Nachrichten nachträglich.
                         </p>
                     </div>
                     <div class="bg-amber-50/70 p-4 rounded-xl border border-amber-200 shadow-xs space-y-2">
                         <h3 class="font-bold text-amber-950 flex items-center gap-1.5 text-sm">
-                            <span>⭐ Stern-Favoriten &amp; 🔍 Chat-Suche</span>
+                            <span>📌 Anpinnen, ⭐ Stern-Favoriten &amp; 🔍 Chat-Suche</span>
                         </h3>
                         <p class="text-xs sm:text-sm text-amber-900">
-                            Markiere wichtige Nachrichten per <strong>Stern (★ / ⭐)</strong> dauerhaft als Favorit. Über das 3-Punkte-Menü (oder den Stern-Filter im Chat) zeigst du alle <strong>Mit Stern markierten Nachrichten</strong> an. Mit der <strong>Lupe (🔍 / Strg+F)</strong> oben im geöffneten Chat durchsuchst du den aktuellen Verlauf auf PC und Smartphone sofort in Echtzeit.
+                            Mit <strong>📌 Oben im Chat anpinnen</strong> heftest du wichtige Infos oder Dateien als Schnellzugriffs-Banner direkt unter der Kopfzeile an (1 Klick scrollt zur Nachricht). Mit <strong>★ / ⭐</strong> speicherst du Nachrichten als Favorit, und über die <strong>Lupe (🔍 / Strg+F)</strong> durchsuchst du den geöffneten Chat in Echtzeit.
+                        </p>
+                    </div>
+                    <div class="bg-teal-50/70 p-4 rounded-xl border border-teal-200 shadow-xs space-y-2">
+                        <h3 class="font-bold text-teal-950 flex items-center gap-1.5 text-sm">
+                            <span>📊 Interaktive Live-Umfragen (Polls)</span>
+                        </h3>
+                        <p class="text-xs sm:text-sm text-teal-900">
+                            Klicke unten in der Eingabeleiste auf <strong>📊</strong> (oder in der Android-App auf <strong>📎 ➔ 📊 Interaktive Umfrage erstellen</strong>), um eine Abstimmung mit bis zu 5 Optionen oder Schnell-Vorlagen (<em>📅 Termin</em>, <em>🍕 Essen</em>, <em>🧊 3D-Farbe</em>) zu starten. Stimmen und Prozentbalken synchronisieren sich live zwischen WebApp und Android-App!
+                        </p>
+                    </div>
+                    <div class="bg-sky-50/70 p-4 rounded-xl border border-sky-200 shadow-xs space-y-2">
+                        <h3 class="font-bold text-sky-950 flex items-center gap-1.5 text-sm">
+                            <span>🗂️ Medien-, Dokumenten- &amp; 3D-STL-Galerie pro Chat</span>
+                        </h3>
+                        <p class="text-xs sm:text-sm text-sky-900">
+                            Klicke oben im Chat auf den <strong>Chat-Namen in der Kopfzeile</strong> oder den Button <strong>„🗂️ Medien &amp; 3D“</strong> (bzw. im <code>⋮</code>-Menü der App), um alle geteilten Inhalte getrennt nach <strong>📷 Fotos</strong>, <strong>📄 Dokumenten</strong> und <strong>🧊 3D-STL Modellen</strong> übersichtlich auf einen Blick zu öffnen.
                         </p>
                     </div>
                 </div>

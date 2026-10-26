@@ -32,6 +32,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/messages/{message}', [ChatController::class, 'destroy'])->name('messages.destroy');
     Route::put('/messages/{message}', [ChatController::class, 'update'])->name('messages.update');
     Route::post('/messages/{message}/react', [ChatController::class, 'react'])->name('messages.react');
+    Route::post('/messages/{message}/forward', [ChatController::class, 'forward'])->name('messages.forward');
     Route::post('/chats/mark-all-read', [ChatController::class, 'markAllAsRead'])->name('chats.markAllRead');
     Route::post('/ai-image/generate', [ChatController::class, 'generateAiImage'])->name('chats.aiImage');
 
