@@ -1966,9 +1966,15 @@
                     </button>
 
                     <!-- Herunterladen -->
-                    <button type="button" onclick="aiDownloadImage()" style="background-color: #f3f4f6 !important; color: #374151 !important; border: 1px solid #d1d5db !important; cursor: pointer;" class="px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold shadow-sm flex items-center gap-2 hover:bg-gray-200 transition">
+                    <button type="button" onclick="aiDownloadImage()" style="background-color: #f3f4f6 !important; color: #374151 !important; border: 1px solid #d1d5db !important; cursor: pointer;" class="px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold shadow-sm flex items-center gap-2 hover:bg-gray-200 transition">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
                         <span>Herunterladen</span>
+                    </button>
+
+                    <!-- Drucken -->
+                    <button type="button" onclick="aiPrintImage()" style="background-color: #0284c7 !important; color: #ffffff !important; border: 1px solid #0369a1 !important; cursor: pointer;" class="px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold shadow-sm flex items-center gap-2 hover:bg-sky-700 transition" title="Bild oder Malvorlage sofort ausdrucken">
+                        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4H7v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+                        <span>🖨️ Drucken</span>
                     </button>
                 </div>
             </div>
@@ -5699,6 +5705,9 @@
             <button type="button" onclick="ccLightboxOpenInAiStudio()" style="background: #00a884;" class="px-3.5 py-1.5 rounded-xl text-white text-xs font-bold shadow-md hover:opacity-95 flex items-center gap-1.5 cursor-pointer">
                 <span>✨ Im KI-Studio bearbeiten / skalieren</span>
             </button>
+            <button type="button" onclick="ccLightboxPrintImage()" class="px-3.5 py-1.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold flex items-center gap-1.5 shadow-md cursor-pointer transition" title="Bild oder Malvorlage ausdrucken">
+                <span>🖨️ Drucken</span>
+            </button>
             <a id="cc-lightbox-download" href="#" download="chatconnect-bild.jpg" class="px-3 py-1.5 rounded-xl bg-white/15 hover:bg-white/25 text-white text-xs font-bold flex items-center gap-1">
                 <span>💾 Speichern</span>
             </a>
@@ -7310,6 +7319,53 @@
                 };
                 pre.appendChild(btn);
             });
+
+            // Schnelldruck & Lightbox für Bilder / Malvorlagen im Chat
+            container.querySelectorAll('.chat-markdown-body img').forEach(img => {
+                if (img.dataset.hasLb) return;
+                img.dataset.hasLb = 'true';
+                img.onclick = function(e) {
+                    e.stopPropagation();
+                    if (typeof openChatImageLightbox === 'function') {
+                        openChatImageLightbox(img.src, img.alt || 'Chat-Grafik');
+                    }
+                };
+
+                // Ergänze eine elegante Aktionsleiste (Drucken & Großansicht) unter dem Bild
+                const parent = img.parentElement;
+                if (parent && !parent.classList.contains('cc-img-wrap')) {
+                    const wrap = document.createElement('div');
+                    wrap.className = 'cc-img-wrap my-2 inline-block max-w-full text-left';
+                    parent.insertBefore(wrap, img);
+                    wrap.appendChild(img);
+
+                    const bar = document.createElement('div');
+                    bar.className = 'flex items-center gap-2 mt-1.5';
+                    bar.innerHTML = `
+                        <button type="button" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-sky-50 hover:bg-sky-100 text-sky-700 hover:text-sky-800 text-xs font-bold border border-sky-200 transition shadow-xs cursor-pointer" title="Malvorlage / Bild drucken">
+                            <span>🖨️ Drucken</span>
+                        </button>
+                        <button type="button" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-gray-50 hover:bg-gray-100 text-gray-600 hover:text-gray-800 text-xs font-semibold border border-gray-200 transition shadow-xs cursor-pointer" title="In voller Größe anzeigen">
+                            <span>🔍 Groß</span>
+                        </button>
+                    `;
+                    const pBtn = bar.querySelectorAll('button')[0];
+                    pBtn.onclick = function(ev) {
+                        ev.stopPropagation();
+                        if (typeof window.printImageDirect === 'function') {
+                            window.printImageDirect(img.src, img.alt || 'ChatConnect Ausdruck');
+                        }
+                    };
+                    const zBtn = bar.querySelectorAll('button')[1];
+                    zBtn.onclick = function(ev) {
+                        ev.stopPropagation();
+                        if (typeof openChatImageLightbox === 'function') {
+                            openChatImageLightbox(img.src, img.alt || 'Chat-Grafik');
+                        }
+                    };
+                    wrap.appendChild(bar);
+                }
+            });
         }
 
         // 3. Check if Quoted Reply (`> 💬 @Sender: "..."\nActual text`)
@@ -8058,6 +8114,133 @@
         initChatConnectProSuite();
     }
 })();
+
+    // =========================================================================
+    // 🖨️ DRUCK-FUNKTION FÜR BILDER, MALVORLAGEN & GRAFIKEN (A4 OPTIMIERT)
+    // =========================================================================
+    window.printImageDirect = function(imgSrc, title = 'ChatConnect Ausdruck') {
+        if (!imgSrc) return;
+
+        let frame = document.getElementById('cc-print-frame');
+        if (!frame) {
+            frame = document.createElement('iframe');
+            frame.id = 'cc-print-frame';
+            frame.style.position = 'fixed';
+            frame.style.right = '0';
+            frame.style.bottom = '0';
+            frame.style.width = '0';
+            frame.style.height = '0';
+            frame.style.border = '0';
+            frame.style.opacity = '0';
+            frame.style.pointerEvents = 'none';
+            document.body.appendChild(frame);
+        }
+
+        const safeTitle = (title || 'ChatConnect Ausdruck').replace(/[<>&"]/g, '');
+        const doc = frame.contentWindow.document;
+        doc.open();
+        doc.write(`
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="utf-8">
+                <title>${safeTitle}</title>
+                <style>
+                    @page {
+                        size: A4 portrait;
+                        margin: 1.2cm;
+                    }
+                    * {
+                        box-sizing: border-box;
+                        margin: 0;
+                        padding: 0;
+                    }
+                    body {
+                        display: flex;
+                        flex-direction: column;
+                        align-items: center;
+                        justify-content: center;
+                        min-height: 96vh;
+                        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+                        background: #ffffff;
+                    }
+                    .page-container {
+                        display: flex;
+                        flex-direction: column;
+                        align-items: center;
+                        justify-content: center;
+                        width: 100%;
+                        text-align: center;
+                    }
+                    img {
+                        max-width: 95%;
+                        max-height: 85vh;
+                        object-fit: contain;
+                        display: block;
+                        margin: 0 auto;
+                    }
+                    .caption {
+                        margin-top: 14px;
+                        font-size: 12px;
+                        font-weight: 600;
+                        color: #475569;
+                        letter-spacing: 0.3px;
+                    }
+                    @media print {
+                        body {
+                            min-height: auto;
+                        }
+                        img {
+                            max-height: 90vh;
+                            width: auto;
+                        }
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="page-container">
+                    <img id="print-target-img" src="${imgSrc}" alt="${safeTitle}">
+                    <div class="caption">${safeTitle} • ChatConnect</div>
+                </div>
+            </body>
+            </html>
+        `);
+        doc.close();
+
+        const targetImg = doc.getElementById('print-target-img');
+        const doPrint = () => {
+            try {
+                frame.contentWindow.focus();
+                frame.contentWindow.print();
+            } catch (err) {
+                const w = window.open(imgSrc, '_blank');
+                if (w) {
+                    w.onload = () => { w.focus(); w.print(); };
+                }
+            }
+        };
+
+        if (targetImg && targetImg.complete) {
+            setTimeout(doPrint, 250);
+        } else if (targetImg) {
+            targetImg.onload = () => { setTimeout(doPrint, 250); };
+            targetImg.onerror = () => { alert('Bild konnte für den Druck nicht geladen werden.'); };
+        }
+    };
+
+    window.ccLightboxPrintImage = function() {
+        if (!lbCurrentSrc) return;
+        const title = document.getElementById('cc-lightbox-title')?.textContent || 'ChatConnect Malvorlage';
+        window.printImageDirect(lbCurrentSrc, title);
+    };
+
+    window.aiPrintImage = function() {
+        const src = aiCurrentDataUrl || (document.getElementById('ai-preview-img')?.src);
+        if (!src) return;
+        const promptText = document.getElementById('ai-prompt-input')?.value || 'KI-Bild';
+        window.printImageDirect(src, promptText);
+    };
+
 </script>
 </body>
 </html>
