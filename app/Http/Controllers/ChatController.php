@@ -645,4 +645,68 @@ class ChatController extends Controller
             'message' => 'Nutze integrierte lokale HD-Synthese',
         ]);
     }
+
+    /**
+     * Kompiliert OpenSCAD-Code auf dem Server (z.B. Raspberry Pi) in eine STL-Datei.
+     */
+    public function compileScad(Request $request)
+    {
+        $scadCode = trim((string) $request->input('scad_code', ''));
+        if ($scadCode === '') {
+            return response()->json(['status' => 'error', 'message' => 'Kein OpenSCAD-Code übergeben.'], 422);
+        }
+
+        // Bereinige eventuelle Markdown-Ticks falls der Nutzer den Block mitgesendet hat
+        $scadCode = preg_replace('/^```(?:openscad|scad)?\s*/i', '', $scadCode);
+        $scadCode = preg_replace('/\s*```$/', '', $scadCode);
+
+        $baseName = 'cad_' . time() . '_' . substr(md5($scadCode), 0, 6);
+        $tempDir = storage_path('app/temp_scad');
+        if (!file_exists($tempDir)) {
+            mkdir($tempDir, 0775, true);
+        }
+
+        $modelsDir = storage_path('app/public/models');
+        if (!file_exists($modelsDir)) {
+            mkdir($modelsDir, 0775, true);
+        }
+
+        $scadPath = $tempDir . DIRECTORY_SEPARATOR . $baseName . '.scad';
+        $stlPath = $modelsDir . DIRECTORY_SEPARATOR . $baseName . '.stl';
+
+        file_put_contents($scadPath, $scadCode);
+
+        // Finde openscad Binary (auf Linux/Pi: /usr/bin/openscad, auf Windows: Program Files)
+        $openscadBin = 'openscad';
+        if (PHP_OS_FAMILY === 'Windows') {
+            if (file_exists('C:\Program Files\OpenSCAD\openscad.exe')) {
+                $openscadBin = '"C:\Program Files\OpenSCAD\openscad.exe"';
+            }
+        }
+
+        $cmd = "{$openscadBin} -o " . escapeshellarg($stlPath) . " " . escapeshellarg($scadPath) . " 2>&1";
+        $output = [];
+        $returnVar = 0;
+        exec($cmd, $output, $returnVar);
+
+        @unlink($scadPath);
+
+        if (file_exists($stlPath) && filesize($stlPath) > 50) {
+            return response()->json([
+                'status' => 'success',
+                'stl_url' => '/storage/models/' . $baseName . '.stl',
+                'file_name' => $baseName . '.stl',
+                'size_bytes' => filesize($stlPath),
+                'message' => '3D-Modell erfolgreich kompiliert!'
+            ]);
+        }
+
+        return response()->json([
+            'status' => 'error',
+            'message' => 'OpenSCAD-Kompilierung fehlgeschlagen: ' . implode("
+", $output),
+            'cmd' => $cmd,
+            'output' => $output
+        ], 500);
+    }
 }

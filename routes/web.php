@@ -36,6 +36,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/chats/mark-all-read', [ChatController::class, 'markAllAsRead'])->name('chats.markAllRead');
     Route::post('/chats/fix-spelling', [ChatController::class, 'fixSpelling'])->name('chats.fixSpelling');
     Route::post('/ai-image/generate', [ChatController::class, 'generateAiImage'])->name('chats.aiImage');
+    Route::post('/chats/compile-scad', [ChatController::class, 'compileScad'])->name('chats.compileScad');
 
     // Calls
     Route::get('/calls', [CallController::class, 'index'])->name('calls.index');

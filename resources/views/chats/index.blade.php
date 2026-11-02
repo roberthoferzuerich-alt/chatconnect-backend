@@ -7318,6 +7318,67 @@
                     });
                 };
                 pre.appendChild(btn);
+
+                // Wenn es ein OpenSCAD-Codeblock ist: Button "In 3D-STL umwandeln (Pi)" hinzufügen!
+                const rawCode = pre.textContent || '';
+                const isScad = pre.querySelector('.language-openscad, .language-scad') ||
+                               rawCode.includes('linear_extrude') ||
+                               rawCode.includes('difference()') ||
+                               rawCode.includes('$fn') ||
+                               (rawCode.includes('module ') && rawCode.includes('cube('));
+
+                if (isScad && !pre.querySelector('.cc-scad-compile-btn')) {
+                    const compBtn = document.createElement('button');
+                    compBtn.type = 'button';
+                    compBtn.className = 'cc-scad-compile-btn';
+                    compBtn.style.cssText = 'position: absolute; top: 0.35rem; right: 6.2rem; padding: 0.2rem 0.6rem; background: #0284c7; color: #ffffff; border-radius: 0.3rem; font-size: 0.72rem; font-family: system-ui, sans-serif; font-weight: 700; cursor: pointer; border: none; box-shadow: 0 1px 3px rgba(0,0,0,0.3); display: inline-flex; align-items: center; gap: 4px; z-index: 10;';
+                    compBtn.innerHTML = '<span>🧊 In 3D-STL umwandeln (Pi)</span>';
+                    compBtn.title = 'OpenSCAD-Code auf dem Raspberry Pi in eine 3D-STL Datei kompilieren & im 3D-Viewer öffnen';
+
+                    compBtn.onclick = function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+
+                        const codeEl = pre.querySelector('code') || pre;
+                        const clone = codeEl.cloneNode(true);
+                        clone.querySelectorAll('button').forEach(b => b.remove());
+                        const cleanCode = clone.textContent || '';
+
+                        compBtn.disabled = true;
+                        compBtn.innerHTML = '<span>⏳ Rendere auf dem Pi...</span>';
+
+                        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+                        fetch('/chats/compile-scad', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': csrfToken,
+                                'Accept': 'application/json'
+                            },
+                            body: JSON.stringify({ scad_code: cleanCode })
+                        })
+                        .then(res => res.json())
+                        .then(data => {
+                            compBtn.disabled = false;
+                            compBtn.innerHTML = '<span>🧊 In 3D-STL umwandeln (Pi)</span>';
+                            if (data.status === 'success' && data.stl_url) {
+                                if (typeof openStlViewer === 'function') {
+                                    openStlViewer(data.stl_url, data.file_name || 'modell.stl');
+                                } else {
+                                    window.open(data.stl_url, '_blank');
+                                }
+                            } else {
+                                alert('Kompilierung fehlgeschlagen: ' + (data.message || 'Unbekannter Fehler'));
+                            }
+                        })
+                        .catch(err => {
+                            compBtn.disabled = false;
+                            compBtn.innerHTML = '<span>🧊 In 3D-STL umwandeln (Pi)</span>';
+                            alert('Netzwerkfehler: ' + err.message);
+                        });
+                    };
+                    pre.appendChild(compBtn);
+                }
             });
 
             // Schnelldruck & Lightbox für Bilder / Malvorlagen im Chat
