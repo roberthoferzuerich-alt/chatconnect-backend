@@ -344,7 +344,7 @@
                             @elseif($isGroup)
                                 <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5V18a3 3 0 00-5-2.5M9 20H4V18a3 3 0 015-2.5M16 11a3 3 0 100-6 3 3 0 000 6zM9 11a3 3 0 100-6 3 3 0 000 6z"></path></svg>
                             @else
-                                <span>{{ substr($title, 0, 1) }}</span>
+                                <span>{{ mb_substr($title, 0, 1, "UTF-8") }}</span>
                             @endif
                         </div>
                         <div class="ml-3 flex-1 min-w-0">
@@ -482,7 +482,7 @@
                             @elseif($isGroup)
                                 <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5V18a3 3 0 00-5-2.5M9 20H4V18a3 3 0 015-2.5M16 11a3 3 0 100-6 3 3 0 000 6zM9 11a3 3 0 100-6 3 3 0 000 6z"></path></svg>
                             @else
-                                <span>{{ substr($headerTitle, 0, 1) }}</span>
+                                <span>{{ mb_substr($headerTitle, 0, 1, "UTF-8") }}</span>
                             @endif
                         </div>
                         <div class="ml-2.5 sm:ml-3 min-w-0">
@@ -499,7 +499,7 @@
                         </div>
                     </div>
 
-                    @if(!$isGroup && $activePartner)
+                    @if(!$isGroup && $activePartner && $activePartner->email !== \App\Services\CopilotService::BOT_EMAIL)
                         <div class="flex items-center space-x-0.5 sm:space-x-1 text-gray-600 flex-shrink-0">
                             <!-- Video Call Button -->
                             <form action="{{ route('calls.store') }}" method="POST" class="m-0">
