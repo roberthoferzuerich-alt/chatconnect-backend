@@ -63,6 +63,91 @@
         .markdown-viewer-content table { width: 100%; border-collapse: collapse; margin-bottom: 1rem; font-size: 0.9rem; }
         .markdown-viewer-content th, .markdown-viewer-content td { border: 1px solid #e5e7eb; padding: 0.5rem 0.75rem; text-align: left; }
         .markdown-viewer-content th { background-color: #f9fafb; font-weight: 600; }
+                .chat-markdown-body {
+            line-height: 1.5;
+            word-break: break-word;
+        }
+        .chat-markdown-body p {
+            margin-bottom: 0.35rem;
+        }
+        .chat-markdown-body p:last-child {
+            margin-bottom: 0;
+        }
+        .chat-markdown-body pre {
+            background-color: #0f172a;
+            color: #f1f5f9;
+            padding: 0.75rem 1rem;
+            padding-top: 1.75rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            margin: 0.5rem 0;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            font-size: 0.86em;
+            position: relative;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .chat-markdown-body pre code {
+            background: transparent !important;
+            color: inherit !important;
+            padding: 0 !important;
+            font-size: 1em !important;
+            font-family: inherit !important;
+        }
+        .chat-markdown-body code {
+            background-color: rgba(0, 0, 0, 0.08);
+            color: #0f766e;
+            padding: 0.15rem 0.35rem;
+            border-radius: 0.25rem;
+            font-size: 0.88em;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        }
+        .chat-markdown-body ul {
+            list-style-type: disc;
+            padding-left: 1.25rem;
+            margin-bottom: 0.35rem;
+        }
+        .chat-markdown-body ol {
+            list-style-type: decimal;
+            padding-left: 1.25rem;
+            margin-bottom: 0.35rem;
+        }
+        .chat-markdown-body li {
+            margin-bottom: 0.15rem;
+        }
+        .chat-markdown-body blockquote {
+            border-left: 3px solid #0d9488;
+            padding-left: 0.5rem;
+            color: #4b5563;
+            font-style: italic;
+            margin: 0.35rem 0;
+        }
+        .chat-markdown-body h1, .chat-markdown-body h2, .chat-markdown-body h3 {
+            font-weight: 700;
+            margin-top: 0.5rem;
+            margin-bottom: 0.25rem;
+            color: inherit;
+        }
+        .cc-code-copy-btn {
+            position: absolute;
+            top: 0.35rem;
+            right: 0.35rem;
+            padding: 0.2rem 0.5rem;
+            background: rgba(255, 255, 255, 0.15);
+            color: #e2e8f0;
+            border-radius: 0.3rem;
+            font-size: 0.72rem;
+            font-family: system-ui, sans-serif;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            cursor: pointer;
+            transition: all 0.2s;
+            opacity: 0.8;
+            z-index: 10;
+        }
+        .cc-code-copy-btn:hover {
+            opacity: 1;
+            background: rgba(255, 255, 255, 0.3);
+            color: #fff;
+        }
         .bg-chat { background-color: #efeae2; }
         .msg-me { background-color: #d9fdd3; }
         .msg-other { background-color: #ffffff; }
@@ -7166,6 +7251,50 @@
             return;
         }
 
+        // Helper for Markdown rendering
+        function renderChatMarkdown(text) {
+            if (!text) return '';
+            if (typeof marked !== 'undefined' && marked.parse) {
+                try {
+                    marked.setOptions({ breaks: true, gfm: true });
+                    return marked.parse(text);
+                } catch (e) {
+                    console.warn('Markdown parse error:', e);
+                }
+            }
+            return escapeHtmlSimple(text);
+        }
+
+        function attachCodeCopyButtons(container) {
+            if (!container) return;
+            container.querySelectorAll('pre').forEach(pre => {
+                if (pre.querySelector('.cc-code-copy-btn')) return;
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'cc-code-copy-btn';
+                btn.innerHTML = '📋 Kopieren';
+                btn.title = 'Code kopieren';
+                btn.onclick = function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const codeEl = pre.querySelector('code') || pre;
+                    // Filter out the button text if included
+                    const clone = codeEl.cloneNode(true);
+                    const btnInClone = clone.querySelector('.cc-code-copy-btn');
+                    if (btnInClone) btnInClone.remove();
+                    const codeText = clone.textContent || '';
+                    navigator.clipboard.writeText(codeText).then(() => {
+                        btn.innerHTML = '✅ Kopiert!';
+                        setTimeout(() => { btn.innerHTML = '📋 Kopieren'; }, 2000);
+                    }).catch(() => {
+                        btn.innerHTML = 'Fehler!';
+                        setTimeout(() => { btn.innerHTML = '📋 Kopieren'; }, 2000);
+                    });
+                };
+                pre.appendChild(btn);
+            });
+        }
+
         // 3. Check if Quoted Reply (`> 💬 @Sender: "..."\nActual text`)
         const match = raw.match(/^> 💬 @([^:]+): "([^"]*)"\r?\n([\s\S]*)$/);
         if (match) {
@@ -7177,9 +7306,15 @@
                     <div class="cc-quote-author">↩️ ${escapeHtmlSimple(author)}</div>
                     <div class="cc-quote-text">${escapeHtmlSimple(quoted)}</div>
                 </div>
-                <div>${escapeHtmlSimple(rest)}</div>
+                <div class="chat-markdown-body">${renderChatMarkdown(rest)}</div>
             `;
+            attachCodeCopyButtons(span);
+            return;
         }
+
+        // 4. Default: Render Markdown with Code Highlighting
+        span.innerHTML = `<div class="chat-markdown-body">${renderChatMarkdown(raw)}</div>`;
+        attachCodeCopyButtons(span);
     }
 
     // Enhance every message bubble in #messages-container

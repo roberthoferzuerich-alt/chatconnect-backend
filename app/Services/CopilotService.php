@@ -117,6 +117,7 @@ class CopilotService
                     . "Regeln für deine Antworten an Leon:\n"
                     . "- Antworte immer auf Deutsch, wie ein cooler, freundlicher Gaming-Kumpel auf Augenhöhe.\n"
                     . "- Du kennst dich hervorragend mit Minecraft (Mods, Packages, Redstone, Bauideen) und Roblox aus.\n"
+                    . "- Formatiere Minecraft-Befehle, Item-IDs oder Baupläne in sauberen Markdown-Codeblöcken (z.B. ```mcfunction).\n"
                     . "- Sei motivierend, enthusiastisch und hilfsbereit bei Zock- und Baufragen.\n"
                     . "- Halte deine Antworten spannend, lesbar und direkt auf den Punkt.",
             ];
@@ -136,6 +137,7 @@ class CopilotService
                     . "Regeln für deine Antworten an Dario:\n"
                     . "- Behandle Dario respektvoll wie einen aufstrebenden Entwickler und coolen Teenager auf Augenhöhe.\n"
                     . "- Du kennst dich exzellent mit Java, JavaScript, Webtechnologie, Game-Dev und Programmierlogik aus.\n"
+                    . "- Formatiere Code IMMER in sauberen Markdown-Codeblöcken mit Sprachkennung (z.B. ```java oder ```javascript), damit Dario ihn direkt lesen und kopieren kann.\n"
                     . "- Gib saubere, verständliche Code-Beispiele, erkläre Best Practices und hilf bei Bugs.\n"
                     . "- Bleib sympathisch, kollegial und lösungsorientiert.",
             ];
@@ -413,7 +415,10 @@ class CopilotService
         // === LEON (Gaming, Minecraft mit Packages, Roblox) ===
         if ($type === 'leon') {
             if (str_contains($lower, 'mine') || str_contains($lower, 'craft') || str_contains($lower, 'pack') || str_contains($lower, 'mod') || str_contains($lower, 'addon')) {
-                return "Hey Leon! 🎮 Minecraft mit Packages und Mods ist das Beste! Hier sind zwei coole Ideen:\n\n"
+                return "Hey Leon! 🎮 Minecraft mit Packages und Mods ist das Beste! Hier ist ein geheimer Befehl für ein superstarkes Schwert zum Ausprobieren:\n\n"
+                    . "```mcfunction\n"
+                    . "/give @p netherite_sword{Enchantments:[{id:\"sharpness\",lvl:5},{id:\"unbreaking\",lvl:3}]} 1\n"
+                    . "```\n\n"
                     . "1. 🚀 **Technik & Automatisierung:** Hast du schon mal mit 'Create' oder Datapacks für automatische Farmen und Aufzüge gebaut? Mit Zahnrädern und Förderbändern kann man epische Fabriken errichten!\n\n"
                     . "2. 🏰 **Geheimbasis mit Redstone:** Ein getarnter Kamin-Eingang, der sich nur öffnet, wenn du ein bestimmtes Item in einen Trichter wirfst.\n\n"
                     . "Tipp: Sag Opa Robert Bescheid – er kann dir mit seinem 3D-Drucker bestimmt ein Creeper-Schwert oder deinen eigenen Minecraft-Skin als Spielfigur drucken! Woran baust du gerade?";
@@ -430,10 +435,34 @@ class CopilotService
         // === DARIO (14 J., Gaming, Programmierung Java & JavaScript) ===
         if ($type === 'dario') {
             if (str_contains($lower, 'java') || str_contains($lower, 'javascript') || str_contains($lower, 'js') || str_contains($lower, 'code') || str_contains($lower, 'programm') || str_contains($lower, 'bug') || str_contains($lower, 'loop')) {
-                return "Hi Dario! 💻 Super Sache, Programmieren rockt! Java und JavaScript sind ein unschlagbares Duo:\n\n"
-                    . "☕ **Java:** Perfekt für objektorientierte Logik, Backend und Minecraft-Plugin-Entwicklung (z. B. eigene Spigot/Paper Server-Befehle schreiben).\n\n"
-                    . "🌐 **JavaScript:** Unschlagbar für Web-Apps, interaktive Canvas-Spiele und schnelle Skripte.\n\n"
-                    . "Hast du gerade ein konkretes Projekt, einen Bug, an dem du hängst, oder suchst du eine spannende Coding-Challenge?";
+                return "Hi Dario! 💻 Super Sache, Programmieren rockt! Hier ist ein cooles Beispiel, wie du in **Java** und **JavaScript** denselben Game-Hero mit Punktestand aufbaust:\n\n"
+                    . "**In Java:**\n"
+                    . "```java\n"
+                    . "public class GameHero {\n"
+                    . "    private String name = \"Dario\";\n"
+                    . "    private int score = 100;\n"
+                    . "\n"
+                    . "    public void addScore(int points) {\n"
+                    . "        this.score += points;\n"
+                    . "        System.out.println(name + \" hat jetzt \" + score + \" Punkte! 🚀\");\n"
+                    . "    }\n"
+                    . "}\n"
+                    . "```\n\n"
+                    . "**Und dasselbe in JavaScript:**\n"
+                    . "```javascript\n"
+                    . "class GameHero {\n"
+                    . "    constructor(name = 'Dario') {\n"
+                    . "        this.name = name;\n"
+                    . "        this.score = 100;\n"
+                    . "    }\n"
+                    . "\n"
+                    . "    addScore(points) {\n"
+                    . "        this.score += points;\n"
+                    . "        console.log(`${this.name} hat jetzt ${this.score} Punkte! 🚀`);\n"
+                    . "    }\n"
+                    . "}\n"
+                    . "```\n\n"
+                    . "Woran programmierst du gerade? Suchst du ein konkretes Code-Snippet oder Hilfe bei einem Bug?";
             }
 
             if (str_contains($lower, 'game') || str_contains($lower, 'zock') || str_contains($lower, 'spiel')) {
