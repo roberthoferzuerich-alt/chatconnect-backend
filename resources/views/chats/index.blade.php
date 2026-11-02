@@ -793,9 +793,12 @@
                             <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
                         </button>
                         
-                        <!-- Text Input -->
-                        <div class="flex-1 min-w-0">
-                            <input type="text" id="chat-input-field" name="content" placeholder="Schreibe eine Nachricht..." class="w-full bg-white rounded-lg px-3 sm:px-4 py-2 sm:py-2.5 outline-none focus:ring-2 focus:ring-[#00a884] shadow-sm border border-transparent text-base sm:text-[15px]" autofocus autocomplete="off">
+                        <!-- Text Input mit nativer Rechtschreibhilfe & Zauberstab -->
+                        <div class="flex-1 min-w-0 relative">
+                            <input type="text" id="chat-input-field" name="content" placeholder="Schreibe eine Nachricht..." class="w-full bg-white rounded-lg pl-3 sm:pl-4 pr-10 py-2 sm:py-2.5 outline-none focus:ring-2 focus:ring-[#00a884] shadow-sm border border-transparent text-base sm:text-[15px]" autofocus autocomplete="off" spellcheck="true" lang="de" autocorrect="on" autocapitalize="sentences">
+                            <button type="button" id="magic-spell-btn" onclick="triggerMagicSpellCheck()" class="absolute right-1.5 top-1/2 -translate-y-1/2 p-1 text-teal-600 hover:text-teal-700 hover:bg-teal-50 rounded-full transition cursor-pointer" title="✨ Text mit Zauberstab prüfen & korrigieren">
+                                <span class="text-sm">✨</span>
+                            </button>
                         </div>
                         
                         <!-- Hidden input for final image blob -->
@@ -7933,6 +7936,56 @@
             }
         });
     }
+
+    // ✨ Zauberstab: Rechtschreib- und Grammatikprüfung für Kinder
+    window.triggerMagicSpellCheck = async function() {
+        const input = document.getElementById('chat-input-field');
+        if (!input) return;
+        const text = input.value.trim();
+        if (!text) {
+            if (typeof ccShowToast === 'function') ccShowToast('✨ Tippe erst einen Satz ein, dann hilft dir der Zauberstab!');
+            input.focus();
+            return;
+        }
+
+        const spellBtn = document.getElementById('magic-spell-btn');
+        if (spellBtn) {
+            spellBtn.innerHTML = '<span class="animate-spin inline-block text-xs">⏳</span>';
+            spellBtn.disabled = true;
+        }
+
+        try {
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '{{ csrf_token() }}';
+            const res = await fetch("{{ route('chats.fixSpelling') }}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken,
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({ text: text })
+            });
+
+            const data = await res.json();
+            if (data && data.status === 'success' && data.corrected) {
+                if (data.corrected.trim().toLowerCase() === text.toLowerCase()) {
+                    if (typeof ccShowToast === 'function') ccShowToast('✨ Perfekt! Dein Text ist schon fehlerfrei!');
+                } else {
+                    input.value = data.corrected;
+                    if (typeof ccShowToast === 'function') ccShowToast('✨ Zauberstab: Text sauber korrigiert!');
+                }
+            }
+        } catch (e) {
+            console.warn('Spellcheck error:', e);
+            if (typeof ccShowToast === 'function') ccShowToast('✨ Zauberstab konnte gerade nicht prüfen');
+        } finally {
+            if (spellBtn) {
+                spellBtn.innerHTML = '<span class="text-sm">✨</span>';
+                spellBtn.disabled = false;
+            }
+            input.focus();
+        }
+    };
 
     // Initialize everything on DOMContentLoaded + observe #messages-container for live messages
     function initChatConnectProSuite() {

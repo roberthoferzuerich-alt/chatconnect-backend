@@ -458,7 +458,7 @@ class CopilotService
                     . "\n"
                     . "    addScore(points) {\n"
                     . "        this.score += points;\n"
-                    . "        console.log(`${this.name} hat jetzt ${this.score} Punkte! 🚀`);\n"
+                    . "        console.log(`" . '\${this.name}' . " hat jetzt " . '\${this.score}' . " Punkte! 🚀`);\n"
                     . "    }\n"
                     . "}\n"
                     . "```\n\n"
@@ -518,6 +518,120 @@ class CopilotService
 
         // Standard
         return "Hallo {$userName}! 🚗 Alles klar, ich bin an deiner Seite. Was steht heute bei dir an?";
+    }
+
+    /**
+     * Korrigiert Rechtschreibung, Grammatik und Satzbau sanft und kindgerecht.
+     */
+    public static function fixSpelling(string $text): string
+    {
+        $clean = trim($text);
+        if ($clean === '') {
+            return '';
+        }
+
+        $systemPrompt = "Du bist ein freundlicher, geduldiger Rechtschreib- und Grammatik-Helfer für Kinder und Jugendliche in der Familien-App ChatConnect. "
+            . "Deine einzige Aufgabe ist es, den eingegebenen Satz zu korrigieren:\n"
+            . "- Korrigiere Rechtschreibfehler, Groß-/Kleinschreibung und Kommasetzung auf Deutsch.\n"
+            . "- Behalte die ursprüngliche Bedeutung, Emojis und den kindgerechten, lockeren Ton bei.\n"
+            . "- Gib NUR den fertig korrigierten Text zurück, OHNE Erklärungen, OHNE Anführungszeichen, OHNE Einleitung.";
+
+        // 1. Google Gemini API
+        $geminiKey = env('GEMINI_API_KEY');
+        if (!empty($geminiKey)) {
+            try {
+                $geminiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={$geminiKey}";
+                $resp = Http::withoutVerifying()->timeout(8)->post($geminiUrl, [
+                    'system_instruction' => ['parts' => [['text' => $systemPrompt]]],
+                    'contents' => [['role' => 'user', 'parts' => [['text' => $clean]]]],
+                    'generationConfig' => ['temperature' => 0.1, 'maxOutputTokens' => 300]
+                ]);
+                if ($resp->successful()) {
+                    $res = trim((string) $resp->json('candidates.0.content.parts.0.text'));
+                    if (!empty($res)) return $res;
+                }
+            } catch (\Throwable $e) {}
+        }
+
+        // 2. Groq API
+        $groqKey = env('GROQ_API_KEY');
+        if (!empty($groqKey)) {
+            try {
+                $resp = Http::withoutVerifying()->withToken($groqKey)->timeout(8)->post('https://api.groq.com/openai/v1/chat/completions', [
+                    'model' => 'llama-3.3-70b-versatile',
+                    'messages' => [
+                        ['role' => 'system', 'content' => $systemPrompt],
+                        ['role' => 'user', 'content' => $clean]
+                    ],
+                    'temperature' => 0.1,
+                ]);
+                if ($resp->successful()) {
+                    $res = trim((string) $resp->json('choices.0.message.content'));
+                    if (!empty($res)) return $res;
+                }
+            } catch (\Throwable $e) {}
+        }
+
+        // 3. Sofortiger lokaler Regel-Korrektor (ohne Internet, blitzschnell)
+        return self::quickRuleBasedCorrection($clean);
+    }
+
+    /**
+     * Schnelle regelbasierte Rechtschreib- und Satzbaukorrektur für Kinder.
+     */
+    public static function quickRuleBasedCorrection(string $text): string
+    {
+        $wordsMap = [
+            '/\bmaincraft\b/i' => 'Minecraft',
+            '/\bmeincraft\b/i' => 'Minecraft',
+            '/\bmincraft\b/i' => 'Minecraft',
+            '/\brobloks\b/i' => 'Roblox',
+            '/\brobloxx\b/i' => 'Roblox',
+            '/\bopa\b/i' => 'Opa',
+            '/\boma\b/i' => 'Oma',
+            '/\brobert\b/i' => 'Robert',
+            '/\bleon\b/i' => 'Leon',
+            '/\bdario\b/i' => 'Dario',
+            '/\bjil\b/i' => 'Jil',
+            '/\bzoe\b/i' => 'Zoe',
+            '/\bhallo\b/i' => 'Hallo',
+            '/\btschüss\b/i' => 'Tschüss',
+            '/\btschüssi\b/i' => 'Tschüssi',
+            '/\bdanke\b/i' => 'Danke',
+            '/\bbitte\b/i' => 'Bitte',
+            '/\bzäichnen\b/i' => 'zeichnen',
+            '/\bzeihnen\b/i' => 'zeichnen',
+            '/\bbaasteln\b/i' => 'basteln',
+            '/\bbastln\b/i' => 'basteln',
+            '/\bkuglbahn\b/i' => 'Kugelbahn',
+            '/\bkugelban\b/i' => 'Kugelbahn',
+            '/\bspil\b/i' => 'Spiel',
+            '/\bspilen\b/i' => 'spielen',
+            '/\bzoken\b/i' => 'zocken',
+            '/\bfür mich\b/i' => 'für mich',
+            '/\bkanst du\b/i' => 'kannst du',
+            '/\bkan ich\b/i' => 'kann ich',
+            '/\bwi get es\b/i' => 'wie geht es',
+            '/\bwie gets\b/i' => 'wie geht\'s',
+        ];
+
+        $res = $text;
+        foreach ($wordsMap as $pattern => $replacement) {
+            $res = preg_replace($pattern, $replacement, $res);
+        }
+
+        // Ersten Buchstaben des gesamten Textes großschreiben
+        if (mb_strlen($res, 'UTF-8') > 0) {
+            $firstChar = mb_strtoupper(mb_substr($res, 0, 1, 'UTF-8'), 'UTF-8');
+            $res = $firstChar . mb_substr($res, 1, null, 'UTF-8');
+        }
+
+        // Satzanfänge nach Punkt, Ausrufezeichen oder Fragezeichen großschreiben
+        $res = preg_replace_callback('/([.!?]\s+)([a-zäöü])/u', function ($matches) {
+            return $matches[1] . mb_strtoupper($matches[2], 'UTF-8');
+        }, $res);
+
+        return $res;
     }
 
     /**

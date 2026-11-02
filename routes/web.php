@@ -34,6 +34,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/messages/{message}/react', [ChatController::class, 'react'])->name('messages.react');
     Route::post('/messages/{message}/forward', [ChatController::class, 'forward'])->name('messages.forward');
     Route::post('/chats/mark-all-read', [ChatController::class, 'markAllAsRead'])->name('chats.markAllRead');
+    Route::post('/chats/fix-spelling', [ChatController::class, 'fixSpelling'])->name('chats.fixSpelling');
     Route::post('/ai-image/generate', [ChatController::class, 'generateAiImage'])->name('chats.aiImage');
 
     // Calls

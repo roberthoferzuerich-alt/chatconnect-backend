@@ -323,4 +323,15 @@ class MessageController extends Controller
 
         return response()->json($newMsg, 201);
     }
+
+    public function fixSpelling(Request $request)
+    {
+        $text = (string) $request->input('text', '');
+        $corrected = \App\Services\CopilotService::fixSpelling($text);
+        return response()->json([
+            'status' => 'success',
+            'original' => $text,
+            'corrected' => $corrected,
+        ]);
+    }
 }

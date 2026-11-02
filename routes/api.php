@@ -66,5 +66,6 @@ Route::prefix('v1')->group(function () {
         Route::put('/messages/{message}', [MessageController::class, 'update']);
         Route::post('/messages/{message}/react', [MessageController::class, 'react']);
         Route::post('/messages/{message}/forward', [MessageController::class, 'forward']);
+        Route::post('/chats/fix-spelling', [MessageController::class, 'fixSpelling']);
     });
 });

@@ -208,6 +208,17 @@ class ChatController extends Controller
         return redirect()->route('chats.show', $conversation->id);
     }
 
+    public function fixSpelling(Request $request)
+    {
+        $text = (string) $request->input('text', '');
+        $corrected = \App\Services\CopilotService::fixSpelling($text);
+        return response()->json([
+            'status' => 'success',
+            'original' => $text,
+            'corrected' => $corrected,
+        ]);
+    }
+
     public function newMessages(Request $request, Conversation $conversation)
     {
         $user = Auth::user();
