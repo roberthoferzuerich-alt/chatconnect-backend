@@ -32,7 +32,7 @@ class CopilotService
             [
                 'name' => self::BOT_NAME,
                 'password' => Hash::make('beifahrer_bot_secure_token_' . Str::random(24)),
-                'phone' => '+41790000000',
+                'phone' => null,
                 'about' => 'Dein aufmerksamer Co-Pilot in ChatConnect',
                 'is_online' => true,
             ]

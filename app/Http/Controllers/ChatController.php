@@ -20,6 +20,7 @@ class ChatController extends Controller
             ->withCount(['messages as unread_count' => function ($q) use ($user) {
                 $q->where('sender_id', '!=', $user->id)->whereNull('read_at');
             }])
+            ->orderByDesc('updated_at')
             ->get();
         $contacts = User::where('email', '!=', \App\Services\CopilotService::BOT_EMAIL)
             ->orderByRaw('id = ? DESC, name ASC', [$user->id])
@@ -52,6 +53,7 @@ class ChatController extends Controller
             ->withCount(['messages as unread_count' => function ($q) use ($user) {
                 $q->where('sender_id', '!=', $user->id)->whereNull('read_at');
             }])
+            ->orderByDesc('updated_at')
             ->get();
         $contacts = User::where('email', '!=', \App\Services\CopilotService::BOT_EMAIL)
             ->orderByRaw('id = ? DESC, name ASC', [$user->id])
