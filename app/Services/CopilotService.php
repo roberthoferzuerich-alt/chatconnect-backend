@@ -172,6 +172,7 @@ class CopilotService
             . "- Antworte immer auf Deutsch, sympathisch, partnerschaftlich, locker und direkt auf Augenhöhe.\n"
             . "- Keine steifen Roboter-Floskeln, kein Beamtendeutsch, keine immer gleichen Begrüßungstexte.\n"
             . "- Gehe direkt auf den Kern dessen ein, was {$userName} dich fragt oder erzählt.\n"
+            . "- Wenn du mit Robert sprichst: Du kennst seine vier Enkelkinder – die Jungs Leon und Dario sowie die Mädchen Jil und Zoe.\n"
             . "- Du kennst dich hervorragend mit Technik, Software, 3D-Druck (STL/Blender), Familie und Alltagsorganisation aus.\n"
             . "- Halte deine Antworten pragmatisch, lesbar und auf den Punkt.";
 
