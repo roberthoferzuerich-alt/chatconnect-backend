@@ -581,12 +581,25 @@ class CopilotService
      */
     public static function quickRuleBasedCorrection(string $text): string
     {
+        $res = trim($text);
+        if ($res === '') return '';
+
+        // 1. Reduziere 3+ gleiche Buchstaben (z.B. Halllo -> Hallo, Jaaa -> Ja)
+        $res = preg_replace('/([a-zA-ZäöüÄÖÜ])\1{2,}/u', '$1$1', $res);
+        // Falsche Doppel-'k' im Deutschen (z.B. Druckken -> drucken)
+        $res = preg_replace('/(?<!c)kk/i', 'ck', $res);
+        $res = preg_replace('/druckck/i', 'druck', $res);
+
+        // 2. Wörterbuch gängiger Kinder- und Familienbegriffe
         $wordsMap = [
-            '/\bmaincraft\b/i' => 'Minecraft',
+            '/\bhall+o+\b/i' => 'Hallo',
+            '/\bhi+\b/i' => 'Hi',
+            '/\bhe+y+\b/i' => 'Hey',
+            '/\bmine?craft\b/i' => 'Minecraft',
             '/\bmeincraft\b/i' => 'Minecraft',
-            '/\bmincraft\b/i' => 'Minecraft',
+            '/\bmaincraft\b/i' => 'Minecraft',
+            '/\broblo+x+\b/i' => 'Roblox',
             '/\brobloks\b/i' => 'Roblox',
-            '/\brobloxx\b/i' => 'Roblox',
             '/\bopa\b/i' => 'Opa',
             '/\boma\b/i' => 'Oma',
             '/\brobert\b/i' => 'Robert',
@@ -594,42 +607,54 @@ class CopilotService
             '/\bdario\b/i' => 'Dario',
             '/\bjil\b/i' => 'Jil',
             '/\bzoe\b/i' => 'Zoe',
-            '/\bhallo\b/i' => 'Hallo',
-            '/\btschüss\b/i' => 'Tschüss',
-            '/\btschüssi\b/i' => 'Tschüssi',
+            '/\btschüssi?\b/i' => 'Tschüss',
             '/\bdanke\b/i' => 'Danke',
             '/\bbitte\b/i' => 'Bitte',
-            '/\bzäichnen\b/i' => 'zeichnen',
-            '/\bzeihnen\b/i' => 'zeichnen',
+            '/\bwil\b/i' => 'will',
+            '/\bzäichn\w*\b/i' => 'zeichnen',
+            '/\bzeichn\w*\b/i' => 'zeichnen',
             '/\bbaasteln\b/i' => 'basteln',
             '/\bbastln\b/i' => 'basteln',
+            '/\bkuglban\b/i' => 'Kugelbahn',
             '/\bkuglbahn\b/i' => 'Kugelbahn',
-            '/\bkugelban\b/i' => 'Kugelbahn',
             '/\bspil\b/i' => 'Spiel',
             '/\bspilen\b/i' => 'spielen',
             '/\bzoken\b/i' => 'zocken',
-            '/\bfür mich\b/i' => 'für mich',
-            '/\bkanst du\b/i' => 'kannst du',
-            '/\bkan ich\b/i' => 'kann ich',
+            '/\b3d\s*druck\w*\b/i' => '3D-drucken',
+            '/\bkanst\b/i' => 'kannst',
+            '/\bkan\b/i' => 'kann',
             '/\bwi get es\b/i' => 'wie geht es',
             '/\bwie gets\b/i' => 'wie geht\'s',
+            '/\bjava\s*skript\b/i' => 'JavaScript',
+            '/\bjavascript\b/i' => 'JavaScript',
+            '/\bjava\b/i' => 'Java',
         ];
 
-        $res = $text;
         foreach ($wordsMap as $pattern => $replacement) {
             $res = preg_replace($pattern, $replacement, $res);
         }
 
-        // Ersten Buchstaben des gesamten Textes großschreiben
+        // 3. Wenn am Anfang "Hallo Opa" oder "Hi Leon" steht, ein Komma danach setzen wenn ein Satz folgt
+        $res = preg_replace('/^(Hallo|Hi|Hey)\s+(Opa|Oma|Robert|Leon|Dario|Jil|Zoe)\s+([a-zäöü])/u', '$1 $2, $3', $res);
+
+        // 4. Ersten Buchstaben des gesamten Textes großschreiben
         if (mb_strlen($res, 'UTF-8') > 0) {
             $firstChar = mb_strtoupper(mb_substr($res, 0, 1, 'UTF-8'), 'UTF-8');
             $res = $firstChar . mb_substr($res, 1, null, 'UTF-8');
         }
 
-        // Satzanfänge nach Punkt, Ausrufezeichen oder Fragezeichen großschreiben
+        // 5. Satzanfänge nach Punkt, Ausrufezeichen oder Fragezeichen großschreiben
         $res = preg_replace_callback('/([.!?]\s+)([a-zäöü])/u', function ($matches) {
             return $matches[1] . mb_strtoupper($matches[2], 'UTF-8');
         }, $res);
+
+        // 6. Fragezeichen am Ende setzen, wenn es eine Frage ist (kannst du, hast du, wie, was, wo etc.)
+        $isQuestion = preg_match('/^(kannst du|kann ich|darf ich|hast du|hast|bist du|gibt es|was|wie|wo|wann|warum|wer)\b/i', $res) ||
+                      preg_match('/,\s*(kannst du|kann ich|darf ich|hast du|bist du)\b/i', $res);
+
+        if ($isQuestion && !preg_match('/[?!.]$/', $res)) {
+            $res .= '?';
+        }
 
         return $res;
     }
