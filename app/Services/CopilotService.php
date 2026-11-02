@@ -80,10 +80,9 @@ class CopilotService
             $botChat = Conversation::create(['is_group' => false]);
             $botChat->users()->attach([$user->id, $bot->id]);
 
-            // Herzliche, persönliche Begrüßung beim ersten Öffnen
-            $welcomeText = "Hallo {$user->name}! 🚗 Ich bin dein persönlicher Beifahrer in ChatConnect.\n\n"
-                . "Egal ob du unterwegs bist, eine Frage zu Technik oder 3D-Druck hast, Notizen festhalten willst "
-                . "oder einfach eine Runde plaudern möchtest: Ich halte dir den Rücken frei. Wie kann ich dir heute helfen?";
+            // Auf den Benutzer maßgeschneiderte Begrüßung beim ersten Öffnen
+            $profile = self::getUserProfile($user->name);
+            $welcomeText = $profile['welcome'];
 
             $welcomeMsg = $botChat->messages()->create([
                 'sender_id' => $bot->id,
@@ -94,6 +93,122 @@ class CopilotService
         }
 
         return $botChat;
+    }
+
+    /**
+     * Ermittelt das individuelle Profil, die Interessen und den Tonfall für jeden Benutzer.
+     */
+    public static function getUserProfile(string $userName): array
+    {
+        $nameLower = mb_strtolower($userName, 'UTF-8');
+
+        // Leon: Gaming, Minecraft (mit Packages & Mods), Roblox
+        if (str_contains($nameLower, 'leon')) {
+            return [
+                'type' => 'leon',
+                'name' => 'Leon',
+                'welcome' => "Hey Leon! 🎮🚗 Willkommen bei deinem persönlichen Beifahrer in ChatConnect!\n\n"
+                    . "Egal ob du coole Ideen für Minecraft (Packages, Mods, Redstone-Baupläne) oder Roblox suchst, "
+                    . "Zock-Tipps brauchst oder Opa Robert dir was Abgefahrenes aus dem 3D-Drucker zaubern soll: "
+                    . "Ich halte dir den Rücken frei. Was zockst oder baust du gerade?",
+                'system_prompt' => "Du bist der persönliche 'Beifahrer' in ChatConnect speziell für Leon. "
+                    . "Leons Lieblingsthema ist Gaming: Minecraft (mit Packages, Mods, Addons) und Roblox. "
+                    . "Sein Opa heißt Robert (hat einen 3D-Drucker für coole Spielfiguren). "
+                    . "Regeln für deine Antworten an Leon:\n"
+                    . "- Antworte immer auf Deutsch, wie ein cooler, freundlicher Gaming-Kumpel auf Augenhöhe.\n"
+                    . "- Du kennst dich hervorragend mit Minecraft (Mods, Packages, Redstone, Bauideen) und Roblox aus.\n"
+                    . "- Sei motivierend, enthusiastisch und hilfsbereit bei Zock- und Baufragen.\n"
+                    . "- Halte deine Antworten spannend, lesbar und direkt auf den Punkt.",
+            ];
+        }
+
+        // Dario: 14 Jahre alt, Gaming, Programmierung (Java & JavaScript)
+        if (str_contains($nameLower, 'dario')) {
+            return [
+                'type' => 'dario',
+                'name' => 'Dario',
+                'welcome' => "Hi Dario! 💻🚗 Willkommen bei deinem persönlichen Beifahrer in ChatConnect!\n\n"
+                    . "Ob knifflige Coding-Fragen in Java und JavaScript, Ideen für eigene Games, Minecraft-Plugins "
+                    . "oder coole Tech-Projekte: Ich bin dein Sparringspartner. Woran programmierst oder tüftelst du gerade?",
+                'system_prompt' => "Du bist der persönliche 'Beifahrer' in ChatConnect speziell für Dario (14 Jahre alt). "
+                    . "Dario hat vielseitige Interessen: Gaming und Programmierung, besonders mit Java und JavaScript. "
+                    . "Sein Opa heißt Robert (technikbegeistert mit 3D-Druck & Raspberry Pi). "
+                    . "Regeln für deine Antworten an Dario:\n"
+                    . "- Behandle Dario respektvoll wie einen aufstrebenden Entwickler und coolen Teenager auf Augenhöhe.\n"
+                    . "- Du kennst dich exzellent mit Java, JavaScript, Webtechnologie, Game-Dev und Programmierlogik aus.\n"
+                    . "- Gib saubere, verständliche Code-Beispiele, erkläre Best Practices und hilf bei Bugs.\n"
+                    . "- Bleib sympathisch, kollegial und lösungsorientiert.",
+            ];
+        }
+
+        // Jil: Basteln, Zeichnen, Kreatives & DIY
+        if (str_contains($nameLower, 'jil')) {
+            return [
+                'type' => 'jil',
+                'name' => 'Jil',
+                'welcome' => "Hallo Jil! 🎨🚗 Schön, dass du da bist! Ich bin dein kreativer Beifahrer in ChatConnect.\n\n"
+                    . "Du bastelst und zeichnest gerne? Perfekt! Wenn du neue Zeichen-Ideen, Schritt-für-Schritt-Anleitungen "
+                    . "oder tolle Bastelprojekte suchst – oder wenn Opa Robert dir im 3D-Drucker coole Zeichen-Schablonen "
+                    . "oder Anhänger herstellen soll: Frag mich einfach. Was möchtest du heute Schönes erschaffen?",
+                'system_prompt' => "Du bist der persönliche 'Beifahrer' in ChatConnect speziell für Jil. "
+                    . "Jil hat eine große Leidenschaft fürs Zeichnen, Basteln und kreatives Gestalten. "
+                    . "Ihr Opa heißt Robert (er kann mit seinem 3D-Drucker tolle Schablonen, Ausstechformen oder Anhänger für sie machen). "
+                    . "Regeln für deine Antworten an Jil:\n"
+                    . "- Antworte herzlich, fröhlich, ermutigend und voller kreativer Inspiration.\n"
+                    . "- Gib tolle Schritt-für-Schritt-Zeichentipps, Farbanregungen und einfache, wunderschöne Bastelideen.\n"
+                    . "- Halte deine Antworten leicht verständlich und motivierend.",
+            ];
+        }
+
+        // Zoe: Basteln, Zeichnen, bunte Kunstwerke
+        if (str_contains($nameLower, 'zoe')) {
+            return [
+                'type' => 'zoe',
+                'name' => 'Zoe',
+                'welcome' => "Hallo Zoe! 🌸🚗 Willkommen bei deinem Beifahrer in ChatConnect!\n\n"
+                    . "Ich habe immer jede Menge bunte Mal-Ideen, Zeichen-Tipps und lustige Bastelsachen auf Lager. "
+                    . "Und wenn wir mal eine ganz besondere Form oder Schablone brauchen, kann Opa Robert sie bestimmt "
+                    . "im 3D-Drucker für uns herstellen! Was wollen wir heute Schönes malen oder basteln?",
+                'system_prompt' => "Du bist der persönliche 'Beifahrer' in ChatConnect speziell für Zoe. "
+                    . "Zoe liebt das Basteln, Zeichnen und bunte kreative Kunstwerke. "
+                    . "Ihr Opa heißt Robert (er hat einen 3D-Drucker für Formen und Figuren). "
+                    . "Regeln für deine Antworten an Zoe:\n"
+                    . "- Antworte fröhlich, liebenswert, verspielt und fantasievoll.\n"
+                    . "- Schlage lustige Malmotive vor (Tiere, Glitzer, Fantasiewelten) und bunte Bastelideen.\n"
+                    . "- Halte deine Sprache sympathisch, herzlich und ermutigend.",
+            ];
+        }
+
+        // Robert (Opa & technischer Mastermind)
+        if (str_contains($nameLower, 'robert')) {
+            return [
+                'type' => 'robert',
+                'name' => 'Robert',
+                'welcome' => "Hallo Robert! 🚗 Ich bin dein persönlicher Beifahrer in ChatConnect.\n\n"
+                    . "Egal ob 3D-Druck, Blender, Raspberry Pi, Notizen oder Ideen für deine vier Enkelkinder "
+                    . "(Leon, Dario, Jil und Zoe): Ich halte dir den Rücken frei. Wie kann ich dir heute helfen?",
+                'system_prompt' => "Du bist der persönliche 'Beifahrer' in ChatConnect für Robert. "
+                    . "Deine Rolle ist die eines aufmerksamen, smarten, humorvollen und verlässlichen Co-Piloten auf Augenhöhe. "
+                    . "Regeln für deine Antworten an Robert:\n"
+                    . "- Antworte immer auf Deutsch, sympathisch, partnerschaftlich, locker und direkt auf Augenhöhe.\n"
+                    . "- Keine steifen Floskeln, kein Beamtendeutsch.\n"
+                    . "- Robert baut ChatConnect für sich, seine Familie und seine vier Enkelkinder: "
+                    . "Leon (Gaming/Minecraft mit Packages/Roblox), Dario (14 J., Gaming/Java/JS Coder), Jil & Zoe (Basteln & Zeichnen).\n"
+                    . "- Du kennst dich hervorragend mit Technik, 3D-Druck (STL/Blender), Raspberry Pi und Familie aus.\n"
+                    . "- Halte deine Antworten pragmatisch und auf den Punkt.",
+            ];
+        }
+
+        // Standard Familie / Weitere Kontakte
+        return [
+            'type' => 'family',
+            'name' => $userName,
+            'welcome' => "Hallo {$userName}! 🚗 Ich bin dein persönlicher Beifahrer in ChatConnect.\n\n"
+                . "Egal ob du eine Frage hast, Notizen festhalten willst oder Unterstützung im Alltag suchst: "
+                . "Ich bin an deiner Seite. Wie kann ich dir helfen?",
+            'system_prompt' => "Du bist der persönliche 'Beifahrer' in ChatConnect für {$userName}. "
+                . "Antworte sympathisch, hilfsbereit, locker und direkt auf Deutsch.",
+        ];
     }
 
     /**
@@ -165,16 +280,8 @@ class CopilotService
      */
     protected static function queryAi($history, string $userName, string $currentMessage): string
     {
-        $systemPrompt = "Du bist der persönliche 'Beifahrer' in ChatConnect. "
-            . "Dein Partner heißt {$userName}. "
-            . "Deine Rolle ist die eines aufmerksamen, smarten, humorvollen und verlässlichen Co-Piloten auf dem Beifahrersitz. "
-            . "Regeln für deine Antworten:\n"
-            . "- Antworte immer auf Deutsch, sympathisch, partnerschaftlich, locker und direkt auf Augenhöhe.\n"
-            . "- Keine steifen Roboter-Floskeln, kein Beamtendeutsch, keine immer gleichen Begrüßungstexte.\n"
-            . "- Gehe direkt auf den Kern dessen ein, was {$userName} dich fragt oder erzählt.\n"
-            . "- Wenn du mit Robert sprichst: Du kennst seine vier Enkelkinder – die Jungs Leon und Dario sowie die Mädchen Jil und Zoe.\n"
-            . "- Du kennst dich hervorragend mit Technik, Software, 3D-Druck (STL/Blender), Familie und Alltagsorganisation aus.\n"
-            . "- Halte deine Antworten pragmatisch, lesbar und auf den Punkt.";
+        $profile = self::getUserProfile($userName);
+        $systemPrompt = $profile['system_prompt'];
 
         // 1. Google Gemini API (falls GEMINI_API_KEY hinterlegt)
         $geminiKey = env('GEMINI_API_KEY');
@@ -290,49 +397,98 @@ class CopilotService
             }
         }
 
-        // 4. Intelligente, dynamische Antwort-Engine (immer sofort verfügbar ohne Hänger)
-        return self::generateSmartFallback($userName, $currentMessage);
+        // 4. Intelligente, dynamische Antwort-Engine (maßgeschneidert auf jedes Familienmitglied)
+        return self::generateSmartFallback($profile, $currentMessage);
     }
 
     /**
-     * Erzeugt eine maßgeschneiderte, sympathische Antwort für Robert und die Familie,
-     * wenn gerade kein externer API-Key konfiguriert ist.
+     * Erzeugt eine maßgeschneiderte Antwort abgestimmt auf die individuellen Interessen des jeweiligen Benutzers.
      */
-    protected static function generateSmartFallback(string $userName, string $msg): string
+    protected static function generateSmartFallback(array $profile, string $msg): string
     {
+        $userName = $profile['name'];
+        $type = $profile['type'];
         $lower = mb_strtolower(trim($msg), 'UTF-8');
 
-        // Thema: Basteln, Spiele, Beschäftigung
-        if (str_contains($lower, 'bastel') || str_contains($lower, 'spiel') || str_contains($lower, 'idee') || str_contains($lower, 'beschäftig')) {
-            return "Hallo {$userName}! 🚗 Da habe ich sofort drei richtig schöne Ideen – ideal für die Enkelkinder Leon, Dario, Jil und Zoe:\n\n"
-                . "1. 🏰 **Die modulare 3D-Karton-Kugelbahn:**\n"
-                . "Du druckst mit dem 3D-Drucker coole Trichter, Steilkurven und Spiralen, die ihr auf Papprollen und Kartons steckt. Die Jungs (Leon & Dario) können die Rennstrecke aufbauen und testen, während Jil & Zoe die Stationen bemalen!\n\n"
-                . "2. 🔍 **Die Geheimagenten-Schatzsuche:**\n"
-                . "Verstecke 4 kleine Umschläge im Haus mit kleinen Rätseln oder Spiegelschrift. Am Ziel wartet eine kleine Schatztruhe (z. B. mit einem frisch gedruckten Schlüsselanhänger mit ihrem Namen).\n\n"
-                . "3. 🌟 **Zauberhafte 3D-Lithophanie-Nachtlichter:**\n"
-                . "Ein Familienfoto von den Vieren als feine 3D-Platte gedruckt: Wenn man ein kleines LED-Licht dahinterstellt, leuchtet das Bild wie von Zauberhand auf.\n\n"
-                . "Auf welche der Ideen hättest du am meisten Lust? Ich helfe dir gerne bei den Maßen oder der Planung!";
+        // === LEON (Gaming, Minecraft mit Packages, Roblox) ===
+        if ($type === 'leon') {
+            if (str_contains($lower, 'mine') || str_contains($lower, 'craft') || str_contains($lower, 'pack') || str_contains($lower, 'mod') || str_contains($lower, 'addon')) {
+                return "Hey Leon! 🎮 Minecraft mit Packages und Mods ist das Beste! Hier sind zwei coole Ideen:\n\n"
+                    . "1. 🚀 **Technik & Automatisierung:** Hast du schon mal mit 'Create' oder Datapacks für automatische Farmen und Aufzüge gebaut? Mit Zahnrädern und Förderbändern kann man epische Fabriken errichten!\n\n"
+                    . "2. 🏰 **Geheimbasis mit Redstone:** Ein getarnter Kamin-Eingang, der sich nur öffnet, wenn du ein bestimmtes Item in einen Trichter wirfst.\n\n"
+                    . "Tipp: Sag Opa Robert Bescheid – er kann dir mit seinem 3D-Drucker bestimmt ein Creeper-Schwert oder deinen eigenen Minecraft-Skin als Spielfigur drucken! Woran baust du gerade?";
+            }
+
+            if (str_contains($lower, 'roblox')) {
+                return "Roblox am Start! 🕹️ Was zockst du da am liebsten? Ob knifflige Obbys, Tycoon-Welten oder Roleplay:\n\n"
+                    . "Kleiner Trick für Obbys: Wenn du die Sprungtaste ganz kurz antippst, springst du präziser über knappe Laser-Balken. Welches Game spielst du in Roblox am meisten?";
+            }
+
+            return "Hey Leon! 🎮🚗 Bereit für die nächste Runde Zocken oder Bauen? Egal ob Minecraft, Roblox oder coole Spiel-Ideen: Was steht heute bei dir an?";
         }
 
-        // Thema: Enkelkinder (Leon, Dario, Jil, Zoe)
-        if (str_contains($lower, 'enkel') || str_contains($lower, 'leon') || str_contains($lower, 'dario') || str_contains($lower, 'jil') || str_contains($lower, 'zoe')) {
-            return "Na klar, {$userName}! Deine vier Enkelkinder habe ich fest im Kopf: Die beiden Jungs **Leon** und **Dario** sowie die Mädchen **Jil** und **Zoe**. 👦👦👧👧\n\n"
-                . "Planst du gerade eine Überraschung für die vier, oder suchst du nach einem passenden Projekt für den nächsten Besuch?";
+        // === DARIO (14 J., Gaming, Programmierung Java & JavaScript) ===
+        if ($type === 'dario') {
+            if (str_contains($lower, 'java') || str_contains($lower, 'javascript') || str_contains($lower, 'js') || str_contains($lower, 'code') || str_contains($lower, 'programm') || str_contains($lower, 'bug') || str_contains($lower, 'loop')) {
+                return "Hi Dario! 💻 Super Sache, Programmieren rockt! Java und JavaScript sind ein unschlagbares Duo:\n\n"
+                    . "☕ **Java:** Perfekt für objektorientierte Logik, Backend und Minecraft-Plugin-Entwicklung (z. B. eigene Spigot/Paper Server-Befehle schreiben).\n\n"
+                    . "🌐 **JavaScript:** Unschlagbar für Web-Apps, interaktive Canvas-Spiele und schnelle Skripte.\n\n"
+                    . "Hast du gerade ein konkretes Projekt, einen Bug, an dem du hängst, oder suchst du eine spannende Coding-Challenge?";
+            }
+
+            if (str_contains($lower, 'game') || str_contains($lower, 'zock') || str_contains($lower, 'spiel')) {
+                return "Hi Dario! 🎮 Beim Gaming und Game-Development bin ich sofort dabei! Schon mal überlegt, ein eigenes kleines Mini-Game in JavaScript (mit HTML5 Canvas) oder in Java zu programmieren? Was zockst du aktuell am liebsten?";
+            }
+
+            return "Hi Dario! 💻🚗 Was tüftelst du gerade am Rechner? Wenn du Fragen zu Java, JavaScript, Game-Dev oder Gaming hast: Schieß einfach los, ich bin am Start!";
         }
 
-        // Thema: 3D-Druck, STL, Blender, Filament
+        // === JIL (Basteln, Zeichnen, Kreatives) ===
+        if ($type === 'jil') {
+            if (str_contains($lower, 'zeichn') || str_contains($lower, 'mal') || str_contains($lower, 'bild') || str_contains($lower, 'farbe')) {
+                return "Hallo Jil! 🎨 Da habe ich sofort ein paar kreative Zeichen-Ideen für dich:\n\n"
+                    . "1. 🐱 **Chibi- / Comic-Tiere:** Zeichne eine kleine Katze oder einen Pandabären mit riesigen Kulleraugen und einem kleinen Schlapphut!\n\n"
+                    . "2. 🌌 **Galaxy-Farbverlauf:** Male mit Wasserfarben oder Buntstiften einen lila-blau-schwarzen Nachthimmel und tupfe weiße Sternschnuppen hinein.\n\n"
+                    . "3. ✏️ **Schatten-Zauber:** Nimm dir einen einfachen Apfel oder ein Blatt und probiere aus, wie echt es aussieht, wenn du auf einer Seite weiche Schatten zeichnest.\n\n"
+                    . "Worauf hättest du heute Lust?";
+            }
+
+            return "Hallo Jil! 🎨🚗 Schön von dir zu hören! Suchst du neue Ideen zum Zeichnen, eine tolle Bastelanleitung oder willst du dir von Opa Robert etwas Schönes im 3D-Drucker herstellen lassen? Was schwebt dir vor?";
+        }
+
+        // === ZOE (Basteln, Zeichnen, bunte Kunstwerke) ===
+        if ($type === 'zoe') {
+            if (str_contains($lower, 'zeichn') || str_contains($lower, 'mal') || str_contains($lower, 'bunt') || str_contains($lower, 'bastel')) {
+                return "Hallo Zoe! 🌸 Da habe ich gleich richtig bunte Ideen für dich:\n\n"
+                    . "1. 🦄 **Das Regenbogen-Zaubertier:** Male ein Fantasietier mit Regenbogen-Flügeln und einer funkelnden Krone!\n\n"
+                    . "2. ✂️ **3D-Papier-Schmetterlinge:** Schneide bunte Schmetterlinge aus, falte die Flügel nach oben und klebe sie an die Wand – das sieht aus, als würden sie fliegen!\n\n"
+                    . "3. 💖 **Opa Roberts 3D-Figuren:** Opa Robert kann dir bestimmt ein Herzchen oder ein Lieblingstier ausdrucken, das du mit deinen eigenen Farben bemalen kannst!\n\n"
+                    . "Was möchtest du als Erstes ausprobieren?";
+            }
+
+            return "Hallo Zoe! 🌸🚗 Wie schön, dass du mir schreibst! Hast du heute Lust auf Zeichnen, Basteln oder bunte Kunstwerke? Verrate mir, was du gerne machen möchtest!";
+        }
+
+        // === ROBERT (Opa, 3D-Druck, Blender, Pi, Familie) ===
+        if (str_contains($lower, 'bastel') || str_contains($lower, 'spiel') || str_contains($lower, 'idee') || str_contains($lower, 'enkel')) {
+            return "Hallo Robert! 🚗 Da habe ich sofort maßgeschneiderte Ideen für deine Enkel:\n\n"
+                . "🎮 **Für Leon:** Ein Minecraft-Redstone-Parcours oder ein 3D-gedruckter Creeper-Schlüsselanhänger für seinen Rucksack.\n\n"
+                . "💻 **Für Dario (14):** Eine kleine Java/JavaScript-Programmier-Challenge (z. B. ein eigenes Würfel- oder Ratespiel coden).\n\n"
+                . "🎨 **Für Jil & Zoe:** 3D-gedruckte Zeichensicherheits-Schablonen, Ausstechformen oder ein gemeinsames Bastelprojekt mit Karton & Farben!\n\n"
+                . "Möchtest du zu einem der Bereiche konkrete Maße oder Ideen ausarbeiten?";
+        }
+
         if (str_contains($lower, '3d') || str_contains($lower, 'druck') || str_contains($lower, 'stl') || str_contains($lower, 'blender') || str_contains($lower, 'filament')) {
-            return "Beim Thema 3D-Druck bist du bei mir goldrichtig, {$userName}! 🛠️\n\n"
+            return "Beim Thema 3D-Druck bist du bei mir goldrichtig, Robert! 🛠️\n\n"
                 . "Ob Druckparameter, Stützstrukturen, Infill oder STL-Modellierung in Blender: Was steht gerade auf deinem Druckbett oder in der Vorbereitung?";
         }
 
-        // Thema: Raspberry Pi, Server, Technik
         if (str_contains($lower, 'pi') || str_contains($lower, 'server') || str_contains($lower, 'linux') || str_contains($lower, 'technik') || str_contains($lower, 'befehl')) {
             return "Technik-Check am Start! 💻 Dein Raspberry Pi und ChatConnect laufen stabil. Wenn du einen Befehl brauchst, Logs checken willst oder eine Erweiterung planst – sag mir einfach Bescheid!";
         }
 
-        // Standard-sympathische Co-Pilot Antwort (persönlich & direkt)
-        return "Hey {$userName}! 🚗 Alles klar, ich bin an deiner Seite. Erzähl mal: Geht es um ein neues Projekt, den 3D-Drucker, die Enkel oder willst du einfach kurz Gedanken austauschen? Ich halte dir den Rücken frei!";
+        // Standard
+        return "Hallo {$userName}! 🚗 Alles klar, ich bin an deiner Seite. Was steht heute bei dir an?";
     }
 
     /**
