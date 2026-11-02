@@ -145,4 +145,74 @@ Jeder Teilnehmer kann Nachrichten dauerhaft aus dem Chat entfernen:
 
 ---
 
+---
+
+## 15. Persönlicher KI-Beifahrer (`🚗 Beifahrer (KI)`)
+
+In deiner Chatliste findest du deinen persönlichen **Beifahrer**. Er ist kein unpersönlicher Bot, sondern ein aufmerksamer Sparringspartner, der sich automatisch an die Interessen jedes Familienmitglieds anpasst:
+
+- 🎮 **Für Leon:** Ein cooler Gaming-Kumpel auf Augenhöhe für **Minecraft** (Mods, Packages, Redstone-Baupläne, geheime Befehle) und **Roblox** (Obby-Tipps, Game-Ideen).
+- 💻 **Für Dario (14):** Ein technischer Sparringspartner für **Programmierung in Java und JavaScript**, Game-Development und Webentwicklung – inklusive fertig formatierter, kopierbarer Code-Blöcke.
+- 🎨 **Für Jil:** Kreative Inspirationen für **Zeichnen, Skizzieren und DIY-Bastelprojekte** (z. B. Schritt-für-Schritt Chibi-Tiere, Farbkombinationen und Schablonen).
+- 🌸 **Für Zoe:** Bunte, fröhliche Mal-Ideen, Glitzer-Motive, Fantasietiere und 3D-Bastelanleitungen mit Papier und Karton.
+- 🚗 **Für Robert:** Technischer Co-Pilot auf Augenhöhe für **3D-Druck (STL/OpenSCAD/Blender)**, **Raspberry Pi**, Server-Administration und Ideen für die Enkel.
+
+---
+
+## 16. Rechtschreib-Hilfe & Zauberstab (`✨`) für Kinder
+
+Gerade für Kinder, die schnell lostippen oder das Schreiben auf Tastaturen üben, bietet ChatConnect eine smarte Schreibhilfe direkt am Eingabefeld:
+
+1. **Text eingeben:** Tippe deinen Satz ganz normal ein – auch wenn sich Tippfehler einschleichen (z. B. *„Halllo opa kannst du mit mir 3D Druckken“*).
+2. **Auf den Zauberstab (`✨`) klicken:** Rechts im Textfeld auf den Zauberstab klicken (oder in der App auf `✨`).
+3. **Magische Korrektur:** ChatConnect korrigiert dreifache Buchstaben, Lautschriftfehler (*Druckken* ➔ *drucken*), setzt nach Begrüßungen ein Komma, schreibt Satzanfänge sowie Namen groß und ergänzt bei Fragen automatisch das Fragezeichen:
+   > Aus *„Halllo opa kannst du mit mir 3D Druckken“* wird blitzschnell:  
+   > ➡️ *„Hallo Opa, kannst du mit mir 3D-drucken?“* ✨
+
+---
+
+## 17. Bilder, Grafiken & Malvorlagen im Chat generieren 🎨
+
+Der Beifahrer kann ab sofort direkt im Chat auf Zuruf Bilder zaubern:
+
+- **Befehle im Chat:** Schreibe dem Beifahrer einfach, was du sehen möchtest:
+  - 🐱 *„Erstelle eine Malvorlage für eine Katze zum Ausmalen“*
+  - 🦄 *„Mal mir ein Bild von einem Regenbogen-Einhorn“*
+  - 🏰 *„Zeichne mir eine Minecraft-Burg im Dschungel“*
+  - 🦕 *„Mal mir ein Bild von einem kleinen Dino im Weltall“*
+- **Automatische Stilanpassung:**
+  - Fragt jemand nach einer **Malvorlage**, wird ein sauberes Schwarz-Weiß-Ausmalbild mit klaren Umrissen ohne störende Schattierungen erzeugt.
+  - Fragt Leon nach Minecraft, rendert die KI den offiziellen 3D-Voxel-Stil.
+  - Fragt Zoe oder Jil, entstehen liebevolle, farbenfrohe Kunstwerke im Disney/Pixar-Animationsstil.
+- **Kostenlos & unbegrenzt:** Läuft vollautomatisch über integrierte HD-Bildmodelle ohne API-Kosten.
+
+---
+
+## 18. 1-Klick A4-Druck für Malvorlagen & Kunstwerke 🖨️
+
+Ausmalbilder und generierte Grafiken können sofort mit einem Klick zu Papier gebracht werden:
+
+1. **Direkt unter dem Chat-Bild:** Unter jeder generierten Grafik im Chat findest du zwei praktische Buttons:
+   - **`[🖨️ Drucken]`**: Öffnet sofort den optimierten Druckerdialog.
+   - **`[🔍 Groß]`**: Öffnet das Bild in der großen Vollbild-Lightbox mit Zoom.
+2. **In der Lightbox:** Klickst du auf ein Bild, findest du oben in der Leiste ebenfalls den Button **`[🖨️ Drucken]`**.
+3. **Im KI-Studio:** Neben dem Herunterladen-Knopf gibt es einen **`[🖨️ Drucken]`**-Knopf.
+4. **Optimiert für A4:** Das Bild wird im Hintergrund nahtlos und sauber zentriert auf A4-Größe formatiert (der Chat bleibt dabei geöffnet). Ideal, um Kindern sofort Malvorlagen für Buntstifte auszudrucken!
+
+---
+
+## 19. OpenSCAD 3D-Projekte & 1-Klick-Kompilierung auf dem Raspberry Pi 🧊
+
+Für 3D-Druck-Fans und Tüftler bietet ChatConnect eine direkte Schnittstelle zu **OpenSCAD**:
+
+1. **3D-Projekt beim Beifahrer anfordern:**
+   - Frage den Beifahrer z. B. nach einem *„OpenSCAD Schlüsselanhänger für Leon“*, einer *„Kugelbahn-Kurve“* oder einem *„Raspberry Pi Gehäuse“*.
+   - Der Beifahrer schreibt dir den vollständigen, fehlerfreien OpenSCAD-Code (`.scad`) mit anpassbaren Parametern ganz oben.
+2. **Aktions-Buttons am Codeblock:**
+   - **`[📋 Kopieren]`**: Kopiert den Code in deine Zwischenablage, um ihn in OpenSCAD auf deinem Laptop einzufügen (<kbd>F5</kbd> Vorschau, <kbd>F6</kbd> Rendern).
+   - **`[🧊 In 3D-STL umwandeln (Pi)]`**: Sendet den Code direkt an deinen **Raspberry Pi**! Der Pi nutzt sein installiertes OpenSCAD, kompiliert den Code in **1–2 Sekunden** in eine fertige `.stl`-Datei und öffnet sie **sofort live im integrierten 3D-Viewer von ChatConnect**.
+3. **Direkt zum 3D-Drucker:** Im 3D-Viewer kannst du das Modell dreidimensional drehen, vermessen und als fertige STL-Datei für deinen Slicer (z. B. Cura oder PrusaSlicer) herunterladen!
+
+---
+
 *ChatConnect – Entwickelt mit ❤️ für sichere, kreative und unkomplizierte Kommunikation in der Familie.*
