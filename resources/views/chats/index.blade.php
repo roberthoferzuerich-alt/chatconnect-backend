@@ -22,6 +22,30 @@
         .chat-message-text {
             font-size: var(--chat-font-size, 15px) !important;
             line-height: 1.45;
+            word-break: break-word !important;
+            overflow-wrap: break-word !important;
+        }
+        .chat-msg-row {
+            width: 100% !important;
+            max-width: 100% !important;
+            min-width: 0 !important;
+        }
+        .chat-msg-bubble {
+            max-width: 85% !important;
+            min-width: 0 !important;
+            word-break: break-word !important;
+            overflow-wrap: break-word !important;
+            box-sizing: border-box !important;
+        }
+        @media (min-width: 640px) {
+            .chat-msg-bubble {
+                max-width: 70% !important;
+            }
+        }
+        .chat-doc-card {
+            max-width: 100% !important;
+            min-width: 0 !important;
+            box-sizing: border-box !important;
         }
         .markdown-viewer-content h1 { font-size: 1.5rem; font-weight: 800; color: #0f766e; margin-top: 1rem; margin-bottom: 0.5rem; padding-bottom: 0.35rem; border-bottom: 1px solid #e5e7eb; }
         .markdown-viewer-content h2 { font-size: 1.25rem; font-weight: 700; color: #111827; margin-top: 1.1rem; margin-bottom: 0.45rem; }
@@ -510,8 +534,8 @@
                             $fileName = $msg->file_name ?: ($fileSrc ? basename($fileSrc) : 'Dokument');
                             $fileExt = strtoupper(pathinfo($fileName, PATHINFO_EXTENSION) ?: 'DOC');
                         @endphp
-                        <div class="flex {{ $isMe ? 'justify-end' : 'justify-start' }}" data-msg-id="{{ $msg->id }}">
-                            <div class="group/msg max-w-[85%] sm:max-w-[70%] rounded-lg p-2 px-3 shadow-sm relative text-[15px] {{ $isMe ? 'msg-me rounded-tr-none' : 'msg-other rounded-tl-none' }}">
+                        <div class="flex {{ $isMe ? 'justify-end' : 'justify-start' }} w-full min-w-0 chat-msg-row" data-msg-id="{{ $msg->id }}">
+                            <div class="group/msg chat-msg-bubble max-w-[85%] sm:max-w-[70%] min-w-0 rounded-lg p-2 px-3 shadow-sm relative text-[15px] {{ $isMe ? 'msg-me rounded-tr-none' : 'msg-other rounded-tl-none' }}">
                                 <button type="button" onclick="deleteChatMessage({{ $msg->id }})" class="text-gray-400 hover:text-red-600 hover:bg-black/5 rounded p-1 transition absolute top-1 right-1" style="opacity: 0.6;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.6" title="Nachricht löschen">
                                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                                 </button>
@@ -534,9 +558,9 @@
                                         $isStl = in_array($fileExt, ['STL', 'CTL']);
                                         $isArchive = in_array($fileExt, ['ZIP', '7Z', 'Z', 'RAR', 'TAR', 'GZ', 'TGZ', 'BZ2', 'XZ']);
                                     @endphp
-                                    <div class="mb-2 mt-1 pr-5">
+                                    <div class="mb-2 mt-1 pr-5 max-w-full">
                                         @if($isMarkdown)
-                                            <button type="button" onclick="openMarkdownViewer({{ Js::from($fileSrc) }}, {{ Js::from($fileName) }})" class="w-full text-left flex items-center gap-3 p-2.5 rounded-lg border {{ $isMe ? 'bg-black/5 border-black/10 hover:bg-black/10' : 'bg-gray-50 border-gray-200 hover:bg-gray-100' }} transition min-w-[210px] sm:min-w-[250px] max-w-xs group/doc">
+                                            <button type="button" onclick="openMarkdownViewer({{ Js::from($fileSrc) }}, {{ Js::from($fileName) }})" class="w-full text-left flex items-center gap-3 p-2.5 rounded-lg border {{ $isMe ? 'bg-black/5 border-black/10 hover:bg-black/10' : 'bg-gray-50 border-gray-200 hover:bg-gray-100' }} transition min-w-0 max-w-full sm:max-w-xs group/doc chat-doc-card">
                                                 <div class="w-10 h-10 rounded-lg bg-indigo-100 text-indigo-700 flex flex-col items-center justify-center flex-shrink-0 font-bold text-[10px] shadow-xs">
                                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
                                                     <span class="leading-none mt-0.5">MD</span>
@@ -548,7 +572,7 @@
                                                 <svg class="w-4 h-4 text-indigo-400 group-hover/doc:text-indigo-700 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
                                             </button>
                                         @elseif($isStl)
-                                            <button type="button" onclick="openStlViewer({{ Js::from($fileSrc) }}, {{ Js::from($fileName) }})" class="w-full text-left flex items-center gap-3 p-2.5 rounded-lg border {{ $isMe ? 'bg-black/5 border-black/10 hover:bg-black/10' : 'bg-gray-50 border-gray-200 hover:bg-gray-100' }} transition min-w-[210px] sm:min-w-[250px] max-w-xs group/doc">
+                                            <button type="button" onclick="openStlViewer({{ Js::from($fileSrc) }}, {{ Js::from($fileName) }})" class="w-full text-left flex items-center gap-3 p-2.5 rounded-lg border {{ $isMe ? 'bg-black/5 border-black/10 hover:bg-black/10' : 'bg-gray-50 border-gray-200 hover:bg-gray-100' }} transition min-w-0 max-w-full sm:max-w-xs group/doc chat-doc-card">
                                                 <div class="w-10 h-10 rounded-lg bg-sky-100 text-sky-700 flex flex-col items-center justify-center flex-shrink-0 font-bold text-[10px] shadow-xs">
                                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
                                                     <span class="leading-none mt-0.5">3D</span>
@@ -560,7 +584,7 @@
                                                 <svg class="w-4 h-4 text-sky-400 group-hover/doc:text-sky-700 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
                                             </button>
                                         @else
-                                            <a href="{{ $fileSrc }}" @if($fileExt !== 'PDF') download="{{ $fileName }}" @endif target="_blank" rel="noopener noreferrer" class="flex items-center gap-3 p-2.5 rounded-lg border {{ $isMe ? 'bg-black/5 border-black/10 hover:bg-black/10' : 'bg-gray-50 border-gray-200 hover:bg-gray-100' }} transition min-w-[210px] sm:min-w-[250px] max-w-xs group/doc">
+                                            <a href="{{ $fileSrc }}" @if($fileExt !== 'PDF') download="{{ $fileName }}" @endif target="_blank" rel="noopener noreferrer" class="flex items-center gap-3 p-2.5 rounded-lg border {{ $isMe ? 'bg-black/5 border-black/10 hover:bg-black/10' : 'bg-gray-50 border-gray-200 hover:bg-gray-100' }} transition min-w-0 max-w-full sm:max-w-xs group/doc chat-doc-card">
                                                 <div class="w-10 h-10 rounded-lg {{ $fileExt === 'PDF' ? 'bg-red-100 text-red-600' : ($isArchive ? 'bg-amber-100 text-amber-700' : 'bg-teal-100 text-teal-700') }} flex flex-col items-center justify-center flex-shrink-0 font-bold text-[10px] shadow-xs">
                                                     @if($isArchive)
                                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"></path></svg>
@@ -2279,7 +2303,7 @@
 
         const isMe = msg.is_me;
         const div = document.createElement('div');
-        div.className = `flex ${isMe ? 'justify-end' : 'justify-start'}`;
+        div.className = `flex ${isMe ? 'justify-end' : 'justify-start'} w-full min-w-0 chat-msg-row`;
         div.setAttribute('data-msg-id', msg.id);
 
         let bodyHtml = '';
@@ -2311,8 +2335,8 @@
                 const safeUrl = msg.file_url.replace(/'/g, "\\'");
                 const safeName = fName.replace(/'/g, "\\'");
                 bodyHtml += `
-                    <div class="mb-2 mt-1 pr-5">
-                        <button type="button" onclick="openMarkdownViewer('${safeUrl}', '${safeName}')" class="w-full text-left flex items-center gap-3 p-2.5 rounded-lg border ${cardBg} transition min-w-[210px] sm:min-w-[250px] max-w-xs group/doc">
+                    <div class="mb-2 mt-1 pr-5 max-w-full">
+                        <button type="button" onclick="openMarkdownViewer('${safeUrl}', '${safeName}')" class="w-full text-left flex items-center gap-3 p-2.5 rounded-lg border ${cardBg} transition min-w-0 max-w-full sm:max-w-xs group/doc chat-doc-card">
                             <div class="w-10 h-10 rounded-lg bg-indigo-100 text-indigo-700 flex flex-col items-center justify-center flex-shrink-0 font-bold text-[10px] shadow-xs">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
                                 <span class="leading-none mt-0.5">MD</span>
@@ -2329,8 +2353,8 @@
                 const safeUrl = msg.file_url.replace(/'/g, "\\'");
                 const safeName = fName.replace(/'/g, "\\'");
                 bodyHtml += `
-                    <div class="mb-2 mt-1 pr-5">
-                        <button type="button" onclick="openStlViewer('${safeUrl}', '${safeName}')" class="w-full text-left flex items-center gap-3 p-2.5 rounded-lg border ${cardBg} transition min-w-[210px] sm:min-w-[250px] max-w-xs group/doc">
+                    <div class="mb-2 mt-1 pr-5 max-w-full">
+                        <button type="button" onclick="openStlViewer('${safeUrl}', '${safeName}')" class="w-full text-left flex items-center gap-3 p-2.5 rounded-lg border ${cardBg} transition min-w-0 max-w-full sm:max-w-xs group/doc chat-doc-card">
                             <div class="w-10 h-10 rounded-lg bg-sky-100 text-sky-700 flex flex-col items-center justify-center flex-shrink-0 font-bold text-[10px] shadow-xs">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
                                 <span class="leading-none mt-0.5">3D</span>
@@ -2351,8 +2375,8 @@
                     ? `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"></path></svg>`
                     : `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>`;
                 bodyHtml += `
-                    <div class="mb-2 mt-1 pr-5">
-                        <a href="${msg.file_url}" ${dlAttr} target="_blank" rel="noopener noreferrer" class="flex items-center gap-3 p-2.5 rounded-lg border ${cardBg} transition min-w-[210px] sm:min-w-[250px] max-w-xs group/doc">
+                    <div class="mb-2 mt-1 pr-5 max-w-full">
+                        <a href="${msg.file_url}" ${dlAttr} target="_blank" rel="noopener noreferrer" class="flex items-center gap-3 p-2.5 rounded-lg border ${cardBg} transition min-w-0 max-w-full sm:max-w-xs group/doc chat-doc-card">
                             <div class="w-10 h-10 rounded-lg ${badgeClass} flex flex-col items-center justify-center flex-shrink-0 font-bold text-[10px] shadow-xs">
                                 ${iconSvg}
                                 <span class="leading-none mt-0.5">${escapeHtml(extMatch)}</span>
@@ -2395,7 +2419,7 @@
         ` : '';
 
         div.innerHTML = `
-            <div class="group/msg max-w-[70%] rounded-lg p-2 px-3 shadow-sm relative text-[15px] ${isMe ? 'msg-me rounded-tr-none' : 'msg-other rounded-tl-none'}">
+            <div class="group/msg chat-msg-bubble max-w-[85%] sm:max-w-[70%] min-w-0 rounded-lg p-2 px-3 shadow-sm relative text-[15px] ${isMe ? 'msg-me rounded-tr-none' : 'msg-other rounded-tl-none'}">
                 <button type="button" onclick="deleteChatMessage(${msg.id})" class="text-gray-400 hover:text-red-600 hover:bg-black/5 rounded p-1 transition absolute top-1 right-1" style="opacity: 0.6;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.6" title="Nachricht löschen">
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                 </button>

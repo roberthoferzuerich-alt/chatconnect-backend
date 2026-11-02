@@ -16,6 +16,23 @@
         .bg-chat { background-color: #efeae2; }
         .msg-me { background-color: #d9fdd3; }
         .msg-other { background-color: #ffffff; }
+        .chat-msg-row {
+            width: 100% !important;
+            max-width: 100% !important;
+            min-width: 0 !important;
+        }
+        .chat-msg-bubble {
+            max-width: 85% !important;
+            min-width: 0 !important;
+            word-break: break-word !important;
+            overflow-wrap: break-word !important;
+            box-sizing: border-box !important;
+        }
+        @media (min-width: 640px) {
+            .chat-msg-bubble {
+                max-width: 70% !important;
+            }
+        }
     </style>
 </head>
 <body class="bg-gray-200 h-screen w-full flex items-center justify-center p-4">
@@ -70,25 +87,16 @@
                 
                 <!-- Top Icons -->
                 <div class="flex flex-col items-center space-y-4 w-full">
-                    <!-- Chat Link -->
-                    <a href="#" @click.prevent="activeTab = 'chats'" :class="activeTab === 'chats' ? 'bg-gray-200 text-gray-800' : 'text-gray-500 hover:bg-gray-200'" class="p-3 rounded-lg transition shadow-sm relative group" title="Chats">
+                    <!-- Chat Link (Active) -->
+                    <a href="#" class="p-3 bg-gray-200 rounded-lg text-gray-800 hover:bg-gray-300 transition shadow-sm relative group" title="Chats">
                         <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
                             <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"></path>
                         </svg>
                     </a>
                     
-                    <!-- Anrufe (Calls) Link -->
-                    <a href="#" @click.prevent="activeTab = 'calls'; loadCalls()" :class="activeTab === 'calls' ? 'bg-gray-200 text-gray-800' : 'text-gray-500 hover:bg-gray-200'" class="p-3 rounded-lg transition relative group" title="Anrufe">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
-                        </svg>
-                    </a>
-
-                    <!-- Status / Storys Link -->
-                    <a href="#" @click.prevent="activeTab = 'status'; loadStories()" :class="activeTab === 'status' ? 'bg-gray-200 text-gray-800' : 'text-gray-500 hover:bg-gray-200'" class="p-3 rounded-lg transition relative group" title="Status / Storys">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="2.2" stroke-dasharray="14 4"></circle>
-                        </svg>
+                    <!-- Placeholder Status Link -->
+                    <a href="#" class="p-3 text-gray-500 rounded-lg hover:bg-gray-200 transition" title="Status">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path></svg>
                     </a>
                 </div>
 
@@ -314,7 +322,7 @@
                                     <svg class="w-5 h-5 mr-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                                     Chats auswählen
                                 </a>
-                                <a href="#" @click.prevent="menuOpen = false" class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-100">
+                                <a href="#" @click.prevent="markAllAsRead(); menuOpen = false" class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-100">
                                     <svg class="w-5 h-5 mr-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7M5 13l4 4L19 7"></path></svg>
                                     Alle als gelesen markieren
                                 </a>
@@ -342,133 +350,31 @@
                     </div>
                 </div>
 
-                <!-- Chat List Tab -->
-                <div x-show="activeTab === 'chats'" class="flex-1 flex flex-col overflow-hidden">
+                <!-- Chat List -->
+                <div class="flex-1 overflow-y-auto">
                     <div x-show="conversations.length === 0" class="p-4 text-center text-gray-500 text-sm">
                         Noch keine Chats vorhanden.
                     </div>
-                    <div class="flex-1 overflow-y-auto">
-                        <template x-for="chat in conversations" :key="chat.id">
-                            <div @click="selectChat(chat)" class="flex items-center px-3 py-3 hover:bg-gray-100 cursor-pointer border-b border-gray-50" :class="activeConversation?.id === chat.id ? 'bg-gray-100' : ''">
-                                <div class="w-12 h-12 bg-teal-600 rounded-full flex-shrink-0 flex items-center justify-center text-white font-bold text-xl overflow-hidden">
-                                    <template x-if="getPartner(chat)?.avatar_url">
-                                        <img :src="getPartner(chat).avatar_url" class="w-full h-full object-cover">
+                    <template x-for="chat in conversations" :key="chat.id">
+                        <div @click="selectChat(chat)" class="flex items-center px-3 py-3 hover:bg-gray-100 cursor-pointer border-b border-gray-50" :class="activeConversation?.id === chat.id ? 'bg-gray-100' : ''">
+                            <div class="w-12 h-12 bg-gray-300 rounded-full flex-shrink-0 flex items-center justify-center text-white font-bold text-xl overflow-hidden">
+                                <!-- Placeholder Avatar -->
+                                <span x-text="(getPartner(chat)?.name || '?').charAt(0)"></span>
+                            </div>
+                            <div class="ml-4 flex-1 border-gray-100 pb-1 h-full flex flex-col justify-center">
+                                <div class="flex justify-between items-center">
+                                    <span class="font-medium text-gray-900" x-text="getPartner(chat)?.name"></span>
+                                </div>
+                                <div class="flex items-center text-sm text-gray-500 mt-0.5">
+                                    <template x-if="chat.last_message_id">
+                                        <div class="flex items-center truncate max-w-[200px]">
+                                            <span class="truncate">Nachricht...</span>
+                                        </div>
                                     </template>
-                                    <template x-if="!getPartner(chat)?.avatar_url">
-                                        <span x-text="(getPartner(chat)?.name || '?').charAt(0)"></span>
-                                    </template>
                                 </div>
-                                <div class="ml-4 flex-1 border-gray-100 pb-1 h-full flex flex-col justify-center">
-                                    <div class="flex justify-between items-center">
-                                        <span class="font-medium text-gray-900" x-text="getPartner(chat)?.name"></span>
-                                    </div>
-                                    <div class="flex items-center text-sm text-gray-500 mt-0.5">
-                                        <template x-if="chat.last_message_id">
-                                            <div class="flex items-center truncate max-w-[200px]">
-                                                <span class="truncate">Nachricht...</span>
-                                            </div>
-                                        </template>
-                                    </div>
-                                </div>
-                            </div>
-                        </template>
-                    </div>
-                </div>
-
-                <!-- Calls List Tab -->
-                <div x-show="activeTab === 'calls'" class="flex-1 flex flex-col overflow-hidden bg-white" style="display: none;">
-                    <div class="p-3 bg-gray-50 border-b flex justify-between items-center">
-                        <h4 class="font-medium text-gray-700 text-sm">Anrufverlauf</h4>
-                        <button @click="if(activeConversation) startCall('audio')" class="text-xs bg-teal-600 text-white px-2.5 py-1 rounded-md hover:bg-teal-700 transition">Neuer Anruf</button>
-                    </div>
-                    <div class="flex-1 overflow-y-auto">
-                        <div x-show="callsList.length === 0" class="p-6 text-center text-gray-400 text-sm">
-                            Keine Anrufe im Verlauf.
-                        </div>
-                        <template x-for="call in callsList" :key="call.id">
-                            <div class="flex items-center px-4 py-3 border-b border-gray-100 hover:bg-gray-50">
-                                <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center text-gray-700 font-bold text-sm mr-3">
-                                    <span x-text="call.caller_id === user.id ? call.receiver?.name.charAt(0) : call.caller?.name.charAt(0)"></span>
-                                </div>
-                                <div class="flex-1">
-                                    <div class="font-medium text-sm text-gray-800" x-text="call.caller_id === user.id ? call.receiver?.name : call.caller?.name"></div>
-                                    <div class="flex items-center text-xs text-gray-500 gap-1">
-                                        <svg class="w-3.5 h-3.5" :class="call.caller_id === user.id ? 'text-teal-600' : 'text-blue-600'" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 17l5-5m0 0l-5-5m5 5H9"></path></svg>
-                                        <span x-text="call.type === 'video' ? 'Videoanruf' : 'Sprachanruf'"></span>
-                                        <span>•</span>
-                                        <span x-text="formatTime(call.started_at)"></span>
-                                    </div>
-                                </div>
-                                <button @click="startCall(call.type)" class="text-teal-600 hover:text-teal-800 p-2 rounded-full hover:bg-gray-100">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
-                                </button>
-                            </div>
-                        </template>
-                    </div>
-                </div>
-
-                <!-- Status / Stories List Tab -->
-                <div x-show="activeTab === 'status'" class="flex-1 flex flex-col overflow-hidden bg-white" style="display: none;">
-                    <div class="p-3 bg-gray-50 border-b flex justify-between items-center">
-                        <h4 class="font-medium text-gray-800 text-sm">Status / Storys</h4>
-                        <button @click="$refs.storyFileInput.click()" class="text-xs bg-teal-600 text-white px-2.5 py-1 rounded-md hover:bg-teal-700 transition flex items-center gap-1">
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-                            Neu
-                        </button>
-                        <input type="file" accept="image/*" x-ref="storyFileInput" class="hidden" @change="uploadStory($event)">
-                    </div>
-
-                    <div class="flex-1 overflow-y-auto">
-                        <!-- My Status Section -->
-                        <div class="p-3 border-b border-gray-100 flex items-center cursor-pointer hover:bg-gray-50" @click="myStoriesGroup ? viewStories(myStoriesGroup) : $refs.storyFileInput.click()">
-                            <div class="relative mr-3">
-                                <div class="w-12 h-12 rounded-full border-2 p-0.5" :class="myStoriesGroup ? 'border-teal-500' : 'border-gray-300'">
-                                    <div class="w-full h-full bg-teal-600 rounded-full flex items-center justify-center text-white font-bold text-lg overflow-hidden">
-                                        <template x-if="user?.avatar_url">
-                                            <img :src="user.avatar_url" class="w-full h-full object-cover">
-                                        </template>
-                                        <template x-if="!user?.avatar_url">
-                                            <span x-text="user?.name.charAt(0)"></span>
-                                        </template>
-                                    </div>
-                                </div>
-                                <div class="absolute bottom-0 right-0 w-4 h-4 bg-teal-600 rounded-full text-white flex items-center justify-center border border-white text-xs font-bold">+</div>
-                            </div>
-                            <div>
-                                <div class="font-medium text-sm text-gray-900">Mein Status</div>
-                                <div class="text-xs text-gray-500" x-text="myStoriesGroup ? (myStoriesGroup.stories.length + ' Story(s) aktiv') : 'Klicke zum Hinzufügen'"></div>
                             </div>
                         </div>
-
-                        <!-- Recent Updates Header -->
-                        <div class="px-4 py-2 bg-gray-100/70 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                            Kürzlich aktualisiert
-                        </div>
-
-                        <div x-show="otherStories.length === 0" class="p-6 text-center text-gray-400 text-sm">
-                            Keine neuen Status-Updates vorhanden.
-                        </div>
-
-                        <!-- Stories List -->
-                        <template x-for="group in otherStories" :key="group.user.id">
-                            <div @click="viewStories(group)" class="flex items-center px-4 py-3 border-b border-gray-50 hover:bg-gray-50 cursor-pointer">
-                                <div class="w-12 h-12 rounded-full border-2 border-teal-500 p-0.5 mr-3 flex-shrink-0">
-                                    <div class="w-full h-full bg-teal-600 rounded-full flex items-center justify-center text-white font-bold text-lg overflow-hidden">
-                                        <template x-if="group.user.avatar_url">
-                                            <img :src="group.user.avatar_url" class="w-full h-full object-cover">
-                                        </template>
-                                        <template x-if="!group.user.avatar_url">
-                                            <span x-text="group.user.name.charAt(0)"></span>
-                                        </template>
-                                    </div>
-                                </div>
-                                <div class="flex-1">
-                                    <div class="font-medium text-sm text-gray-900" x-text="group.user.name"></div>
-                                    <div class="text-xs text-gray-500" x-text="group.stories.length + ' Story(s)'"></div>
-                                </div>
-                            </div>
-                        </template>
-                    </div>
+                    </template>
                 </div>
             </div>
 
@@ -490,50 +396,24 @@
                     <div class="flex flex-col h-full w-full">
                         <!-- Chat Header -->
                         <div class="h-16 bg-gray-100 flex items-center px-4 py-2 border-b border-gray-200 z-10 shadow-sm">
-                            <div class="w-10 h-10 bg-teal-600 rounded-full flex items-center justify-center text-white font-bold overflow-hidden">
-                                <template x-if="getPartner(activeConversation)?.avatar_url">
-                                    <img :src="getPartner(activeConversation).avatar_url" class="w-full h-full object-cover">
-                                </template>
-                                <template x-if="!getPartner(activeConversation)?.avatar_url">
-                                    <span x-text="getPartner(activeConversation)?.name.charAt(0)"></span>
-                                </template>
+                            <div class="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center text-white font-bold">
+                                <span x-text="getPartner(activeConversation)?.name.charAt(0)"></span>
                             </div>
                             <div class="ml-4">
                                 <h3 class="font-medium text-gray-900" x-text="getPartner(activeConversation)?.name"></h3>
-                                <p class="text-xs text-emerald-600 font-medium">Online</p>
+                                <p class="text-xs text-gray-500">Online</p>
                             </div>
-                            <div class="ml-auto text-gray-600 flex items-center space-x-1">
-                                <!-- Video Call Button -->
-                                <button @click="startCall('video')" class="p-2 text-gray-600 hover:text-teal-600 hover:bg-gray-200 rounded-full transition" title="Videoanruf starten">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
-                                    </svg>
-                                </button>
-                                <!-- Audio Call Button -->
-                                <button @click="startCall('audio')" class="p-2 text-gray-600 hover:text-teal-600 hover:bg-gray-200 rounded-full transition" title="Sprachanruf starten">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
-                                    </svg>
-                                </button>
-                                <div class="w-px h-5 bg-gray-300 mx-1"></div>
-                                <!-- Search Icon -->
-                                <button class="p-2 text-gray-600 hover:text-teal-600 hover:bg-gray-200 rounded-full transition" title="Suchen">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                                </button>
-                                <!-- 3-Dots Menu -->
-                                <button class="p-2 text-gray-600 hover:text-teal-600 hover:bg-gray-200 rounded-full transition" title="Mehr Optionen">
-                                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                                        <path d="M12 7a2 2 0 1 0-.001-4.001A2 2 0 0 0 12 7zm0 2a2 2 0 1 0-.001 3.999A2 2 0 0 0 12 9zm0 6a2 2 0 1 0-.001 3.999A2 2 0 0 0 12 15z" />
-                                    </svg>
-                                </button>
+                            <div class="ml-auto text-gray-500 flex space-x-4">
+                                <svg class="w-6 h-6 cursor-pointer" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                                <svg class="w-6 h-6 cursor-pointer" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"></path></svg>
                             </div>
                         </div>
 
                         <!-- Chat Messages -->
                         <div id="messages-container" class="flex-1 overflow-y-auto p-4 space-y-3 bg-[url('https://web.whatsapp.com/img/bg-chat-tile-dark_a4be512e7195b6b733d9110b408f075d.png')] bg-repeat bg-opacity-50">
                             <template x-for="msg in messages" :key="msg.id">
-                                <div class="flex" :class="msg.sender_id === user.id ? 'justify-end' : 'justify-start'">
-                                    <div class="max-w-[70%] rounded-lg p-2 px-3 shadow-sm relative text-[15px]" 
+                                <div class="flex w-full min-w-0 chat-msg-row" :class="msg.sender_id === user.id ? 'justify-end' : 'justify-start'">
+                                    <div class="chat-msg-bubble max-w-[85%] sm:max-w-[70%] min-w-0 rounded-lg p-2 px-3 shadow-sm relative text-[15px]" 
                                          :class="msg.sender_id === user.id ? 'msg-me rounded-tr-none' : 'msg-other rounded-tl-none'">
                                         
                                         <!-- Optional Image -->
@@ -582,108 +462,6 @@
                         </div>
                     </div>
                 </template>
-
-                <!-- Call Overlay Modal -->
-                <div x-show="activeCallModal" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center bg-gray-950/80 backdrop-blur-md">
-                    <div class="w-full max-w-sm bg-gray-900 rounded-3xl p-8 shadow-2xl border border-gray-800 text-center text-white flex flex-col items-center">
-                        <div class="relative mb-6">
-                            <div class="w-24 h-24 rounded-full bg-teal-600 flex items-center justify-center text-white font-bold text-3xl shadow-xl overflow-hidden ring-4 ring-teal-500/30">
-                                <template x-if="callData.partnerAvatar">
-                                    <img :src="callData.partnerAvatar" class="w-full h-full object-cover">
-                                </template>
-                                <template x-if="!callData.partnerAvatar">
-                                    <span x-text="(callData.partnerName || '?').charAt(0)"></span>
-                                </template>
-                            </div>
-                            <div class="absolute -bottom-1 -right-1 bg-teal-500 rounded-full p-2 text-white shadow">
-                                <svg x-show="callData.type === 'video'" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
-                                <svg x-show="callData.type === 'audio'" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
-                            </div>
-                        </div>
-
-                        <h3 class="text-2xl font-semibold mb-1" x-text="callData.partnerName"></h3>
-                        <p class="text-sm text-gray-400 mb-2" x-text="callData.type === 'video' ? 'ChatConnect Videoanruf' : 'ChatConnect Sprachanruf'"></p>
-                        <div class="inline-flex items-center gap-2 bg-gray-800 px-3.5 py-1 rounded-full text-xs font-mono text-teal-400 mb-8 border border-gray-700">
-                            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-                            <span x-text="callData.status"></span>
-                        </div>
-
-                        <!-- Controls -->
-                        <div class="flex items-center justify-center gap-6">
-                            <button @click="callMuted = !callMuted" :class="callMuted ? 'bg-amber-500/20 text-amber-400 border-amber-500/50' : 'bg-gray-800 text-gray-300 hover:bg-gray-700'" class="p-4 rounded-full border border-gray-700 transition" title="Stummschalten">
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path></svg>
-                            </button>
-                            
-                            <button @click="endCall()" class="p-5 rounded-full bg-red-600 hover:bg-red-700 text-white shadow-lg shadow-red-600/40 transition transform hover:scale-105" title="Anruf beenden">
-                                <svg class="w-7 h-7 rotate-[135deg]" fill="currentColor" viewBox="0 0 24 24"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"></path></svg>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Story Fullscreen Viewer Modal -->
-                <div x-show="activeStoryModal" x-cloak class="fixed inset-0 z-[110] flex items-center justify-center bg-black/95 backdrop-blur-lg">
-                    <div class="relative w-full max-w-md h-[90vh] flex flex-col justify-between p-4">
-                        <!-- Top Header & Progress Bar -->
-                        <div class="w-full space-y-3 z-20">
-                            <!-- Progress Indicators -->
-                            <div class="flex gap-1.5 w-full">
-                                <template x-for="(story, idx) in (activeStoryGroup?.stories || [])" :key="story.id">
-                                    <div class="h-1 flex-1 bg-white/30 rounded-full overflow-hidden">
-                                        <div class="h-full bg-white transition-all duration-100" :style="idx < activeStoryIndex ? 'width: 100%' : (idx === activeStoryIndex ? 'width: 100%' : 'width: 0%')"></div>
-                                    </div>
-                                </template>
-                            </div>
-
-                            <!-- User Info & Controls -->
-                            <div class="flex items-center justify-between text-white px-1">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-9 h-9 rounded-full bg-teal-600 flex items-center justify-center font-bold text-sm overflow-hidden border border-white/20">
-                                        <template x-if="activeStoryGroup?.user?.avatar_url">
-                                            <img :src="activeStoryGroup.user.avatar_url" class="w-full h-full object-cover">
-                                        </template>
-                                        <template x-if="!activeStoryGroup?.user?.avatar_url">
-                                            <span x-text="activeStoryGroup?.user?.name?.charAt(0) || '?'"></span>
-                                        </template>
-                                    </div>
-                                    <div>
-                                        <div class="font-medium text-sm" x-text="activeStoryGroup?.user?.name"></div>
-                                        <div class="text-xs text-gray-300" x-text="currentStory ? formatTime(currentStory.created_at) : ''"></div>
-                                    </div>
-                                </div>
-
-                                <div class="flex items-center gap-2">
-                                    <template x-if="currentStory?.user_id === user?.id">
-                                        <button @click="deleteCurrentStory()" class="p-2 hover:bg-white/10 rounded-full transition text-red-400" title="Story löschen">
-                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                                        </button>
-                                    </template>
-                                    <button @click="closeStoryModal()" class="p-2 hover:bg-white/10 rounded-full transition text-white" title="Schließen">
-                                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Image Display -->
-                        <div class="relative flex-1 flex items-center justify-center my-4 overflow-hidden rounded-2xl">
-                            <template x-if="currentStory">
-                                <img :src="currentStory.media_path" class="max-h-full max-w-full object-contain rounded-xl shadow-2xl">
-                            </template>
-
-                            <!-- Navigation Click Hotspots -->
-                            <div @click="prevStory()" class="absolute left-0 top-0 bottom-0 w-1/3 cursor-pointer"></div>
-                            <div @click="nextStory()" class="absolute right-0 top-0 bottom-0 w-1/3 cursor-pointer"></div>
-                        </div>
-
-                        <!-- Caption Footer -->
-                        <template x-if="currentStory?.caption">
-                            <div class="w-full text-center text-white bg-black/40 backdrop-blur-sm p-3 rounded-xl mb-2 text-sm">
-                                <span x-text="currentStory.caption"></span>
-                            </div>
-                        </template>
-                    </div>
-                </div>
             </div>
         </div>
     </template>
@@ -725,172 +503,10 @@
             profileUploading: false,
             profileUploadError: '',
             
-            activeTab: 'chats',
             conversations: [],
             activeConversation: null,
             messages: [],
             newMessage: '',
-
-            callsList: [],
-            activeCallModal: false,
-            callMuted: false,
-            callData: { type: 'audio', partnerName: '', partnerAvatar: null, status: 'Klingelt...', duration: 0 },
-            callTimerInterval: null,
-
-            storiesList: [],
-            activeStoryModal: false,
-            activeStoryGroup: null,
-            activeStoryIndex: 0,
-
-            get myStoriesGroup() {
-                if (!this.user || !this.storiesList.length) return null;
-                return this.storiesList.find(g => g.user.id === this.user.id) || null;
-            },
-
-            get otherStories() {
-                if (!this.storiesList.length) return [];
-                if (!this.user) return this.storiesList;
-                return this.storiesList.filter(g => g.user.id !== this.user.id);
-            },
-
-            get currentStory() {
-                if (!this.activeStoryGroup || !this.activeStoryGroup.stories || !this.activeStoryGroup.stories.length) return null;
-                return this.activeStoryGroup.stories[this.activeStoryIndex] || null;
-            },
-
-            async loadStories() {
-                try {
-                    const res = await window.axios.get('/api/v1/stories');
-                    this.storiesList = res.data || [];
-                } catch (e) {
-                    console.warn('Fehler beim Laden der Stories', e);
-                }
-            },
-
-            async uploadStory(event) {
-                const file = event.target.files?.[0];
-                if (!file) return;
-
-                const caption = prompt('Möchtest du eine Bildunterschrift für deine Story eingeben?') || '';
-
-                const formData = new FormData();
-                formData.append('image', file);
-                if (caption) formData.append('caption', caption);
-
-                try {
-                    await window.axios.post('/api/v1/stories', formData, {
-                        headers: { 'Content-Type': 'multipart/form-data' }
-                    });
-                    await this.loadStories();
-                    alert('Story erfolgreich erstellt!');
-                } catch (e) {
-                    alert('Fehler beim Hochladen der Story: ' + (e.response?.data?.message || e.message));
-                } finally {
-                    event.target.value = '';
-                }
-            },
-
-            viewStories(group) {
-                if (!group || !group.stories || !group.stories.length) return;
-                this.activeStoryGroup = group;
-                this.activeStoryIndex = 0;
-                this.activeStoryModal = true;
-            },
-
-            closeStoryModal() {
-                this.activeStoryModal = false;
-                this.activeStoryGroup = null;
-                this.activeStoryIndex = 0;
-            },
-
-            nextStory() {
-                if (!this.activeStoryGroup || !this.activeStoryGroup.stories) return;
-                if (this.activeStoryIndex < this.activeStoryGroup.stories.length - 1) {
-                    this.activeStoryIndex++;
-                } else {
-                    this.closeStoryModal();
-                }
-            },
-
-            prevStory() {
-                if (this.activeStoryIndex > 0) {
-                    this.activeStoryIndex--;
-                }
-            },
-
-            async deleteCurrentStory() {
-                if (!this.currentStory) return;
-                if (!confirm('Möchtest du diese Story wirklich löschen?')) return;
-
-                try {
-                    await window.axios.delete(`/api/v1/stories/${this.currentStory.id}`);
-                    await this.loadStories();
-                    this.closeStoryModal();
-                } catch (e) {
-                    alert('Fehler beim Löschen der Story.');
-                }
-            },
-
-            async loadCalls() {
-                try {
-                    const res = await window.axios.get('/api/v1/calls');
-                    this.callsList = res.data || [];
-                } catch (e) {
-                    console.warn('Fehler beim Laden der Anrufe', e);
-                }
-            },
-
-            async startCall(type = 'audio') {
-                if (!this.activeConversation) {
-                    alert('Bitte wähle zuerst einen Chat aus, um einen Anruf zu starten.');
-                    return;
-                }
-                const partner = this.getPartner(this.activeConversation);
-                if (!partner) return;
-
-                this.callData = {
-                    type: type,
-                    partnerName: partner.name,
-                    partnerAvatar: partner.avatar_url || null,
-                    status: 'Klingelt...',
-                    duration: 0
-                };
-                this.callMuted = false;
-                this.activeCallModal = true;
-
-                try {
-                    await window.axios.post('/api/v1/calls', {
-                        receiver_id: partner.id,
-                        type: type,
-                        status: 'initiated',
-                        duration_seconds: 0
-                    });
-                } catch (e) {
-                    console.error('Call API Error:', e);
-                }
-
-                let seconds = 0;
-                if (this.callTimerInterval) clearInterval(this.callTimerInterval);
-                this.callTimerInterval = setInterval(() => {
-                    seconds++;
-                    if (seconds === 3) {
-                        this.callData.status = 'Verbunden';
-                    } else if (seconds > 3) {
-                        const mins = String(Math.floor((seconds - 3) / 60)).padStart(2, '0');
-                        const secs = String((seconds - 3) % 60).padStart(2, '0');
-                        this.callData.status = `${mins}:${secs}`;
-                    }
-                }, 1000);
-            },
-
-            endCall() {
-                if (this.callTimerInterval) {
-                    clearInterval(this.callTimerInterval);
-                    this.callTimerInterval = null;
-                }
-                this.activeCallModal = false;
-                this.loadCalls();
-            },
             
             async initApp() {
                 const token = localStorage.getItem('auth_token');
@@ -937,6 +553,18 @@
                     } else {
                         this.authError = data?.message || 'Login failed';
                     }
+                }
+            },
+            
+            async markAllAsRead() {
+                try {
+                    await window.axios.post('/api/v1/messages/mark-all-read');
+                    // Refresh conversations immediately so the UI clears unread counts
+                    await this.loadConversations();
+                    // Alert just to notify the user in webclient
+                    alert('Alle Chats wurden als gelesen markiert.');
+                } catch (e) {
+                    alert('Fehler beim Markieren der Chats.');
                 }
             },
             
