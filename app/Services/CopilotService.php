@@ -104,7 +104,7 @@ class CopilotService
 
         // Leon: Gaming, Minecraft (mit Packages & Mods), Roblox
         if (str_contains($nameLower, 'leon')) {
-            return [
+            return self::attachImageInstruction([
                 'type' => 'leon',
                 'name' => 'Leon',
                 'welcome' => "Hey Leon! 🎮🚗 Willkommen bei deinem persönlichen Beifahrer in ChatConnect!\n\n"
@@ -120,12 +120,12 @@ class CopilotService
                     . "- Formatiere Minecraft-Befehle, Item-IDs oder Baupläne in sauberen Markdown-Codeblöcken (z.B. ```mcfunction).\n"
                     . "- Sei motivierend, enthusiastisch und hilfsbereit bei Zock- und Baufragen.\n"
                     . "- Halte deine Antworten spannend, lesbar und direkt auf den Punkt.",
-            ];
+            ]);
         }
 
         // Dario: 14 Jahre alt, Gaming, Programmierung (Java & JavaScript)
         if (str_contains($nameLower, 'dario')) {
-            return [
+            return self::attachImageInstruction([
                 'type' => 'dario',
                 'name' => 'Dario',
                 'welcome' => "Hi Dario! 💻🚗 Willkommen bei deinem persönlichen Beifahrer in ChatConnect!\n\n"
@@ -140,12 +140,12 @@ class CopilotService
                     . "- Formatiere Code IMMER in sauberen Markdown-Codeblöcken mit Sprachkennung (z.B. ```java oder ```javascript), damit Dario ihn direkt lesen und kopieren kann.\n"
                     . "- Gib saubere, verständliche Code-Beispiele, erkläre Best Practices und hilf bei Bugs.\n"
                     . "- Bleib sympathisch, kollegial und lösungsorientiert.",
-            ];
+            ]);
         }
 
         // Jil: Basteln, Zeichnen, Kreatives & DIY
         if (str_contains($nameLower, 'jil')) {
-            return [
+            return self::attachImageInstruction([
                 'type' => 'jil',
                 'name' => 'Jil',
                 'welcome' => "Hallo Jil! 🎨🚗 Schön, dass du da bist! Ich bin dein kreativer Beifahrer in ChatConnect.\n\n"
@@ -159,12 +159,12 @@ class CopilotService
                     . "- Antworte herzlich, fröhlich, ermutigend und voller kreativer Inspiration.\n"
                     . "- Gib tolle Schritt-für-Schritt-Zeichentipps, Farbanregungen und einfache, wunderschöne Bastelideen.\n"
                     . "- Halte deine Antworten leicht verständlich und motivierend.",
-            ];
+            ]);
         }
 
         // Zoe: Basteln, Zeichnen, bunte Kunstwerke
         if (str_contains($nameLower, 'zoe')) {
-            return [
+            return self::attachImageInstruction([
                 'type' => 'zoe',
                 'name' => 'Zoe',
                 'welcome' => "Hallo Zoe! 🌸🚗 Willkommen bei deinem Beifahrer in ChatConnect!\n\n"
@@ -178,12 +178,12 @@ class CopilotService
                     . "- Antworte fröhlich, liebenswert, verspielt und fantasievoll.\n"
                     . "- Schlage lustige Malmotive vor (Tiere, Glitzer, Fantasiewelten) und bunte Bastelideen.\n"
                     . "- Halte deine Sprache sympathisch, herzlich und ermutigend.",
-            ];
+            ]);
         }
 
         // Robert (Opa & technischer Mastermind)
         if (str_contains($nameLower, 'robert')) {
-            return [
+            return self::attachImageInstruction([
                 'type' => 'robert',
                 'name' => 'Robert',
                 'welcome' => "Hallo Robert! 🚗 Ich bin dein persönlicher Beifahrer in ChatConnect.\n\n"
@@ -198,11 +198,11 @@ class CopilotService
                     . "Leon (Gaming/Minecraft mit Packages/Roblox), Dario (14 J., Gaming/Java/JS Coder), Jil & Zoe (Basteln & Zeichnen).\n"
                     . "- Du kennst dich hervorragend mit Technik, 3D-Druck (STL/Blender), Raspberry Pi und Familie aus.\n"
                     . "- Halte deine Antworten pragmatisch und auf den Punkt.",
-            ];
+            ]);
         }
 
         // Standard Familie / Weitere Kontakte
-        return [
+        $profile = [
             'type' => 'family',
             'name' => $userName,
             'welcome' => "Hallo {$userName}! 🚗 Ich bin dein persönlicher Beifahrer in ChatConnect.\n\n"
@@ -211,6 +211,8 @@ class CopilotService
             'system_prompt' => "Du bist der persönliche 'Beifahrer' in ChatConnect für {$userName}. "
                 . "Antworte sympathisch, hilfsbereit, locker und direkt auf Deutsch.",
         ];
+
+        return self::attachImageInstruction($profile);
     }
 
     /**
@@ -412,6 +414,17 @@ class CopilotService
         $type = $profile['type'];
         $lower = mb_strtolower(trim($msg), 'UTF-8');
 
+        // 0. Prüfen auf Bild-, Grafik- oder Malvorlagen-Wunsch
+        $isImageRequest = preg_match('/\\b(mal|male|zeichne|zeichnest|erstell|erstelle|generier|generiere|zaubere)\\b.*\\b(bild|grafik|zeichnung|foto|malvorlage|illustration|avatar|poster|skizze)\\b/iu', $msg) ||
+                          preg_match('/\\b(bild|malvorlage|zeichnung|illustration)\\s+(?:von|vom|über|zu)\\b/iu', $msg) ||
+                          preg_match('/\\b(mal|male|zeichne)\\s+(?:mir\\s+)?(?:ein|eine|einen|etwas)\\b/iu', $msg) ||
+                          preg_match('/\\b(kannst du|könntest du)\\b.*\\b(malen|zeichnen|illustrieren)\\b/iu', $msg);
+
+        if ($isImageRequest) {
+            return self::buildImageResponse($profile, $msg);
+        }
+
+
         // === LEON (Gaming, Minecraft mit Packages, Roblox) ===
         if ($type === 'leon') {
             if (str_contains($lower, 'mine') || str_contains($lower, 'craft') || str_contains($lower, 'pack') || str_contains($lower, 'mod') || str_contains($lower, 'addon')) {
@@ -523,6 +536,114 @@ class CopilotService
     /**
      * Korrigiert Rechtschreibung, Grammatik und Satzbau sanft und kindgerecht.
      */
+
+    /**
+     * Ergänzt den System-Prompt um die Fähigkeit, über Pollinations.ai Bilder & Malvorlagen zu zaubern.
+     */
+    protected static function attachImageInstruction(array $profile): array
+    {
+        $imageRule = "\n\n- BILDER, GRAFIKEN & MALVORLAGEN GENERIEREN:\n"
+            . "Wenn der Nutzer ein Bild, eine Grafik, eine Zeichnung oder Malvorlage wünscht (z.B. 'Mal mir...', 'Zeichne...', 'Erstelle ein Bild von...', 'Malvorlage für...'), bette IMMER ein Markdown-Bild mit Pollinations.ai ein:\n"
+            . "Format: ![Titel](https://image.pollinations.ai/prompt/<ENGLISCHE_BESCHREIBUNG_URL_ENCODED>?width=1024&height=1024&nologo=true&seed=<ZUFALLSZAHL>)\n"
+            . "- Übersetze und bereichere die Beschreibung auf Englisch (z.B. für 'ein kleines Kätzchen': 'cute fluffy kitten playing with wool, vibrant storybook style').\n"
+            . "- Für Malvorlagen/Ausmalbilder (Jil/Zoe): 'coloring page for kids, clean black and white line art, bold outlines, coloring book style, no shading, pure white background'.\n"
+            . "- Für Minecraft (Leon): 'official Minecraft video game art style, vibrant 3D voxel blocks, cubic world'.\n"
+            . "- Bette das Bild direkt per Markdown ein und schreibe einen kurzen, herzlichen Begleittext dazu.";
+
+        $profile['system_prompt'] .= $imageRule;
+        return $profile;
+    }
+
+    /**
+     * Erzeugt blitzschnell ein generiertes Bild / eine Malvorlage als Markdown.
+     */
+    public static function buildImageResponse(array $profile, string $msg): string
+    {
+        $userName = $profile['name'];
+        $type = $profile['type'];
+        $lower = mb_strtolower($msg, 'UTF-8');
+
+        $isColoringPage = str_contains($lower, 'malvorlage') || str_contains($lower, 'ausmal') || str_contains($lower, 'malbuch') || str_contains($lower, 'schwarz weiß') || str_contains($lower, 'schwarz-weiß');
+
+        // Thema sauber herausschneiden
+        $cleaned = preg_replace('/\b(kannst du mir|könntest du mir|kannst du|könntest du|bitte|mal mir|male mir|zeichne mir|mal|male|zeichne|erstelle mir|erstelle|generiere mir|generiere|zaubere mir|zaubere|mach mir|mache mir|ein bild von|ein bild vom|ein bild über|eine malvorlage von|eine malvorlage für|eine malvorlage über|ein bild|eine grafik|eine zeichnung|ein foto|eine illustration|zum ausmalen|ausmalen|für mich|haben|hätte gerne|ich will|ich möchte|erstellen|generieren|machen|zaubern)\b/iu', '', $msg);
+        $cleaned = preg_replace('/\b(ein|eine|einen|einem|einer|das|die|der|den|dem|von|vom|für|über)\b/iu', '', $cleaned);
+        $cleaned = trim(preg_replace('/[?!.,]/', '', $cleaned));
+        $cleaned = preg_replace('/\s+/', ' ', $cleaned);
+
+        if (empty($cleaned)) {
+            $cleaned = ($type === 'leon') ? 'Minecraft Burg' : (($type === 'jil' || $type === 'zoe') ? 'süßes Einhorn' : 'schöner Bergsee');
+        }
+
+        // Wörterbuch für erstklassige internationale Prompt-Qualität
+        $deToEn = [
+            'einhorn' => 'cute magical unicorn with flowing pastel rainbow mane and sparkles',
+            'katze' => 'adorable fluffy kitten with big bright eyes',
+            'kätzchen' => 'super cute playful baby kitten with a yarn ball',
+            'hund' => 'happy friendly fluffy puppy dog',
+            'welpe' => 'cute golden retriever puppy with big happy eyes',
+            'mittelschnauzer' => 'Standard Schnauzer dog with beard and bushy eyebrows',
+            'schnauzer' => 'Schnauzer dog with beard',
+            'pferd' => 'graceful wild horse running on a lush green meadow',
+            'dino' => 'friendly cute cartoon baby dinosaur in prehistoric jungle',
+            'dinosaurier' => 'friendly cartoon T-Rex dinosaur',
+            'drache' => 'cute baby dragon breathing tiny sparkles of magical fire',
+            'schmetterling' => 'colorful glowing butterfly landing on vibrant flowers',
+            'burg' => 'majestic fairytale knight castle with tall towers and banners',
+            'ritter' => 'brave young knight in gleaming armor',
+            'prinzessin' => 'beautiful fairytale princess with golden tiara',
+            'auto' => 'sleek futuristic sports car with glowing neon lights',
+            'rakete' => 'epic space rocket soaring through starry cosmos',
+            'weltall' => 'vibrant deep galaxy with colorful nebula, glowing planets and stars',
+            'minecraft' => 'Minecraft voxel block world, cubic landscape, official art style',
+            'roblox' => 'Roblox style 3D character in exciting adventure parkour',
+            'kugelbahn' => 'colorful marble run toy with looping wooden tracks',
+            'affe' => 'funny cheerful little monkey swinging on a jungle vine',
+            'elefant' => 'sweet baby elephant spraying water from its trunk',
+            'löwe' => 'brave cute little lion cub playing in the savanna',
+            'bär' => 'cuddly cute brown bear cub eating sweet honey',
+            'fuchs' => 'sweet little red fox in an autumn forest',
+            'roboter' => 'friendly helpful little robot with glowing green eyes',
+            'haus' => 'cozy fairytale cottage surrounded by flowers and trees',
+            'schiff' => 'pirate sailing ship sailing on tropical blue ocean waves',
+        ];
+
+        $subjectEn = $cleaned;
+        foreach ($deToEn as $de => $en) {
+            if (mb_strpos($lower, $de) !== false) {
+                $subjectEn = $en;
+                break;
+            }
+        }
+
+        $seed = random_int(1000, 999999);
+
+        if ($isColoringPage) {
+            $fullPrompt = "coloring page for children, clean black and white line art, bold outlines, coloring book style, no shading, no gradients, pure white background, {$subjectEn}";
+            $title = "Malvorlage: " . ucfirst($cleaned);
+            $intro = "Hier ist deine Malvorlage zum Ausmalen, {$userName}! 🎨🖍️\n\nDu kannst sie dir groß ansehen oder ausdrucken:";
+        } elseif ($type === 'leon' || str_contains($lower, 'minecraft') || str_contains($lower, 'roblox')) {
+            $fullPrompt = "official Minecraft video game voxel cubic style, 3D blocky world, vibrant lighting, highly detailed, {$subjectEn}";
+            $title = "Gaming-Grafik: " . ucfirst($cleaned);
+            $intro = "Hier ist deine Gaming-Grafik, {$userName}! 🎮🚀 Frisch gerendert für dich:";
+        } elseif ($type === 'jil' || $type === 'zoe') {
+            $fullPrompt = "cute Disney Pixar animation style, charming 3D character, vibrant pastel colors, warm happy lighting, 8k render, {$subjectEn}";
+            $title = "Bild: " . ucfirst($cleaned);
+            $intro = "Hier ist dein Kunstwerk, {$userName}! 🎨✨ Schau mal, wie schön das geworden ist:";
+        } else {
+            $fullPrompt = "masterpiece digital art, stunning vibrant colors, high detail, natural lighting, {$subjectEn}";
+            $title = "Bild: " . ucfirst($cleaned);
+            $intro = "Hier ist deine gewünschte Grafik, {$userName}! 🎨✨";
+        }
+
+        $encoded = rawurlencode($fullPrompt);
+        $imageUrl = "https://image.pollinations.ai/prompt/{$encoded}?width=1024&height=1024&nologo=true&seed={$seed}";
+
+        return "{$intro}\n\n"
+            . "![{$title}]({$imageUrl})\n\n"
+            . "*Tipp: Wenn du andere Farben, ein anderes Motiv oder noch mehr Details möchtest, sag mir einfach Bescheid!*";
+    }
+
     public static function fixSpelling(string $text): string
     {
         $clean = trim($text);

@@ -67,6 +67,20 @@
             line-height: 1.5;
             word-break: break-word;
         }
+        .chat-markdown-body img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 0.75rem;
+            margin: 0.6rem 0;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            display: block;
+        }
+        .chat-markdown-body img:hover {
+            transform: scale(1.015);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+        }
         .chat-markdown-body p {
             margin-bottom: 0.35rem;
         }
