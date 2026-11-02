@@ -13,6 +13,7 @@ class ChatController extends Controller
     public function index()
     {
         $user = Auth::user();
+        \App\Services\CopilotService::ensureBotConversationForUser($user);
         
         $conversations = $user->conversations()
             ->with(['users', 'lastMessage'])
@@ -20,7 +21,9 @@ class ChatController extends Controller
                 $q->where('sender_id', '!=', $user->id)->whereNull('read_at');
             }])
             ->get();
-        $contacts = User::orderByRaw('id = ? DESC, name ASC', [$user->id])->get();
+        $contacts = User::where('email', '!=', \App\Services\CopilotService::BOT_EMAIL)
+            ->orderByRaw('id = ? DESC, name ASC', [$user->id])
+            ->get();
 
         return view('chats.index', [
             'user' => $user,
@@ -34,6 +37,7 @@ class ChatController extends Controller
     public function show(Conversation $conversation)
     {
         $user = Auth::user();
+        \App\Services\CopilotService::ensureBotConversationForUser($user);
 
         // Check if user is part of the conversation
         if (!$conversation->users->contains($user->id)) {
@@ -49,7 +53,9 @@ class ChatController extends Controller
                 $q->where('sender_id', '!=', $user->id)->whereNull('read_at');
             }])
             ->get();
-        $contacts = User::orderByRaw('id = ? DESC, name ASC', [$user->id])->get();
+        $contacts = User::where('email', '!=', \App\Services\CopilotService::BOT_EMAIL)
+            ->orderByRaw('id = ? DESC, name ASC', [$user->id])
+            ->get();
         $messages = $conversation->messages()->with(['sender', 'reactions.user'])->orderBy('created_at', 'asc')->get();
 
         return view('chats.index', [
@@ -170,6 +176,13 @@ class ChatController extends Controller
             }
         } catch (\Throwable $e) {
             \Log::warning('Push notification failed: ' . $e->getMessage());
+        }
+
+        // Falls Nachricht im Beifahrer-Chat gesendet wurde, antwortet der Beifahrer automatisch
+        try {
+            \App\Services\CopilotService::handleIncomingMessage($conversation, $message);
+        } catch (\Throwable $e) {
+            \Log::error('Beifahrer handleIncomingMessage Fehler: ' . $e->getMessage());
         }
 
         if ($request->wantsJson() || $request->ajax()) {

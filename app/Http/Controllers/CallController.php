@@ -12,7 +12,9 @@ class CallController extends Controller
     public function index()
     {
         $user = Auth::user();
-        $contacts = User::where('id', '!=', $user->id)->get();
+        $contacts = User::where('id', '!=', $user->id)
+            ->where('email', '!=', \App\Services\CopilotService::BOT_EMAIL)
+            ->get();
         $recentCalls = Call::where('caller_id', $user->id)
                            ->orWhere('receiver_id', $user->id)
                            ->with(['caller', 'receiver'])

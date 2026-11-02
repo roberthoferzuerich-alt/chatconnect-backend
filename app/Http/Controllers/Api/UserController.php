@@ -32,7 +32,8 @@ class UserController extends Controller
         $search = $request->query('q');
         $meId = $request->user()->id;
         
-        $query = User::orderByRaw('id = ? DESC, name ASC', [$meId]);
+        $query = User::where('email', '!=', \App\Services\CopilotService::BOT_EMAIL)
+            ->orderByRaw('id = ? DESC, name ASC', [$meId]);
 
         if ($search) {
             $query->where(function ($q) use ($search) {

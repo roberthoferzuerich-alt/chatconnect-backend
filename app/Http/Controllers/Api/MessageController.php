@@ -129,6 +129,13 @@ class MessageController extends Controller
             }
         }
 
+        // Falls Nachricht im Beifahrer-Chat gesendet wurde, antwortet der Beifahrer automatisch
+        try {
+            \App\Services\CopilotService::handleIncomingMessage($conversation, $message);
+        } catch (\Throwable $e) {
+            \Log::error('Beifahrer handleIncomingMessage Fehler: ' . $e->getMessage());
+        }
+
         return response()->json($message, 201);
     }
 

@@ -14,6 +14,9 @@ class ConversationController extends Controller
     {
         $me = $request->user();
 
+        // Ensure Beifahrer ("🚗 Beifahrer (KI)") always exists
+        \App\Services\CopilotService::ensureBotConversationForUser($me);
+
         // Ensure Self-Chat ("Ich / Eigene Dateien") always exists
         $selfChat = $me->conversations()->where('is_group', false)
             ->whereDoesntHave('users', function ($query) use ($me) {
