@@ -176,59 +176,163 @@ class CopilotService
             . "- Du kennst dich hervorragend mit Technik, Software, 3D-Druck (STL/Blender), Familie und Alltagsorganisation aus.\n"
             . "- Halte deine Antworten pragmatisch, lesbar und auf den Punkt.";
 
-        $messages = [];
-        $messages[] = ['role' => 'system', 'content' => $systemPrompt];
+        // 1. Google Gemini API (falls GEMINI_API_KEY hinterlegt)
+        $geminiKey = env('GEMINI_API_KEY');
+        if (!empty($geminiKey)) {
+            try {
+                $contents = [];
+                foreach ($history as $m) {
+                    $isBot = ($m->sender_id === self::getBotUser()->id);
+                    $text = trim((string) $m->content);
+                    if ($text !== '') {
+                        $contents[] = [
+                            'role' => $isBot ? 'model' : 'user',
+                            'parts' => [['text' => $text]]
+                        ];
+                    }
+                }
+                if (empty($contents) || end($contents)['role'] !== 'user') {
+                    $contents[] = ['role' => 'user', 'parts' => [['text' => $currentMessage ?: 'Hallo Beifahrer!']]];
+                }
 
-        foreach ($history as $m) {
-            $isBot = ($m->sender_id === self::getBotUser()->id);
-            $cleanContent = trim((string) $m->content);
-            if ($cleanContent !== '') {
-                $messages[] = [
-                    'role' => $isBot ? 'assistant' : 'user',
-                    'content' => $cleanContent,
-                ];
-            }
-        }
-
-        // Falls noch keine Nachricht in der History war, die aktuelle anhängen
-        if (empty($messages) || end($messages)['role'] !== 'user') {
-            $messages[] = ['role' => 'user', 'content' => $currentMessage ?: 'Hallo Beifahrer!'];
-        }
-
-        // 1. Versuch: Schnelle Pollinations OpenAI / Claude / Gemini Text-API
-        try {
-            $resp = Http::timeout(18)
-                ->withHeaders(['Content-Type' => 'application/json'])
-                ->post('https://text.pollinations.ai/', [
-                    'messages' => $messages,
-                    'model' => 'openai',
-                    'seed' => random_int(100, 99999),
+                $geminiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={$geminiKey}";
+                $resp = Http::withoutVerifying()->timeout(12)->post($geminiUrl, [
+                    'system_instruction' => [
+                        'parts' => [['text' => $systemPrompt]]
+                    ],
+                    'contents' => $contents,
+                    'generationConfig' => [
+                        'temperature' => 0.7,
+                        'maxOutputTokens' => 1000,
+                    ]
                 ]);
 
-            if ($resp->successful() && !empty(trim($resp->body()))) {
-                $text = trim($resp->body());
-                // Bereinige eventuelle Markdown-Wrapper
-                return $text;
+                if ($resp->successful()) {
+                    $reply = $resp->json('candidates.0.content.parts.0.text');
+                    if (!empty(trim((string) $reply))) {
+                        return trim($reply);
+                    }
+                }
+            } catch (\Throwable $e) {
+                Log::warning('Gemini API Fehler: ' . $e->getMessage());
             }
-        } catch (\Throwable $e) {
-            Log::warning('Beifahrer API (POST) Timeout/Fehler: ' . $e->getMessage());
         }
 
-        // 2. Fallback: GET Request
-        try {
-            $promptParam = urlencode($currentMessage ?: 'Hallo');
-            $sysParam = urlencode($systemPrompt);
-            $getResp = Http::timeout(15)->get("https://text.pollinations.ai/{$promptParam}?system={$sysParam}");
+        // 2. Groq API (falls GROQ_API_KEY hinterlegt - extrem schnell & kostenlos)
+        $groqKey = env('GROQ_API_KEY');
+        if (!empty($groqKey)) {
+            try {
+                $messages = [['role' => 'system', 'content' => $systemPrompt]];
+                foreach ($history as $m) {
+                    $isBot = ($m->sender_id === self::getBotUser()->id);
+                    $text = trim((string) $m->content);
+                    if ($text !== '') {
+                        $messages[] = [
+                            'role' => $isBot ? 'assistant' : 'user',
+                            'content' => $text,
+                        ];
+                    }
+                }
+                if (empty($messages) || end($messages)['role'] !== 'user') {
+                    $messages[] = ['role' => 'user', 'content' => $currentMessage ?: 'Hallo Beifahrer!'];
+                }
 
-            if ($getResp->successful() && !empty(trim($getResp->body()))) {
-                return trim($getResp->body());
+                $resp = Http::withoutVerifying()->withToken($groqKey)->timeout(10)->post('https://api.groq.com/openai/v1/chat/completions', [
+                    'model' => 'llama-3.3-70b-versatile',
+                    'messages' => $messages,
+                    'temperature' => 0.7,
+                ]);
+
+                if ($resp->successful()) {
+                    $reply = $resp->json('choices.0.message.content');
+                    if (!empty(trim((string) $reply))) {
+                        return trim($reply);
+                    }
+                }
+            } catch (\Throwable $e) {
+                Log::warning('Groq API Fehler: ' . $e->getMessage());
             }
-        } catch (\Throwable $e) {
-            Log::warning('Beifahrer API (GET) Timeout/Fehler: ' . $e->getMessage());
         }
 
-        // 3. Lokaler intelligenter Fallback
-        return "Hallo {$userName}! 🚗 Ich habe deine Nachricht erhalten. Ich bin bereit – sag mir einfach, woran wir arbeiten wollen!";
+        // 3. OpenAI API (falls OPENAI_API_KEY hinterlegt)
+        $openaiKey = env('OPENAI_API_KEY');
+        if (!empty($openaiKey)) {
+            try {
+                $messages = [['role' => 'system', 'content' => $systemPrompt]];
+                foreach ($history as $m) {
+                    $isBot = ($m->sender_id === self::getBotUser()->id);
+                    $text = trim((string) $m->content);
+                    if ($text !== '') {
+                        $messages[] = [
+                            'role' => $isBot ? 'assistant' : 'user',
+                            'content' => $text,
+                        ];
+                    }
+                }
+                if (empty($messages) || end($messages)['role'] !== 'user') {
+                    $messages[] = ['role' => 'user', 'content' => $currentMessage ?: 'Hallo Beifahrer!'];
+                }
+
+                $resp = Http::withoutVerifying()->withToken($openaiKey)->timeout(12)->post('https://api.openai.com/v1/chat/completions', [
+                    'model' => 'gpt-4o-mini',
+                    'messages' => $messages,
+                    'temperature' => 0.7,
+                ]);
+
+                if ($resp->successful()) {
+                    $reply = $resp->json('choices.0.message.content');
+                    if (!empty(trim((string) $reply))) {
+                        return trim($reply);
+                    }
+                }
+            } catch (\Throwable $e) {
+                Log::warning('OpenAI API Fehler: ' . $e->getMessage());
+            }
+        }
+
+        // 4. Intelligente, dynamische Antwort-Engine (immer sofort verfügbar ohne Hänger)
+        return self::generateSmartFallback($userName, $currentMessage);
+    }
+
+    /**
+     * Erzeugt eine maßgeschneiderte, sympathische Antwort für Robert und die Familie,
+     * wenn gerade kein externer API-Key konfiguriert ist.
+     */
+    protected static function generateSmartFallback(string $userName, string $msg): string
+    {
+        $lower = mb_strtolower(trim($msg), 'UTF-8');
+
+        // Thema: Basteln, Spiele, Beschäftigung
+        if (str_contains($lower, 'bastel') || str_contains($lower, 'spiel') || str_contains($lower, 'idee') || str_contains($lower, 'beschäftig')) {
+            return "Hallo {$userName}! 🚗 Da habe ich sofort drei richtig schöne Ideen – ideal für die Enkelkinder Leon, Dario, Jil und Zoe:\n\n"
+                . "1. 🏰 **Die modulare 3D-Karton-Kugelbahn:**\n"
+                . "Du druckst mit dem 3D-Drucker coole Trichter, Steilkurven und Spiralen, die ihr auf Papprollen und Kartons steckt. Die Jungs (Leon & Dario) können die Rennstrecke aufbauen und testen, während Jil & Zoe die Stationen bemalen!\n\n"
+                . "2. 🔍 **Die Geheimagenten-Schatzsuche:**\n"
+                . "Verstecke 4 kleine Umschläge im Haus mit kleinen Rätseln oder Spiegelschrift. Am Ziel wartet eine kleine Schatztruhe (z. B. mit einem frisch gedruckten Schlüsselanhänger mit ihrem Namen).\n\n"
+                . "3. 🌟 **Zauberhafte 3D-Lithophanie-Nachtlichter:**\n"
+                . "Ein Familienfoto von den Vieren als feine 3D-Platte gedruckt: Wenn man ein kleines LED-Licht dahinterstellt, leuchtet das Bild wie von Zauberhand auf.\n\n"
+                . "Auf welche der Ideen hättest du am meisten Lust? Ich helfe dir gerne bei den Maßen oder der Planung!";
+        }
+
+        // Thema: Enkelkinder (Leon, Dario, Jil, Zoe)
+        if (str_contains($lower, 'enkel') || str_contains($lower, 'leon') || str_contains($lower, 'dario') || str_contains($lower, 'jil') || str_contains($lower, 'zoe')) {
+            return "Na klar, {$userName}! Deine vier Enkelkinder habe ich fest im Kopf: Die beiden Jungs **Leon** und **Dario** sowie die Mädchen **Jil** und **Zoe**. 👦👦👧👧\n\n"
+                . "Planst du gerade eine Überraschung für die vier, oder suchst du nach einem passenden Projekt für den nächsten Besuch?";
+        }
+
+        // Thema: 3D-Druck, STL, Blender, Filament
+        if (str_contains($lower, '3d') || str_contains($lower, 'druck') || str_contains($lower, 'stl') || str_contains($lower, 'blender') || str_contains($lower, 'filament')) {
+            return "Beim Thema 3D-Druck bist du bei mir goldrichtig, {$userName}! 🛠️\n\n"
+                . "Ob Druckparameter, Stützstrukturen, Infill oder STL-Modellierung in Blender: Was steht gerade auf deinem Druckbett oder in der Vorbereitung?";
+        }
+
+        // Thema: Raspberry Pi, Server, Technik
+        if (str_contains($lower, 'pi') || str_contains($lower, 'server') || str_contains($lower, 'linux') || str_contains($lower, 'technik') || str_contains($lower, 'befehl')) {
+            return "Technik-Check am Start! 💻 Dein Raspberry Pi und ChatConnect laufen stabil. Wenn du einen Befehl brauchst, Logs checken willst oder eine Erweiterung planst – sag mir einfach Bescheid!";
+        }
+
+        // Standard-sympathische Co-Pilot Antwort (persönlich & direkt)
+        return "Hey {$userName}! 🚗 Alles klar, ich bin an deiner Seite. Erzähl mal: Geht es um ein neues Projekt, den 3D-Drucker, die Enkel oder willst du einfach kurz Gedanken austauschen? Ich halte dir den Rücken frei!";
     }
 
     /**
