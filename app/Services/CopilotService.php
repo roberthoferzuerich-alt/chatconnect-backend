@@ -196,7 +196,7 @@ class CopilotService
                     . "- Keine steifen Floskeln, kein Beamtendeutsch.\n"
                     . "- Robert baut ChatConnect für sich, seine Familie und seine vier Enkelkinder: "
                     . "Leon (Gaming/Minecraft mit Packages/Roblox), Dario (14 J., Gaming/Java/JS Coder), Jil & Zoe (Basteln & Zeichnen).\n"
-                    . "- Du kennst dich hervorragend mit Technik, 3D-Druck (STL/Blender), Raspberry Pi und Familie aus.\n"
+                    . "- Du kennst dich hervorragend mit Technik, 3D-Druck (STL/Blender/OpenSCAD), Raspberry Pi und Familie aus.\n- Wenn Robert ein 3D-Modell in OpenSCAD wünscht, schreibe VOLLSTÄNDIGEN, fehlerfreien, parametrischen OpenSCAD-Code in sauberen Markdown-Blöcken (```openscad). Deklariere anpassbare Maße (Höhe, Breite, Wandstärke etc.) oben als Variablen für den Customizer.\n"
                     . "- Halte deine Antworten pragmatisch und auf den Punkt.",
             ]);
         }
@@ -518,6 +518,40 @@ class CopilotService
                 . "💻 **Für Dario (14):** Eine kleine Java/JavaScript-Programmier-Challenge (z. B. ein eigenes Würfel- oder Ratespiel coden).\n\n"
                 . "🎨 **Für Jil & Zoe:** 3D-gedruckte Zeichensicherheits-Schablonen, Ausstechformen oder ein gemeinsames Bastelprojekt mit Karton & Farben!\n\n"
                 . "Möchtest du zu einem der Bereiche konkrete Maße oder Ideen ausarbeiten?";
+        }
+
+        if (str_contains($lower, 'openscad') || str_contains($lower, 'scad') || (str_contains($lower, '3d') && (str_contains($lower, 'code') || str_contains($lower, 'skript') || str_contains($lower, 'modellier')))) {
+            return "Klar Robert! OpenSCAD ist absolute Spitzenklasse für parametrische 3D-Modelle! 🛠️🧊\n\n"
+                . "Sag mir einfach, welches Bauteil oder Projekt du konstruieren möchtest (z.B. ein Gehäuse, einen personalisierten Schlüsselanhänger für die Enkel, eine Kugelbahn-Kurve oder Halterungen), und ich schreibe dir den kompletten, sauberen OpenSCAD-Code inklusive variabler Maße.\n\n"
+                . "Hier ist ein funktionierendes Beispiel für einen parametrischen Schlüsselanhänger:\n\n"
+                . "```openscad\n"
+                . "// Parametrischer Schlüsselanhänger für OpenSCAD\n"
+                . "name = \"Leon\";       // Text auf dem Anhänger\n"
+                . "text_height = 2.5;    // Erhabener Text in mm\n"
+                . "base_thick = 3.0;     // Dicke der Grundplatte in mm\n"
+                . "hole_radius = 2.5;    // Loch für Schlüsselring\n"
+                . "\$fn = 60;             // Hohe Rundungs-Auflösung\n\n"
+                . "module anhaenger() {\n"
+                . "    difference() {\n"
+                . "        // Abgerundete Grundplatte\n"
+                . "        linear_extrude(height = base_thick)\n"
+                . "            hull() {\n"
+                . "                translate([0, 0, 0]) circle(r = 11);\n"
+                . "                translate([50, 0, 0]) circle(r = 11);\n"
+                . "            }\n"
+                . "        // Loch für den Ring\n"
+                . "        translate([-3, 0, -1])\n"
+                . "            cylinder(h = base_thick + 2, r = hole_radius);\n"
+                . "    }\n"
+                . "    // Erhabener 3D-Schriftzug\n"
+                . "    translate([8, -4.5, base_thick])\n"
+                . "        linear_extrude(height = text_height)\n"
+                . "            text(name, size = 9, font = \"Liberation Sans:style=Bold\");\n"
+                . "}\n\n"
+                . "anhaenger();\n"
+                . "```\n\n"
+                . "Klicke im Codeblock oben rechts einfach auf **📋 Kopieren**, füge ihn in OpenSCAD ein und drücke **F5** (Vorschau) oder **F6** (Rendern zum STL-Export).\n\n"
+                . "Was schwebt dir vor? Sag mir die Maße oder das Thema, dann baue ich dir das Skript sofort!";
         }
 
         if (str_contains($lower, '3d') || str_contains($lower, 'druck') || str_contains($lower, 'stl') || str_contains($lower, 'blender') || str_contains($lower, 'filament')) {
