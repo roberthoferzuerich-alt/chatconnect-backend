@@ -59,5 +59,11 @@ require __DIR__.'/auth.php';
 Route::redirect('/web', '/chats');
 Route::view('/privacy', 'privacy')->name('privacy');
 Route::view('/download', 'download')->name('download');
-Route::view('/guide', 'guide')->name('guide');
+Route::get('/guide', function () {
+    return view('guide', ['view' => request('view', 'compact')]);
+})->name('guide');
+
+Route::get('/guide/full', function () {
+    return view('guide', ['view' => 'full']);
+})->name('guide.full');
 
