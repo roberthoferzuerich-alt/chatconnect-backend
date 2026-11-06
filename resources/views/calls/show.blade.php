@@ -54,16 +54,56 @@
     <p id="connecting-status" class="text-teal-400 text-sm animate-pulse mb-8">
         Anruf-Signal wird vorbereitet...
     </p>
-    <a href="{{ route('calls.index') }}" class="px-6 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-full font-medium transition shadow-lg flex items-center space-x-2 text-sm">
+    <button type="button" onclick="hangupAndExit()" class="px-6 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-full font-medium transition shadow-lg flex items-center space-x-2 text-sm cursor-pointer">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
         <span>Auflegen</span>
-    </a>
+    </button>
 </div>
 
 <!-- Zego Root Container -->
 <div id="root"></div>
 
 <script>
+    const CALL_ID = {{ $call->id }};
+    const IS_CALLER = {{ ($call->caller_id === $user->id) ? 'true' : 'false' }};
+    const CSRF_TOKEN = @json(csrf_token());
+    const STATUS_CHECK_URL = @json(route('calls.status', ['call' => $call->id]));
+    const STATUS_UPDATE_URL = @json(route('calls.updateStatus', ['call' => $call->id]));
+    const CALLS_INDEX_URL = @json(route('calls.index'));
+
+    let hasJoinedDirectRoom = false;
+    let statusPollTimer = null;
+
+    async function updateCallStatusServer(newStatus) {
+        try {
+            await fetch(STATUS_UPDATE_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': CSRF_TOKEN,
+                    'Accept': 'application/json',
+                },
+                keepalive: true,
+                body: JSON.stringify({ status: newStatus }),
+            });
+        } catch (e) {
+            // ignore network errors on exit
+        }
+    }
+
+    window.hangupAndExit = async function() {
+        if (statusPollTimer) clearInterval(statusPollTimer);
+        await updateCallStatusServer(hasJoinedDirectRoom ? 'completed' : 'ended');
+        window.location.href = CALLS_INDEX_URL;
+    };
+
+    window.addEventListener('beforeunload', () => {
+        if (IS_CALLER && !hasJoinedDirectRoom) {
+            const blob = new Blob([JSON.stringify({ status: 'ended', _token: CSRF_TOKEN })], { type: 'application/json' });
+            navigator.sendBeacon?.(STATUS_UPDATE_URL, blob);
+        }
+    });
+
     // Live Logger auf den Bildschirm (nur bei Fehlern sichtbar)
     function logToScreen(type, ...args) {
         if (type === 'error') {
@@ -118,7 +158,7 @@
             // Raum-ID für beide Gesprächspartner
             const roomID = "call_" + Math.min({{ $user->id }}, {{ $partner->id }}) + "_" + Math.max({{ $user->id }}, {{ $partner->id }});
 
-            console.log(`Erzeuge Token: appID=${appID}, userID=${userID}, targetID=${partnerID}, room=${roomID}`);
+            console.log(`Erzeuge Token: appID=${appID}, userID=${userID}, targetID=${partnerID}, room=${roomID}, isCaller=${IS_CALLER}`);
 
             const kitToken = ZegoUIKitPrebuilt.generateKitTokenForTest(
                 appID,
@@ -128,9 +168,43 @@
                 userName
             );
 
-            console.log("Token erfolgreich generiert. Erstelle ZegoUIKitPrebuilt Instanz...");
             const zp = ZegoUIKitPrebuilt.create(kitToken);
 
+            function enterDirectRoom() {
+                if (hasJoinedDirectRoom) return;
+                hasJoinedDirectRoom = true;
+                console.log("Betrete gemeinsamen Anrufraum:", roomID);
+
+                zp.joinRoom({
+                    container: document.querySelector("#root"),
+                    scenario: { mode: ZegoUIKitPrebuilt.OneONoneCall },
+                    showPreJoinView: false,
+                    turnOnCameraWhenJoining: isVideo,
+                    turnOnMicrophoneWhenJoining: true,
+                    showMyCameraToggleButton: true,
+                    showMyMicrophoneToggleButton: true,
+                    showAudioVideoSettingsButton: true,
+                    showScreenSharingButton: true,
+                    showTextChat: false,
+                    showUserList: false,
+                    onJoinRoom: () => {
+                        if (connectingCard) connectingCard.style.display = 'none';
+                    },
+                    onLeaveRoom: () => {
+                        hangupAndExit();
+                    },
+                });
+            }
+
+            // FALL 1: Aktueller Nutzer ist der ANGERUFENE (hat den Anruf angenommen)
+            if (!IS_CALLER) {
+                if (statusEl) statusEl.innerText = "Verbinde mit " + partnerName + "...";
+                updateCallStatusServer('answered');
+                enterDirectRoom();
+                return;
+            }
+
+            // FALL 2: Aktueller Nutzer ist der ANRUFER
             if (ZIM) {
                 try {
                     zp.addPlugins({ ZIM });
@@ -138,15 +212,17 @@
                 } catch (e) {
                     console.warn("ZIM Plugin Warning:", e.message || e);
                 }
-            } else {
-                console.error("WARNUNG: ZIM ist nicht vorhanden! Call Invitation benötigt ZIM.");
             }
 
-            if (statusEl) statusEl.innerText = "Sende Anruf an " + partnerName + " (ID: " + partnerID + ")...";
+            if (statusEl) statusEl.innerText = "Klingelt bei " + partnerName + "...";
 
-            // Konfiguration für den Raum
+            // Konfiguration für ZIM Call Invitation (falls Empfänger in der Flutter-App annimmt)
             zp.setCallInvitationConfig({
+                ringtoneConfig: {
+                    outgoingCallUrl: '',
+                },
                 onSetRoomConfigBeforeJoining: (callType) => {
+                    hasJoinedDirectRoom = true;
                     return {
                         container: document.querySelector("#root"),
                         turnOnCameraWhenJoining: isVideo,
@@ -159,9 +235,10 @@
                         showUserList: false,
                         onJoinRoom: () => {
                             if (connectingCard) connectingCard.style.display = 'none';
+                            updateCallStatusServer('answered');
                         },
                         onLeaveRoom: () => {
-                            window.location.href = "{{ route('calls.index') }}";
+                            hangupAndExit();
                         },
                     };
                 },
@@ -169,70 +246,94 @@
                     console.log("Warte auf Antwort von " + partnerName + "...");
                     if (statusEl) statusEl.innerText = "Es läutet bei " + partnerName + "...";
                 },
+                onCallInvitationEnded: (reason) => {
+                    console.log("ZIM Call Invitation beendet:", reason);
+                    if (reason === 'Declined') {
+                        if (statusEl) statusEl.innerText = partnerName + " hat den Anruf abgelehnt.";
+                        setTimeout(() => { window.location.href = CALLS_INDEX_URL; }, 1800);
+                    }
+                }
             });
 
-            console.log("Starte Anruf-Einladung via ZIM an Benutzer-ID:", partnerID);
+            // Polle den Backend-Call-Status, damit Web-/PWA-Annahme oder Ablehnung sofort erkannt wird
+            statusPollTimer = setInterval(async () => {
+                try {
+                    const r = await fetch(STATUS_CHECK_URL, { headers: { 'Accept': 'application/json' } });
+                    if (!r.ok) return;
+                    const data = await r.json();
+                    if (data.status === 'answered' && !hasJoinedDirectRoom) {
+                        console.log("Empfänger hat den Anruf angenommen! Betrete Raum:", roomID);
+                        enterDirectRoom();
+                    } else if (data.status === 'declined') {
+                        clearInterval(statusPollTimer);
+                        if (statusEl) {
+                            statusEl.innerText = partnerName + " ist gerade beschäftigt / hat abgelehnt.";
+                            statusEl.classList.remove('text-teal-400');
+                            statusEl.classList.add('text-red-400');
+                        }
+                        setTimeout(() => { window.location.href = CALLS_INDEX_URL; }, 2000);
+                    } else if (data.status === 'missed' || data.status === 'ended' || data.status === 'completed') {
+                        clearInterval(statusPollTimer);
+                        if (!hasJoinedDirectRoom) {
+                            if (statusEl) statusEl.innerText = partnerName + " ist derzeit nicht erreichbar.";
+                            setTimeout(() => { window.location.href = CALLS_INDEX_URL; }, 2000);
+                        }
+                    }
+                } catch (e) {}
+            }, 1500);
 
-            // Anruf-Einladung senden mit Retry-Schleife bis ZIM eingeloggt ist
-            async function sendInvitationWithRetry(maxRetries = 10, delay = 1000) {
+            // Anruf-Einladung via ZIM senden (für Mobile-App) + Fallback auf direkten Raum (für Web & Standby-Push)
+            async function sendInvitationWithRetry(maxRetries = 6, delay = 900) {
                 for (let i = 0; i < maxRetries; i++) {
+                    if (hasJoinedDirectRoom) return;
                     try {
-                        console.log(`[Versuch ${i + 1}/${maxRetries}] Sende Einladung an ${partnerName} (ID: ${partnerID})...`);
-                        if (statusEl) statusEl.innerText = `Verbinde mit ZIM-Signalisierung (Versuch ${i + 1})...`;
-
                         const res = await zp.sendCallInvitation({
                             callees: [{ userID: partnerID, userName: partnerName }],
                             callType: isVideo ? ZegoUIKitPrebuilt.InvitationTypeVideoCall : ZegoUIKitPrebuilt.InvitationTypeVoiceCall,
                             timeout: 60,
-                            data: JSON.stringify({ resourceID: 'zego_data' }),
+                            data: JSON.stringify({
+                                resourceID: 'zego_data',
+                                call_id: CALL_ID,
+                                room_id: roomID,
+                            }),
+                            notificationConfig: {
+                                resourcesID: 'zego_data',
+                                title: isVideo ? ('Videoanruf von ' + userName) : ('Sprachanruf von ' + userName),
+                                message: userName + ' ruft dich auf ChatConnect an...',
+                            },
                         });
 
-                        console.log("Call Invitation erfolgreich gesendet:", res);
+                        console.log("Call Invitation gesendet:", res);
 
                         if (res && res.errorInvitees && res.errorInvitees.length > 0) {
-                            console.warn("Zego meldet: Empfänger ist offline oder nicht registriert:", res.errorInvitees);
-                            if (statusEl) statusEl.innerText = `${partnerName} (ID: ${partnerID}) ist laut Zego OFFLINE! Öffne Anrufraum...`;
-                            // Raum trotzdem öffnen falls Tablet beitritt
+                            console.log("Empfänger nicht direkt in ZIM aktiv – öffne Raum & warte auf Push-/Web-Annahme...");
+                            if (statusEl) statusEl.innerText = "Es klingelt bei " + partnerName + " (Push-Benachrichtigung gesendet)...";
                             setTimeout(() => {
-                                zp.joinRoom({
-                                    container: document.querySelector("#root"),
-                                    scenario: { mode: ZegoUIKitPrebuilt.OneONoneCall },
-                                    showPreJoinView: false,
-                                    turnOnCameraWhenJoining: isVideo,
-                                    turnOnMicrophoneWhenJoining: true,
-                                    onJoinRoom: () => {
-                                        if (connectingCard) connectingCard.style.display = 'none';
-                                    },
-                                    onLeaveRoom: () => {
-                                        window.location.href = "{{ route('calls.index') }}";
-                                    },
-                                });
-                            }, 2000);
+                                enterDirectRoom();
+                            }, 1200);
                         } else {
-                            console.log("Einladung erfolgreich verschickt! Klingeln läuft auf Tablet...");
                             if (statusEl) statusEl.innerText = "Es läutet bei " + partnerName + "...";
                         }
                         return res;
                     } catch (err) {
                         const errCode = err.code || (err.data && err.data.code);
                         const errMsg = err.message || JSON.stringify(err);
-                        console.warn(`Versuch ${i + 1} noch nicht bereit (${errCode || errMsg})`);
-
                         if (errCode === 6000121 || errMsg.includes('not logged in')) {
-                            console.log("ZIM Login noch im Gange. Warte 1s...");
-                            if (statusEl) statusEl.innerText = "Warte auf ZIM-Anmeldung...";
                             await new Promise(r => setTimeout(r, delay));
                         } else {
-                            throw err;
+                            console.warn("ZIM Hinweis, nutze direkten Anrufraum:", errMsg);
+                            enterDirectRoom();
+                            return;
                         }
                     }
                 }
-                throw new Error("ZIM Login Timeout nach 10 Sekunden");
+                // Falls ZIM nach den Retries nicht verbunden ist, trotzdem Raum öffnen, da Backend-Polling + FCM aktiv sind
+                enterDirectRoom();
             }
 
             sendInvitationWithRetry().catch((err) => {
-                console.error("sendCallInvitation endgültiger Fehler:", err);
-                if (statusEl) statusEl.innerText = "Fehler beim Anrufen: " + (err.message || err);
+                console.warn("Nutze direkten Raum-Modus:", err);
+                enterDirectRoom();
             });
 
         } catch (err) {

@@ -79,8 +79,10 @@
             const appID = 869972860;
             const serverSecret = "4c9bef099444746e0067c66ba963f76c";
             const roomID = @json($room);
-            const userID = String({{ $user->id }});
-            const userName = @json($user->name);
+            const loggedInId = @json($user ? (string) $user->id : null);
+            const loggedInName = @json($user ? $user->name : null);
+            const userID = loggedInId || ('guest_' + Math.floor(100000 + Math.random() * 900000));
+            const userName = loggedInName || ('Gast-' + userID.slice(-4));
             const isVideo = "{{ $type }}" === 'video';
 
             const kitToken = ZegoUIKitPrebuilt.generateKitTokenForTest(

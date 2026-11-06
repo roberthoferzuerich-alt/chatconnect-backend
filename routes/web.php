@@ -41,7 +41,9 @@ Route::middleware('auth')->group(function () {
     // Calls
     Route::get('/calls', [CallController::class, 'index'])->name('calls.index');
     Route::post('/calls', [CallController::class, 'store'])->name('calls.store');
-    Route::get('/calls/room/{room}', [CallController::class, 'room'])->name('calls.room');
+    Route::get('/calls/incoming-check', [CallController::class, 'incoming'])->name('calls.incoming');
+    Route::get('/calls/{call}/status', [CallController::class, 'status'])->name('calls.status');
+    Route::post('/calls/{call}/status', [CallController::class, 'updateStatus'])->name('calls.updateStatus');
     Route::get('/calls/{call}', [CallController::class, 'show'])->name('calls.show');
 
     // Status
@@ -55,6 +57,9 @@ Route::middleware('auth')->group(function () {
 });
 
 require __DIR__.'/auth.php';
+
+// Öffentlicher Anruflink-Raum (funktioniert auch für Gäste ohne Login)
+Route::get('/calls/room/{room}', [CallController::class, 'room'])->name('calls.room');
 
 Route::redirect('/web', '/chats');
 Route::view('/privacy', 'privacy')->name('privacy');
