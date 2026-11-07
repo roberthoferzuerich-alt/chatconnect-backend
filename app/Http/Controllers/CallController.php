@@ -3,14 +3,125 @@
 namespace App\Http\Controllers;
 
 use App\Models\Call;
+use App\Models\Conversation;
+use App\Models\Message;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 
 class CallController extends Controller
 {
+    /**
+     * Sucht alle unbeantworteten Anrufe (> 65 Sek.), setzt sie auf 'missed'
+     * und legt automatisch eine "Verpasster Anruf"-Nachricht im Chatverlauf an.
+     */
+    public static function expireStaleOngoingCalls(): void
+    {
+        $staleCalls = Call::where('status', 'ongoing')
+            ->where('created_at', '<', now()->subSeconds(65))
+            ->get();
+
+        foreach ($staleCalls as $staleCall) {
+            $staleCall->update([
+                'status' => 'missed',
+                'ended_at' => now(),
+            ]);
+            self::sendMissedCallChatMessage($staleCall, 'missed');
+        }
+    }
+
+    /**
+     * Erstellt einmalig eine "📞 Verpasster Anruf"-Nachricht im 1-zu-1 Chatverlauf
+     * zwischen Anrufer und Empfänger, damit der Empfänger den Anruf sofort im Chat sieht.
+     */
+    public static function sendMissedCallChatMessage(Call $call, string $reason = 'missed'): void
+    {
+        $cacheKey = 'cc_missed_call_notified_' . $call->id;
+        if (!Cache::add($cacheKey, true, now()->addHours(24))) {
+            return;
+        }
+
+        try {
+            $caller = User::find($call->caller_id);
+            $receiver = User::find($call->receiver_id);
+            if (!$caller || !$receiver || (int) $caller->id === (int) $receiver->id) {
+                return;
+            }
+
+            // Finde oder erstelle den 1-zu-1 Chat zwischen Anrufer und Angerufenem
+            $conversation = $caller->conversations()
+                ->where('is_group', false)
+                ->whereHas('users', function ($q) use ($receiver) {
+                    $q->where('users.id', $receiver->id);
+                })
+                ->first();
+
+            if (!$conversation) {
+                $conversation = Conversation::create(['is_group' => false]);
+                $conversation->users()->attach([$caller->id, $receiver->id]);
+            }
+
+            $callTime = ($call->started_at ?: $call->created_at ?: now())->format('H:i');
+            $isVideo = $call->type === 'video';
+            $icon = $isVideo ? '📹' : '📞';
+            $typeLabel = $isVideo ? 'Videoanruf' : 'Sprachanruf';
+
+            if ($reason === 'declined') {
+                $content = "{$icon} **Verpasster {$typeLabel}** *(abgelehnt um {$callTime} Uhr)* — [📞 Jetzt zurückrufen](/calls)";
+            } else {
+                $content = "{$icon} **Verpasster {$typeLabel}** von **{$caller->name}** *(um {$callTime} Uhr)* — [📞 Jetzt zurückrufen](/calls)";
+            }
+
+            $message = $conversation->messages()->create([
+                'sender_id' => $caller->id,
+                'content' => $content,
+            ]);
+
+            $conversation->update([
+                'last_message_id' => $message->id,
+                'updated_at' => now(),
+            ]);
+
+            try {
+                broadcast(new \App\Events\MessageSent($message))->toOthers();
+            } catch (\Throwable $e) {
+                // ignore broadcast error if reverb is not running
+            }
+
+            if ($receiver->fcm_token) {
+                try {
+                    $messaging = app('firebase.messaging');
+                    $fcmMessage = \Kreait\Firebase\Messaging\CloudMessage::new()
+                        ->withToken($receiver->fcm_token)
+                        ->withNotification(\Kreait\Firebase\Messaging\Notification::create(
+                            "{$icon} Verpasster {$typeLabel}",
+                            "{$caller->name} hat versucht dich anzurufen ({$callTime} Uhr)."
+                        ))
+                        ->withAndroidConfig(\Kreait\Firebase\Messaging\AndroidConfig::fromArray([
+                            'priority' => 'high',
+                            'notification' => [
+                                'channel_id' => 'chat_messages_channel',
+                                'sound' => 'default',
+                            ],
+                        ]))
+                        ->withData([
+                            'conversation_id' => (string) $conversation->id,
+                            'type' => 'missed_call',
+                        ]);
+                    $messaging->send($fcmMessage);
+                } catch (\Throwable $e) {
+                    \Log::warning('Missed call FCM error: ' . $e->getMessage());
+                }
+            }
+        } catch (\Throwable $e) {
+            \Log::warning('sendMissedCallChatMessage error: ' . $e->getMessage());
+        }
+    }
+
     public function index()
     {
+        self::expireStaleOngoingCalls();
         $user = Auth::user();
         $contacts = User::where('id', '!=', $user->id)
             ->where('email', '!=', \App\Services\CopilotService::BOT_EMAIL)
@@ -78,9 +189,13 @@ class CallController extends Controller
         $receiver = User::find($receiverId);
 
         // Beende eventuelle alte hängende ongoing-Calls dieses Anrufers
-        Call::where('caller_id', $caller->id)
+        $oldCallerCalls = Call::where('caller_id', $caller->id)
             ->where('status', 'ongoing')
-            ->update(['status' => 'ended', 'ended_at' => now()]);
+            ->get();
+        foreach ($oldCallerCalls as $oldCall) {
+            $oldCall->update(['status' => 'missed', 'ended_at' => now()]);
+            self::sendMissedCallChatMessage($oldCall, 'missed');
+        }
 
         $call = Call::create([
             'caller_id' => $caller->id,
@@ -158,10 +273,8 @@ class CallController extends Controller
             return response()->json(['incoming' => false]);
         }
 
-        // Alte unbeantwortete Anrufe (> 65 Sekunden) automatisch als verpasst markieren
-        Call::where('status', 'ongoing')
-            ->where('created_at', '<', now()->subSeconds(65))
-            ->update(['status' => 'missed', 'ended_at' => now()]);
+        // Alte unbeantwortete Anrufe (> 65 Sekunden) automatisch als verpasst markieren + Chat-Nachricht senden
+        self::expireStaleOngoingCalls();
 
         $call = Call::with('caller')
             ->where('receiver_id', $userId)
@@ -201,6 +314,7 @@ class CallController extends Controller
 
         if ($call->status === 'ongoing' && $call->created_at < now()->subSeconds(65)) {
             $call->update(['status' => 'missed', 'ended_at' => now()]);
+            self::sendMissedCallChatMessage($call, 'missed');
         }
 
         return response()->json([
@@ -216,9 +330,15 @@ class CallController extends Controller
             abort(403);
         }
 
+        $previousStatus = $call->status;
         $newStatus = $request->input('status', 'ended');
         if (!in_array($newStatus, ['ongoing', 'answered', 'declined', 'missed', 'completed', 'ended'])) {
             $newStatus = 'ended';
+        }
+
+        // Wenn der Anruf noch 'ongoing' (unbeantwortet) war und abgebrochen/beendet wird -> als 'missed' werten
+        if ($previousStatus === 'ongoing' && $newStatus === 'ended') {
+            $newStatus = 'missed';
         }
 
         $updateData = ['status' => $newStatus];
@@ -227,6 +347,10 @@ class CallController extends Controller
         }
 
         $call->update($updateData);
+
+        if ($previousStatus === 'ongoing' && in_array($newStatus, ['missed', 'declined'])) {
+            self::sendMissedCallChatMessage($call, $newStatus);
+        }
 
         return response()->json([
             'status' => 'success',

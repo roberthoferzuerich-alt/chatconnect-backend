@@ -316,7 +316,43 @@
                 </div>
             </section>
 
-            <!-- 6. Große Anleitung Banner -->
+            <!-- 6. Sprach- & Videoanrufe inkl. Fallunterscheidung -->
+            <section class="space-y-3">
+                <h2 class="text-xl font-bold text-gray-900 flex items-center space-x-2">
+                    <span class="w-7 h-7 rounded-lg bg-teal-100 text-teal-700 flex items-center justify-center text-sm font-extrabold">6</span>
+                    <span>Sprach- &amp; Videoanrufe 📞, Rückruf-Nachricht im Chat &amp; Erreichbarkeit</span>
+                </h2>
+                <div class="bg-gray-50 p-4 rounded-xl border border-gray-100 space-y-3">
+                    <p>
+                        Starte Sprach- (<strong>📞</strong>) oder Videoanrufe (<strong>📹</strong>) direkt oben rechts im geöffneten Chat oder über den Bereich <strong>Anrufe</strong> (inkl. <strong>Ziffernblock</strong> und <strong>teilbaren Anruflinks</strong>, denen auch Gäste ohne Login beitreten können).
+                    </p>
+                    <p>
+                        <strong>🔔 Automatische „Verpasster Anruf“-Nachricht im Chatverlauf:</strong> Wird ein Anruf nicht innerhalb von 65 Sekunden angenommen, abgelehnt oder vorzeitig beendet, schreibt ChatConnect automatisch eine Nachricht (z.&nbsp;B. <em>„📞 Verpasster Sprachanruf von … — [📞 Jetzt zurückrufen]“</em>) direkt in euren 1-zu-1-Chatverlauf!
+                    </p>
+                    <div class="grid sm:grid-cols-3 gap-3 pt-1">
+                        <div class="bg-emerald-50 p-3.5 rounded-xl border border-emerald-200 space-y-1.5">
+                            <h3 class="font-bold text-emerald-950 text-xs sm:text-sm">📱 Fall 1: Android-App (Standby / Hintergrund)</h3>
+                            <p class="text-xs text-emerald-900">
+                                Der Server schickt sofort eine <strong>High-Priority FCM Push-Benachrichtigung</strong> an das Smartphone. Dein Anrufraum wartet bis zu 65 Sekunden – tippt der Angerufene auf die Meldung oder öffnet die App, wird er direkt in deinen Raum verbunden.
+                            </p>
+                        </div>
+                        <div class="bg-teal-50 p-3.5 rounded-xl border border-teal-200 space-y-1.5">
+                            <h3 class="font-bold text-teal-950 text-xs sm:text-sm">💻 Fall 2: WebApp im Hintergrund-Tab offen</h3>
+                            <p class="text-xs text-teal-900">
+                                Der globale Hintergrund-Listener erkennt den Anruf auf allen Seiten (Chats, Anrufe, Storys, Profil) nach max. 2,5 Sekunden: Es ertönt ein <strong>Klingelton</strong>, das Gerät vibriert, ein <strong>Vollbild-Anruf-Overlay</strong> (Annehmen / Ablehnen) sowie eine <strong>System-Benachrichtigung</strong> erscheinen.
+                            </p>
+                        </div>
+                        <div class="bg-amber-50 p-3.5 rounded-xl border border-amber-200 space-y-1.5">
+                            <h3 class="font-bold text-amber-950 text-xs sm:text-sm">📴 Fall 3: Browser komplett geschlossen</h3>
+                            <p class="text-xs text-amber-900">
+                                Öffnet der Angerufene innerhalb von 65 Sek. die WebApp, klingelt es noch live. Andernfalls wird der Anruf als <strong>verpasst (`missed`)</strong> markiert und automatisch als <strong>Rückruf-Nachricht im Chatverlauf</strong> sowie in der Anrufliste hinterlegt.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 7. Große Anleitung Banner -->
             <div class="p-5 bg-gradient-to-r from-teal-50 to-emerald-50 border border-teal-200 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4">
                 <div class="flex items-center space-x-3">
                     <span class="text-3xl">📚</span>

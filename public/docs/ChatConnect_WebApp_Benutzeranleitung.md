@@ -1,6 +1,6 @@
 # 🌐 ChatConnect WebApp & App – Offizielle Benutzeranleitung
 
-**Stand:** 26. Oktober 2026 (Pro-Suite-Ausgabe inkl. 📌 Nachrichten anpinnen, 📊 Interaktive Live-Umfragen, ↪️ Weiterleiten, 🗂️ 3-Tab Medien-/Dokumenten-/3D-STL-Galerie, 😊 Emoji-Reaktionen, ↩️ Zitieren, ✏️ Bearbeiten, ⭐ Stern-Favoriten, 🔍 Chat-Suche, 📦 ZIP/Minecraft-JAR-Inspektor, 🖼️ Lightbox mit Zoom, 🔒 App-Sperre PIN, Offline-Modus & Warteschlange, KI-Bildgenerator & Studio, Markdown-Viewer & 3D-STLViewer PRO)  
+**Stand:** 7. November 2026 (Pro-Suite-Ausgabe inkl. 📞 Globales Anruf-Overlay, FCM-Anruf-Push & Automatischer Chat-Rückruf-Nachricht, 📌 Nachrichten anpinnen, 📊 Interaktive Live-Umfragen, ↪️ Weiterleiten, 🗂️ 3-Tab Medien-/Dokumenten-/3D-STL-Galerie, 😊 Emoji-Reaktionen, ↩️ Zitieren, ✏️ Bearbeiten, ⭐ Stern-Favoriten, 🔍 Chat-Suche, 📦 ZIP/Minecraft-JAR-Inspektor, 🖼️ Lightbox mit Zoom, 🔒 App-Sperre PIN, Offline-Modus & Warteschlange, KI-Bildgenerator & Studio, Markdown-Viewer & 3D-STLViewer PRO)  
 **Web-Adresse (URL):** `https://rhz.internet-box.ch:8443`  
 **Unterstützte Geräte:** Smartphone (iPhone / Android / Samsung Galaxy Z Flip), Tablet (iPad / Android), Laptop & Desktop-PC (Windows, macOS, Linux)
 
@@ -16,7 +16,7 @@
 6. [✨ 3D-STL Generator: 3D-Modelle per Beschreibung erstellen](#6--3d-stl-generator-3d-modelle-per-beschreibung-erstellen)
 7. [🎨 KI-Bildgenerator & Studio: Bilder erschaffen, zuschneiden & auf Web-Grösse skalieren](#7--ki-bildgenerator--studio-bilder-erschaffen-zuschneiden--auf-web-grösse-skalieren)
 8. [🔠 Chat-Schriftgröße & Design-Hintergründe (`⋮`)](#8--chat-schriftgröße--design-hintergründe-)
-9. [📞 Sprach- & Videoanrufe](#9--sprach--videoanrufe)
+9. [📞 Sprach- & Videoanrufe (inkl. Anruflinks, Chat-Rückruf & Erreichbarkeits-Fälle)](#9--sprach--videoanrufe-inkl-anruflinks-chat-rückruf--erreichbarkeits-fälle)
 10. [⭕ Status / Storys teilen](#10--status--storys-teilen)
 11. [👤 Eigenes Profil & Passwort verwalten](#11--eigenes-profil--passwort-verwalten)
 12. [📡 Offline-Modus & Automatische Warteschlange (Unterwegs ohne Internet / WLAN)](#12--offline-modus--automatische-warteschlange-unterwegs-ohne-internet--wlan)
@@ -373,17 +373,41 @@ Ist dir die Schrift im Chat auf dem Handy zu klein oder zu groß?
 
 ---
 
-## 9. 📞 Sprach- & Videoanrufe
+## 9. 📞 Sprach- & Videoanrufe (inkl. Anruflinks, Chat-Rückruf & Erreichbarkeits-Fälle)
 
-Über das **Telefon-Symbol (`📞`)** in der Navigationsleiste (oder direkt über die Anruf-Symbole oben rechts in einem geöffneten Chat) erreichst du die Anruffunktionen:
+Über das **Telefon-Symbol (`📞`)** in der Navigationsleiste (oder direkt über die Anruf-Symbole oben rechts in einem geöffneten Chat) erreichst du die Sprach- und Video-Telefonie von ChatConnect:
 
+### 9.1 Möglichkeiten, einen Anruf zu starten
 1. **Direktanruf aus dem Chat:**
-   - Öffne den gewünschten Chat und tippe oben rechts auf das **Hörer-Symbol (`📞`)** für einen Audioanruf oder das **Kamera-Symbol (`📹`)** für einen Videoanruf.
+   - Öffne den gewünschten Chat und tippe oben rechts auf das **Hörer-Symbol (`📞`)** für einen Sprachanruf oder das **Kamera-Symbol (`📹`)** für einen Videoanruf.
 2. **Anrufe-Bereich (`📞`):**
-   - **Neuer Anruf:** Starte einen Sprach- oder Videoanruf direkt aus deiner Kontaktliste.
-   - **Anruflink erstellen:** Erzeuge einen teilbaren Link für ein gemeinsames Gespräch.
-   - **Ziffernblock (Wählfeld):** Wähle eine Nummer oder ID direkt an.
-   - **Anrufverlauf:** Sieh auf einen Blick alle eingehenden, ausgehenden und verpassten Anrufe.
+   - **Anruf starten:** Wähle einen Kontakt aus der Liste und starte per Klick ein Audio- oder Videogespräch.
+   - **Neuer Anruflink (`cc-...`):** Erzeuge einen teilbaren Einladungs-Link für Video- oder Sprachanrufe. **Besonderheit:** Jeder mit diesem Link kann dem Raum im Browser beitreten – **auch Gäste ohne eigenes ChatConnect-Login** (automatische Gast-Kennung).
+   - **Nummer wählen (Ziffernblock):** Tippe eine Rufnummer über das Wählfeld ein; ChatConnect schlägt sofort den passenden registrierten Kontakt vor.
+   - **Anrufverlauf („Letzte“):** Zeigt alle ausgehenden (`↗`), angenommenen (`↙` grün) und verpassten (`↙` rot) Anrufe mit Schnellwahl-Button zum direkten Wiederholen.
+
+---
+
+### 9.2 🔔 Globales Eingehender-Anruf-Overlay & Automatische Chat-Benachrichtigung
+- **Klingeln auf allen Seiten:** Egal ob du dich gerade in den **Chats**, in der **Anrufübersicht**, bei den **Storys**, in den **Communities** oder im **Profil** befindest – im Hintergrund läuft durchgehend der globale Anruf-Listener (Zego ZIM + Echtzeit-Serverprüfung).
+- **Vollbild-Anruf-Popup:** Bei einem eingehenden Anruf erscheint sofort ein übersichtliches Anruf-Overlay mit Profilbild, Name, **Klingelton (Web Audio)**, **Vibration** und den Buttons **„Annehmen“ (Grün)** sowie **„Ablehnen“ (Rot)**.
+- **Automatische „📞 Verpasster Anruf“-Nachricht direkt im Chatverlauf:**
+  Wird ein Anruf nicht angenommen, abgelehnt oder vom Anrufer vorzeitig beendet, erzeugt ChatConnect **vollautomatisch eine Nachricht im gemeinsamen 1-zu-1-Chatverlauf**:
+  > 📞 **Verpasster Sprachanruf** von **Max** *(um 19:52 Uhr)* — **[📞 Jetzt zurückrufen](/calls)**  
+  *(bzw. `📹 Verpasster Videoanruf ...`)*
+  - Dadurch erscheint der verpasste Anruf sofort mit ungelesenem Zähler ganz oben in deiner Chatliste, und du kannst mit einem einzigen Klick zurückrufen!
+
+---
+
+### 9.3 📋 Fallunterscheidung: Was passiert, wenn der Angerufene gerade nicht aktiv in der WebApp ist?
+
+Je nachdem, wie der Angerufene ChatConnect nutzt, läuft beim Anrufen folgender Prozess ab:
+
+| Szenario | Was passiert technisch & beim Empfänger? | Was sieht der Anrufer & was passiert nach 65 Sek.? |
+| :--- | :--- | :--- |
+| **📱 Fall 1: Der Angerufene hat die Android-App installiert** *(Display aus / Standby / App im Hintergrund)* | 1. **Sofortiger Weckruf per Firebase Push (FCM):** Der Server schickt sofort eine High-Priority Push-Benachrichtigung (*„📞 Eingehender Sprach-/Videoanruf von …“*) an das Smartphone.<br>2. Tippt der Angerufene innerhalb von 65 Sekunden auf die Push-Meldung oder öffnet die App/WebApp, sieht er sofort das Anruf-Overlay und wird bei Klick auf **„Annehmen“** direkt in den wartenden Raum (`call_{id1}_{id2}`) verbunden. | Dein Anrufraum öffnet sich sofort mit dem Hinweis *„Es klingelt bei [Name] (Push-Benachrichtigung gesendet)...“* und wartet bis zu **65 Sekunden** auf den Beitritt. |
+| **💻 Fall 2: Der Angerufene hat die WebApp in einem Hintergrund-Tab offen** *(schaut aber gerade in ein anderes Programm / anderen Tab)* | 1. Der Hintergrund-Listener erkennt den Anruf spätestens nach **2,5 Sekunden**.<br>2. Es ertönt der **Klingelton**, das Gerät vibriert (falls unterstützt), und Windows / macOS / Android blendet eine **System-Browser-Benachrichtigung** ein (*„📞 Sprachanruf von … – Tippe hier, um den Anruf anzunehmen“*).<br>3. Ein Klick auf die Benachrichtigung oder auf **„Annehmen“** verbindet beide Gesprächspartner sofort. | Bei Annahme verbindet sich das Gespräch nahtlos; lehnt der Angerufene über **„Ablehnen“** ab, erhältst du sofort die Rückmeldung *„[Name] ist gerade beschäftigt / hat abgelehnt“* und das Klingeln stoppt auf beiden Seiten. |
+| **📴 Fall 3: Der Angerufene hat den Browser komplett geschlossen** *(und nutzt keine Android-App)* | Eine komplett geschlossene Webseite kann ohne offenen Browser-Prozess keinen Live-Klingelton abspielen.<br>1. Öffnet der Angerufene innerhalb der 65 Sekunden zufällig ChatConnect, klingelt es sofort noch live bei ihm.<br>2. Reagiert er innerhalb von **65 Sekunden** nicht, setzt der Server den Anruf automatisch auf **`missed` (Verpasster Anruf)**.<br>3. Gleichzeitig wird automatisch die Nachricht **„📞 Verpasster Sprach-/Videoanruf von … — [📞 Jetzt zurückrufen]“** in euren **Chatverlauf** geschrieben (plus Push-Meldung & roter Pfeil in der Anrufliste). | Nach 65 Sekunden beendet ChatConnect den Anrufversuch automatisch mit dem Hinweis *„[Name] ist derzeit nicht erreichbar“*. Sobald der Angerufene später wieder online kommt, sieht er die Rückruf-Nachricht sofort im Chat! |
 
 ---
 

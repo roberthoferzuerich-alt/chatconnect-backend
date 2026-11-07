@@ -12,6 +12,7 @@ class ChatController extends Controller
 {
     public function index()
     {
+        \App\Http\Controllers\CallController::expireStaleOngoingCalls();
         $user = Auth::user();
         \App\Services\CopilotService::ensureBotConversationForUser($user);
         
@@ -37,6 +38,7 @@ class ChatController extends Controller
 
     public function show(Conversation $conversation)
     {
+        \App\Http\Controllers\CallController::expireStaleOngoingCalls();
         $user = Auth::user();
         \App\Services\CopilotService::ensureBotConversationForUser($user);
 

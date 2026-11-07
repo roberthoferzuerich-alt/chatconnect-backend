@@ -72,6 +72,7 @@
     const CALLS_INDEX_URL = @json(route('calls.index'));
 
     let hasJoinedDirectRoom = false;
+    let partnerHasAnswered = !IS_CALLER;
     let statusPollTimer = null;
 
     async function updateCallStatusServer(newStatus) {
@@ -93,13 +94,13 @@
 
     window.hangupAndExit = async function() {
         if (statusPollTimer) clearInterval(statusPollTimer);
-        await updateCallStatusServer(hasJoinedDirectRoom ? 'completed' : 'ended');
+        await updateCallStatusServer(partnerHasAnswered ? 'completed' : 'missed');
         window.location.href = CALLS_INDEX_URL;
     };
 
     window.addEventListener('beforeunload', () => {
-        if (IS_CALLER && !hasJoinedDirectRoom) {
-            const blob = new Blob([JSON.stringify({ status: 'ended', _token: CSRF_TOKEN })], { type: 'application/json' });
+        if (IS_CALLER && !partnerHasAnswered) {
+            const blob = new Blob([JSON.stringify({ status: 'missed', _token: CSRF_TOKEN })], { type: 'application/json' });
             navigator.sendBeacon?.(STATUS_UPDATE_URL, blob);
         }
     });
@@ -190,6 +191,10 @@
                     onJoinRoom: () => {
                         if (connectingCard) connectingCard.style.display = 'none';
                     },
+                    onUserJoin: () => {
+                        partnerHasAnswered = true;
+                        updateCallStatusServer('answered');
+                    },
                     onLeaveRoom: () => {
                         hangupAndExit();
                     },
@@ -223,6 +228,7 @@
                 },
                 onSetRoomConfigBeforeJoining: (callType) => {
                     hasJoinedDirectRoom = true;
+                    partnerHasAnswered = true;
                     return {
                         container: document.querySelector("#root"),
                         turnOnCameraWhenJoining: isVideo,
@@ -261,9 +267,12 @@
                     const r = await fetch(STATUS_CHECK_URL, { headers: { 'Accept': 'application/json' } });
                     if (!r.ok) return;
                     const data = await r.json();
-                    if (data.status === 'answered' && !hasJoinedDirectRoom) {
-                        console.log("Empfänger hat den Anruf angenommen! Betrete Raum:", roomID);
-                        enterDirectRoom();
+                    if (data.status === 'answered') {
+                        partnerHasAnswered = true;
+                        if (!hasJoinedDirectRoom) {
+                            console.log("Empfänger hat den Anruf angenommen! Betrete Raum:", roomID);
+                            enterDirectRoom();
+                        }
                     } else if (data.status === 'declined') {
                         clearInterval(statusPollTimer);
                         if (statusEl) {
