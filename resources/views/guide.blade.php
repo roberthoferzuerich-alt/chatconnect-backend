@@ -169,12 +169,15 @@
         </div>
 
         <!-- Tab Navigation Switcher -->
-        <div class="mb-6 bg-gray-100 p-1.5 rounded-2xl flex items-center gap-1.5 border border-gray-200 shadow-inner">
-            <button type="button" id="tab-btn-compact" onclick="switchGuideTab('compact')" class="flex-1 py-2.5 px-3 rounded-xl font-bold text-xs sm:text-sm transition flex items-center justify-center gap-1.5 shadow-sm bg-white text-teal-800 border border-gray-200/80">
+        <div class="mb-6 bg-gray-100 p-1.5 rounded-2xl flex flex-col sm:flex-row items-stretch sm:items-center gap-1.5 border border-gray-200 shadow-inner">
+            <button type="button" id="tab-btn-compact" onclick="switchGuideTab('compact')" class="flex-1 py-2.5 px-3 rounded-xl font-bold text-xs sm:text-sm transition flex items-center justify-center gap-1.5 shadow-sm bg-white text-teal-800 border border-gray-200/80 cursor-pointer">
                 <span>⚡ Kompakte Schnellübersicht</span>
             </button>
-            <button type="button" id="tab-btn-full" onclick="switchGuideTab('full')" class="flex-1 py-2.5 px-3 rounded-xl font-bold text-xs sm:text-sm transition flex items-center justify-center gap-1.5 text-gray-600 hover:text-gray-900">
+            <button type="button" id="tab-btn-full" onclick="switchGuideTab('full')" class="flex-1 py-2.5 px-3 rounded-xl font-bold text-xs sm:text-sm transition flex items-center justify-center gap-1.5 text-gray-600 hover:text-gray-900 cursor-pointer">
                 <span>📚 Grosse Gesamtanleitung (Vollständig)</span>
+            </button>
+            <button type="button" id="tab-btn-tech" onclick="switchGuideTab('tech')" class="flex-1 py-2.5 px-3 rounded-xl font-bold text-xs sm:text-sm transition flex items-center justify-center gap-1.5 text-gray-600 hover:text-gray-900 cursor-pointer">
+                <span>🛠️ Technik: Raspberry Pi, Git &amp; Artisan</span>
             </button>
         </div>
 
@@ -400,6 +403,37 @@
 
         </div>
 
+        <!-- ========================================== -->
+        <!-- TAB 3: TECHNIK: RASPBERRY PI, GIT & ARTISAN -->
+        <!-- ========================================== -->
+        <div id="view-tech" class="hidden space-y-6">
+            <div class="p-4 bg-slate-50 border border-slate-200 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-3">
+                <div class="w-full sm:w-80 flex items-center bg-white px-3 py-2 rounded-xl border border-slate-200 focus-within:ring-2 focus-within:ring-teal-500">
+                    <svg class="w-4 h-4 text-slate-400 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                    <input type="text" id="tech-guide-search" oninput="filterTechGuide(this.value)" placeholder="Befehl oder Thema suchen (z.B. git, user:manage)..." class="w-full text-xs sm:text-sm bg-transparent outline-none text-slate-800">
+                </div>
+                <div class="flex items-center gap-2">
+                    <a href="/docs/ChatConnect_Technisches_Handbuch_RaspberryPi_Git_Artisan.md" download class="px-3 py-1.5 bg-teal-600 hover:bg-teal-700 text-white rounded-lg text-xs font-bold transition flex items-center gap-1">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                        <span>Markdown (.md)</span>
+                    </a>
+                    <button type="button" onclick="window.print()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-900 text-white rounded-lg text-xs font-bold transition flex items-center gap-1 cursor-pointer">
+                        <span>🖨️ Drucken</span>
+                    </button>
+                    <button type="button" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="px-3 py-1.5 bg-white border border-slate-200 hover:bg-slate-100 text-slate-700 rounded-lg text-xs font-semibold transition cursor-pointer" title="Nach oben scrollen">
+                        ↑ Nach oben
+                    </button>
+                </div>
+            </div>
+
+            <div id="tech-guide-content" class="markdown-body bg-white p-2 sm:p-4 rounded-xl">
+                <div class="flex items-center justify-center py-12 text-gray-400">
+                    <svg class="animate-spin w-6 h-6 mr-3 text-teal-600" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
+                    <span>Lade das Technische Handbuch (Raspberry Pi, Git &amp; Artisan)...</span>
+                </div>
+            </div>
+        </div>
+
         <!-- Footer -->
         <div class="mt-10 pt-6 border-t border-gray-100 flex flex-col sm:flex-row items-center justify-between text-xs text-gray-500 gap-3">
             <span>&copy; {{ date('Y') }} ChatConnect &bull; Robert Hofer</span>
@@ -416,38 +450,71 @@
     <!-- Script to toggle tabs and render full guide markdown -->
     <script>
         let fullGuideLoaded = false;
+        let techGuideLoaded = false;
         let originalSections = [];
 
         function switchGuideTab(tab) {
             const btnCompact = document.getElementById('tab-btn-compact');
             const btnFull = document.getElementById('tab-btn-full');
+            const btnTech = document.getElementById('tab-btn-tech');
             const viewCompact = document.getElementById('view-compact');
             const viewFull = document.getElementById('view-full');
+            const viewTech = document.getElementById('view-tech');
 
+            const inactiveClass = 'flex-1 py-2.5 px-3 rounded-xl font-bold text-xs sm:text-sm transition flex items-center justify-center gap-1.5 text-gray-600 hover:text-gray-900 cursor-pointer';
+            const activeClass = 'flex-1 py-2.5 px-3 rounded-xl font-bold text-xs sm:text-sm transition flex items-center justify-center gap-1.5 shadow-sm bg-white text-teal-800 border border-gray-200/80 cursor-pointer';
+
+            btnCompact.className = tab === 'compact' ? activeClass : inactiveClass;
+            btnFull.className = tab === 'full' ? activeClass : inactiveClass;
+            if (btnTech) btnTech.className = tab === 'tech' ? activeClass : inactiveClass;
+
+            viewCompact.classList.toggle('hidden', tab !== 'compact');
+            viewFull.classList.toggle('hidden', tab !== 'full');
+            if (viewTech) viewTech.classList.toggle('hidden', tab !== 'tech');
+
+            const url = new URL(window.location);
             if (tab === 'full') {
-                btnCompact.className = 'flex-1 py-2.5 px-3 rounded-xl font-bold text-xs sm:text-sm transition flex items-center justify-center gap-1.5 text-gray-600 hover:text-gray-900';
-                btnFull.className = 'flex-1 py-2.5 px-3 rounded-xl font-bold text-xs sm:text-sm transition flex items-center justify-center gap-1.5 shadow-sm bg-white text-teal-800 border border-gray-200/80';
-                viewCompact.classList.add('hidden');
-                viewFull.classList.remove('hidden');
-
-                if (!fullGuideLoaded) {
-                    loadFullGuide();
-                }
-
-                // Update URL query without page reload
-                const url = new URL(window.location);
+                if (!fullGuideLoaded) loadFullGuide();
                 url.searchParams.set('view', 'full');
-                window.history.replaceState({}, '', url);
+            } else if (tab === 'tech') {
+                if (!techGuideLoaded) loadTechGuide();
+                url.searchParams.set('view', 'tech');
             } else {
-                btnFull.className = 'flex-1 py-2.5 px-3 rounded-xl font-bold text-xs sm:text-sm transition flex items-center justify-center gap-1.5 text-gray-600 hover:text-gray-900';
-                btnCompact.className = 'flex-1 py-2.5 px-3 rounded-xl font-bold text-xs sm:text-sm transition flex items-center justify-center gap-1.5 shadow-sm bg-white text-teal-800 border border-gray-200/80';
-                viewFull.classList.add('hidden');
-                viewCompact.classList.remove('hidden');
-
-                const url = new URL(window.location);
                 url.searchParams.delete('view');
-                window.history.replaceState({}, '', url);
             }
+            window.history.replaceState({}, '', url);
+        }
+
+        async function loadTechGuide() {
+            const container = document.getElementById('tech-guide-content');
+            try {
+                const res = await fetch('/docs/ChatConnect_Technisches_Handbuch_RaspberryPi_Git_Artisan.md');
+                if (!res.ok) throw new Error('Status ' + res.status);
+                const md = await res.text();
+                if (typeof marked !== 'undefined') {
+                    container.innerHTML = marked.parse(md);
+                } else {
+                    container.innerText = md;
+                }
+                techGuideLoaded = true;
+            } catch (err) {
+                console.error('Failed to load tech guide markdown:', err);
+                container.innerHTML = `<div class="p-6 bg-red-50 border border-red-200 rounded-xl text-center text-red-800">Technisches Handbuch konnte nicht geladen werden.</div>`;
+            }
+        }
+
+        function filterTechGuide(query) {
+            const q = (query || '').toLowerCase().trim();
+            const container = document.getElementById('tech-guide-content');
+            if (!container) return;
+            const elements = container.querySelectorAll('h1, h2, h3, h4, p, li, blockquote, table, pre');
+            if (!q) {
+                elements.forEach(el => el.style.display = '');
+                return;
+            }
+            elements.forEach(el => {
+                el.style.display = el.innerText.toLowerCase().includes(q) ? '' : 'none';
+            });
         }
 
         async function loadFullGuide() {
@@ -509,6 +576,8 @@
             const viewParam = params.get('view') || '{{ $view ?? "compact" }}';
             if (viewParam === 'full') {
                 switchGuideTab('full');
+            } else if (viewParam === 'tech') {
+                switchGuideTab('tech');
             }
         });
     </script>
