@@ -1,7 +1,7 @@
 # 🌐 ChatConnect WebApp & App – Offizielle Benutzeranleitung
 
 **Stand:** 7. November 2026 (Pro-Suite-Ausgabe inkl. 📞 Globales Anruf-Overlay, FCM-Anruf-Push & Automatischer Chat-Rückruf-Nachricht, 📌 Nachrichten anpinnen, 📊 Interaktive Live-Umfragen, ↪️ Weiterleiten, 🗂️ 3-Tab Medien-/Dokumenten-/3D-STL-Galerie, 😊 Emoji-Reaktionen, ↩️ Zitieren, ✏️ Bearbeiten, ⭐ Stern-Favoriten, 🔍 Chat-Suche, 📦 ZIP/Minecraft-JAR-Inspektor, 🖼️ Lightbox mit Zoom, 🔒 App-Sperre PIN, Offline-Modus & Warteschlange, KI-Bildgenerator & Studio, Markdown-Viewer & 3D-STLViewer PRO)  
-**Web-Adresse (URL):** `https://rhz.internet-box.ch:8443`  
+**Web-Adresse (URL):** [https://rhz.internet-box.ch:8443](https://rhz.internet-box.ch:8443)  
 **Unterstützte Geräte:** Smartphone (iPhone / Android / Samsung Galaxy Z Flip), Tablet (iPad / Android), Laptop & Desktop-PC (Windows, macOS, Linux)
 
 ---
@@ -21,6 +21,11 @@
 11. [👤 Eigenes Profil & Passwort verwalten](#11--eigenes-profil--passwort-verwalten)
 12. [📡 Offline-Modus & Automatische Warteschlange (Unterwegs ohne Internet / WLAN)](#12--offline-modus--automatische-warteschlange-unterwegs-ohne-internet--wlan)
 13. [❓ Häufige Fragen & Schnelle Hilfe (FAQ)](#13--häufige-fragen--schnelle-hilfe-faq)
+14. [🚗 Persönlicher KI-Beifahrer (`Beifahrer (KI)`)](#14--persönlicher-ki-beifahrer-beifahrer-ki)
+15. [✨ Rechtschreib-Hilfe & Zauberstab für Kinder](#15--rechtschreib-hilfe--zauberstab-für-kinder)
+16. [🎨 Bilder, Grafiken & Malvorlagen im Chat generieren](#16--bilder-grafiken--malvorlagen-im-chat-generieren)
+17. [🖨️ 1-Klick A4-Druck für Malvorlagen & Kunstwerke](#17--1-klick-a4-druck-für-malvorlagen--kunstwerke)
+18. [🧊 OpenSCAD 3D-Projekte & 1-Klick-Kompilierung auf dem Raspberry Pi](#18--openscad-3d-projekte--1-klick-kompilierung-auf-dem-raspberry-pi)
 
 ---
 
@@ -34,20 +39,22 @@ Die Oberfläche passt sich automatisch an dein Gerät an:
 
 ---
 
+<a id="1--zugriff-im-web-browser--anmeldung"></a>
+<a id="1-zugriff-im-web-browser-anmeldung"></a>
 ## 1. 🔗 Zugriff im Web-Browser & Anmeldung
 
 ### 1.1 WebApp aufrufen
 1. Öffne auf deinem Smartphone, Tablet oder Computer deinen bevorzugten Browser (**Safari** auf dem iPhone/iPad, **Chrome**, **Samsung Internet**, **Edge** oder **Firefox**).
-2. Tippe folgende Adresse in die Adresszeile ein:
-   ```text
-   https://rhz.internet-box.ch:8443
-   ```
+2. Tippe folgende Adresse in die Adresszeile ein (oder klicke direkt auf den Link):
+   👉 **[https://rhz.internet-box.ch:8443](https://rhz.internet-box.ch:8443)**
 3. *(Hinweis beim ersten Aufruf)*: Falls dein Browser einen Sicherheitshinweis zum privaten Server-Zertifikat anzeigt, klicke auf **„Erweitert“** (bzw. *„Details einblenden“*) und wähle **„Weiter zu rhz.internet-box.ch (unsicher)“** bzw. **„Website besuchen“**. Die Verbindung ist trotzdem über HTTPS verschlüsselt.
 
 ### 1.2 Einloggen oder neues Konto erstellen
 - **Bestehendes Konto:** Gib deine **E-Mail-Adresse** und dein **Passwort** ein, setze optional das Häkchen bei *„Angemeldet bleiben“* und tippe auf **Anmelden**.
 - **Neu registrieren:** Klicke auf der Startseite auf **Registrieren**, gib deinen Namen, deine E-Mail-Adresse (und optional deine Telefonnummer) sowie ein Passwort ein.
 
+<a id="13--tipp-für-iphone--android-webapp-auf-den-home-bildschirm-legen"></a>
+<a id="13-tipp-für-iphone-android-webapp-auf-den-home-bildschirm-legen"></a>
 ### 1.3 💡 Tipp für iPhone & Android: WebApp auf den Home-Bildschirm legen
 Du kannst die WebApp wie eine echte App auf deinem Handy-Startbildschirm ablegen – ideal auch für Geräte ohne SIM-Karte und zur Offline-Nutzung (siehe [Abschnitt 12](#12--offline-modus--automatische-warteschlange-unterwegs-ohne-internet--wlan)):
 - **Auf dem iPhone (Safari):** Tippe unten in der Mitte auf das **Teilen-Symbol** (Quadrat mit Pfeil nach oben `⬆️`) ➔ Scrolle nach unten und wähle **„Zum Home-Bildschirm“** ➔ Tippe oben rechts auf **Hinzufügen**.
@@ -56,6 +63,8 @@ Du kannst die WebApp wie eine echte App auf deinem Handy-Startbildschirm ablegen
 
 ---
 
+<a id="2--aufbau-profil-anzeige--eigener-datei-chat"></a>
+<a id="2-aufbau-profil-anzeige-eigener-datei-chat"></a>
 ## 2. 📱 Aufbau, Profil-Anzeige & Eigener Datei-Chat
 
 ### 2.1 Aktuelles Profilbild & Name oben links neben „Chats“
@@ -86,6 +95,8 @@ Du kannst die WebApp wie eine echte App auf deinem Handy-Startbildschirm ablegen
 
 ---
 
+<a id="3--chatten-emojis-dokumente-bis-500-mb-reaktionen-anpinnen-umfragen-weiterleiten--medien-galerie"></a>
+<a id="3-chatten-emojis-dokumente-bis-500-mb-reaktionen-anpinnen-umfragen-weiterleiten-medien-galerie"></a>
 ## 3. 💬 Chatten, Emojis, Dokumente (bis 500 MB), Reaktionen, Anpinnen, Umfragen, Weiterleiten & Medien-Galerie
 
 ### 3.1 Textnachrichten schreiben
@@ -175,6 +186,8 @@ Hast du dich vertippt oder möchtest eine Nachricht (Text, Bild, Dokument, 3D-Da
 
 ---
 
+<a id="4--integrierter-markdown-viewer-md"></a>
+<a id="4-integrierter-markdown-viewer-md"></a>
 ## 4. 📖 Integrierter Markdown-Viewer (`.md`)
 
 Markdown-Dateien (`.md` / `.markdown`) werden häufig für Handbücher (wie diese Anleitung), Projektbeschreibungen oder strukturierte Schulnotizen verwendet. ChatConnect besitzt dafür einen **eigenen integrierten Markdown-Viewer**:
@@ -189,6 +202,8 @@ Markdown-Dateien (`.md` / `.markdown`) werden häufig für Handbücher (wie dies
 
 ---
 
+<a id="5--interaktiver-3d-stl--ctl-browser-stl--ctl"></a>
+<a id="5-interaktiver-3d-stl-ctl-browser-stl-ctl"></a>
 ## 5. 🧊 Interaktiver 3D-STL / CTL Browser (`.stl` & `.ctl`)
 
 Wenn dein Enkel aus der Schule oder jemand aus der Familie eine **3D-Datei (`.stl` oder `.ctl`)** sendet, kannst du das Bauteil oder die Figur direkt in ChatConnect im **integrierten 3D-Browser** von allen Seiten betrachten und vermessen:
@@ -220,6 +235,8 @@ Wenn dein Enkel aus der Schule oder jemand aus der Familie eine **3D-Datei (`.st
 
 ---
 
+<a id="6--3d-stl-generator-3d-modelle-per-beschreibung-erstellen"></a>
+<a id="6-3d-stl-generator-3d-modelle-per-beschreibung-erstellen"></a>
 ## 6. ✨ 3D-STL Generator: 3D-Modelle per Beschreibung erstellen
 
 Direkt in der ChatConnect WebApp ist ein **parametrischer 3D-Generator** eingebaut, mit dem du ohne CAD-Vorkenntnisse eigene `.stl`-Modelle per Textbeschreibung erzeugen kannst!
@@ -253,6 +270,8 @@ Sobald dein Modell im 3D-Browser angezeigt wird, hast du oben rechts zwei Mögli
 
 ---
 
+<a id="7--ki-bildgenerator--studio-bilder-erschaffen-zuschneiden--auf-web-grösse-skalieren"></a>
+<a id="7-ki-bildgenerator-studio-bilder-erschaffen-zuschneiden-auf-web-grösse-skalieren"></a>
 ## 7. 🎨 KI-Bildgenerator & Studio: Bilder erschaffen, zuschneiden & auf Web-Grösse skalieren
 
 Direkt in ChatConnect ist ein vollwertiges **KI-Bildgenerator-Studio** im edlen ChatConnect-Design (Smaragd-Türkis `#00a884`, Cyan & 3D-Glaskugeln) integriert. Du kannst eigene Bilder per Textbeschreibung in beliebigen Sprachen erschaffen, bestehende Fotos hochladen, sie passgenau zuschneiden, auf optimale Web-Grösse skalieren und direkt in deine Chats einbinden.
@@ -336,6 +355,8 @@ Sobald dein Bild fertig generiert oder bearbeitet ist, findest du darunter drei 
 
 ---
 
+<a id="8--chat-schriftgröße--design-hintergründe-"></a>
+<a id="8-chat-schriftgröße-design-hintergründe"></a>
 ## 8. 🔠 Chat-Schriftgröße & Design-Hintergründe (`⋮`)
 
 Oben in der Chat-Übersicht findest du das **Drei-Punkte-Menü (`⋮`)**. Dort stehen dir besonders praktische Einstellungen zur Verfügung:
@@ -373,6 +394,9 @@ Ist dir die Schrift im Chat auf dem Handy zu klein oder zu groß?
 
 ---
 
+<a id="9--sprach--videoanrufe-inkl-anruflinks-chat-rückruf--erreichbarkeits-fälle"></a>
+<a id="9--sprach--videoanrufe"></a>
+<a id="9-sprach-videoanrufe-inkl-anruflinks-chat-rückruf-erreichbarkeits-fälle"></a>
 ## 9. 📞 Sprach- & Videoanrufe (inkl. Anruflinks, Chat-Rückruf & Erreichbarkeits-Fälle)
 
 Über das **Telefon-Symbol (`📞`)** in der Navigationsleiste (oder direkt über die Anruf-Symbole oben rechts in einem geöffneten Chat) erreichst du die Sprach- und Video-Telefonie von ChatConnect:
@@ -411,6 +435,8 @@ Je nachdem, wie der Angerufene ChatConnect nutzt, läuft beim Anrufen folgender 
 
 ---
 
+<a id="10--status--storys-teilen"></a>
+<a id="10-status-storys-teilen"></a>
 ## 10. ⭕ Status / Storys teilen
 
 Über das **Status-Symbol (`⭕`)** in der Navigationsleiste kannst du kurze Updates oder Fotos für 24 Stunden mit deinen Kontakten teilen:
@@ -422,6 +448,8 @@ Je nachdem, wie der Angerufene ChatConnect nutzt, läuft beim Anrufen folgender 
 
 ---
 
+<a id="11--eigenes-profil--passwort-verwalten"></a>
+<a id="11-eigenes-profil-passwort-verwalten"></a>
 ## 11. 👤 Eigenes Profil & Passwort verwalten
 
 Klicke in der Navigation auf dein **Profilbild (`👤`)** – oder direkt oben links neben „Chats“ auf dein Bild/deinen Namen:
@@ -431,6 +459,8 @@ Klicke in der Navigation auf dein **Profilbild (`👤`)** – oder direkt oben l
 
 ---
 
+<a id="12--offline-modus--automatische-warteschlange-unterwegs-ohne-internet--wlan"></a>
+<a id="12-offline-modus-automatische-warteschlange-unterwegs-ohne-internet-wlan"></a>
 ## 12. 📡 Offline-Modus & Automatische Warteschlange (Unterwegs ohne Internet / WLAN)
 
 ChatConnect verfügt über ein vollwertiges, intelligentes **Offline- & Outbox-System** (`ChatConnectOfflineDB`), das auf moderner Browser-Speichertechnologie (*IndexedDB*) basiert. Es wurde speziell für Situationen entwickelt, in denen du oder deine Familienmitglieder (z. B. Enkelkinder mit einem iPhone oder Tablet ohne Mobilfunkvertrag oder SIM-Karte) **unterwegs kein Internet** haben.
@@ -488,7 +518,7 @@ Sobald dein Smartphone wieder ein bekanntes WLAN findet:
 Viele Kinder und Jugendliche nutzen ein ausgemustertes Smartphone (z. B. ein iPhone oder Android-Gerät) ohne teuren Mobilfunkvertrag und ohne SIM-Karte:
 
 1. **Einmalig zuhause im WLAN einrichten:**
-   - Öffne auf dem iPhone Safari und gehe auf `https://rhz.internet-box.ch:8443`.
+   - Öffne auf dem iPhone Safari und gehe auf [https://rhz.internet-box.ch:8443](https://rhz.internet-box.ch:8443).
    - Logge das Enkelkind ein und setze das Häkchen bei *„Angemeldet bleiben“*.
    - Tippe in Safari auf **Teilen (`⬆️`) ➔ „Zum Home-Bildschirm“** (siehe [Abschnitt 1.3](#13--tipp-für-iphone--android-webapp-auf-den-home-bildschirm-legen)).
 2. **Unterwegs auf dem Schulweg oder im Bus:**
@@ -500,12 +530,14 @@ Viele Kinder und Jugendliche nutzen ein ausgemustertes Smartphone (z. B. ein iPh
 
 ---
 
+<a id="13--häufige-fragen--schnelle-hilfe-faq"></a>
+<a id="13-häufige-fragen-schnelle-hilfe-faq"></a>
 ## 13. ❓ Häufige Fragen & Schnelle Hilfe (FAQ)
 
 - **Ich sehe eine Änderung oder neue Funktion noch nicht – was tun?**
   Lade die Seite im Browser einmal komplett neu (am PC mit **Strg + F5**, auf dem Handy die Seite nach unten ziehen oder den Browser-Tab schließen und neu öffnen).
 - **Wie kann sich mein Enkel aus der Schule selbst eine `.stl` / `.ctl`-Datei nach Hause schicken?**
-  Er meldet sich in der Schule im Browser unter `https://rhz.internet-box.ch:8443` an, klickt in der Kontaktliste auf seinen eigenen Namen **„(Ich / Eigene Dateien)“**, klickt unten auf das **Dokument-Symbol (`📄`)** und wählt seine `.stl`- oder `.ctl`-Datei aus. Zuhause klickt er im selben Chat einfach auf **„Im 3D-Browser öffnen“**.
+  Er meldet sich in der Schule im Browser unter [https://rhz.internet-box.ch:8443](https://rhz.internet-box.ch:8443) an, klickt in der Kontaktliste auf seinen eigenen Namen **„(Ich / Eigene Dateien)“**, klickt unten auf das **Dokument-Symbol (`📄`)** und wählt seine `.stl`- oder `.ctl`-Datei aus. Zuhause klickt er im selben Chat einfach auf **„Im 3D-Browser öffnen“**.
 - **Kann ich die erstellten `.stl`-Dateien auf einem echten 3D-Drucker ausdrucken?**
   **Ja!** Alle im 3D-Generator erzeugten Modelle sind wasserdichte Binary-STL-Dateien in Millimeter-Maßen und können direkt im Slicer (z. B. Bambu Studio, PrusaSlicer, Cura) geladen und gedruckt werden.
 - **Das Mikrofon oder die Kamera funktioniert beim Anruf/Sprachnachricht nicht?**
@@ -525,7 +557,10 @@ Viele Kinder und Jugendliche nutzen ein ausgemustertes Smartphone (z. B. ein iPh
 
 ---
 
-## 15. Persönlicher KI-Beifahrer (`🚗 Beifahrer (KI)`)
+<a id="14--persönlicher-ki-beifahrer-beifahrer-ki"></a>
+<a id="14-persönlicher-ki-beifahrer-beifahrer-ki"></a>
+<a id="15-persönlicher-ki-beifahrer--beifahrer-ki"></a>
+## 14. 🚗 Persönlicher KI-Beifahrer (`Beifahrer (KI)`)
 
 In deiner Chatliste findest du deinen persönlichen **Beifahrer**. Er ist kein unpersönlicher Bot, sondern ein aufmerksamer Sparringspartner, der sich automatisch an die Interessen jedes Familienmitglieds anpasst:
 
@@ -537,7 +572,10 @@ In deiner Chatliste findest du deinen persönlichen **Beifahrer**. Er ist kein u
 
 ---
 
-## 16. Rechtschreib-Hilfe & Zauberstab (`✨`) für Kinder
+<a id="15--rechtschreib-hilfe--zauberstab-für-kinder"></a>
+<a id="15-rechtschreib-hilfe-zauberstab-für-kinder"></a>
+<a id="16-rechtschreib-hilfe--zauberstab--für-kinder"></a>
+## 15. ✨ Rechtschreib-Hilfe & Zauberstab für Kinder
 
 Gerade für Kinder, die schnell lostippen oder das Schreiben auf Tastaturen üben, bietet ChatConnect eine smarte Schreibhilfe direkt am Eingabefeld:
 
@@ -549,7 +587,10 @@ Gerade für Kinder, die schnell lostippen oder das Schreiben auf Tastaturen übe
 
 ---
 
-## 17. Bilder, Grafiken & Malvorlagen im Chat generieren 🎨
+<a id="16--bilder-grafiken--malvorlagen-im-chat-generieren"></a>
+<a id="16-bilder-grafiken-malvorlagen-im-chat-generieren"></a>
+<a id="17-bilder-grafiken--malvorlagen-im-chat-generieren-"></a>
+## 16. 🎨 Bilder, Grafiken & Malvorlagen im Chat generieren
 
 Der Beifahrer kann ab sofort direkt im Chat auf Zuruf Bilder zaubern:
 
@@ -566,7 +607,10 @@ Der Beifahrer kann ab sofort direkt im Chat auf Zuruf Bilder zaubern:
 
 ---
 
-## 18. 1-Klick A4-Druck für Malvorlagen & Kunstwerke 🖨️
+<a id="17--1-klick-a4-druck-für-malvorlagen--kunstwerke"></a>
+<a id="17-1-klick-a4-druck-für-malvorlagen-kunstwerke"></a>
+<a id="18-1-klick-a4-druck-für-malvorlagen--kunstwerke-"></a>
+## 17. 🖨️ 1-Klick A4-Druck für Malvorlagen & Kunstwerke
 
 Ausmalbilder und generierte Grafiken können sofort mit einem Klick zu Papier gebracht werden:
 
@@ -579,7 +623,10 @@ Ausmalbilder und generierte Grafiken können sofort mit einem Klick zu Papier ge
 
 ---
 
-## 19. OpenSCAD 3D-Projekte & 1-Klick-Kompilierung auf dem Raspberry Pi 🧊
+<a id="18--openscad-3d-projekte--1-klick-kompilierung-auf-dem-raspberry-pi"></a>
+<a id="18-openscad-3d-projekte-1-klick-kompilierung-auf-dem-raspberry-pi"></a>
+<a id="19-openscad-3d-projekte--1-klick-kompilierung-auf-dem-raspberry-pi-"></a>
+## 18. 🧊 OpenSCAD 3D-Projekte & 1-Klick-Kompilierung auf dem Raspberry Pi
 
 Für 3D-Druck-Fans und Tüftler bietet ChatConnect eine direkte Schnittstelle zu **OpenSCAD**:
 

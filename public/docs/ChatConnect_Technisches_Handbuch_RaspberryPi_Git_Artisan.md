@@ -1,48 +1,52 @@
+<style>
+pre, .markdown-body pre, .preview pre {
+    background-color: #f3f4f6 !important;
+    color: #1f2937 !important;
+    border: 1px solid #d1d5db !important;
+    border-radius: 8px !important;
+}
+pre code, .markdown-body pre code, .preview pre code {
+    background-color: transparent !important;
+    color: #111827 !important;
+    padding: 0 !important;
+    border: none !important;
+}
+</style>
+
 # 🛠️ ChatConnect – Technisches Handbuch & Admin-Schulung
 ## Installation auf dem Raspberry Pi (`pironman`), Git-Workflow & `php artisan` Referenz
 
 **Autor:** Antigravity AI für Robert Hofer  
 **Stand:** November 2026  
 **Entwicklungsumgebung (Lokal):** Windows mit Laragon (`C:\laragon\www\ChatConnect`)  
-**GitHub-Repository:** `https://github.com/roberthoferzuerich-alt/chatconnect-backend.git`  
-**Produktionsserver:** Raspberry Pi (`pi@pironman:/var/www/chatconnect` • `https://rhz.internet-box.ch:8443`)
+**GitHub-Repository:** [https://github.com/roberthoferzuerich-alt/chatconnect-backend.git](https://github.com/roberthoferzuerich-alt/chatconnect-backend.git)  
+**Produktionsserver:** Raspberry Pi (`pi@pironman:/var/www/chatconnect` • [https://rhz.internet-box.ch:8443](https://rhz.internet-box.ch:8443))
 
 ---
 
 ## 📑 Inhaltsverzeichnis
 
-1. [🏗️ 1. Architektur-Überblick: Wie Zusammenspiel & Deployment funktionieren](#1-architektur-überblick-wie-zusammenspiel--deployment-funktionieren)
-2. [🍓 2. Komplette Installation & Einrichtung auf dem Raspberry Pi (`pironman`)](#2-komplette-installation--einrichtung-auf-dem-raspberry-pi-pironman)
-3. [🌿 3. Ausführliche Git-Schulung: Schritt für Schritt verstehen & anwenden](#3-ausführliche-git-schulung-schritt-für-schritt-verstehen--anwenden)
-4. [⚡ 4. Ausführliche `php artisan` Schulung: Dein Schweizer Taschenmesser für Laravel](#4-ausführliche-php-artisan-schulung-dein-schweizer-taschenmesser-für-laravel)
-5. [💾 5. Datenbank-Backup, Synchronisation & Notfall-Wiederherstellung](#5-datenbank-backup-synchronisation--notfall-wiederherstellung)
-6. [📋 6. Täglicher Admin-Spickzettel (Cheat Sheet zum Ausdrucken)](#6-täglicher-admin-spickzettel-cheat-sheet-zum-ausdrucken)
+1. [🏗️ 1. Architektur-Überblick: Wie Zusammenspiel & Deployment funktionieren](#1--architektur-überblick-wie-zusammenspiel--deployment-funktionieren)
+2. [🍓 2. Komplette Installation & Einrichtung auf dem Raspberry Pi (`pironman`)](#2--komplette-installation--einrichtung-auf-dem-raspberry-pi-pironman)
+3. [🌿 3. Ausführliche Git-Schulung: Schritt für Schritt verstehen & anwenden](#3--ausführliche-git-schulung-schritt-für-schritt-verstehen--anwenden)
+4. [⚡ 4. Ausführliche `php artisan` Schulung: Dein Schweizer Taschenmesser für Laravel](#4--ausführliche-php-artisan-schulung-dein-schweizer-taschenmesser-für-laravel)
+5. [💾 5. Datenbank-Backup, Synchronisation & Notfall-Wiederherstellung](#5--datenbank-backup-synchronisation--notfall-wiederherstellung)
+6. [📋 6. Täglicher Admin-Spickzettel (Cheat Sheet zum Ausdrucken)](#6--täglicher-admin-spickzettel-cheat-sheet-zum-ausdrucken)
 
 ---
 
+<a id="1--architektur-überblick-wie-zusammenspiel--deployment-funktionieren"></a>
+<a id="1-architektur-überblick-wie-zusammenspiel--deployment-funktionieren"></a>
+<a id="1-architektur-überblick-wie-zusammenspiel-deployment-funktionieren"></a>
 ## 1. 🏗️ Architektur-Überblick: Wie Zusammenspiel & Deployment funktionieren
 
-Damit jederzeit klar ist, wo welche Änderung passiert, hilft dieses mentale Modell aus **3 Stationen**:
+Damit jederzeit klar ist, wo welche Änderung passiert, hilft dieses Modell aus **3 Stationen**:
 
-```text
-┌────────────────────────────────────┐
-│ 1. LOKAL (Windows / Laragon)       │  Hier programmieren und testen wir.
-│    Pfad: C:\laragon\www\ChatConnect│  Befehle: npm run build, git add, git commit, git push
-└─────────────────┬──────────────────┘
-                  │
-                  ▼  (git push origin main)
-┌────────────────────────────────────┐
-│ 2. GITHUB (Cloud-Zwischenspeicher) │  Sicherer Online-Tresor für deinen Programmcode.
-│    roberthoferzuerich-alt/         │  Speichert alle Versionen (Commits), aber KEINE
-│    chatconnect-backend.git         │  privaten Passwörter (.env) und KEINE Datenbank!
-└─────────────────┬──────────────────┘
-                  │
-                  ▼  (git pull origin main)
-┌────────────────────────────────────┐
-│ 3. PRODUKTION (Raspberry Pi)       │  Dein Live-Server für die ganze Familie.
-│    pi@pironman:/var/www/chatconnect│  Befehle: git pull origin main, php artisan optimize:clear
-└────────────────────────────────────┘
-```
+| Station | Ort / Adresse | Aufgabe & Wichtige Befehle |
+| :--- | :--- | :--- |
+| **1️⃣ LOKAL (Entwicklung)** | **Windows / Laragon**<br>`C:\laragon\www\ChatConnect` | Hier programmieren und testen wir.<br>**Befehle:** `npm run build` ➔ `git add -A` ➔ `git commit -m "..."` ➔ **`git push origin main`** ⬇️ |
+| **2️⃣ GITHUB (Cloud-Tresor)** | **GitHub Repository**<br>`roberthoferzuerich-alt/chatconnect-backend.git` | Sicherer Online-Speicher für deinen Programmcode.<br>Speichert alle Versionen (*Commits*), aber **keine** privaten Passwörter (`.env`) und **keine** Datenbank! ⬇️ |
+| **3️⃣ PRODUKTION (Live-Server)** | **Raspberry Pi (`pironman`)**<br>`pi@pironman:/var/www/chatconnect`<br>`https://rhz.internet-box.ch:8443` | Dein Live-Server für die ganze Familie.<br>**Befehle:** **`git pull origin main`** ➔ `php artisan migrate --force` ➔ `php artisan optimize:clear` |
 
 > **💡 Wichtigste Grundregel:**  
 > **Git überträgt immer nur den Programmcode (Dateien), niemals die Datenbank oder die `.env`-Datei.**  
@@ -50,6 +54,9 @@ Damit jederzeit klar ist, wo welche Änderung passiert, hilft dieses mentale Mod
 
 ---
 
+<a id="2--komplette-installation--einrichtung-auf-dem-raspberry-pi-pironman"></a>
+<a id="2-komplette-installation--einrichtung-auf-dem-raspberry-pi-pironman"></a>
+<a id="2-komplette-installation-einrichtung-auf-dem-raspberry-pi-pironman"></a>
 ## 2. 🍓 Komplette Installation & Einrichtung auf dem Raspberry Pi (`pironman`)
 
 Falls du den Raspberry Pi einmal komplett neu aufsetzen möchtest oder nachschlagen willst, wie alles eingerichtet ist, findest du hier die vollständige Installationsanleitung.
@@ -167,6 +174,9 @@ Folgende Zeile ganz unten eintragen:
 
 ---
 
+<a id="3--ausführliche-git-schulung-schritt-für-schritt-verstehen--anwenden"></a>
+<a id="3-ausführliche-git-schulung-schritt-für-schritt-verstehen--anwenden"></a>
+<a id="3-ausführliche-git-schulung-schritt-für-schritt-verstehen-anwenden"></a>
 ## 3. 🌿 Ausführliche Git-Schulung: Schritt für Schritt verstehen & anwenden
 
 ### 3.1 Wie Git intern denkt (Die 4 Stufen)
@@ -260,6 +270,8 @@ php artisan optimize:clear
 
 ---
 
+<a id="4--ausführliche-php-artisan-schulung-dein-schweizer-taschenmesser-für-laravel"></a>
+<a id="4-ausführliche-php-artisan-schulung-dein-schweizer-taschenmesser-für-laravel"></a>
 ## 4. ⚡ Ausführliche `php artisan` Schulung: Dein Schweizer Taschenmesser für Laravel
 
 ### 4.1 Was ist `php artisan`?
@@ -340,6 +352,9 @@ In Laravel werden Datenbank-Tabellen über sogenannte **Migrationen** (`database
 
 ---
 
+<a id="5--datenbank-backup-synchronisation--notfall-wiederherstellung"></a>
+<a id="5-datenbank-backup-synchronisation--notfall-wiederherstellung"></a>
+<a id="5-datenbank-backup-synchronisation-notfall-wiederherstellung"></a>
 ## 5. 💾 Datenbank-Backup, Synchronisation & Notfall-Wiederherstellung
 
 ### 5.1 Datenbank auf dem Raspberry Pi sichern (Backup erstellen)
@@ -363,6 +378,8 @@ tar -czf backup_medien_$(date +%F).tar.gz -C /var/www/chatconnect/storage/app pu
 
 ---
 
+<a id="6--täglicher-admin-spickzettel-cheat-sheet-zum-ausdrucken"></a>
+<a id="6-täglicher-admin-spickzettel-cheat-sheet-zum-ausdrucken"></a>
 ## 6. 📋 Täglicher Admin-Spickzettel (Cheat Sheet zum Ausdrucken)
 
 ### 🔹 1. Neues Update von Laragon (Windows) auf den Raspberry Pi bringen

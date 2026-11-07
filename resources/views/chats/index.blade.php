@@ -55,8 +55,8 @@
         .markdown-viewer-content ol { list-style-type: decimal; padding-left: 1.5rem; margin-bottom: 0.75rem; color: #374151; }
         .markdown-viewer-content li { margin-bottom: 0.25rem; line-height: 1.55; }
         .markdown-viewer-content code { background-color: #f3f4f6; color: #0f766e; padding: 0.15rem 0.35rem; border-radius: 0.3rem; font-size: 0.875em; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
-        .markdown-viewer-content pre { background-color: #1f2937; color: #f9fafb; padding: 0.85rem 1rem; border-radius: 0.6rem; overflow-x: auto; margin-bottom: 0.85rem; }
-        .markdown-viewer-content pre code { background-color: transparent; color: inherit; padding: 0; }
+        .markdown-viewer-content pre { background-color: #f3f4f6; color: #1f2937; border: 1px solid #d1d5db; padding: 0.85rem 1rem; border-radius: 0.6rem; overflow-x: auto; margin-bottom: 0.85rem; }
+        .markdown-viewer-content pre code { background-color: transparent; color: #111827; padding: 0; }
         .markdown-viewer-content blockquote { border-left: 4px solid #14b8a6; background-color: #f0fdfa; padding: 0.6rem 1rem; border-radius: 0 0.5rem 0.5rem 0; margin-bottom: 0.85rem; color: #374151; }
         .markdown-viewer-content hr { border: 0; border-top: 1px solid #e5e7eb; margin: 1rem 0; }
         .markdown-viewer-content a { color: #0d9488; text-decoration: underline; }
@@ -88,8 +88,8 @@
             margin-bottom: 0;
         }
         .chat-markdown-body pre {
-            background-color: #0f172a;
-            color: #f1f5f9;
+            background-color: #f3f4f6;
+            color: #1f2937;
             padding: 0.75rem 1rem;
             padding-top: 1.75rem;
             border-radius: 0.5rem;
@@ -98,11 +98,11 @@
             font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
             font-size: 0.86em;
             position: relative;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid #d1d5db;
         }
         .chat-markdown-body pre code {
             background: transparent !important;
-            color: inherit !important;
+            color: #111827 !important;
             padding: 0 !important;
             font-size: 1em !important;
             font-family: inherit !important;
@@ -146,21 +146,21 @@
             top: 0.35rem;
             right: 0.35rem;
             padding: 0.2rem 0.5rem;
-            background: rgba(255, 255, 255, 0.15);
-            color: #e2e8f0;
+            background: #e5e7eb;
+            color: #1f2937;
             border-radius: 0.3rem;
             font-size: 0.72rem;
             font-family: system-ui, sans-serif;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            border: 1px solid #cbd5e1;
             cursor: pointer;
             transition: all 0.2s;
-            opacity: 0.8;
+            opacity: 0.9;
             z-index: 10;
         }
         .cc-code-copy-btn:hover {
             opacity: 1;
-            background: rgba(255, 255, 255, 0.3);
-            color: #fff;
+            background: #d1d5db;
+            color: #111827;
         }
         .bg-chat { background-color: #efeae2; }
         .msg-me { background-color: #d9fdd3; }
@@ -3212,6 +3212,93 @@
     }
 
     // --- INTEGRIERTER MARKDOWN-VIEWER (.md / .markdown) ---
+    function enhanceMarkdownViewerLinks(container) {
+        if (!container) return;
+        const headings = container.querySelectorAll('h1, h2, h3, h4');
+        headings.forEach(h => {
+            const raw = (h.textContent || h.innerText || '').trim().toLowerCase();
+            const slugDouble = raw.replace(/\s+/g, '-').replace(/[^\p{L}\p{M}\p{Nd}\p{Nl}\p{Pc}\-]/gu, '');
+            const slugSingle = slugDouble.replace(/-+/g, '-').replace(/^-|-$/g, '');
+            const slugAscii = slugSingle.replace(/ä/g, 'ae').replace(/ö/g, 'oe').replace(/ü/g, 'ue').replace(/ß/g, 'ss');
+            const numMatch = raw.match(/^(\d+(?:\.\d+)?)/);
+            const secNum = numMatch ? numMatch[1].replace(/\./g, '') : '';
+            if (!h.id && (slugDouble || slugSingle)) {
+                h.id = slugDouble || slugSingle;
+            }
+            h.dataset.slugDouble = slugDouble;
+            h.dataset.slugSingle = slugSingle;
+            h.dataset.slugAscii = slugAscii;
+            if (secNum) h.dataset.secNum = secNum;
+            h.style.scrollMarginTop = '16px';
+        });
+
+        container.querySelectorAll('a[href]').forEach(a => {
+            const href = a.getAttribute('href') || '';
+            if (href.startsWith('http://') || href.startsWith('https://')) {
+                a.setAttribute('target', '_blank');
+                a.setAttribute('rel', 'noopener noreferrer');
+            }
+        });
+
+        if (!container.dataset.mdLinksBound) {
+            container.dataset.mdLinksBound = '1';
+            container.addEventListener('click', function(e) {
+                const link = e.target.closest('a[href]');
+                if (!link) return;
+                const href = link.getAttribute('href') || '';
+                if (!href.startsWith('#') || href === '#') return;
+                e.preventDefault();
+
+                let rawTarget = href.slice(1);
+                try { rawTarget = decodeURIComponent(rawTarget); } catch (_) {}
+                const targetLower = rawTarget.toLowerCase();
+                const targetSingle = targetLower.replace(/-+/g, '-').replace(/^-|-$/g, '');
+                const targetAscii = targetSingle.replace(/ä/g, 'ae').replace(/ö/g, 'oe').replace(/ü/g, 'ue').replace(/ß/g, 'ss');
+                const targetLeadNum = (targetSingle.match(/^(\d+)/) || [])[1] || '';
+
+                let targetEl = null;
+                try {
+                    targetEl = container.querySelector('[id="' + CSS.escape(rawTarget) + '"]') ||
+                               container.querySelector('[id="' + CSS.escape(targetLower) + '"]') ||
+                               container.querySelector('[id="' + CSS.escape(targetSingle) + '"]');
+                } catch (_) {}
+
+                if (!targetEl) {
+                    const allHeadings = Array.from(container.querySelectorAll('h1, h2, h3, h4'));
+                    targetEl = allHeadings.find(h =>
+                        h.dataset.slugDouble === targetLower ||
+                        h.dataset.slugSingle === targetSingle ||
+                        h.dataset.slugAscii === targetAscii ||
+                        (h.dataset.slugSingle && targetSingle && (
+                            h.dataset.slugSingle.startsWith(targetSingle) ||
+                            targetSingle.startsWith(h.dataset.slugSingle)
+                        ))
+                    );
+                    if (!targetEl && targetLeadNum) {
+                        targetEl = allHeadings.find(h => h.dataset.secNum === targetLeadNum);
+                    }
+                }
+
+                if (targetEl && targetEl.tagName === 'A' && !targetEl.textContent.trim()) {
+                    let next = targetEl.nextElementSibling;
+                    while (next && next.tagName === 'A' && !next.textContent.trim()) {
+                        next = next.nextElementSibling;
+                    }
+                    if (next) targetEl = next;
+                }
+
+                if (targetEl) {
+                    targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    const origBg = targetEl.style.backgroundColor;
+                    targetEl.style.transition = 'background-color 0.4s ease';
+                    targetEl.style.backgroundColor = '#ccfbf1';
+                    targetEl.style.borderRadius = '6px';
+                    setTimeout(() => { targetEl.style.backgroundColor = origBg || ''; }, 1400);
+                }
+            });
+        }
+    }
+
     function openMarkdownViewer(fileUrl, fileName) {
         const modal = document.getElementById('markdown-viewer-modal');
         const titleEl = document.getElementById('markdown-viewer-title');
@@ -3236,6 +3323,7 @@
             .then(mdText => {
                 if (typeof marked !== 'undefined' && marked.parse) {
                     bodyEl.innerHTML = marked.parse(mdText);
+                    enhanceMarkdownViewerLinks(bodyEl);
                 } else {
                     bodyEl.innerHTML = '<pre class="whitespace-pre-wrap text-sm text-gray-800">' + escapeHtml(mdText) + '</pre>';
                 }

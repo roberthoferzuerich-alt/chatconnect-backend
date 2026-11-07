@@ -83,8 +83,9 @@
             border: 1px solid #e5e7eb;
         }
         .markdown-body pre {
-            background-color: #1e293b;
-            color: #f8fafc;
+            background-color: #f3f4f6;
+            color: #1f2937;
+            border: 1px solid #d1d5db;
             padding: 1rem;
             border-radius: 0.75rem;
             overflow-x: auto;
@@ -92,7 +93,7 @@
         }
         .markdown-body pre code {
             background: transparent;
-            color: inherit;
+            color: #111827;
             padding: 0;
             border: none;
             font-size: 0.9em;
@@ -360,7 +361,7 @@
                 <div class="flex items-center space-x-3">
                     <span class="text-3xl">📚</span>
                     <div>
-                        <h3 class="font-bold text-gray-900 text-base">Möchtest du alle 19 Kapitel im Detail lesen?</h3>
+                        <h3 class="font-bold text-gray-900 text-base">Möchtest du alle 18 Kapitel im Detail lesen?</h3>
                         <p class="text-xs sm:text-sm text-gray-600">Inklusive Schritt-für-Schritt-Anleitungen, Offline-Setup für Enkel ohne SIM-Karte und FAQ.</p>
                     </div>
                 </div>
@@ -417,7 +418,7 @@
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                         <span>Markdown (.md)</span>
                     </a>
-                    <button type="button" onclick="window.print()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-900 text-white rounded-lg text-xs font-bold transition flex items-center gap-1 cursor-pointer">
+                    <button type="button" onclick="window.print()" class="px-3 py-1.5 bg-gray-200 hover:bg-gray-300 text-gray-800 border border-gray-300 rounded-lg text-xs font-bold transition flex items-center gap-1 cursor-pointer">
                         <span>🖨️ Drucken</span>
                     </button>
                     <button type="button" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="px-3 py-1.5 bg-white border border-slate-200 hover:bg-slate-100 text-slate-700 rounded-lg text-xs font-semibold transition cursor-pointer" title="Nach oben scrollen">
@@ -485,10 +486,125 @@
             window.history.replaceState({}, '', url);
         }
 
+        function generateHeadingSlugs(text) {
+            const raw = (text || '').trim().toLowerCase();
+            // VSCode / GitHub style slug (spaces -> '-', remove non-letter/digit/hyphen, preserving '--')
+            const slugDouble = raw
+                .replace(/\s+/g, '-')
+                .replace(/[^\p{L}\p{M}\p{Nd}\p{Nl}\p{Pc}\-]/gu, '');
+            const slugSingle = slugDouble.replace(/-+/g, '-').replace(/^-|-$/g, '');
+            const slugAscii = slugSingle
+                .replace(/ä/g, 'ae').replace(/ö/g, 'oe').replace(/ü/g, 'ue').replace(/ß/g, 'ss');
+            const numMatch = raw.match(/^(\d+(?:\.\d+)?)/);
+            const secNum = numMatch ? numMatch[1].replace(/\./g, '') : '';
+            const secNumHyphen = numMatch ? numMatch[1].replace(/\./g, '-') : '';
+            return { slugDouble, slugSingle, slugAscii, secNum, secNumHyphen };
+        }
+
+        function setupMarkdownLinksAndHeadings(container) {
+            if (!container) return;
+
+            const headings = container.querySelectorAll('h1, h2, h3, h4');
+            headings.forEach(h => {
+                const { slugDouble, slugSingle, slugAscii, secNum, secNumHyphen } = generateHeadingSlugs(h.textContent || h.innerText);
+                if (!h.id && (slugDouble || slugSingle)) {
+                    h.id = slugDouble || slugSingle;
+                }
+                h.dataset.slugDouble = slugDouble;
+                h.dataset.slugSingle = slugSingle;
+                h.dataset.slugAscii = slugAscii;
+                if (secNum) h.dataset.secNum = secNum;
+                if (secNumHyphen) h.dataset.secNumHyphen = secNumHyphen;
+                h.style.scrollMarginTop = '24px';
+            });
+
+            const links = container.querySelectorAll('a[href]');
+            links.forEach(a => {
+                const href = a.getAttribute('href') || '';
+                if (href.startsWith('http://') || href.startsWith('https://')) {
+                    a.setAttribute('target', '_blank');
+                    a.setAttribute('rel', 'noopener noreferrer');
+                }
+            });
+
+            if (!container.dataset.linksBound) {
+                container.dataset.linksBound = '1';
+                container.addEventListener('click', function(e) {
+                    const link = e.target.closest('a[href]');
+                    if (!link) return;
+                    const href = link.getAttribute('href') || '';
+                    if (!href.startsWith('#') || href === '#') return;
+
+                    e.preventDefault();
+                    let rawTarget = href.slice(1);
+                    try { rawTarget = decodeURIComponent(rawTarget); } catch (_) {}
+                    const targetLower = rawTarget.toLowerCase();
+                    const targetSingle = targetLower.replace(/-+/g, '-').replace(/^-|-$/g, '');
+                    const targetAscii = targetSingle
+                        .replace(/ä/g, 'ae').replace(/ö/g, 'oe').replace(/ü/g, 'ue').replace(/ß/g, 'ss');
+                    const targetLeadNum = (targetSingle.match(/^(\d+)/) || [])[1] || '';
+
+                    // Reset any active search filter so the target heading is visible
+                    if (container.id === 'full-guide-content') {
+                        const sInput = document.getElementById('full-guide-search');
+                        if (sInput && sInput.value) { sInput.value = ''; filterFullGuide(''); }
+                    } else if (container.id === 'tech-guide-content') {
+                        const tInput = document.getElementById('tech-guide-search');
+                        if (tInput && tInput.value) { tInput.value = ''; filterTechGuide(''); }
+                    }
+
+                    let targetEl = null;
+                    try {
+                        targetEl = container.querySelector('[id="' + CSS.escape(rawTarget) + '"]') ||
+                                   container.querySelector('[id="' + CSS.escape(targetLower) + '"]') ||
+                                   container.querySelector('[id="' + CSS.escape(targetSingle) + '"]');
+                    } catch (_) {}
+
+                    if (!targetEl) {
+                        const allHeadings = Array.from(container.querySelectorAll('h1, h2, h3, h4'));
+                        targetEl = allHeadings.find(h =>
+                            h.dataset.slugDouble === targetLower ||
+                            h.dataset.slugSingle === targetSingle ||
+                            h.dataset.slugAscii === targetAscii ||
+                            (h.dataset.slugSingle && targetSingle && (
+                                h.dataset.slugSingle.startsWith(targetSingle) ||
+                                targetSingle.startsWith(h.dataset.slugSingle)
+                            ))
+                        );
+                        if (!targetEl && targetLeadNum) {
+                            targetEl = allHeadings.find(h => h.dataset.secNum === targetLeadNum);
+                        }
+                    }
+
+                    // If targetEl is an empty <a id="..."></a> anchor right above a heading, jump to the heading
+                    if (targetEl && targetEl.tagName === 'A' && !targetEl.textContent.trim()) {
+                        let next = targetEl.nextElementSibling;
+                        while (next && next.tagName === 'A' && !next.textContent.trim()) {
+                            next = next.nextElementSibling;
+                        }
+                        if (next) targetEl = next;
+                    }
+
+                    if (targetEl) {
+                        targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        const origBg = targetEl.style.backgroundColor;
+                        const origTransition = targetEl.style.transition;
+                        targetEl.style.transition = 'background-color 0.4s ease';
+                        targetEl.style.backgroundColor = '#ccfbf1';
+                        targetEl.style.borderRadius = '6px';
+                        setTimeout(() => {
+                            targetEl.style.backgroundColor = origBg || '';
+                            setTimeout(() => { targetEl.style.transition = origTransition || ''; }, 400);
+                        }, 1400);
+                    }
+                });
+            }
+        }
+
         async function loadTechGuide() {
             const container = document.getElementById('tech-guide-content');
             try {
-                const res = await fetch('/docs/ChatConnect_Technisches_Handbuch_RaspberryPi_Git_Artisan.md');
+                const res = await fetch('/docs/ChatConnect_Technisches_Handbuch_RaspberryPi_Git_Artisan.md?v=' + Date.now());
                 if (!res.ok) throw new Error('Status ' + res.status);
                 const md = await res.text();
                 if (typeof marked !== 'undefined') {
@@ -496,6 +612,7 @@
                 } else {
                     container.innerText = md;
                 }
+                setupMarkdownLinksAndHeadings(container);
                 techGuideLoaded = true;
             } catch (err) {
                 console.error('Failed to load tech guide markdown:', err);
@@ -520,7 +637,7 @@
         async function loadFullGuide() {
             const container = document.getElementById('full-guide-content');
             try {
-                const res = await fetch('/docs/ChatConnect_WebApp_Benutzeranleitung.md');
+                const res = await fetch('/docs/ChatConnect_WebApp_Benutzeranleitung.md?v=' + Date.now());
                 if (!res.ok) throw new Error('Status ' + res.status);
                 const md = await res.text();
                 
@@ -529,6 +646,7 @@
                 } else {
                     container.innerText = md;
                 }
+                setupMarkdownLinksAndHeadings(container);
                 fullGuideLoaded = true;
 
                 // Index section elements for in-guide search
