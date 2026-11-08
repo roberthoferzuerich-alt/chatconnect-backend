@@ -3237,6 +3237,12 @@
             if (href.startsWith('http://') || href.startsWith('https://')) {
                 a.setAttribute('target', '_blank');
                 a.setAttribute('rel', 'noopener noreferrer');
+            } else if (href.startsWith('#schulung-')) {
+                const ch = href.replace('#schulung-', '');
+                a.setAttribute('href', '/guide?view=full&schulung=' + ch);
+                a.setAttribute('target', '_blank');
+                a.style.cssText = 'display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:9999px;background:#00a884;color:#fff;font-size:12px;font-weight:700;text-decoration:none;float:right;';
+                a.innerHTML = '🎬 Bild-Schulung';
             }
         });
 

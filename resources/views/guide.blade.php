@@ -141,6 +141,118 @@
             padding: 0.1rem 0.35rem;
             color: #374151;
         }
+
+        /* Graphical Training Icon Link in TOC & Headings */
+        .toc-training-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.75rem;
+            padding: 0.35rem 0.6rem;
+            border-radius: 0.65rem;
+            transition: background-color 0.18s ease;
+        }
+        .toc-training-row:hover {
+            background-color: #f0fdfa;
+        }
+        .toc-training-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.28rem 0.65rem;
+            border-radius: 9999px;
+            background: linear-gradient(135deg, #00a884 0%, #0d9488 100%);
+            color: #ffffff !important;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-decoration: none !important;
+            white-space: nowrap;
+            box-shadow: 0 2px 6px rgba(0, 168, 132, 0.28);
+            transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
+            flex-shrink: 0;
+            cursor: pointer;
+        }
+        .toc-training-btn:hover {
+            transform: translateY(-1px) scale(1.03);
+            box-shadow: 0 4px 12px rgba(0, 168, 132, 0.42);
+            filter: brightness(1.06);
+            color: #ffffff !important;
+        }
+
+        /* Animated Speech Bubbles & Hotspots on Hardcopy Screen */
+        @keyframes pulseHotspot {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.75); }
+            50% { transform: translate(-50%, -50%) scale(1.14); box-shadow: 0 0 0 10px rgba(245, 158, 11, 0); }
+        }
+        @keyframes floatSpeechBubble {
+            0% { opacity: 0; transform: translateY(8px) scale(0.94); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .hc-hotspot {
+            position: absolute;
+            width: 28px;
+            height: 28px;
+            border-radius: 9999px;
+            background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%);
+            color: #ffffff;
+            font-weight: 800;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2.5px solid #ffffff;
+            cursor: pointer;
+            z-index: 30;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.35);
+            transition: all 0.2s ease;
+        }
+        .hc-hotspot.active {
+            background: linear-gradient(135deg, #00a884 0%, #0284c7 100%);
+            width: 32px;
+            height: 32px;
+            font-size: 14px;
+            animation: pulseHotspot 1.6s infinite;
+            z-index: 40;
+        }
+        .hc-speech-bubble {
+            position: absolute;
+            z-index: 45;
+            max-width: 265px;
+            min-width: 205px;
+            background: #ffffff;
+            color: #111827;
+            border: 2px solid #00a884;
+            border-radius: 14px;
+            padding: 10px 12px;
+            box-shadow: 0 12px 28px -4px rgba(0, 0, 0, 0.28), 0 4px 10px rgba(0, 168, 132, 0.18);
+            animation: floatSpeechBubble 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            pointer-events: auto;
+        }
+        .hc-speech-bubble::after {
+            content: '';
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background: #ffffff;
+            border-left: 2px solid #00a884;
+            border-top: 2px solid #00a884;
+            transform: rotate(45deg);
+        }
+        .hc-speech-bubble.arrow-top::after {
+            top: -8px;
+            left: 24px;
+        }
+        .hc-speech-bubble.arrow-bottom::after {
+            bottom: -8px;
+            left: 24px;
+            transform: rotate(225deg);
+        }
+        .hc-speech-bubble.arrow-right::after {
+            top: 18px;
+            right: -8px;
+            transform: rotate(135deg);
+        }
     </style>
 </head>
 <body class="bg-gray-100 text-gray-800 min-h-screen py-4 sm:py-8 px-2 sm:px-6 lg:px-8">
@@ -158,6 +270,10 @@
                 </div>
             </div>
             <div class="flex items-center gap-2 flex-wrap">
+                <button type="button" onclick="openVisualTraining(3)" class="px-3.5 py-2 bg-gradient-to-r from-[#00a884] to-teal-600 hover:from-[#008f6f] hover:to-teal-700 text-white text-xs sm:text-sm font-bold rounded-xl shadow-sm transition flex items-center space-x-1.5 cursor-pointer" title="Interaktive Schritt-für-Schritt Bild-Schulung mit animierten Sprechblasen starten">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                    <span>🎬 Interaktive Bild-Schulung</span>
+                </button>
                 <a href="/docs/ChatConnect_WebApp_Benutzeranleitung.pdf" target="_blank" download class="px-3.5 py-2 bg-red-600 hover:bg-red-700 text-white text-xs sm:text-sm font-semibold rounded-xl shadow-sm transition flex items-center space-x-1.5" title="Offizielles PDF-Handbuch herunterladen (3.8 MB)">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                     <span>PDF herunterladen</span>
@@ -516,6 +632,25 @@
                 if (secNum) h.dataset.secNum = secNum;
                 if (secNumHyphen) h.dataset.secNumHyphen = secNumHyphen;
                 h.style.scrollMarginTop = '24px';
+
+                // Add context-sensitive graphical training icon button on h2 chapter headings (1..18) in full guide
+                if (container.id === 'full-guide-content' && h.tagName === 'H2' && secNum && !h.dataset.hasTrainingBtn) {
+                    const chNum = parseInt(secNum, 10);
+                    if (chNum >= 1 && chNum <= 18) {
+                        h.dataset.hasTrainingBtn = '1';
+                        h.style.display = 'flex';
+                        h.style.alignItems = 'center';
+                        h.style.justifyContent = 'space-between';
+                        h.style.gap = '0.75rem';
+                        h.style.flexWrap = 'wrap';
+                        const btn = document.createElement('a');
+                        btn.href = '#schulung-' + chNum;
+                        btn.className = 'toc-training-btn';
+                        btn.title = 'Interaktive Bild-Schulung mit animierten Sprechblasen zu Kapitel ' + chNum + ' starten';
+                        btn.innerHTML = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg><span>🎬 Bild-Schulung</span>`;
+                        h.appendChild(btn);
+                    }
+                }
             });
 
             const links = container.querySelectorAll('a[href]');
@@ -524,6 +659,22 @@
                 if (href.startsWith('http://') || href.startsWith('https://')) {
                     a.setAttribute('target', '_blank');
                     a.setAttribute('rel', 'noopener noreferrer');
+                } else if (href.startsWith('#schulung-')) {
+                    const chNum = href.replace('#schulung-', '');
+                    a.className = 'toc-training-btn';
+                    a.title = 'Kontextbezogene Bild-Schulung (Hardcopy & animierte Sprechblasen) zu Kapitel ' + chNum + ' starten';
+                    a.innerHTML = `<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg><span>Bild-Schulung</span>`;
+                    const parentLi = a.closest('li');
+                    if (parentLi && !parentLi.dataset.tocStyled) {
+                        parentLi.dataset.tocStyled = '1';
+                        // Remove the " — " separator text node before the button for a clean right-aligned layout
+                        Array.from(parentLi.childNodes).forEach(node => {
+                            if (node.nodeType === Node.TEXT_NODE && node.textContent.includes('—')) {
+                                node.textContent = node.textContent.replace(/\s*—\s*/g, ' ');
+                            }
+                        });
+                        parentLi.classList.add('toc-training-row');
+                    }
                 }
             });
 
@@ -536,6 +687,11 @@
                     if (!href.startsWith('#') || href === '#') return;
 
                     e.preventDefault();
+                    if (href.startsWith('#schulung-')) {
+                        const ch = parseInt(href.replace('#schulung-', ''), 10) || 3;
+                        openVisualTraining(ch);
+                        return;
+                    }
                     let rawTarget = href.slice(1);
                     try { rawTarget = decodeURIComponent(rawTarget); } catch (_) {}
                     const targetLower = rawTarget.toLowerCase();
@@ -697,6 +853,1048 @@
             } else if (viewParam === 'tech') {
                 switchGuideTab('tech');
             }
+            const schulungParam = params.get('schulung');
+            if (schulungParam) {
+                setTimeout(() => openVisualTraining(parseInt(schulungParam, 10) || 3), 250);
+            }
+        });
+    </script>
+
+    <!-- ========================================================================= -->
+    <!-- INTERAKTIVE BILD-SCHULUNG MODAL (Hardcopys & Animierte Sprechblasen)     -->
+    <!-- ========================================================================= -->
+    <div id="visual-training-modal" class="fixed inset-0 z-50 hidden bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
+        <div class="bg-white w-full max-w-5xl rounded-2xl shadow-2xl border border-teal-200 overflow-hidden flex flex-col max-h-[95vh]">
+            
+            <!-- Modal Header -->
+            <div class="bg-gradient-to-r from-[#075e54] via-[#008069] to-[#00a884] text-white px-4 py-3 sm:px-6 sm:py-4 flex flex-wrap items-center justify-between gap-3">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-white/15 border border-white/25 flex items-center justify-center text-xl shadow-inner">
+                        🎬
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-[11px] uppercase tracking-wider font-extrabold bg-amber-400 text-slate-950 px-2 py-0.5 rounded-full">Interaktive Schulung</span>
+                            <span id="vt-chapter-badge" class="text-xs text-teal-100 font-semibold">Kapitel 3 von 18</span>
+                        </div>
+                        <h2 id="vt-chapter-title" class="text-base sm:text-xl font-extrabold leading-tight mt-0.5">
+                            3. 💬 Chatten, Antwort &amp; Alle Möglichkeiten im Chat
+                        </h2>
+                    </div>
+                </div>
+
+                <!-- Chapter Selector & Close -->
+                <div class="flex items-center gap-2">
+                    <button type="button" onclick="stepVisualTrainingChapter(-1)" class="px-2.5 py-1.5 rounded-lg bg-white/15 hover:bg-white/25 text-xs font-bold transition cursor-pointer" title="Vorheriges Kapitel">
+                        ◀ Kap.
+                    </button>
+                    <select id="vt-chapter-select" onchange="openVisualTraining(parseInt(this.value, 10))" class="bg-white/95 text-slate-800 text-xs sm:text-sm font-bold rounded-lg px-2.5 py-1.5 border border-white/40 outline-none cursor-pointer max-w-[210px] sm:max-w-[280px]">
+                    </select>
+                    <button type="button" onclick="stepVisualTrainingChapter(1)" class="px-2.5 py-1.5 rounded-lg bg-white/15 hover:bg-white/25 text-xs font-bold transition cursor-pointer" title="Nächstes Kapitel">
+                        Kap. ▶
+                    </button>
+                    <button type="button" onclick="closeVisualTraining()" class="ml-1 w-9 h-9 rounded-xl bg-white/15 hover:bg-red-500 text-white font-bold flex items-center justify-center transition cursor-pointer" title="Schulung schliessen (Esc)">
+                        ✕
+                    </button>
+                </div>
+            </div>
+
+            <!-- Screen Step Switcher (Bild 1: Eintrag vs Bild 2: Antwort & Möglichkeiten) -->
+            <div class="bg-slate-100 px-3 sm:px-6 py-2.5 border-b border-slate-200 flex flex-wrap items-center justify-between gap-2">
+                <div class="flex items-center gap-2 flex-wrap">
+                    <button type="button" id="vt-screen-btn-0" onclick="switchVisualScreen(0)" class="px-3.5 py-1.5 rounded-xl font-extrabold text-xs sm:text-sm transition flex items-center gap-1.5 cursor-pointer bg-[#00a884] text-white shadow-sm">
+                        <span>🖥️ Bild 1: Erster Eintrag &amp; Eingabe</span>
+                    </button>
+                    <span class="text-slate-400 font-bold">➔</span>
+                    <button type="button" id="vt-screen-btn-1" onclick="switchVisualScreen(1)" class="px-3.5 py-1.5 rounded-xl font-extrabold text-xs sm:text-sm transition flex items-center gap-1.5 cursor-pointer bg-white text-slate-700 border border-slate-300 hover:bg-slate-50">
+                        <span>💬 Bild 2: Antwort &amp; Alle Möglichkeiten</span>
+                    </button>
+                </div>
+
+                <!-- Playback & Hardcopy Controls -->
+                <div class="flex items-center gap-1.5 flex-wrap">
+                    <button type="button" id="vt-autoplay-btn" onclick="toggleVisualAutoPlay()" class="px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-600 text-white text-xs font-extrabold transition flex items-center gap-1 shadow-xs cursor-pointer">
+                        <span>▶️ Auto-Tour</span>
+                    </button>
+                    <button type="button" id="vt-showall-btn" onclick="toggleShowAllBubbles()" class="px-2.5 py-1.5 rounded-lg bg-white border border-slate-300 hover:bg-teal-50 text-slate-700 text-xs font-bold transition cursor-pointer" title="Alle Sprechblasen gleichzeitig auf dem Bildschirm einblenden">
+                        💬 Alle Blasen
+                    </button>
+                    <label class="px-2.5 py-1.5 rounded-lg bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs font-bold transition cursor-pointer flex items-center gap-1" title="Optional: Eigenes Screenshot-/Hardcopy-Bild (.png/.jpg) für diese Ansicht hinterlegen">
+                        <span>📷 Eigene Hardcopy</span>
+                        <input type="file" accept="image/*" class="hidden" onchange="uploadCustomHardcopy(event)">
+                    </label>
+                </div>
+            </div>
+
+            <!-- Main Interactive Hardcopy Stage -->
+            <div class="p-3 sm:p-5 overflow-y-auto flex-1 bg-slate-50 space-y-4">
+                
+                <!-- Hardcopy Frame Container -->
+                <div id="vt-hardcopy-stage" class="relative mx-auto w-full max-w-4xl rounded-2xl overflow-hidden shadow-lg border-2 border-slate-300 bg-[#efeae2] select-none" style="min-height: 410px;">
+                    <!-- Dynamically rendered 1:1 Hardcopy + Hotspots + Animated Speech Bubbles -->
+                </div>
+
+                <!-- Active Speech Bubble Detail Bar & Stepper -->
+                <div class="max-w-4xl mx-auto bg-gradient-to-r from-teal-50 via-emerald-50 to-cyan-50 border-2 border-teal-300 rounded-2xl p-3.5 sm:p-4 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                    <div class="flex items-start gap-3">
+                        <div id="vt-active-num" class="w-9 h-9 rounded-full bg-[#00a884] text-white font-extrabold text-base flex items-center justify-center flex-shrink-0 shadow">
+                            1
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <span id="vt-active-tag" class="text-[11px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded bg-teal-200/80 text-teal-950">Sprechblase 1</span>
+                                <h3 id="vt-active-title" class="font-extrabold text-slate-900 text-sm sm:text-base">Funktion</h3>
+                            </div>
+                            <p id="vt-active-desc" class="text-xs sm:text-sm text-slate-700 mt-1 leading-relaxed"></p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-2 self-end sm:self-center flex-shrink-0">
+                        <button type="button" onclick="stepVisualBubble(-1)" class="px-3 py-2 rounded-xl bg-white hover:bg-slate-100 text-slate-800 border border-slate-300 text-xs font-extrabold transition cursor-pointer shadow-2xs">
+                            ◀ Zurück
+                        </button>
+                        <button type="button" onclick="stepVisualBubble(1)" class="px-4 py-2 rounded-xl bg-[#00a884] hover:bg-[#008f6f] text-white text-xs font-extrabold transition cursor-pointer shadow-sm">
+                            Weiter ▶
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Quick Hotspot Pills -->
+                <div id="vt-hotspot-pills" class="max-w-4xl mx-auto flex flex-wrap items-center gap-1.5 pt-1">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // =========================================================================
+        // DATEN & ENGINE FÜR DIE INTERAKTIVE BILD-SCHULUNG (KAPITEL 1 BIS 18)
+        // =========================================================================
+        const VISUAL_TRAINING_DATA = {
+            1: {
+                title: '1. 🔗 Zugriff im Web-Browser & Anmeldung',
+                screens: [
+                    {
+                        label: 'Bild 1: Adresse eingeben & Anmelden',
+                        contactName: 'ChatConnect Login (Safari / Chrome)',
+                        contactSub: '🔒 https://rhz.internet-box.ch:8443',
+                        pinnedBanner: '🌐 Sichere HTTPS-Verbindung zu deinem Familien-Server',
+                        msg1: { sender: 'System', time: '09:00', text: 'Willkommen bei ChatConnect! Gib deine E-Mail-Adresse und dein Passwort ein und setze das Häkchen bei „Angemeldet bleiben“.' },
+                        inputText: 'robert@chatconnect.ch ••••••••  [✓ Angemeldet bleiben]',
+                        bubbles: [
+                            { x: 50, y: 11, title: '🔒 Web-Adresse im Browser', text: 'Tippe in Safari, Chrome oder Edge einfach https://rhz.internet-box.ch:8443 ein. Beim allerersten Mal kurz auf „Erweitert ➔ Weiter“ tippen.' },
+                            { x: 34, y: 46, title: '🔑 Einloggen & Angemeldet bleiben', text: 'Mit E-Mail und Passwort anmelden. Setze das Häkchen bei „Angemeldet bleiben“, damit du dich nicht jedes Mal neu einloggen musst!' },
+                            { x: 68, y: 88, title: '🚀 Direkt starten', text: 'Ein Klick auf Anmelden öffnet sofort deine persönliche Chat-Übersicht auf Handy, Tablet oder PC.' }
+                        ]
+                    },
+                    {
+                        label: 'Bild 2: Als App auf den Home-Bildschirm legen',
+                        contactName: '📱 Home-Bildschirm App (iPhone & Android)',
+                        contactSub: 'Startet im Vollbild wie eine echte App – auch offline!',
+                        pinnedBanner: '💡 Perfekt für Enkelkinder mit iPhone/Smartphone ohne SIM-Karte',
+                        msg1: { sender: 'Opa Robert', time: '09:02', text: 'Tipp in Safari unten auf Teilen (⬆️) und wähle „Zum Home-Bildschirm“!' },
+                        msg2: { sender: 'Leon', time: '09:03', isMe: true, text: 'Cool! Jetzt habe ich das grüne ChatConnect-Icon direkt auf meinem Handy-Startbildschirm! 🎉', reactions: ['👍 2', '🎉 1'] },
+                        inputText: 'Startet per Fingertipp im Vollbildmodus...',
+                        bubbles: [
+                            { x: 45, y: 24, title: '⬆️ Safari „Teilen“ oder Chrome „⋮“', text: 'Auf dem iPhone in Safari auf „Teilen (⬆️) ➔ Zum Home-Bildschirm“ tippen; auf Android im Menü „⋮ ➔ App installieren“.' },
+                            { x: 64, y: 58, title: '📲 Eigenes App-Icon auf dem Handy', text: 'ChatConnect liegt danach als echtes Icon auf dem Startbildschirm und öffnet sich ohne störende Browserleisten.' },
+                            { x: 52, y: 74, title: '📡 Funktioniert sogar unterwegs ohne WLAN', text: 'Über das Homescreen-Icon lässt sich ChatConnect auch im Bus ohne Internet öffnen, um Nachrichten vorzuschreiben!' }
+                        ]
+                    }
+                ]
+            },
+            2: {
+                title: '2. 📱 Aufbau, Profil-Anzeige & Eigener Datei-Chat',
+                screens: [
+                    {
+                        label: 'Bild 1: Profil-Plakette & Eigener Datei-Chat auswählen',
+                        contactName: 'Robert Hofer (Ich / Eigene Dateien)',
+                        contactSub: '💙 Dein persönlicher Notiz- & Datei-Tresor zwischen Schule, Handy & PC',
+                        pinnedBanner: '📌 Oben links neben „Chats“ siehst du immer dein eigenes Profilbild & deinen Namen',
+                        msg1: { sender: 'Ich (Schule)', time: '10:15', isMe: true, text: '📄 mein_schluesselanhaenger.stl (1.4 MB) — In der Schule hochgeladen' },
+                        inputText: 'Notiz oder Datei an mich selbst senden...',
+                        bubbles: [
+                            { x: 18, y: 12, title: '👤 Profilbild & Name oben links', text: 'Neben „Chats“ siehst du immer, mit welchem Konto du eingeloggt bist. Ein Klick darauf öffnet deine Profil-Einstellungen.' },
+                            { x: 55, y: 24, title: '💙 Chat „(Ich / Eigene Dateien)“', text: 'Dein eigener Kontakt in der Liste! Alles, was du hier hineinschickst, gehört nur dir und ist sofort auf allen deinen Geräten verfügbar.' },
+                            { x: 62, y: 48, title: '🎒 Praxis-Tipp: Schule ➔ Zuhause', text: 'Dein Enkel lädt in der Schule seine .stl-Datei in „(Ich / Eigene Dateien)“ hoch und öffnet sie zuhause am großen PC im 3D-Browser!' }
+                        ]
+                    },
+                    {
+                        label: 'Bild 2: Smartphone 1-Screen-Ansicht vs. PC 3-Spalten',
+                        contactName: 'Familien-Übersicht (Handy & PC)',
+                        contactSub: '💬 Chats • 📞 Anrufe • ⭕ Storys • 👤 Profil',
+                        pinnedBanner: '📱 Automatische Anpassung an Hochformat, Querformat & Galaxy Z Flip',
+                        msg1: { sender: 'Dario', time: '10:20', text: 'Am Laptop sehe ich links die Kontakte und rechts den Chat.' },
+                        msg2: { sender: 'Jil', time: '10:21', isMe: true, text: 'Und auf dem Handy habe ich unten die 4 schnellen Tabs für Chats, Anrufe, Storys und Profil! 👍', reactions: ['❤️ 2'] },
+                        inputText: 'Nachricht schreiben...',
+                        bubbles: [
+                            { x: 26, y: 12, title: '← Zurück-Pfeil auf dem Smartphone', text: 'Auf dem Handy nutzt der geöffnete Chat die volle Displaybreite. Über den Pfeil links oben (←) kommst du sofort zurück zur Kontaktliste.' },
+                            { x: 78, y: 12, title: '🗂️ Medien & 📞 Anruf-Buttons oben rechts', text: 'In der Kopfzeile jedes Chats erreichst du mit 1 Klick die Medien-/3D-Galerie, die Volltextsuche (🔍) sowie Sprach- und Videoanrufe.' },
+                            { x: 50, y: 88, title: '🔄 Synchron auf allen Geräten', text: 'Du kannst gleichzeitig am PC, Tablet und Smartphone angemeldet sein – alle Einträge aktualisieren sich live.' }
+                        ]
+                    }
+                ]
+            },
+            3: {
+                title: '3. 💬 Chatten, Emojis, Dokumente (500 MB), Antwort & Alle Möglichkeiten',
+                screens: [
+                    {
+                        label: 'Bild 1: Erster Eintrag & Alle Eingabe-Werkzeuge',
+                        contactName: 'Leon & Opa Robert',
+                        contactSub: '🟢 Online • Tippt gerade...',
+                        pinnedBanner: '📌 Angepinnt: Treffpunkt Samstag 14:00 Uhr zum 3D-Drucken bei Opa!',
+                        msg1: { sender: 'Leon', time: '14:05', isMe: true, text: 'Hallo Opa! Ich habe in der Schule einen Schlüsselanhänger als 3D-Modell gebaut. Kannst du ihn mir ausdrucken? 🧊🚀' },
+                        inputText: 'Schreibe eine Nachricht... (oder nutze ✨ Zauberstab)',
+                        bubbles: [
+                            { x: 64, y: 45, title: '1️⃣ Erster Eintrag im Chat (Gesendet)', text: 'Deine gesendete Nachricht erscheint rechts in Grün. Die Doppelhäkchen (✓✓) zeigen dir live: grau = gesendet, blau = vom Partner gelesen!' },
+                            { x: 10, y: 88, title: '2️⃣ 😊 Emojis & 📎 Fotos (mit Cropper)', text: 'Links neben dem Textfeld öffnest du das Emoji-Fenster (9 Kategorien + deutsche Suche) oder wählst ein Foto zum Zuschneiden & Senden.' },
+                            { x: 24, y: 88, title: '3️⃣ 📄 Dokumente (500 MB), 🧊 3D & 📊 Umfrage', text: 'Versende Dateien bis 500 MB (.pdf, .stl, .zip, Minecraft-.jar, .md), starte den 3D-Generator (🧊) oder erstelle eine Live-Umfrage (📊).' },
+                            { x: 76, y: 88, title: '4️⃣ ✨ Zauberstab (Rechtschreibhilfe)', text: 'Ein Klick auf den Zauberstab (✨) im Textfeld korrigiert Tippfehler von Kindern automatisch vor dem Absenden!' },
+                            { x: 91, y: 88, title: '5️⃣ 🎤 Sprachnachricht & ➤ Senden', text: 'Über das Mikrofon (🎤) nimmst du Sprachmemos auf (klappt auch offline!). Mit Enter oder dem grünen Pfeil (➤) sendest du ab.' }
+                        ]
+                    },
+                    {
+                        label: 'Bild 2: Zweiter Eintrag (Die Antwort) & Alle Möglichkeiten im Chat',
+                        contactName: 'Leon & Opa Robert',
+                        contactSub: '🟢 Online • Alle Chat-Werkzeuge aktiv',
+                        pinnedBanner: '📌 Angepinnt: Schlüsselanhänger_Leon_v2.stl (1 Klick springt zur Nachricht)',
+                        msg1: { sender: 'Leon', time: '14:05', isMe: true, text: 'Hallo Opa! Ich habe in der Schule einen Schlüsselanhänger als 3D-Modell gebaut. Kannst du ihn mir ausdrucken? 🧊🚀' },
+                        msg2: {
+                            sender: 'Opa Robert',
+                            time: '14:06',
+                            isMe: false,
+                            quote: '↩️ Leon: „Hallo Opa! Ich habe in der Schule einen Schlüsselanhänger...“',
+                            text: 'Na klar, Leon! Schick mir die .stl-Datei einfach hier rein – wir schauen sie uns sofort im 3D-Viewer an und starten den Drucker! 👍🔥',
+                            attachment: '🧊 schluesselanhaenger_leon.stl • [Im 3D-Browser öffnen]',
+                            reactions: ['👍 2', '❤️ 1', '🔥 2', '🎉 1'],
+                            showActionBar: true
+                        },
+                        inputText: 'Antwort schreiben oder Reaktion wählen...',
+                        bubbles: [
+                            { x: 48, y: 54, title: '1️⃣ 😊 Emoji-Reaktionen & ↩️ Zitieren/Antworten', text: 'Fahre mit der Maus über die Nachricht (am Handy: lange drücken): Mit 😊 reagierst du per 👍 ❤️ 😂 😮 🎉 🔥, mit ↩️ antwortest du direkt mit Zitat-Box!' },
+                            { x: 64, y: 54, title: '2️⃣ ↪️ Weiterleiten & 📌 Oben anpinnen', text: 'Mit ↪️ leitest du Texte, Bilder oder 3D-Modelle an andere Chats oder „(Ich / Eigene Dateien)“ weiter. Mit 📌 heftest du sie oben als gelbes Banner an!' },
+                            { x: 77, y: 54, title: '3️⃣ ✏️ Bearbeiten, ★ Favorit & 🗑️ Löschen', text: 'Eigene Nachrichten jederzeit mit ✏️ korrigieren, wichtige Einträge mit ★ als Stern-Favorit speichern oder mit 🗑️ für alle Teilnehmer löschen.' },
+                            { x: 35, y: 74, title: '4️⃣ Live-Reaktions-Badges unter der Antwort', text: 'Alle vergebenen Emojis (👍 ❤️ 🔥 🎉) erscheinen live unter der Sprechblase – ein Tipp darauf zählt deine Reaktion dazu.' },
+                            { x: 82, y: 12, title: '5️⃣ 🗂️ Medien/3D-Galerie & 🔍 Volltextsuche', text: 'Oben im Chat-Header öffnest du mit 1 Klick die 3-Tab-Galerie (📷 Fotos, 📄 Dokumente, 🧊 3D-STL) oder durchsuchst den Chat per Lupe (🔍).' }
+                        ]
+                    }
+                ]
+            },
+            4: {
+                title: '4. 📖 Integrierter Markdown-Viewer (.md)',
+                screens: [
+                    {
+                        label: 'Bild 1: Markdown-Dokument (.md) im Chat empfangen',
+                        contactName: 'Dario & Opa Robert',
+                        contactSub: '📄 Dokumenten-Austausch',
+                        pinnedBanner: '📖 Markdown-Dateien (.md) werden automatisch mit violettem MD-Badge erkannt',
+                        msg1: { sender: 'Dario', time: '15:10', text: 'Opa, hier ist meine Projektdokumentation als .md-Datei:', attachment: '🟣 MD  Projekt_Notizen_Dario.md • [Im Markdown-Viewer öffnen]' },
+                        inputText: 'Auf die MD-Karte klicken zum Lesen...',
+                        bubbles: [
+                            { x: 42, y: 48, title: '🟣 Violettes MD-Badge im Chat', text: 'Jede gesendete .md-Datei erscheint als klickbare Karte mit dem Hinweis „Im Markdown-Viewer öffnen“.' },
+                            { x: 20, y: 88, title: '📄 Eigene .md-Datei senden', text: 'Über das Dokument-Symbol (📄) oder per Drag & Drop kannst du Handbücher und Notizen teilen.' }
+                        ]
+                    },
+                    {
+                        label: 'Bild 2: Geöffneter Markdown-Viewer mit Inhaltsverzeichnis',
+                        contactName: '📖 Markdown-Viewer: Projekt_Notizen_Dario.md',
+                        contactSub: 'Überschriften, Tabellen, Code-Blöcke & klickbare Kapitel-Links',
+                        pinnedBanner: '⬇️ Oben rechts kannst du die Originaldatei jederzeit herunterladen',
+                        msg1: { sender: 'MD-Viewer', time: 'Ansicht', text: '📑 Inhaltsverzeichnis: 1. Ziel • 2. Aufbau • 3. Code-Beispiel (alle Kapitel-Links scrollen butterweich zum Abschnitt!)' },
+                        msg2: { sender: 'MD-Viewer', time: 'Tabelle & Code', isMe: true, text: 'Formatierte Tabellen, Checklisten [✓] und hervorgehobene Code-Blöcke – direkt im Browser & in der App lesbar!' },
+                        inputText: 'Lesemodus aktiv...',
+                        bubbles: [
+                            { x: 38, y: 42, title: '🔗 Klickbares Inhaltsverzeichnis', text: 'Klicke im geöffneten Dokument auf einen Kapitel-Link, um direkt zur gewünschten Überschrift zu springen.' },
+                            { x: 85, y: 12, title: '⬇️ Download & Teilen', text: 'Über den Download-Button oben rechts speicherst du die .md-Datei lokal auf deinem Gerät.' }
+                        ]
+                    }
+                ]
+            },
+            5: {
+                title: '5. 🧊 Interaktiver 3D-STL / CTL Browser (.stl & .ctl)',
+                screens: [
+                    {
+                        label: 'Bild 1: 3D-Datei (.stl) im Chat anklicken',
+                        contactName: 'Leon & Opa Robert',
+                        contactSub: '🧊 3D-Druck & CAD-Vorschau',
+                        pinnedBanner: '🧊 Unterstützt Binary-STL und ASCII-STL/CTL ohne Zusatzsoftware',
+                        msg1: { sender: 'Leon', time: '15:30', text: 'Hier ist mein neuer Mittelschnauzer für den 3D-Drucker!', attachment: '🧊 3D  mittelschnauzer_liegend.stl • [Im 3D-Browser öffnen]' },
+                        inputText: 'Klicke auf „Im 3D-Browser öffnen“...',
+                        bubbles: [
+                            { x: 45, y: 48, title: '🧊 Türkises 3D-Badge im Chat', text: 'Jede .stl- oder .ctl-Datei bekommt automatisch den Button „Im 3D-Browser öffnen“ direkt in der Sprechblase.' },
+                            { x: 80, y: 12, title: '🗂️ Alle 3D-Modelle im 3D-Tab', text: 'Über „🗂️ Medien & 3D“ oben im Chat findest du im 3. Tab alle 3D-Modelle des gesamten Chats gesammelt!' }
+                        ]
+                    },
+                    {
+                        label: 'Bild 2: Interaktive 3D-Ansicht, Drehen, Messen & Materialien',
+                        contactName: '🧊 3D-STLViewer PRO – mittelschnauzer_liegend.stl',
+                        contactSub: '📐 Maße: 98.4 × 51.2 × 51.8 mm • 33\'632 Dreiecke • Volumen: 42.8 cm³',
+                        pinnedBanner: '🖱️ Links ziehen = Drehen (Orbit) • Rechts ziehen = Verschieben • Mausrad = Zoom',
+                        msg1: { sender: '3D-Analyse', time: 'Live', text: '📊 Präzise Druck-Infos oben links: Exakte Millimeter-Abmessungen (X × Y × Z), Dreiecks-Anzahl, Volumen (cm³) und Oberfläche.' },
+                        msg2: { sender: 'Werkzeugleiste', time: 'Unten', isMe: true, text: '🎛️ Ansichten: [Iso 3D] [Vorne] [Oben] [Seite] • [Drahtgitter] [Gitter & Achsen] [Auto-Drehen] • 🎨 8 Materialien (Blau, Smaragd, Silber, Gold...)', showActionBar: false },
+                        inputText: '⬇️ STL herunterladen für Bambu Studio / PrusaSlicer / Cura',
+                        bubbles: [
+                            { x: 40, y: 24, title: '📐 Exakte Millimeter-Maße für den Slicer', text: 'Oben links siehst du sofort, wie groß das Bauteil auf dem Druckbett in Millimetern (X × Y × Z) wird.' },
+                            { x: 60, y: 65, title: '🎛️ Kameraperspektiven, Drahtgitter & Farben', text: 'Wechsle zwischen Iso, Vorne, Oben, Seite, schalte das Drahtgitter oder Auto-Drehen ein und wähle deine Lieblingsfarbe.' },
+                            { x: 82, y: 88, title: '⬇️ Druckfertiger STL-Download', text: 'Mit 1 Klick speicherst du die .stl-Datei direkt für deinen 3D-Drucker!' }
+                        ]
+                    }
+                ]
+            },
+            6: {
+                title: '6. ✨ 3D-STL Generator: 3D-Modelle per Beschreibung erstellen',
+                screens: [
+                    {
+                        label: 'Bild 1: 3D-Wunschtext oder Vorlage eingeben',
+                        contactName: '✨ 3D-STL Generator (Parametrisch)',
+                        contactSub: 'Eigene 3D-Modelle ohne CAD-Kenntnisse per Text erzeugen',
+                        pinnedBanner: '🎲 Vorlagen: Mittelschnauzer • Anhänger ROBI • Zahnrad 20 Zähne • Rakete • Ritterburg',
+                        msg1: { sender: 'Eingabe', time: 'Schritt 1', text: 'Klicke unten in der Chatleiste auf den türkisen [3D]-Button und tippe z. B. „Schlüsselanhänger LEON“ oder „Zahnrad 24 Zähne Loch 8“ ein.' },
+                        inputText: 'Schlüsselanhänger LEON   [✨ 3D Erstellen]',
+                        bubbles: [
+                            { x: 22, y: 88, title: '🧊 3D-Würfel-Button in der Chatleiste', text: 'Direkt neben dem Dokument-Symbol (📄) öffnest du mit 1 Klick den integrierten 3D-STL Generator.' },
+                            { x: 55, y: 88, title: '✍️ Natürliche Beschreibung & Maße', text: 'Schreibe z. B. „Mittelschnauzer sitzend gross“, „Anhänger OPA“ oder „Würfel 40mm“ und klicke auf „✨ 3D Erstellen“.' }
+                        ]
+                    },
+                    {
+                        label: 'Bild 2: Fertiges 3D-Modell prüfen & direkt in den Chat senden',
+                        contactName: '✨ 3D-STL Generator – Modell bereit!',
+                        contactSub: 'Wasserdichte Binary-STL Datei in Echtzeit berechnet',
+                        pinnedBanner: '✅ Sofort druckbar auf jedem 3D-Drucker (Bambu, Prusa, Creality, Anycubic)',
+                        msg1: { sender: 'Generator', time: 'Fertig', text: '🧊 Dein 3D-Modell „Schlüsselanhänger LEON“ (68 × 28 × 5 mm) wurde mit geprägter 3D-Blockschrift und Schlüsselring-Öse erstellt!' },
+                        msg2: { sender: 'Leon', time: 'Im Chat', isMe: true, text: 'Cool, ich habe das Modell mit einem Klick auf „In Chat senden“ direkt mit Opa geteilt! 🚀', attachment: '🧊 schluesselanhaenger_LEON.stl • [Im 3D-Browser öffnen]', reactions: ['🎉 2'] },
+                        inputText: '[⬇️ STL Download]   [💬 Direkt in Chat senden]',
+                        bubbles: [
+                            { x: 42, y: 42, title: '🔍 Live in 3D drehen & kontrollieren', text: 'Prüfe dein frisch generiertes Modell von allen Seiten im 3D-Viewer.' },
+                            { x: 68, y: 66, title: '💬 Grüner Button „In Chat senden“', text: 'Mit einem Klick wird die fertige .stl-Datei ohne Umweg direkt in deinen geöffneten Chat geschickt!' }
+                        ]
+                    }
+                ]
+            },
+            7: {
+                title: '7. 🎨 KI-Bildgenerator & Studio: Erschaffen, Zuschneiden & Skalieren',
+                screens: [
+                    {
+                        label: 'Bild 1: 2-Karten KI-Studio & Prompt eingeben',
+                        contactName: '🎨 ChatConnect KI-Studio v2.0 (100 % kostenlos)',
+                        contactSub: 'Linke Karte: Vorschau/Upload • Rechte Karte: Beschreibung & Modellwahl',
+                        pinnedBanner: '🚀 Modelle: Flux Pro • Flux Realism • Turbo Speed • 3D & Gaming (Minecraft/Voxel)',
+                        msg1: { sender: 'Rechte Karte (Prompt)', time: 'Eingabe', text: '🐶 „Mittelschnauzer als Jedi-Ritter mit grünem Lichtschwert, 3D-Render, HD“ — Format: 16:9 Web, Modell: Flux Pro.' },
+                        inputText: 'Prompt eingeben ➔ [✨ Bild generieren (Strg + Enter)]',
+                        bubbles: [
+                            { x: 25, y: 12, title: '🎨 Start über Header-Button „KI-Studio“', text: 'Du öffnest das Studio oben neben „Chats“, über das ⋮-Menü oder über die Büroklammer (📎) im Chat.' },
+                            { x: 45, y: 45, title: '✨ Wunschbild beschreiben oder 1-Klick-Idee wählen', text: 'Tippe auf Deutsch ein, was du sehen möchtest, und wähle Style (Fotorealistisch, 3D, Minecraft, Anime) sowie Format.' }
+                        ]
+                    },
+                    {
+                        label: 'Bild 2: Zuschneiden (Cropper), Web-Skalierung & Direkt in Chat senden',
+                        contactName: '🎨 KI-Studio Werkzeuge: ✂️ Cropper & 📐 Web-Scaler',
+                        contactSub: 'Bis zu 85 % Speicherplatz sparen mit WebP + Direkt-Versand in den Chat',
+                        pinnedBanner: '✂️ Frei / 1:1 / 16:9 / 9:16 zuschneiden • 📐 Full HD / Web (1200×675) / Chat (800×800)',
+                        msg1: { sender: 'Bild-Werkzeuge', time: 'Optimiert', text: '📐 Auf Web-Größe skaliert (WebP, 85 % Qualität): Dateigröße von 4.2 MB auf 78 KB reduziert bei kristallklarer Schärfe!' },
+                        msg2: { sender: 'Jil', time: 'Im Chat', isMe: true, text: 'Schaut mal mein neues Bild aus dem KI-Studio! 🎨✨', attachment: '🖼️ ki_kunstwerk_hd.webp • [🖨️ Drucken] [🔍 Groß]', reactions: ['❤️ 3', '😮 1'] },
+                        inputText: '[💬 Direkt in Chat senden]  [🖼️ Als Chat-Hintergrund]  [⬇️ Download]',
+                        bubbles: [
+                            { x: 35, y: 24, title: '✂️ Zuschneiden & 📐 Auf Web-Größe skalieren', text: 'Oben im Studio schneidest du jedes Bild passgenau zu oder skalierst es mit 1 Klick auf optimale Web-/Chat-Größe.' },
+                            { x: 60, y: 66, title: '💬 3 Direkt-Aktionen unter dem Bild', text: 'Sende das fertige Kunstwerk sofort in den aktuellen Chat, setze es als dein Chat-Hintergrundbild oder drucke/lade es herunter!' }
+                        ]
+                    }
+                ]
+            },
+            8: {
+                title: '8. 🔠 Chat-Schriftgröße & Design-Hintergründe (⋮)',
+                screens: [
+                    {
+                        label: 'Bild 1: Drei-Punkte-Menü (⋮) & Stufenlose Schriftgröße',
+                        contactName: '🔠 Chat-Schriftgröße (12 px bis 24 px)',
+                        contactSub: 'Drei-Punkte-Menü (⋮) oben in der Chat-Übersicht',
+                        pinnedBanner: '👀 Mit Live-Vorschau-Sprechblase beim Ziehen des Schiebereglers!',
+                        msg1: { sender: 'Live-Vorschau', time: '18 px (Groß)', text: 'So angenehm groß und entspannt lesbar sieht deine gewählte Schriftgröße sofort in allen Chats aus!' },
+                        inputText: 'Schieberegler: [12 px Klein] ━━━━━━●━━━━ [24 px Sehr groß]',
+                        bubbles: [
+                            { x: 88, y: 12, title: '⋮ Drei-Punkte-Menü oben rechts', text: 'Klicke oben in der Übersicht auf „⋮ ➔ Chat-Schriftgröße“, um die Textgröße jederzeit anzupassen.' },
+                            { x: 50, y: 88, title: '🎚️ Stufenloser Slider mit Standard-Reset', text: 'Ziehe den Regler zwischen 12 px und 24 px. Deine Einstellung wird automatisch dauerhaft gespeichert.' }
+                        ]
+                    },
+                    {
+                        label: 'Bild 2: Design-Hintergründe, Gruppen & App-Sperre (PIN)',
+                        contactName: '🎨 Chat-Hintergrundbild & 🔒 PIN-Schutz',
+                        contactSub: '10 Design-Vorlagen (inkl. Cyber Lounge & Starry Horizon) oder eigenes Foto',
+                        pinnedBanner: '🌗 Hintergrund-Abdunkelung (0 % – 85 %) sorgt immer für perfekte Lesbarkeit',
+                        msg1: { sender: 'Design', time: 'Vorlagen', text: 'Wähle eine der 10 edlen Design-Vorlagen oder lade dein eigenes Lieblingsfoto mit Zuschnitt als Chat-Hintergrund hoch.' },
+                        msg2: { sender: 'Sicherheit & Komfort', time: 'Menü ⋮', isMe: true, text: '🔒 4-stellige App-Sperre (PIN) • 👥 Neue Familien-Gruppe erstellen • ⭐ Stern-Favoriten • ✅ Alle als gelesen markieren' },
+                        inputText: 'Hintergrund speichern & aktivieren...',
+                        bubbles: [
+                            { x: 40, y: 44, title: '🎨 10 Design-Vorlagen & Eigenes Foto', text: 'Gestalte deinen Chat ganz persönlich und regle mit dem Abdunkelungs-Slider den optimalen Kontrast.' },
+                            { x: 64, y: 66, title: '🔒 App-Sperre (PIN) & 👥 Gruppen', text: 'Ebenfalls im ⋮-Menü: Sperre deinen Bildschirm mit einem 4-stelligen PIN-Code oder gründe eine neue Familiengruppe.' }
+                        ]
+                    }
+                ]
+            },
+            9: {
+                title: '9. 📞 Sprach- & Videoanrufe (inkl. Rückruf & 3 Erreichbarkeits-Fälle)',
+                screens: [
+                    {
+                        label: 'Bild 1: Direktanruf im Chat, Anruflinks & Globales Klingel-Overlay',
+                        contactName: '📞 Sprach- & Videoanrufe starten',
+                        contactSub: 'Direkt oben rechts im Chat (📞 / 📹) oder über den Bereich „Anrufe“',
+                        pinnedBanner: '🔔 Globales Anruf-Overlay: Klingelt auf allen Seiten + High-Priority Push aufs Handy!',
+                        msg1: { sender: 'Eingehender Anruf', time: 'Live', text: '📲 Vollbild-Popup mit Klingelton & Vibration: [🟢 Annehmen] oder [🔴 Ablehnen]. Über teilbare Anruflinks können sogar Gäste ohne Login beitreten!' },
+                        inputText: 'Oben rechts auf 📞 (Sprache) oder 📹 (Video) tippen...',
+                        bubbles: [
+                            { x: 88, y: 12, title: '📞 Hörer & 📹 Kamera oben rechts im Chat', text: 'Starte aus jedem Chat heraus mit 1 Klick einen Sprach- oder Videoanruf.' },
+                            { x: 45, y: 48, title: '🔔 Klingeln auf allen Seiten & per Push', text: 'Der Angerufene erhält auf dem Smartphone sofort einen Weckruf per Push-Benachrichtigung sowie im Browser das Vollbild-Anruf-Overlay.' }
+                        ]
+                    },
+                    {
+                        label: 'Bild 2: Automatische Rückruf-Nachricht im Chat & Die 3 Fälle',
+                        contactName: '💬 Automatische „Verpasster Anruf“-Nachricht im Chat',
+                        contactSub: 'Was passiert, wenn der Angerufene nach 65 Sekunden nicht abnimmt?',
+                        pinnedBanner: '📱 Fall 1: Android-App (FCM Push) • 💻 Fall 2: Hintergrund-Tab • 📴 Fall 3: Browser zu',
+                        msg1: { sender: 'System / Anruf-Info', time: '19:52', text: '📞 Verpasster Sprachanruf von Opa Robert (um 19:52 Uhr)', attachment: '📞 [Jetzt mit 1 Klick zurückrufen]' },
+                        msg2: { sender: 'Zoe', time: '19:55', isMe: true, text: 'Oh, ich habe die Nachricht im Chat sofort gesehen und rufe dich direkt über den Link zurück, Opa! 📞💚', reactions: ['❤️ 1'] },
+                        inputText: '1 Klick auf „Jetzt zurückrufen“ startet den Rückruf...',
+                        bubbles: [
+                            { x: 44, y: 45, title: '📞 Automatischer Eintrag direkt im Chatverlauf', text: 'Wird ein Anruf nicht erreicht oder abgelehnt, schreibt ChatConnect automatisch eine „Verpasster Anruf“-Nachricht mit Rückruf-Link in euren Chat!' },
+                            { x: 64, y: 68, title: '👆 1-Klick Sofort-Rückruf', text: 'So geht kein Anruf verloren – auch wenn der Browser des Empfängers komplett geschlossen war (Fall 3).' }
+                        ]
+                    }
+                ]
+            },
+            10: {
+                title: '10. ⭕ Status / Storys für 24 Stunden teilen',
+                screens: [
+                    {
+                        label: 'Bild 1: Eigenen Status (Foto & Text) posten',
+                        contactName: '⭕ Status & Familien-Storys (24h)',
+                        contactSub: 'Über das ⭕-Symbol in der Navigationsleiste',
+                        pinnedBanner: '📸 Teile schöne Momente, Ausflüge oder gebastelte Kunstwerke für 24 Stunden',
+                        msg1: { sender: 'Mein Status (+)', time: 'Neu', text: 'Foto auswählen + kurzen Text eingeben („Heute im Zoo! 🦁“) ➔ Klick auf „Status posten“.' },
+                        inputText: 'Was machst du gerade? [📷 Foto wählen] [Status posten]',
+                        bubbles: [
+                            { x: 42, y: 46, title: '➕ „Mein Status“ antippen', text: 'Erstelle in Sekunden einen Text- oder Foto-Status für deine Kontakte.' }
+                        ]
+                    },
+                    {
+                        label: 'Bild 2: Storys der Familie im Vollbild ansehen',
+                        contactName: '⭕ Aktuelle Storys deiner Kontakte',
+                        contactSub: 'Nach 24 Stunden räumt der Server abgelaufene Storys automatisch auf',
+                        pinnedBanner: '🟢 Farbiger Ring um das Profilbild zeigt neue Storys an',
+                        msg1: { sender: 'Jil & Zoe', time: 'Vor 12 Min.', text: '🌸 „Unsere neuen Bastel-Bilder sind fertig!“ — 1 Klick spielt die Story im Vollbild ab.' },
+                        msg2: { sender: 'Opa Robert', time: 'Antwort', isMe: true, text: 'Super schön geworden! 👏🎨', reactions: ['❤️ 2'] },
+                        inputText: 'Story im Vollbild betrachten...',
+                        bubbles: [
+                            { x: 45, y: 45, title: '🎬 1-Klick Vollbild-Player', text: 'Tippe auf einen Kontakt in der Status-Liste, um seine Bilder und Updates groß anzusehen.' }
+                        ]
+                    }
+                ]
+            },
+            11: {
+                title: '11. 👤 Eigenes Profil & Passwort verwalten',
+                screens: [
+                    {
+                        label: 'Bild 1: Profilbild rund zuschneiden & Name anpassen',
+                        contactName: '👤 Mein Profil & „Über mich“-Spruch',
+                        contactSub: 'Klicke oben links neben „Chats“ auf dein Bild oder unten auf 👤 Profil',
+                        pinnedBanner: '✂️ Integrierter Rund-Cropper für dein Profilbild',
+                        msg1: { sender: 'Profil-Editor', time: 'Aktiv', text: '📷 Neues Profilbild hochladen • Name anpassen • Status-Spruch wählen (z. B. „Im Garten 🌱“ oder „Am 3D-Drucker 🧊“).' },
+                        inputText: 'Änderungen speichern...',
+                        bubbles: [
+                            { x: 20, y: 12, title: '👤 Schnellzugriff oben links', text: 'Ein Klick auf deine Profil-Plakette neben „Chats“ bringt dich direkt zu deinen Einstellungen.' },
+                            { x: 45, y: 46, title: '✂️ Profilbild & Status-Spruch', text: 'Lade ein Foto hoch, schneide es passend zu und speichere deinen Status-Text.' }
+                        ]
+                    },
+                    {
+                        label: 'Bild 2: Passwort & Kontosicherheit',
+                        contactName: '🔐 Passwort & Sicherheit',
+                        contactSub: 'Jederzeit im Profil-Bereich anpassbar',
+                        pinnedBanner: '✅ Sofort aktiv auf WebApp und Android-App',
+                        msg1: { sender: 'Sicherheit', time: 'Info', text: 'Unter „Passwort ändern“ kannst du dein Kennwort jederzeit aktualisieren.' },
+                        msg2: { sender: 'Tipp für Opa (Admin)', time: 'SSH / Pi', isMe: true, text: 'Falls jemand in der Familie sein Passwort vergisst, kann Robert es auf dem Pi auch per „php artisan user:manage“ zurücksetzen!' },
+                        inputText: 'Passwort sicher gespeichert ✓',
+                        bubbles: [
+                            { x: 55, y: 65, title: '🛠️ Admin-Rettungsanker für die Familie', text: 'Selbst bei vergessenem Passwort kann Opa es in 5 Sekunden über php artisan user:manage neu setzen.' }
+                        ]
+                    }
+                ]
+            },
+            12: {
+                title: '12. 📡 Offline-Modus & Warteschlange (Unterwegs ohne WLAN / SIM)',
+                screens: [
+                    {
+                        label: 'Bild 1: Unterwegs im Bus ohne Internet schreiben & aufnehmen',
+                        contactName: 'Opa Robert',
+                        contactSub: '📡 Offline-Modus aktiv – Nachrichten werden gesendet, sobald WLAN da ist [1 in Warteschlange]',
+                        pinnedBanner: '🟡 Gelbes Offline-Banner: Du kannst Texte, Fotos & Sprachmemos ganz normal verfassen!',
+                        msg1: { sender: 'Leon (unterwegs im Bus)', time: '12:40 ⏳ Wartet auf WLAN', isMe: true, text: '🎤 Sprachnachricht (0:14) + Text: „Opa, ich habe heute eine 1 in Mathe geschrieben! Bis gleich!“' },
+                        inputText: 'Auch ohne WLAN weiterschreiben oder 🗑️ aus Warteschlange löschen...',
+                        bubbles: [
+                            { x: 50, y: 24, title: '🟡 Gelbes Offline-Banner oben', text: 'Verliert das Handy (z. B. ohne SIM-Karte auf dem Schulweg) das WLAN, schaltet ChatConnect automatisch in den sicheren Offline-Modus.' },
+                            { x: 64, y: 48, title: '⏳ Uhren-Symbol „Wartet auf WLAN“', text: 'Deine Nachricht (Text, Foto oder Sprachmemo) wird lokal in IndexedDB gespeichert und erscheint sofort mit ⏳ im Chat.' }
+                        ]
+                    },
+                    {
+                        label: 'Bild 2: Automatischer Versand bei Ankunft im WLAN',
+                        contactName: 'Opa Robert',
+                        contactSub: '🟢 Wieder im WLAN verbunden – Alle wartenden Nachrichten wurden gesendet!',
+                        pinnedBanner: '🟢 Grünes Sync-Banner: Vollautomatischer Versand im Hintergrund ohne Antippen!',
+                        msg1: { sender: 'Leon', time: '12:40 ✓✓', isMe: true, text: '🎤 Sprachnachricht (0:14) + Text: „Opa, ich habe heute eine 1 in Mathe geschrieben! Bis gleich!“' },
+                        msg2: { sender: 'Opa Robert', time: '12:55', text: 'Klasse gemacht, Leon! Herzlichen Glückwunsch zur 1! 🎉🏆', reactions: ['🎉 2', '❤️ 1'] },
+                        inputText: 'Alle Nachrichten synchronisiert ✓✓',
+                        bubbles: [
+                            { x: 50, y: 24, title: '🟢 Automatischer Auto-Sync bei WLAN', text: 'Sobald sich das Smartphone in der Schule oder zuhause mit dem WLAN verbindet, schickt ChatConnect alle wartenden Nachrichten von selbst ab!' },
+                            { x: 64, y: 45, title: '✓✓ Aus ⏳ wird automatisch ✓✓', text: 'Das Uhren-Symbol wechselt live auf die gewohnten Doppelhäkchen.' }
+                        ]
+                    }
+                ]
+            },
+            13: {
+                title: '13. ❓ Häufige Fragen & Schnelle Hilfe (FAQ)',
+                screens: [
+                    {
+                        label: 'Bild 1: Seite frisch laden & Mikrofon/Kamera-Rechte prüfen',
+                        contactName: '❓ Schnelle Selbsthilfe im Browser',
+                        contactSub: 'Strg + F5 (PC) • Schloss-Symbol in der Adressleiste',
+                        pinnedBanner: '🔄 Neue Funktion noch nicht sichtbar? Einmal mit Strg + F5 neu laden!',
+                        msg1: { sender: 'Tipp 1', time: 'Mikrofon & Kamera', text: 'Falls Mikrofon oder Kamera beim ersten Anruf blockiert sind: Oben links in der Browser-Adressleiste auf das 🔒 Schloss-Symbol klicken ➔ Mikrofon & Kamera auf „Zulassen“ stellen.' },
+                        inputText: 'Alle wichtigen Antworten auf einen Blick...',
+                        bubbles: [
+                            { x: 45, y: 46, title: '🔒 Mikrofon & Kamera im Browser erlauben', text: 'Ein Klick auf das Schloss-Symbol neben rhz.internet-box.ch aktiviert Mikrofon und Kamera dauerhaft.' }
+                        ]
+                    },
+                    {
+                        label: 'Bild 2: ZIP / Minecraft-.jar Inspektor & Vollbild-Lightbox',
+                        contactName: '📦 ZIP / Minecraft-Mod Inspektor & 🖼️ Lightbox',
+                        contactSub: 'Dateien bis 500 MB direkt im Browser prüfen',
+                        pinnedBanner: '📦 Öffnet .zip, .jar (Minecraft Fabric/Forge Mods), .mcpack, .mcworld & .3mf Vorschau!',
+                        msg1: { sender: 'Leon', time: '16:10', text: 'Hier ist mein neues Minecraft Mod-Paket:', attachment: '📦 lucky_blocks_mod.jar • [📦 Archiv-Inhalt & Mod-Infos ansehen]' },
+                        msg2: { sender: 'Dario', time: '16:11', isMe: true, text: 'Stark! Im Inspektor sieht man sofort alle enthaltenen Dateien und die fabric.mod.json Infos! 🎮', reactions: ['🔥 2'] },
+                        inputText: 'Auf „Archiv-Inhalt ansehen“ klicken...',
+                        bubbles: [
+                            { x: 45, y: 45, title: '📦 Minecraft-.jar & ZIP direkt reinschauen', text: 'Ohne Entpacken siehst du sofort alle enthaltenen Dateien, Größen und Mod-Metadaten.' }
+                        ]
+                    }
+                ]
+            },
+            14: {
+                title: '14. 🚗 Persönlicher KI-Beifahrer (Beifahrer KI)',
+                screens: [
+                    {
+                        label: 'Bild 1: Deinen persönlichen Beifahrer im Chat fragen',
+                        contactName: '🚗 Beifahrer (KI) – Dein Sparringspartner',
+                        contactSub: 'Passt sich automatisch an Leon, Dario, Jil, Zoe und Robert an!',
+                        pinnedBanner: '🎮 Gaming (Leon) • 💻 Java/JS (Dario) • 🎨 Basteln & Zeichnen (Jil & Zoe) • 🧊 3D & Pi (Robert)',
+                        msg1: { sender: 'Dario', time: '16:30', isMe: true, text: 'Hallo Beifahrer! Kannst du mir zeigen, wie ich in JavaScript ein kleines Canvas-Spiel mit Tastatursteuerung programmiere?' },
+                        inputText: 'Frage an den Beifahrer eingeben...',
+                        bubbles: [
+                            { x: 30, y: 12, title: '🚗 Fester Kontakt in deiner Chatliste', text: 'Jedes Familienmitglied hat seinen eigenen Beifahrer-Chat direkt in der Kontaktliste.' },
+                            { x: 64, y: 46, title: '💬 Frage stellen wie einem guten Freund', text: 'Egal ob Minecraft-Befehle, Java/JS-Code, Bastelideen oder OpenSCAD – einfach drauflos fragen!' }
+                        ]
+                    },
+                    {
+                        label: 'Bild 2: Maßgeschneiderte Antwort mit kopierbarem Code / Tipps',
+                        contactName: '🚗 Beifahrer (KI)',
+                        contactSub: 'Antwortet sofort auf Augenhöhe mit Beispielen, Bildern oder 3D-Code',
+                        pinnedBanner: '📋 Code-Blöcke haben direkt einen [📋 Kopieren]-Button!',
+                        msg1: { sender: 'Dario', time: '16:30', isMe: true, text: 'Hallo Beifahrer! Kannst du mir zeigen, wie ich in JavaScript ein kleines Canvas-Spiel mit Tastatursteuerung programmiere?' },
+                        msg2: { sender: '🚗 Beifahrer (KI)', time: '16:30', text: 'Klar, Dario! Hier ist das komplette Grundgerüst mit requestAnimationFrame und Pfeiltasten-Steuerung:', attachment: '💻 JavaScript Code-Block • [📋 Code kopieren]' },
+                        inputText: 'Nachfrage stellen oder Code kopieren...',
+                        bubbles: [
+                            { x: 45, y: 65, title: '📋 Direkt kopierbare Antworten & Aktionen', text: 'Der Beifahrer liefert sofort nutzbare Ergebnisse – inklusive Kopier-Button für Code oder Direkt-Compiler für 3D!' }
+                        ]
+                    }
+                ]
+            },
+            15: {
+                title: '15. ✨ Rechtschreib-Hilfe & Zauberstab für Kinder',
+                screens: [
+                    {
+                        label: 'Bild 1: Kindertext mit Tippfehlern eingeben & auf ✨ klicken',
+                        contactName: 'Opa Robert',
+                        contactSub: '✨ Smarte Schreibhilfe direkt rechts im Texteingabefeld',
+                        pinnedBanner: '💡 Ideal für Kinder beim schnellen Tippen auf Handy, Tablet oder Tastatur',
+                        msg1: { sender: 'Vorschau im Eingabefeld', time: 'Vorher', text: 'Eingetippter Satz unten: „Halllo opa kannst du mit mir 3D Druckken“ ➔ Jetzt rechts im Textfeld auf den Zauberstab (✨) klicken!' },
+                        inputText: 'Halllo opa kannst du mit mir 3D Druckken   [✨]',
+                        bubbles: [
+                            { x: 76, y: 88, title: '1️⃣ Satz eintippen & auf den Zauberstab (✨) klicken', text: 'Auch wenn Buchstaben doppelt/dreifach sind oder Satzzeichen fehlen: Einfach vor dem Senden rechts im Eingabefeld auf ✨ tippen!' }
+                        ]
+                    },
+                    {
+                        label: 'Bild 2: Korrigierter Text im Eingabefeld & Sauber gesendete Nachricht',
+                        contactName: 'Opa Robert',
+                        contactSub: '✨ Groß-/Kleinschreibung, Kommas & Fragezeichen automatisch korrigiert!',
+                        pinnedBanner: '✅ Aus „Halllo opa kannst du mit mir 3D Druckken“ wird „Hallo Opa, kannst du mit mir 3D-drucken?“',
+                        msg1: { sender: 'Zoe', time: '17:02', isMe: true, text: 'Hallo Opa, kannst du mit mir 3D-drucken? ✨' },
+                        msg2: { sender: 'Opa Robert', time: '17:03', text: 'Aber sicher, Zoe! Komm rüber, wir suchen uns eine schöne Figur aus! 🥰', reactions: ['❤️ 2'] },
+                        inputText: 'Hallo Opa, kannst du mit mir 3D-drucken?   [➤]',
+                        bubbles: [
+                            { x: 64, y: 44, title: '2️⃣ Fehlerfrei korrigiert & abgeschickt', text: 'Der Zauberstab korrigiert Lautschriftfehler (Druckken ➔ drucken), setzt das Komma nach der Begrüßung und hängt bei Fragen das „?“ an!' }
+                        ]
+                    }
+                ]
+            },
+            16: {
+                title: '16. 🎨 Bilder, Grafiken & Malvorlagen im Chat generieren',
+                screens: [
+                    {
+                        label: 'Bild 1: Bild- oder Malvorlagen-Wunsch an den Beifahrer schreiben',
+                        contactName: '🚗 Beifahrer (KI)',
+                        contactSub: '🎨 Erzeugt Ausmalbilder (Schwarz-Weiß) & farbige Kunstwerke auf Zuruf',
+                        pinnedBanner: '🐱 „Malvorlage Katze“ • 🦄 „Regenbogen-Einhorn“ • 🏰 „Minecraft-Burg im Dschungel“',
+                        msg1: { sender: 'Zoe', time: '17:15', isMe: true, text: 'Erstelle mir bitte eine Malvorlage von einer süßen kleinen Katze mit Blumen zum Ausmalen! 🐱🌸' },
+                        inputText: 'Wunschbild an den Beifahrer senden...',
+                        bubbles: [
+                            { x: 62, y: 46, title: '✍️ Einfach im Chat schreiben, was gemalt werden soll', text: 'Bei „Malvorlage / Ausmalbild“ erzeugt die KI automatisch klare Schwarz-Weiß-Linien; sonst farbenfrohe Kunstwerke oder Minecraft-3D!' }
+                        ]
+                    },
+                    {
+                        label: 'Bild 2: Fertiges Bild direkt in der Antwort mit Druck- & Zoom-Buttons',
+                        contactName: '🚗 Beifahrer (KI)',
+                        contactSub: '100 % kostenlos & direkt im Chatverlauf gespeichert',
+                        pinnedBanner: '🎨 Automatische Stilanpassung für Zoe, Jil, Leon & Dario',
+                        msg1: { sender: 'Zoe', time: '17:15', isMe: true, text: 'Erstelle mir bitte eine Malvorlage von einer süßen kleinen Katze mit Blumen zum Ausmalen! 🐱🌸' },
+                        msg2: { sender: '🚗 Beifahrer (KI)', time: '17:15', text: 'Hier ist deine fertige Malvorlage zum Ausmalen, Zoe! Viel Spaß mit den Buntstiften! 🖍️✨', attachment: '🖼️ [Malvorlage_Katze_Blumen.png] • [🖨️ Drucken]  [🔍 Groß]', reactions: ['❤️ 2', '🎉 1'] },
+                        inputText: 'Direkt ausdrucken oder im Vollbild öffnen...',
+                        bubbles: [
+                            { x: 45, y: 65, title: '🖼️ Bild erscheint direkt in der Antwort-Blase', text: 'Unter jedem generierten Bild stehen sofort die beiden Direkt-Buttons [🖨️ Drucken] und [🔍 Groß] bereit!' }
+                        ]
+                    }
+                ]
+            },
+            17: {
+                title: '17. 🖨️ 1-Klick A4-Druck für Malvorlagen & Kunstwerke',
+                screens: [
+                    {
+                        label: 'Bild 1: Klick auf [🖨️ Drucken] unter dem Chat-Bild oder in der Lightbox',
+                        contactName: '🖨️ 1-Klick A4-Drucker-Funktion',
+                        contactSub: 'Verfügbar direkt im Chat, in der Vollbild-Lightbox und im KI-Studio',
+                        pinnedBanner: '📄 Zentriert das Bild automatisch randlos und sauber auf eine DIN-A4-Seite',
+                        msg1: { sender: '🚗 Beifahrer (KI)', time: '17:15', text: 'Klicke direkt unter der Malvorlage auf den Button [🖨️ Drucken]:', attachment: '🖼️ Malvorlage_Einhorn.png • 👉 [🖨️ Drucken]  [🔍 Groß]' },
+                        inputText: '1 Klick auf [🖨️ Drucken]...',
+                        bubbles: [
+                            { x: 48, y: 52, title: '🖨️ Direkt-Druckknopf unter jedem Bild', text: 'Kein Herunterladen oder Umformatieren nötig: Ein Klick auf [🖨️ Drucken] bereitet das Bild im Hintergrund für DIN A4 vor.' }
+                        ]
+                    },
+                    {
+                        label: 'Bild 2: Optimierte A4-Druckvorschau (Chat bleibt im Hintergrund offen)',
+                        contactName: '🖨️ A4-Druckdialog (Bereit für den Drucker)',
+                        contactSub: 'Der geöffnete Chat geht dabei nicht verloren!',
+                        pinnedBanner: '🖍️ Perfekt für schnelle Malvorlagen für Jil & Zoe am Familien-Drucker',
+                        msg1: { sender: 'Druck-Engine', time: 'DIN A4', text: '📄 Das Kunstwerk wird sauber zentriert auf A4 skaliert und der System-Druckdialog öffnet sich automatisch.' },
+                        msg2: { sender: 'Jil', time: '17:18', isMe: true, text: 'Juhu, das Bild kommt schon aus dem Drucker! Ich hole meine Stifte! 🖍️🎨', reactions: ['❤️ 2'] },
+                        inputText: 'Drucken bestätigen ➔ Fertig!',
+                        bubbles: [
+                            { x: 45, y: 44, title: '📄 Sauberes A4-Format ohne störende Chat-Ränder', text: 'Es wird ausschließlich das Bild in voller Qualität auf das A4-Blatt gedruckt.' }
+                        ]
+                    }
+                ]
+            },
+            18: {
+                title: '18. 🧊 OpenSCAD 3D-Projekte & 1-Klick-Kompilierung auf dem Raspberry Pi',
+                screens: [
+                    {
+                        label: 'Bild 1: OpenSCAD 3D-Projekt beim Beifahrer anfordern',
+                        contactName: '🚗 Beifahrer (KI) – OpenSCAD 3D-Studio',
+                        contactSub: 'Parametrischer 3D-Code (.scad) auf Zuruf',
+                        pinnedBanner: '🔧 Beispiele: „OpenSCAD Schlüsselanhänger für Leon“, „Kugelbahn-Kurve“, „Pi-Gehäuse“',
+                        msg1: { sender: 'Robert', time: '18:00', isMe: true, text: 'Schreibe mir bitte einen parametrisierten OpenSCAD-Code für einen Stiftehalter mit Sechseck-Muster für Jil.' },
+                        inputText: 'OpenSCAD-Wunsch eingeben...',
+                        bubbles: [
+                            { x: 62, y: 46, title: '1️⃣ 3D-Bauteil beim Beifahrer bestellen', text: 'Beschreibe einfach dein gewünschtes Bauteil – der Beifahrer erzeugt sauberen, anpassbaren OpenSCAD-Code.' }
+                        ]
+                    },
+                    {
+                        label: 'Bild 2: Antwort mit Code & 1-Klick [🧊 In 3D-STL umwandeln (Pi)]',
+                        contactName: '🚗 Beifahrer (KI) ➔ Raspberry Pi OpenSCAD Compiler',
+                        contactSub: 'Kompiliert in 1–2 Sekunden auf dem Pi und öffnet sofort den 3D-STLViewer!',
+                        pinnedBanner: '🍓 Dein Raspberry Pi rendert aus dem Code live eine wasserdichte .stl-Datei!',
+                        msg1: { sender: 'Robert', time: '18:00', isMe: true, text: 'Schreibe mir bitte einen parametrisierten OpenSCAD-Code für einen Stiftehalter mit Sechseck-Muster für Jil.' },
+                        msg2: {
+                            sender: '🚗 Beifahrer (KI)',
+                            time: '18:00',
+                            text: 'Hier ist der fertige OpenSCAD-Code mit einstellbarer Höhe und Wandstärke:',
+                            attachment: '🧊 OpenSCAD (.scad) • [📋 Kopieren]  👉 [🧊 In 3D-STL umwandeln (Pi)]',
+                            reactions: ['🔥 2', '👍 1']
+                        },
+                        inputText: '1 Klick auf „In 3D-STL umwandeln (Pi)“ öffnet das fertige 3D-Modell!',
+                        bubbles: [
+                            { x: 52, y: 66, title: '2️⃣ [🧊 In 3D-STL umwandeln (Pi)] anklicken', text: 'Der Code wird an deinen Raspberry Pi geschickt, dort per OpenSCAD in 1–2 Sekunden in eine .stl-Datei umgewandelt und sofort im 3D-Viewer geöffnet!' },
+                            { x: 32, y: 66, title: '3️⃣ [📋 Kopieren] für lokales OpenSCAD', text: 'Alternativ kopierst du den Code mit 1 Klick für dein lokales OpenSCAD oder Blender am Mini-PC.' }
+                        ]
+                    }
+                ]
+            }
+        };
+
+        let vtCurrentChapter = 3;
+        let vtCurrentScreen = 0;
+        let vtCurrentBubble = 0;
+        let vtShowAllBubbles = false;
+        let vtAutoPlayTimer = null;
+        const vtCustomImages = {}; // key: `${chapter}_${screen}` -> dataURL
+
+        function initVisualTrainingSelect() {
+            const sel = document.getElementById('vt-chapter-select');
+            if (!sel || sel.options.length > 0) return;
+            Object.keys(VISUAL_TRAINING_DATA).forEach(chKey => {
+                const opt = document.createElement('option');
+                opt.value = chKey;
+                opt.textContent = VISUAL_TRAINING_DATA[chKey].title;
+                sel.appendChild(opt);
+            });
+        }
+
+        function openVisualTraining(chapterNum, screenIdx = 0) {
+            initVisualTrainingSelect();
+            stopVisualAutoPlay();
+            vtCurrentChapter = VISUAL_TRAINING_DATA[chapterNum] ? chapterNum : 3;
+            vtCurrentScreen = screenIdx || 0;
+            vtCurrentBubble = 0;
+            vtShowAllBubbles = false;
+
+            const modal = document.getElementById('visual-training-modal');
+            if (modal) modal.classList.remove('hidden');
+            renderVisualTraining();
+        }
+
+        function closeVisualTraining() {
+            stopVisualAutoPlay();
+            const modal = document.getElementById('visual-training-modal');
+            if (modal) modal.classList.add('hidden');
+        }
+
+        function stepVisualTrainingChapter(delta) {
+            stopVisualAutoPlay();
+            let next = vtCurrentChapter + delta;
+            if (next < 1) next = 18;
+            if (next > 18) next = 1;
+            vtCurrentChapter = next;
+            vtCurrentScreen = 0;
+            vtCurrentBubble = 0;
+            renderVisualTraining();
+        }
+
+        function switchVisualScreen(screenIdx) {
+            stopVisualAutoPlay();
+            vtCurrentScreen = screenIdx;
+            vtCurrentBubble = 0;
+            renderVisualTraining();
+        }
+
+        function stepVisualBubble(delta) {
+            const chData = VISUAL_TRAINING_DATA[vtCurrentChapter];
+            const scr = chData.screens[vtCurrentScreen];
+            const count = scr.bubbles.length;
+            let next = vtCurrentBubble + delta;
+
+            if (next >= count) {
+                // Automatically transition from Bild 1 (Eintrag) to Bild 2 (Antwort & Möglichkeiten)!
+                if (vtCurrentScreen === 0 && chData.screens.length > 1) {
+                    vtCurrentScreen = 1;
+                    vtCurrentBubble = 0;
+                } else {
+                    vtCurrentScreen = 0;
+                    vtCurrentBubble = 0;
+                }
+            } else if (next < 0) {
+                if (vtCurrentScreen === 1) {
+                    vtCurrentScreen = 0;
+                    vtCurrentBubble = chData.screens[0].bubbles.length - 1;
+                } else {
+                    vtCurrentBubble = count - 1;
+                }
+            } else {
+                vtCurrentBubble = next;
+            }
+            renderVisualTraining();
+        }
+
+        function selectVisualBubble(idx) {
+            stopVisualAutoPlay();
+            vtCurrentBubble = idx;
+            renderVisualTraining();
+        }
+
+        function toggleShowAllBubbles() {
+            vtShowAllBubbles = !vtShowAllBubbles;
+            const btn = document.getElementById('vt-showall-btn');
+            if (btn) {
+                btn.className = vtShowAllBubbles
+                    ? 'px-2.5 py-1.5 rounded-lg bg-teal-600 text-white text-xs font-bold transition cursor-pointer shadow-xs'
+                    : 'px-2.5 py-1.5 rounded-lg bg-white border border-slate-300 hover:bg-teal-50 text-slate-700 text-xs font-bold transition cursor-pointer';
+            }
+            renderVisualTraining();
+        }
+
+        function toggleVisualAutoPlay() {
+            if (vtAutoPlayTimer) {
+                stopVisualAutoPlay();
+                return;
+            }
+            const btn = document.getElementById('vt-autoplay-btn');
+            if (btn) {
+                btn.innerHTML = '<span>⏸️ Pause</span>';
+                btn.className = 'px-3 py-1.5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-xs font-extrabold transition flex items-center gap-1 shadow-xs cursor-pointer';
+            }
+            vtAutoPlayTimer = setInterval(() => {
+                stepVisualBubble(1);
+            }, 3400);
+        }
+
+        function stopVisualAutoPlay() {
+            if (vtAutoPlayTimer) {
+                clearInterval(vtAutoPlayTimer);
+                vtAutoPlayTimer = null;
+            }
+            const btn = document.getElementById('vt-autoplay-btn');
+            if (btn) {
+                btn.innerHTML = '<span>▶️ Auto-Tour</span>';
+                btn.className = 'px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-600 text-white text-xs font-extrabold transition flex items-center gap-1 shadow-xs cursor-pointer';
+            }
+        }
+
+        function uploadCustomHardcopy(event) {
+            const file = event.target.files && event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(ev) {
+                vtCustomImages[`${vtCurrentChapter}_${vtCurrentScreen}`] = ev.target.result;
+                renderVisualTraining();
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function escapeVtHtml(str) {
+            return String(str || '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
+        }
+
+        function renderVisualTraining() {
+            const chData = VISUAL_TRAINING_DATA[vtCurrentChapter] || VISUAL_TRAINING_DATA[3];
+            const scr = chData.screens[vtCurrentScreen] || chData.screens[0];
+            const bubbles = scr.bubbles || [];
+            const activeBubble = bubbles[vtCurrentBubble] || bubbles[0];
+
+            // Header & Selector
+            document.getElementById('vt-chapter-badge').textContent = `Kapitel ${vtCurrentChapter} von 18`;
+            document.getElementById('vt-chapter-title').textContent = chData.title;
+            const sel = document.getElementById('vt-chapter-select');
+            if (sel) sel.value = String(vtCurrentChapter);
+
+            // Screen switcher buttons
+            const btn0 = document.getElementById('vt-screen-btn-0');
+            const btn1 = document.getElementById('vt-screen-btn-1');
+            if (btn0 && chData.screens[0]) {
+                btn0.innerHTML = `<span>🖥️ ${escapeVtHtml(chData.screens[0].label)}</span>`;
+                btn0.className = vtCurrentScreen === 0
+                    ? 'px-3.5 py-1.5 rounded-xl font-extrabold text-xs sm:text-sm transition flex items-center gap-1.5 cursor-pointer bg-[#00a884] text-white shadow-sm'
+                    : 'px-3.5 py-1.5 rounded-xl font-extrabold text-xs sm:text-sm transition flex items-center gap-1.5 cursor-pointer bg-white text-slate-700 border border-slate-300 hover:bg-slate-50';
+            }
+            if (btn1 && chData.screens[1]) {
+                btn1.innerHTML = `<span>💬 ${escapeVtHtml(chData.screens[1].label)}</span>`;
+                btn1.className = vtCurrentScreen === 1
+                    ? 'px-3.5 py-1.5 rounded-xl font-extrabold text-xs sm:text-sm transition flex items-center gap-1.5 cursor-pointer bg-[#00a884] text-white shadow-sm'
+                    : 'px-3.5 py-1.5 rounded-xl font-extrabold text-xs sm:text-sm transition flex items-center gap-1.5 cursor-pointer bg-white text-slate-700 border border-slate-300 hover:bg-slate-50';
+            }
+
+            // Build Hardcopy Stage
+            const stage = document.getElementById('vt-hardcopy-stage');
+            const customImg = vtCustomImages[`${vtCurrentChapter}_${vtCurrentScreen}`];
+
+            let stageHtml = '';
+            if (customImg) {
+                stageHtml += `
+                    <div class="relative w-full">
+                        <img src="${customImg}" alt="Hardcopy" class="w-full h-auto block max-h-[430px] object-contain bg-slate-900">
+                        <button type="button" onclick="delete vtCustomImages['${vtCurrentChapter}_${vtCurrentScreen}']; renderVisualTraining();" class="absolute top-2 right-2 z-40 px-2.5 py-1 rounded-lg bg-slate-900/80 text-white text-xs font-bold hover:bg-red-600 cursor-pointer">
+                            ✕ Standard-Hardcopy zeigen
+                        </button>
+                    </div>
+                `;
+            } else {
+                // Realistic 1:1 ChatConnect Hardcopy UI
+                const m1 = scr.msg1;
+                const m2 = scr.msg2;
+                stageHtml += `
+                    <div class="flex flex-col justify-between min-h-[410px] bg-[#efeae2] relative">
+                        <!-- Top App Header Bar -->
+                        <div class="bg-[#008069] text-white px-3.5 py-2.5 flex items-center justify-between shadow-sm">
+                            <div class="flex items-center gap-2.5">
+                                <span class="text-white/90 font-bold text-sm">←</span>
+                                <div class="w-9 h-9 rounded-full bg-teal-100 text-teal-900 font-extrabold text-xs flex items-center justify-center border-2 border-white/60 shadow-2xs">
+                                    CC
+                                </div>
+                                <div>
+                                    <div class="font-extrabold text-xs sm:text-sm leading-tight">${escapeVtHtml(scr.contactName)}</div>
+                                    <div class="text-[11px] text-teal-100 leading-tight">${escapeVtHtml(scr.contactSub)}</div>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-1.5 sm:gap-2 text-xs">
+                                <span class="px-2 py-1 rounded-lg bg-white/15 font-bold hidden sm:inline-flex items-center gap-1">🎨 KI-Studio</span>
+                                <span class="px-2 py-1 rounded-lg bg-white/15 font-bold inline-flex items-center gap-1">🗂️ Medien &amp; 3D</span>
+                                <span class="px-2 py-1 rounded-lg bg-white/15 font-bold">🔍</span>
+                                <span class="px-2 py-1 rounded-lg bg-white/15 font-bold">📞</span>
+                                <span class="px-2 py-1 rounded-lg bg-white/15 font-bold">📹</span>
+                                <span class="px-2 py-1 rounded-lg bg-white/15 font-bold">⋮</span>
+                            </div>
+                        </div>
+
+                        <!-- Pinned / Context Info Banner -->
+                        ${scr.pinnedBanner ? `
+                        <div class="bg-amber-50 border-b border-amber-200 px-3.5 py-1.5 flex items-center justify-between text-xs text-amber-950 font-semibold">
+                            <span class="truncate">${escapeVtHtml(scr.pinnedBanner)}</span>
+                            <span class="text-[11px] text-amber-700 font-bold ml-2 flex-shrink-0">Springen ➔</span>
+                        </div>
+                        ` : ''}
+
+                        <!-- Chat Messages Area -->
+                        <div class="flex-1 p-3 sm:p-5 space-y-3.5 flex flex-col justify-center">
+                            ${m1 ? `
+                            <div class="flex ${m1.isMe ? 'justify-end' : 'justify-start'}">
+                                <div class="max-w-[82%] sm:max-w-[70%] rounded-2xl px-3.5 py-2.5 shadow-xs border ${m1.isMe ? 'bg-[#d9fdd3] border-emerald-200' : 'bg-white border-gray-200'}">
+                                    <div class="flex items-center justify-between gap-3 mb-0.5">
+                                        <span class="text-[11px] font-extrabold ${m1.isMe ? 'text-emerald-800' : 'text-teal-700'}">${escapeVtHtml(m1.sender)}</span>
+                                        <span class="text-[10px] text-gray-500 font-semibold">${escapeVtHtml(m1.time)} ${m1.isMe ? '✓✓' : ''}</span>
+                                    </div>
+                                    <div class="text-xs sm:text-sm text-gray-900 leading-snug">${escapeVtHtml(m1.text)}</div>
+                                    ${m1.attachment ? `
+                                    <div class="mt-2 p-2 rounded-xl bg-teal-50/90 border border-teal-200 text-teal-900 text-xs font-bold flex items-center justify-between gap-2">
+                                        <span>${escapeVtHtml(m1.attachment)}</span>
+                                    </div>
+                                    ` : ''}
+                                </div>
+                            </div>
+                            ` : ''}
+
+                            ${m2 ? `
+                            <div class="flex ${m2.isMe ? 'justify-end' : 'justify-start'} relative">
+                                <div class="max-w-[86%] sm:max-w-[74%] rounded-2xl px-3.5 py-2.5 shadow-md border-2 ${m2.isMe ? 'bg-[#d9fdd3] border-emerald-300' : 'bg-white border-teal-400'} relative">
+                                    ${m2.showActionBar ? `
+                                    <!-- Floating Message Action Toolbar -->
+                                    <div class=" -mt-1 mb-2 px-2.5 py-1 rounded-xl bg-slate-900 text-white text-xs font-bold flex items-center justify-between gap-2 shadow-lg">
+                                        <span class="text-amber-300">😊 👍 ❤️ 😂 😮 🎉 🔥</span>
+                                        <div class="flex items-center gap-2 border-l border-slate-700 pl-2">
+                                            <span title="Antworten / Zitieren">↩️ Zitat</span>
+                                            <span title="Weiterleiten">↪️ Weiter</span>
+                                            <span title="Oben anpinnen">📌 Pin</span>
+                                            <span title="Bearbeiten">✏️</span>
+                                            <span title="Stern-Favorit">★</span>
+                                            <span class="text-red-400" title="Löschen">🗑️</span>
+                                        </div>
+                                    </div>
+                                    ` : ''}
+
+                                    ${m2.quote ? `
+                                    <div class="mb-1.5 px-2.5 py-1 rounded-lg bg-teal-50 border-l-4 border-teal-500 text-[11px] text-teal-900 font-semibold">
+                                        ${escapeVtHtml(m2.quote)}
+                                    </div>
+                                    ` : ''}
+
+                                    <div class="flex items-center justify-between gap-3 mb-0.5">
+                                        <span class="text-[11px] font-extrabold ${m2.isMe ? 'text-emerald-800' : 'text-teal-700'}">${escapeVtHtml(m2.sender)}</span>
+                                        <span class="text-[10px] text-gray-500 font-semibold">${escapeVtHtml(m2.time)} <span class="text-sky-600 font-bold">✓✓</span></span>
+                                    </div>
+                                    <div class="text-xs sm:text-sm text-gray-900 leading-snug">${escapeVtHtml(m2.text)}</div>
+
+                                    ${m2.attachment ? `
+                                    <div class="mt-2 p-2 rounded-xl bg-cyan-50 border border-cyan-300 text-cyan-950 text-xs font-extrabold flex items-center justify-between gap-2">
+                                        <span>${escapeVtHtml(m2.attachment)}</span>
+                                    </div>
+                                    ` : ''}
+
+                                    ${m2.reactions && m2.reactions.length ? `
+                                    <div class="mt-2 flex flex-wrap items-center gap-1.5">
+                                        ${m2.reactions.map(r => `<span class="px-2 py-0.5 rounded-full bg-teal-50 border border-teal-300 text-[11px] font-extrabold text-teal-900 shadow-2xs">${escapeVtHtml(r)}</span>`).join('')}
+                                    </div>
+                                    ` : ''}
+                                </div>
+                            </div>
+                            ` : ''}
+                        </div>
+
+                        <!-- Bottom Composer Input Bar -->
+                        <div class="bg-[#f0f2f5] px-3 py-2.5 border-t border-gray-300 flex items-center gap-1.5 sm:gap-2">
+                            <span class="w-8 h-8 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-base shadow-2xs" title="Emojis">😊</span>
+                            <span class="w-8 h-8 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-base shadow-2xs" title="Foto zuschneiden & senden">📎</span>
+                            <span class="w-8 h-8 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-base shadow-2xs" title="Dokument / STL / ZIP (bis 500 MB)">📄</span>
+                            <span class="px-2 h-8 rounded-lg bg-cyan-600 text-white font-extrabold text-xs flex items-center justify-center shadow-2xs" title="3D-STL Generator">3D</span>
+                            <span class="w-8 h-8 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-base shadow-2xs" title="Live-Umfrage erstellen">📊</span>
+                            <div class="flex-1 bg-white rounded-xl px-3 py-1.5 border border-gray-300 text-xs sm:text-sm text-gray-800 font-medium flex items-center justify-between gap-2 truncate">
+                                <span class="truncate">${escapeVtHtml(scr.inputText || 'Schreibe eine Nachricht...')}</span>
+                                <span class="px-1.5 py-0.5 rounded bg-amber-100 text-amber-900 font-extrabold text-xs flex-shrink-0" title="Zauberstab Rechtschreibhilfe">✨</span>
+                            </div>
+                            <span class="w-8 h-8 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-base shadow-2xs" title="Sprachnachricht aufnehmen">🎤</span>
+                            <span class="w-9 h-8 rounded-xl bg-[#00a884] text-white font-extrabold text-sm flex items-center justify-center shadow-sm" title="Nachricht senden">➤</span>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Overlay Pulsing Hotspots & Animated Speech Bubbles
+            bubbles.forEach((b, idx) => {
+                const isActive = idx === vtCurrentBubble;
+                const showBubble = isActive || vtShowAllBubbles;
+                stageHtml += `
+                    <button type="button" onclick="selectVisualBubble(${idx})" class="hc-hotspot ${isActive ? 'active' : ''}" style="left: ${b.x}%; top: ${b.y}%;" title="${escapeVtHtml(b.title)}">
+                        ${idx + 1}
+                    </button>
+                `;
+
+                if (showBubble) {
+                    // Position bubble intelligently so it stays inside the Hardcopy frame
+                    const placeAbove = b.y > 58;
+                    const leftPct = Math.min(Math.max(b.x - 12, 3), 62);
+                    const posStyle = placeAbove
+                        ? `left: ${leftPct}%; bottom: ${100 - b.y + 5}%;`
+                        : `left: ${leftPct}%; top: ${b.y + 5}%;`;
+                    const arrowClass = placeAbove ? 'arrow-bottom' : 'arrow-top';
+
+                    stageHtml += `
+                        <div class="hc-speech-bubble ${arrowClass}" style="${posStyle}" onclick="selectVisualBubble(${idx})">
+                            <div class="flex items-center justify-between gap-2 mb-1">
+                                <span class="inline-flex items-center gap-1 text-[11px] font-extrabold text-teal-800 bg-teal-50 px-2 py-0.5 rounded-full border border-teal-200">
+                                    💬 Punkt ${idx + 1} von ${bubbles.length}
+                                </span>
+                                <span class="text-[10px] text-slate-400 font-bold">${vtCurrentScreen === 0 ? 'Bild 1' : 'Bild 2'}</span>
+                            </div>
+                            <div class="font-extrabold text-xs sm:text-sm text-slate-900 leading-snug">${escapeVtHtml(b.title)}</div>
+                            <div class="text-[11px] sm:text-xs text-slate-600 mt-1 leading-relaxed">${escapeVtHtml(b.text)}</div>
+                        </div>
+                    `;
+                }
+            });
+
+            stage.innerHTML = stageHtml;
+
+            // Update bottom active explanation bar
+            if (activeBubble) {
+                document.getElementById('vt-active-num').textContent = String(vtCurrentBubble + 1);
+                document.getElementById('vt-active-tag').textContent = `${vtCurrentScreen === 0 ? 'Bild 1 (Eintrag)' : 'Bild 2 (Antwort & Möglichkeiten)'} • Sprechblase ${vtCurrentBubble + 1} von ${bubbles.length}`;
+                document.getElementById('vt-active-title').textContent = activeBubble.title;
+                document.getElementById('vt-active-desc').textContent = activeBubble.text;
+            }
+
+            // Render quick hotspot pills
+            const pillsEl = document.getElementById('vt-hotspot-pills');
+            if (pillsEl) {
+                pillsEl.innerHTML = bubbles.map((b, idx) => `
+                    <button type="button" onclick="selectVisualBubble(${idx})" class="px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer flex items-center gap-1.5 ${idx === vtCurrentBubble ? 'bg-[#00a884] text-white shadow-xs' : 'bg-white text-slate-700 border border-slate-200 hover:bg-teal-50'}">
+                        <span class="w-5 h-5 rounded-full ${idx === vtCurrentBubble ? 'bg-white text-[#00a884]' : 'bg-amber-500 text-white'} font-extrabold text-[11px] flex items-center justify-center">${idx + 1}</span>
+                        <span>${escapeVtHtml(b.title.replace(/^[0-9️⃣]+\s*/, ''))}</span>
+                    </button>
+                `).join('');
+            }
+        }
+
+        document.addEventListener('keydown', function(e) {
+            const modal = document.getElementById('visual-training-modal');
+            if (!modal || modal.classList.contains('hidden')) return;
+            if (e.key === 'Escape') closeVisualTraining();
+            else if (e.key === 'ArrowRight') stepVisualBubble(1);
+            else if (e.key === 'ArrowLeft') stepVisualBubble(-1);
         });
     </script>
 </body>

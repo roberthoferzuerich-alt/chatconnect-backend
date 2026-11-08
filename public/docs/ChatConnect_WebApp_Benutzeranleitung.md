@@ -7,25 +7,26 @@
 ---
 
 ## 📑 Inhaltsverzeichnis
+*(💡 Tipp: Klicke auf den Kapitelnamen zum Lesen oder rechts auf das **[🎬 Schulung](#schulung-3)**-Symbol für die interaktive Bild-Schulung mit animierten Sprechblasen!)*
 
-1. [🔗 Zugriff im Web-Browser & Anmeldung](#1--zugriff-im-web-browser--anmeldung)
-2. [📱 Aufbau, Profil-Anzeige & Eigener Datei-Chat](#2--aufbau-profil-anzeige--eigener-datei-chat)
-3. [💬 Chatten, Emojis, Dokumente (bis 500 MB), Reaktionen, Anpinnen, Umfragen, Weiterleiten & Medien-Galerie](#3--chatten-emojis-dokumente-bis-500-mb-reaktionen-anpinnen-umfragen-weiterleiten--medien-galerie)
-4. [📖 Integrierter Markdown-Viewer (`.md`)](#4--integrierter-markdown-viewer-md)
-5. [🧊 Interaktiver 3D-STL / CTL Browser (`.stl` & `.ctl`)](#5--interaktiver-3d-stl--ctl-browser-stl--ctl)
-6. [✨ 3D-STL Generator: 3D-Modelle per Beschreibung erstellen](#6--3d-stl-generator-3d-modelle-per-beschreibung-erstellen)
-7. [🎨 KI-Bildgenerator & Studio: Bilder erschaffen, zuschneiden & auf Web-Grösse skalieren](#7--ki-bildgenerator--studio-bilder-erschaffen-zuschneiden--auf-web-grösse-skalieren)
-8. [🔠 Chat-Schriftgröße & Design-Hintergründe (`⋮`)](#8--chat-schriftgröße--design-hintergründe-)
-9. [📞 Sprach- & Videoanrufe (inkl. Anruflinks, Chat-Rückruf & Erreichbarkeits-Fälle)](#9--sprach--videoanrufe-inkl-anruflinks-chat-rückruf--erreichbarkeits-fälle)
-10. [⭕ Status / Storys teilen](#10--status--storys-teilen)
-11. [👤 Eigenes Profil & Passwort verwalten](#11--eigenes-profil--passwort-verwalten)
-12. [📡 Offline-Modus & Automatische Warteschlange (Unterwegs ohne Internet / WLAN)](#12--offline-modus--automatische-warteschlange-unterwegs-ohne-internet--wlan)
-13. [❓ Häufige Fragen & Schnelle Hilfe (FAQ)](#13--häufige-fragen--schnelle-hilfe-faq)
-14. [🚗 Persönlicher KI-Beifahrer (`Beifahrer (KI)`)](#14--persönlicher-ki-beifahrer-beifahrer-ki)
-15. [✨ Rechtschreib-Hilfe & Zauberstab für Kinder](#15--rechtschreib-hilfe--zauberstab-für-kinder)
-16. [🎨 Bilder, Grafiken & Malvorlagen im Chat generieren](#16--bilder-grafiken--malvorlagen-im-chat-generieren)
-17. [🖨️ 1-Klick A4-Druck für Malvorlagen & Kunstwerke](#17--1-klick-a4-druck-für-malvorlagen--kunstwerke)
-18. [🧊 OpenSCAD 3D-Projekte & 1-Klick-Kompilierung auf dem Raspberry Pi](#18--openscad-3d-projekte--1-klick-kompilierung-auf-dem-raspberry-pi)
+1. [🔗 Zugriff im Web-Browser & Anmeldung](#1--zugriff-im-web-browser--anmeldung) — [🎬 Schulung](#schulung-1)
+2. [📱 Aufbau, Profil-Anzeige & Eigener Datei-Chat](#2--aufbau-profil-anzeige--eigener-datei-chat) — [🎬 Schulung](#schulung-2)
+3. [💬 Chatten, Emojis, Dokumente (bis 500 MB), Reaktionen, Anpinnen, Umfragen, Weiterleiten & Medien-Galerie](#3--chatten-emojis-dokumente-bis-500-mb-reaktionen-anpinnen-umfragen-weiterleiten--medien-galerie) — [🎬 Schulung](#schulung-3)
+4. [📖 Integrierter Markdown-Viewer (`.md`)](#4--integrierter-markdown-viewer-md) — [🎬 Schulung](#schulung-4)
+5. [🧊 Interaktiver 3D-STL / CTL Browser (`.stl` & `.ctl`)](#5--interaktiver-3d-stl--ctl-browser-stl--ctl) — [🎬 Schulung](#schulung-5)
+6. [✨ 3D-STL Generator: 3D-Modelle per Beschreibung erstellen](#6--3d-stl-generator-3d-modelle-per-beschreibung-erstellen) — [🎬 Schulung](#schulung-6)
+7. [🎨 KI-Bildgenerator & Studio: Bilder erschaffen, zuschneiden & auf Web-Grösse skalieren](#7--ki-bildgenerator--studio-bilder-erschaffen-zuschneiden--auf-web-grösse-skalieren) — [🎬 Schulung](#schulung-7)
+8. [🔠 Chat-Schriftgröße & Design-Hintergründe (`⋮`)](#8--chat-schriftgröße--design-hintergründe-) — [🎬 Schulung](#schulung-8)
+9. [📞 Sprach- & Videoanrufe (inkl. Anruflinks, Chat-Rückruf & Erreichbarkeits-Fälle)](#9--sprach--videoanrufe-inkl-anruflinks-chat-rückruf--erreichbarkeits-fälle) — [🎬 Schulung](#schulung-9)
+10. [⭕ Status / Storys teilen](#10--status--storys-teilen) — [🎬 Schulung](#schulung-10)
+11. [👤 Eigenes Profil & Passwort verwalten](#11--eigenes-profil--passwort-verwalten) — [🎬 Schulung](#schulung-11)
+12. [📡 Offline-Modus & Automatische Warteschlange (Unterwegs ohne Internet / WLAN)](#12--offline-modus--automatische-warteschlange-unterwegs-ohne-internet--wlan) — [🎬 Schulung](#schulung-12)
+13. [❓ Häufige Fragen & Schnelle Hilfe (FAQ)](#13--häufige-fragen--schnelle-hilfe-faq) — [🎬 Schulung](#schulung-13)
+14. [🚗 Persönlicher KI-Beifahrer (`Beifahrer (KI)`)](#14--persönlicher-ki-beifahrer-beifahrer-ki) — [🎬 Schulung](#schulung-14)
+15. [✨ Rechtschreib-Hilfe & Zauberstab für Kinder](#15--rechtschreib-hilfe--zauberstab-für-kinder) — [🎬 Schulung](#schulung-15)
+16. [🎨 Bilder, Grafiken & Malvorlagen im Chat generieren](#16--bilder-grafiken--malvorlagen-im-chat-generieren) — [🎬 Schulung](#schulung-16)
+17. [🖨️ 1-Klick A4-Druck für Malvorlagen & Kunstwerke](#17--1-klick-a4-druck-für-malvorlagen--kunstwerke) — [🎬 Schulung](#schulung-17)
+18. [🧊 OpenSCAD 3D-Projekte & 1-Klick-Kompilierung auf dem Raspberry Pi](#18--openscad-3d-projekte--1-klick-kompilierung-auf-dem-raspberry-pi) — [🎬 Schulung](#schulung-18)
 
 ---
 
