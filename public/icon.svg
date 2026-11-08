@@ -12,10 +12,9 @@
       <feDropShadow dx="0" dy="10" stdDeviation="10" flood-color="#000000" flood-opacity="0.22"/>
     </filter>
   </defs>
-  <rect width="512" height="512" rx="112" fill="url(#ccBg)"/>
-  <circle cx="256" cy="256" r="204" fill="#ffffff" fill-opacity="0.12"/>
-  <path d="M159 92 h194 a72 72 0 0 1 72 72 v132 a72 72 0 0 1 -72 72 h-133 l-123 57 38 -59 a72 72 0 0 1 -48 -68 v-134 a72 72 0 0 1 72 -72 z" fill="#ffffff" filter="url(#ccShadow)"/>
-  <text x="256" y="278" text-anchor="middle" font-family="Segoe UI, Roboto, Arial, sans-serif" font-weight="800" font-size="136" fill="url(#ccText)">CC</text>
-  <circle cx="414" cy="112" r="46" fill="#10b981" stroke="#ffffff" stroke-width="12"/>
+  <rect width="512" height="512" fill="url(#ccBg)"/>
+  <circle cx="256" cy="256" r="196" fill="#ffffff" fill-opacity="0.12"/>
+  <path d="M164 102 h184 a68 68 0 0 1 68 68 v124 a68 68 0 0 1 -68 68 h-126 l-116 54 36 -56 a68 68 0 0 1 -46 -66 v-124 a68 68 0 0 1 68 -68 z" fill="#ffffff" filter="url(#ccShadow)"/>
+  <text x="256" y="276" text-anchor="middle" font-family="Segoe UI, Roboto, Arial, sans-serif" font-weight="800" font-size="128" fill="url(#ccText)">CC</text>
+  <circle cx="404" cy="118" r="42" fill="#10b981" stroke="#ffffff" stroke-width="12"/>
 </svg>
-
