@@ -1,0 +1,47 @@
+{
+  "id": "/chats",
+  "name": "ChatConnect Messenger",
+  "short_name": "ChatConnect",
+  "description": "Sicherer Familien-Messenger mit 3D-STLViewer, KI-Studio, Offline-Modus & Anrufen",
+  "start_url": "/chats",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#075e54",
+  "theme_color": "#00a884",
+  "lang": "de-CH",
+  "categories": ["social", "communication", "productivity"],
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-maskable-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
+

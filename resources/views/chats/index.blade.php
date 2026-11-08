@@ -3,11 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="ChatConnect">
-    <meta name="theme-color" content="#ffffff">
-    <title>ChatConnect Web</title>
+    <meta name="application-name" content="ChatConnect">
+    <meta name="theme-color" content="#00a884">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" type="image/svg+xml" href="/icon.svg">
+    <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
+    <link rel="icon" type="image/png" sizes="64x64" href="/favicon.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <title>ChatConnect</title>
     @vite(['resources/css/app.css'])
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js"></script>
@@ -397,6 +404,10 @@
                         <svg class="w-5 h-5 mr-3.5 text-slate-600 flex-shrink-0" style="min-width: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                         <span>🛠️ Technisches Handbuch (Pi, Git & Artisan)</span>
                     </a>
+                    <button type="button" onclick="document.getElementById('chat-menu').classList.add('hidden'); installChatConnectPwa();" class="w-full flex items-center px-4 py-3 text-[15px] font-semibold text-teal-700 hover:bg-teal-50 transition text-left">
+                        <svg class="w-5 h-5 mr-3.5 text-teal-600 flex-shrink-0" style="min-width: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                        <span>📲 Als App installieren (Tablet / Handy)</span>
+                    </button>
                     <a href="#" class="flex items-center px-4 py-3 text-[15px] text-gray-800 hover:bg-gray-50 transition">
                         <svg class="w-5 h-5 mr-3.5 text-gray-600 flex-shrink-0" style="min-width: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
                         <span>App-Sperre</span>
@@ -8477,6 +8488,69 @@
         if (!src) return;
         const promptText = document.getElementById('ai-prompt-input')?.value || 'KI-Bild';
         window.printImageDirect(src, promptText);
+    };
+
+    // --- PWA SERVICE WORKER & APP-INSTALLATION (SAMSUNG TABLET / ANDROID / IOS) ---
+    window.deferredPwaPrompt = null;
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/sw.js').catch(() => {});
+        });
+    }
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        window.deferredPwaPrompt = e;
+    });
+
+    window.installChatConnectPwa = async function() {
+        if (window.deferredPwaPrompt) {
+            window.deferredPwaPrompt.prompt();
+            try { await window.deferredPwaPrompt.userChoice; } catch (_) {}
+            window.deferredPwaPrompt = null;
+            return;
+        }
+        // Fallback visual instructions modal for Samsung Internet / Chrome / Safari
+        let modal = document.getElementById('cc-pwa-install-modal');
+        if (!modal) {
+            modal = document.createElement('div');
+            modal.id = 'cc-pwa-install-modal';
+            modal.className = 'fixed inset-0 z-[9999] bg-slate-900/75 backdrop-blur-xs flex items-center justify-center p-4';
+            modal.innerHTML = `
+                <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl border border-teal-200 overflow-hidden">
+                    <div class="bg-gradient-to-r from-[#075e54] to-[#00a884] text-white p-5 flex items-center gap-3.5">
+                        <img src="/icon.svg" alt="ChatConnect Icon" class="w-14 h-14 rounded-2xl shadow-md border-2 border-white/40 bg-white">
+                        <div>
+                            <h3 class="font-extrabold text-lg leading-tight">ChatConnect als App starten</h3>
+                            <p class="text-xs text-teal-100 mt-0.5">Mit eigenem App-Icon auf deinem Samsung Tablet &amp; Handy</p>
+                        </div>
+                    </div>
+                    <div class="p-5 space-y-3.5 text-sm text-slate-700">
+                        <div class="p-3.5 rounded-xl bg-teal-50 border border-teal-200">
+                            <div class="font-extrabold text-teal-950 mb-1">📱 Auf dem Samsung Tablet / Android (Chrome):</div>
+                            <p class="text-xs leading-relaxed text-teal-900">
+                                Tippe oben rechts im Browser auf das <strong>Drei-Punkte-Menü (⋮)</strong> und wähle <strong>„App installieren“</strong> oder <strong>„Zum Startbildschirm hinzufügen“</strong>.
+                            </p>
+                        </div>
+                        <div class="p-3.5 rounded-xl bg-sky-50 border border-sky-200">
+                            <div class="font-extrabold text-sky-950 mb-1">🌐 In Samsung Internet (Tablet / Smartphone):</div>
+                            <p class="text-xs leading-relaxed text-sky-900">
+                                Tippe auf das <strong>Menü (≡)</strong> (oder das <strong>＋</strong>-Symbol in der Adressleiste) ➔ <strong>„Seite hinzufügen zu“</strong> ➔ <strong>„Startbildschirm“</strong>.
+                            </p>
+                        </div>
+                        <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
+                            <div class="font-extrabold text-slate-900 mb-1">🍎 Auf dem iPhone / iPad (Safari):</div>
+                            <p class="text-xs leading-relaxed text-slate-600">
+                                Tippe auf <strong>Teilen (⬆️)</strong> ➔ <strong>„Zum Home-Bildschirm“</strong>.
+                            </p>
+                        </div>
+                        <button type="button" onclick="document.getElementById('cc-pwa-install-modal').remove()" class="w-full py-2.5 rounded-xl bg-[#00a884] hover:bg-[#008f6f] text-white font-extrabold text-sm shadow transition cursor-pointer">
+                            Verstanden 👍
+                        </button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
     };
 
 </script>
