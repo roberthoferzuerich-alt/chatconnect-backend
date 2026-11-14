@@ -289,6 +289,9 @@
                     if (reason === 'Declined') {
                         if (statusEl) statusEl.innerText = partnerName + " hat den Anruf abgelehnt.";
                         setTimeout(() => { window.location.href = CALLS_INDEX_URL; }, 1800);
+                    } else if (reason === 'Timeout' || reason === 'Busy') {
+                        if (statusEl) statusEl.innerText = partnerName + " ist derzeit nicht erreichbar.";
+                        setTimeout(() => { window.location.href = CALLS_INDEX_URL; }, 2000);
                     }
                 }
             });
@@ -323,10 +326,10 @@
                 } catch (e) {}
             }, 1500);
 
-            // Anruf-Einladung via ZIM senden (für Mobile-App) + Fallback auf direkten Raum (für Web & Standby-Push)
-            async function sendInvitationWithRetry(maxRetries = 6, delay = 900) {
+            // Anruf-Einladung via ZIM senden (für Mobile-App)
+            async function sendInvitationWithRetry(maxRetries = 5, delay = 1000) {
                 for (let i = 0; i < maxRetries; i++) {
-                    if (hasJoinedDirectRoom) return;
+                    if (hasJoinedDirectRoom || partnerHasAnswered) return;
                     try {
                         const res = await zp.sendCallInvitation({
                             callees: [{ userID: partnerID, userName: partnerName }],
@@ -344,38 +347,23 @@
                             },
                         });
 
-                        console.log("Call Invitation gesendet:", res);
-
-                        if (res && res.errorInvitees && res.errorInvitees.length > 0) {
-                            console.log("Empfänger nicht direkt in ZIM aktiv – öffne Raum & warte auf Push-/Web-Annahme...");
-                            if (statusEl) statusEl.innerText = "Es klingelt bei " + partnerName + " (Push-Benachrichtigung gesendet)...";
-                            setTimeout(() => {
-                                enterDirectRoom();
-                            }, 1200);
-                        } else {
-                            if (statusEl) statusEl.innerText = "Es läutet bei " + partnerName + "...";
-                        }
+                        console.log("Call Invitation erfolgreich gesendet:", res);
+                        if (statusEl) statusEl.innerText = "Es läutet bei " + partnerName + "...";
                         return res;
                     } catch (err) {
                         const errCode = err.code || (err.data && err.data.code);
                         const errMsg = err.message || JSON.stringify(err);
-                        if (errCode === 6000121 || errMsg.includes('not logged in')) {
+                        console.warn(`ZIM Versuch ${i + 1}/${maxRetries}:`, errMsg);
+                        if (i < maxRetries - 1) {
                             await new Promise(r => setTimeout(r, delay));
-                        } else {
-                            console.warn("ZIM Hinweis, nutze direkten Anrufraum:", errMsg);
-                            enterDirectRoom();
-                            return;
                         }
                     }
                 }
-                // Falls ZIM nach den Retries nicht verbunden ist, trotzdem Raum öffnen, da Backend-Polling + FCM aktiv sind
-                enterDirectRoom();
+                console.log("Warte auf Annahme des Anrufs...");
+                if (statusEl) statusEl.innerText = "Es läutet bei " + partnerName + "...";
             }
 
-            sendInvitationWithRetry().catch((err) => {
-                console.warn("Nutze direkten Raum-Modus:", err);
-                enterDirectRoom();
-            });
+            sendInvitationWithRetry();
 
         } catch (err) {
             console.error("Zego Exception:", err);
