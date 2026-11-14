@@ -195,6 +195,25 @@
 
             const zp = ZegoUIKitPrebuilt.create(kitToken);
 
+            function ensureAudioPlays() {
+                try {
+                    document.querySelectorAll('audio, video').forEach(media => {
+                        media.muted = false;
+                        media.volume = 1.0;
+                        if (media.paused) {
+                            media.play().catch(() => {});
+                        }
+                    });
+                    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+                    if (AudioContextClass) {
+                        const ctx = new AudioContextClass();
+                        if (ctx.state === 'suspended') ctx.resume().catch(() => {});
+                    }
+                } catch (e) {}
+            }
+            window.addEventListener('click', ensureAudioPlays, { passive: true });
+            window.addEventListener('touchstart', ensureAudioPlays, { passive: true });
+
             function enterDirectRoom() {
                 if (hasJoinedDirectRoom) return;
                 hasJoinedDirectRoom = true;
@@ -218,10 +237,14 @@
                     showLeaveRoomConfirmDialog: false,
                     onJoinRoom: () => {
                         if (connectingCard) connectingCard.style.display = 'none';
+                        setTimeout(ensureAudioPlays, 600);
+                        setTimeout(ensureAudioPlays, 1500);
                     },
                     onUserJoin: () => {
                         partnerHasAnswered = true;
                         updateCallStatusServer('answered');
+                        setTimeout(ensureAudioPlays, 600);
+                        setTimeout(ensureAudioPlays, 1500);
                     },
                     onLeaveRoom: () => {
                         hangupAndExit();
@@ -274,6 +297,8 @@
                         onJoinRoom: () => {
                             if (connectingCard) connectingCard.style.display = 'none';
                             updateCallStatusServer('answered');
+                            setTimeout(ensureAudioPlays, 600);
+                            setTimeout(ensureAudioPlays, 1500);
                         },
                         onLeaveRoom: () => {
                             hangupAndExit();
