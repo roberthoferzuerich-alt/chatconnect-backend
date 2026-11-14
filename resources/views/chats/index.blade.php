@@ -724,15 +724,22 @@
                                 @endif
 
                                 @if($audioSrc)
-                                    <div class="mb-2 pt-1 min-w-[200px] sm:min-w-[220px] max-w-xs">
-                                        <audio controls src="{{ $audioSrc }}" preload="metadata" class="w-full h-9 rounded-lg">
-                                            <source src="{{ $audioSrc }}" type="audio/webm">
-                                            <source src="{{ $audioSrc }}" type="audio/ogg">
-                                            <source src="{{ $audioSrc }}" type="audio/mp4">
-                                            <source src="{{ $audioSrc }}" type="audio/mpeg">
-                                            <source src="{{ $audioSrc }}" type="audio/wav">
-                                            Audio kann nicht abgespielt werden.
-                                        </audio>
+                                    <div class="cc-audio-player flex items-center gap-2.5 p-2 rounded-xl bg-black/5 border border-black/5 min-w-[230px] sm:min-w-[270px] max-w-xs mb-3 pr-2">
+                                        <button type="button" class="cc-audio-play-btn w-9 h-9 rounded-full bg-[#00a884] hover:bg-[#008f6f] text-white flex items-center justify-center shadow-sm flex-shrink-0 transition active:scale-95 cursor-pointer" onclick="toggleCcAudio(this)">
+                                            <svg class="w-4 h-4 ml-0.5 cc-play-icon" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                                            <svg class="w-4 h-4 cc-pause-icon hidden" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                                        </button>
+                                        <div class="flex-1 min-w-0">
+                                            <div class="relative w-full flex items-center">
+                                                <input type="range" min="0" max="100" value="0" step="0.1" class="cc-audio-slider w-full h-1.5 bg-gray-300 rounded-lg appearance-none cursor-pointer accent-[#00a884]" oninput="seekCcAudio(this)">
+                                            </div>
+                                            <div class="flex items-center justify-between text-[11px] text-gray-500 font-medium mt-1 select-none">
+                                                <span class="cc-audio-current">0:00</span>
+                                                <span class="cc-audio-duration">--:--</span>
+                                            </div>
+                                        </div>
+                                        <button type="button" class="cc-audio-speed-btn px-1.5 py-0.5 rounded text-[10px] font-bold text-gray-600 bg-black/5 hover:bg-black/10 transition cursor-pointer select-none" onclick="toggleCcAudioSpeed(this)">1x</button>
+                                        <audio preload="metadata" src="{{ $audioSrc }}" class="hidden" ontimeupdate="updateCcAudioProgress(this)" onloadedmetadata="initCcAudioDuration(this)" ondurationchange="initCcAudioDuration(this)" onended="onCcAudioEnded(this)" onerror="onCcAudioError(this)"></audio>
                                     </div>
                                 @endif
 
@@ -2233,6 +2240,120 @@
         }
     }
 
+    // --- CUSTOM AUDIO PLAYER FÜR SPRACHNACHRICHTEN ---
+    function formatCcAudioTime(seconds) {
+        if (isNaN(seconds) || !isFinite(seconds) || seconds < 0) return '0:00';
+        const mins = Math.floor(seconds / 60);
+        const secs = Math.floor(seconds % 60);
+        return mins + ':' + (secs < 10 ? '0' : '') + secs;
+    }
+
+    function toggleCcAudio(btn) {
+        const player = btn.closest('.cc-audio-player');
+        if (!player) return;
+        const audio = player.querySelector('audio');
+        if (!audio) return;
+
+        if (audio.paused) {
+            // Alle anderen laufenden Audios anhalten
+            document.querySelectorAll('.cc-audio-player audio').forEach(a => {
+                if (a !== audio && !a.paused) {
+                    a.pause();
+                    const otherPlayer = a.closest('.cc-audio-player');
+                    if (otherPlayer) {
+                        otherPlayer.querySelector('.cc-play-icon')?.classList.remove('hidden');
+                        otherPlayer.querySelector('.cc-pause-icon')?.classList.add('hidden');
+                    }
+                }
+            });
+
+            audio.play().then(() => {
+                player.querySelector('.cc-play-icon')?.classList.add('hidden');
+                player.querySelector('.cc-pause-icon')?.classList.remove('hidden');
+            }).catch(err => {
+                console.warn('Audio play error:', err);
+            });
+        } else {
+            audio.pause();
+            player.querySelector('.cc-play-icon')?.classList.remove('hidden');
+            player.querySelector('.cc-pause-icon')?.classList.add('hidden');
+        }
+    }
+
+    function seekCcAudio(slider) {
+        const player = slider.closest('.cc-audio-player');
+        if (!player) return;
+        const audio = player.querySelector('audio');
+        if (!audio) return;
+
+        if (audio.duration && isFinite(audio.duration)) {
+            audio.currentTime = (slider.value / 100) * audio.duration;
+            const currentSpan = player.querySelector('.cc-audio-current');
+            if (currentSpan) currentSpan.textContent = formatCcAudioTime(audio.currentTime);
+        }
+    }
+
+    function updateCcAudioProgress(audio) {
+        const player = audio.closest('.cc-audio-player');
+        if (!player) return;
+        const slider = player.querySelector('.cc-audio-slider');
+        const currentSpan = player.querySelector('.cc-audio-current');
+        const durationSpan = player.querySelector('.cc-audio-duration');
+
+        if (currentSpan) {
+            currentSpan.textContent = formatCcAudioTime(audio.currentTime);
+        }
+
+        if (audio.duration && isFinite(audio.duration) && audio.duration > 0) {
+            if (slider) {
+                slider.value = (audio.currentTime / audio.duration) * 100;
+            }
+            if (durationSpan && (durationSpan.textContent === '--:--' || durationSpan.textContent === '0:00')) {
+                durationSpan.textContent = formatCcAudioTime(audio.duration);
+            }
+        }
+    }
+
+    function initCcAudioDuration(audio) {
+        const player = audio.closest('.cc-audio-player');
+        if (!player) return;
+        const durationSpan = player.querySelector('.cc-audio-duration');
+        if (durationSpan && audio.duration && isFinite(audio.duration) && audio.duration > 0) {
+            durationSpan.textContent = formatCcAudioTime(audio.duration);
+        }
+    }
+
+    function onCcAudioEnded(audio) {
+        const player = audio.closest('.cc-audio-player');
+        if (!player) return;
+        player.querySelector('.cc-play-icon')?.classList.remove('hidden');
+        player.querySelector('.cc-pause-icon')?.classList.add('hidden');
+        const slider = player.querySelector('.cc-audio-slider');
+        if (slider) slider.value = 0;
+        const currentSpan = player.querySelector('.cc-audio-current');
+        if (currentSpan) currentSpan.textContent = '0:00';
+    }
+
+    function onCcAudioError(audio) {
+        console.warn('Audio laden fehlgeschlagen:', audio.src);
+        const player = audio.closest('.cc-audio-player');
+        if (!player) return;
+        const durationSpan = player.querySelector('.cc-audio-duration');
+        if (durationSpan) durationSpan.textContent = 'Fehler';
+    }
+
+    function toggleCcAudioSpeed(btn) {
+        const player = btn.closest('.cc-audio-player');
+        if (!player) return;
+        const audio = player.querySelector('audio');
+        if (!audio) return;
+
+        const currentRate = audio.playbackRate || 1;
+        const nextRate = currentRate === 1 ? 1.5 : (currentRate === 1.5 ? 2 : 1);
+        audio.playbackRate = nextRate;
+        btn.textContent = nextRate + 'x';
+    }
+
     // --- SPRACHNACHRICHTEN AUFNEHMEN (MediaRecorder) ---
     let mediaRecorder = null;
     let audioChunks = [];
@@ -2572,15 +2693,22 @@
 
         if (msg.audio_url) {
             bodyHtml += `
-                <div class="mb-2 pt-1 min-w-[220px] max-w-xs">
-                    <audio controls src="${msg.audio_url}" preload="metadata" class="w-full h-9 rounded-lg">
-                        <source src="${msg.audio_url}" type="audio/webm">
-                        <source src="${msg.audio_url}" type="audio/ogg">
-                        <source src="${msg.audio_url}" type="audio/mp4">
-                        <source src="${msg.audio_url}" type="audio/mpeg">
-                        <source src="${msg.audio_url}" type="audio/wav">
-                        Audio kann nicht abgespielt werden.
-                    </audio>
+                <div class="cc-audio-player flex items-center gap-2.5 p-2 rounded-xl bg-black/5 border border-black/5 min-w-[230px] sm:min-w-[270px] max-w-xs mb-3 pr-2">
+                    <button type="button" class="cc-audio-play-btn w-9 h-9 rounded-full bg-[#00a884] hover:bg-[#008f6f] text-white flex items-center justify-center shadow-sm flex-shrink-0 transition active:scale-95 cursor-pointer" onclick="toggleCcAudio(this)">
+                        <svg class="w-4 h-4 ml-0.5 cc-play-icon" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                        <svg class="w-4 h-4 cc-pause-icon hidden" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                    </button>
+                    <div class="flex-1 min-w-0">
+                        <div class="relative w-full flex items-center">
+                            <input type="range" min="0" max="100" value="0" step="0.1" class="cc-audio-slider w-full h-1.5 bg-gray-300 rounded-lg appearance-none cursor-pointer accent-[#00a884]" oninput="seekCcAudio(this)">
+                        </div>
+                        <div class="flex items-center justify-between text-[11px] text-gray-500 font-medium mt-1 select-none">
+                            <span class="cc-audio-current">0:00</span>
+                            <span class="cc-audio-duration">--:--</span>
+                        </div>
+                    </div>
+                    <button type="button" class="cc-audio-speed-btn px-1.5 py-0.5 rounded text-[10px] font-bold text-gray-600 bg-black/5 hover:bg-black/10 transition cursor-pointer select-none" onclick="toggleCcAudioSpeed(this)">1x</button>
+                    <audio preload="metadata" src="${msg.audio_url}" class="hidden" ontimeupdate="updateCcAudioProgress(this)" onloadedmetadata="initCcAudioDuration(this)" ondurationchange="initCcAudioDuration(this)" onended="onCcAudioEnded(this)" onerror="onCcAudioError(this)"></audio>
                 </div>
             `;
         }
