@@ -7,10 +7,23 @@
     @vite(['resources/css/app.css', 'resources/js/call.js'])
     
     <style>
-        #root {
-            width: 100vw;
-            height: 100vh;
+        html, body {
+            width: 100%;
+            height: 100%;
+            height: 100dvh;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
             background-color: #0b141a;
+        }
+        #root {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            height: 100dvh;
+            background-color: #0b141a;
+            z-index: 10;
         }
     </style>
 </head>
@@ -196,9 +209,13 @@
                     showMyCameraToggleButton: true,
                     showMyMicrophoneToggleButton: true,
                     showAudioVideoSettingsButton: true,
-                    showScreenSharingButton: true,
+                    showScreenSharingButton: false,
                     showTextChat: false,
                     showUserList: false,
+                    autoHideFooter: false,
+                    showNonVideoUser: true,
+                    showOnlyAudioUser: true,
+                    showLeaveRoomConfirmDialog: false,
                     onJoinRoom: () => {
                         if (connectingCard) connectingCard.style.display = 'none';
                     },
@@ -250,6 +267,10 @@
                         showScreenSharingButton: false,
                         showTextChat: false,
                         showUserList: false,
+                        autoHideFooter: false,
+                        showNonVideoUser: true,
+                        showOnlyAudioUser: true,
+                        showLeaveRoomConfirmDialog: false,
                         onJoinRoom: () => {
                             if (connectingCard) connectingCard.style.display = 'none';
                             updateCallStatusServer('answered');
