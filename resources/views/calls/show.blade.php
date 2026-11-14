@@ -32,11 +32,14 @@
     </div>
 </div>
 
-<!-- On-Screen Live Diagnostics / Console Box (hidden by default, shows on error) -->
-<div id="debug-box" class="hidden fixed bottom-4 left-4 right-4 bg-gray-900/95 text-gray-300 p-4 rounded-xl z-50 text-xs border border-red-500/50 font-mono shadow-2xl max-h-48 overflow-y-auto">
-    <div class="text-red-400 font-bold mb-1 flex justify-between items-center border-b border-gray-800 pb-1">
-        <span>Zego Fehler-Meldung</span>
-        <span class="text-[10px] text-gray-400">Anrufer: {{ $user->name }} &rarr; Ziel: {{ $partner->name }}</span>
+<!-- On-Screen Live Diagnostics / Console Box (hidden by default, only shown if debug=1) -->
+<div id="debug-box" class="hidden fixed bottom-4 left-4 right-4 bg-gray-900/95 text-gray-300 p-4 rounded-xl z-50 text-xs border border-teal-500/50 font-mono shadow-2xl max-h-48 overflow-y-auto">
+    <div class="text-teal-400 font-bold mb-1 flex justify-between items-center border-b border-gray-800 pb-1">
+        <span>Anruf Diagnose</span>
+        <div class="flex items-center gap-2">
+            <span class="text-[10px] text-gray-400">Anrufer: {{ $user->name }} &rarr; Ziel: {{ $partner->name }}</span>
+            <button type="button" onclick="document.getElementById('debug-box').classList.add('hidden')" class="text-gray-400 hover:text-white px-1.5 py-0.5 rounded bg-gray-800 text-xs cursor-pointer" title="Schließen">✕</button>
+        </div>
     </div>
     <div id="debug-log-lines" class="space-y-1 mt-1"></div>
 </div>
@@ -105,15 +108,23 @@
         }
     });
 
-    // Live Logger auf den Bildschirm (nur bei Fehlern sichtbar)
+    const SHOW_DEBUG = new URLSearchParams(window.location.search).has('debug');
+
+    // Live Logger auf den Bildschirm (nur sichtbar wenn ?debug=1 in der URL steht)
     function logToScreen(type, ...args) {
-        if (type === 'error') {
+        if (SHOW_DEBUG) {
             const box = document.getElementById('debug-box');
             if (box) box.classList.remove('hidden');
         }
         const logLines = document.getElementById('debug-log-lines');
         if (!logLines) return;
-        const msg = args.map(a => typeof a === 'object' ? JSON.stringify(a) : String(a)).join(' ');
+        const msg = args.map(a => {
+            if (typeof a === 'function') return '[Function]';
+            if (typeof a === 'object' && a !== null) {
+                try { return JSON.stringify(a); } catch(e) { return String(a); }
+            }
+            return String(a);
+        }).join(' ');
         const line = document.createElement('div');
         line.className = type === 'error' ? 'text-red-400 font-semibold' : (type === 'warn' ? 'text-yellow-300' : 'text-emerald-400');
         line.innerText = `[${new Date().toLocaleTimeString()}] ${msg}`;

@@ -622,7 +622,7 @@
                     @if(!$isGroup && $activePartner && $activePartner->email !== \App\Services\CopilotService::BOT_EMAIL)
                         <div class="flex items-center space-x-0.5 sm:space-x-1 text-gray-600 flex-shrink-0">
                             <!-- Video Call Button -->
-                            <form action="{{ route('calls.store') }}" method="POST" class="m-0">
+                            <form action="{{ route('calls.store') }}" method="POST" class="m-0" onsubmit="return confirm('Möchtest du einen Videoanruf mit {{ addslashes($activePartner->name) }} starten?');">
                                 @csrf
                                 <input type="hidden" name="receiver_id" value="{{ $activePartner->id }}">
                                 <input type="hidden" name="type" value="video">
@@ -631,7 +631,7 @@
                                 </button>
                             </form>
                             <!-- Audio Call Button -->
-                            <form action="{{ route('calls.store') }}" method="POST" class="m-0">
+                            <form action="{{ route('calls.store') }}" method="POST" class="m-0" onsubmit="return confirm('Möchtest du einen Sprachanruf mit {{ addslashes($activePartner->name) }} starten?');">
                                 @csrf
                                 <input type="hidden" name="receiver_id" value="{{ $activePartner->id }}">
                                 <input type="hidden" name="type" value="audio">
