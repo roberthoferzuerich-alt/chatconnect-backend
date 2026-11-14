@@ -820,10 +820,10 @@
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path></svg>
                             </button>
 
-                            <!-- Desktop Trigger Label (Visible on screens >= sm) -->
-                            <label class="hidden sm:inline-flex text-gray-500 hover:text-gray-700 hover:bg-gray-200 rounded-full cursor-pointer p-2 transition flex-shrink-0" title="Bild anhängen & zuschneiden">
+                            <!-- Desktop Trigger Button (Visible on screens >= sm) -->
+                            <button type="button" onclick="document.getElementById('image-file-input').click();" class="hidden sm:inline-flex text-gray-500 hover:text-gray-700 hover:bg-gray-200 rounded-full cursor-pointer p-2 transition flex-shrink-0" title="Foto / Bild anhängen & zuschneiden">
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path></svg>
-                            </label>
+                            </button>
 
                             <!-- Mobile Attachment Popover Menu -->
                             <div id="attachment-popover" class="hidden absolute bottom-14 left-0 mb-1 w-60 bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl border border-gray-200 p-2 z-50 text-gray-800 transition-all">
@@ -870,9 +870,9 @@
                         <input type="file" id="document-file-input" accept=".pdf,.doc,.docx,.xls,.xlsx,.txt,.csv,.zip,.7z,.z,.rar,.tar,.gz,.tgz,.bz2,.xz,.jar,.mcpack,.mcworld,.mcaddon,.json,.3mf,.obj,.gcode,.scad,.ppt,.pptx,.md,.markdown,.stl,.ctl,application/pdf,application/zip,application/java-archive,application/x-java-archive,application/x-zip-compressed,application/x-7z-compressed,application/x-rar-compressed,text/markdown,model/stl,application/sla" class="hidden" onchange="handleDocumentSelect(event)">
 
                         <!-- Desktop Direct Action Buttons (hidden on mobile to keep input field spacious) -->
-                        <label class="hidden sm:inline-flex text-gray-500 hover:text-teal-700 hover:bg-gray-200 rounded-full cursor-pointer p-1.5 sm:p-2 transition flex-shrink-0" title="Dokument, PDF, ZIP / 7-Zip (.zip / .7z), Minecraft-Mod (.jar), Markdown (.md) oder 3D-Modell (.stl / .ctl) senden">
+                        <button type="button" onclick="document.getElementById('document-file-input').click();" class="hidden sm:inline-flex text-gray-500 hover:text-teal-700 hover:bg-gray-200 rounded-full cursor-pointer p-1.5 sm:p-2 transition flex-shrink-0" title="Dokument, PDF, ZIP / 7-Zip (.zip / .7z), Minecraft-Mod (.jar), Markdown (.md) oder 3D-Modell (.stl / .ctl) senden">
                             <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-6 4h4"></path></svg>
-                        </label>
+                        </button>
 
                         <!-- ✨ KI-Bildgenerator (ChatConnect-Assistent) -->
                         <button type="button" onclick="openAiImageModal()" class="hidden sm:inline-flex text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 rounded-full cursor-pointer p-1.5 sm:p-2 transition flex-shrink-0" title="✨ KI-Bildgenerator (ChatConnect-Assistent)">
