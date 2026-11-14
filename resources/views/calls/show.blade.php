@@ -360,6 +360,7 @@
                             callees: [{ userID: partnerID, userName: partnerName }],
                             callType: isVideo ? ZegoUIKitPrebuilt.InvitationTypeVideoCall : ZegoUIKitPrebuilt.InvitationTypeVoiceCall,
                             timeout: 60,
+                            roomID: roomID,
                             data: JSON.stringify({
                                 resourceID: 'zego_data',
                                 call_id: CALL_ID,
