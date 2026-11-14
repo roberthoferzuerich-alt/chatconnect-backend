@@ -2361,7 +2361,37 @@
     let recordingSeconds = 0;
     let audioStream = null;
 
+    function playRecordingTone(isStart) {
+        try {
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            if (!AudioContext) return;
+            const ctx = new AudioContext();
+            const now = ctx.currentTime;
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'sine';
+            if (isStart) {
+                osc.frequency.setValueAtTime(440, now);
+                osc.frequency.exponentialRampToValueAtTime(880, now + 0.08);
+            } else {
+                osc.frequency.setValueAtTime(600, now);
+                osc.frequency.exponentialRampToValueAtTime(300, now + 0.08);
+            }
+            gain.gain.setValueAtTime(0.12, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(now);
+            osc.stop(now + 0.12);
+        } catch (e) {}
+    }
+
     async function startVoiceRecording() {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            alert('Mikrofon-Zugriff wird von diesem Browser nicht unterstützt oder ist nicht freigegeben.');
+            return;
+        }
+
         try {
             audioChunks = [];
             recordingSeconds = 0;
@@ -2371,17 +2401,24 @@
             
             // Geeigneten Mime-Type ermitteln
             let options = {};
-            if (MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) {
-                options = { mimeType: 'audio/webm;codecs=opus' };
-            } else if (MediaRecorder.isTypeSupported('audio/webm')) {
-                options = { mimeType: 'audio/webm' };
-            } else if (MediaRecorder.isTypeSupported('audio/mp4')) {
-                options = { mimeType: 'audio/mp4' };
-            } else if (MediaRecorder.isTypeSupported('audio/ogg')) {
-                options = { mimeType: 'audio/ogg' };
+            if (window.MediaRecorder) {
+                if (MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) {
+                    options = { mimeType: 'audio/webm;codecs=opus' };
+                } else if (MediaRecorder.isTypeSupported('audio/webm')) {
+                    options = { mimeType: 'audio/webm' };
+                } else if (MediaRecorder.isTypeSupported('audio/mp4')) {
+                    options = { mimeType: 'audio/mp4' };
+                } else if (MediaRecorder.isTypeSupported('audio/ogg')) {
+                    options = { mimeType: 'audio/ogg' };
+                }
             }
 
-            mediaRecorder = new MediaRecorder(audioStream, options);
+            try {
+                mediaRecorder = new MediaRecorder(audioStream, options);
+            } catch (recErr) {
+                console.warn('MediaRecorder mit Optionen fehlgeschlagen, probiere Standard:', recErr);
+                mediaRecorder = new MediaRecorder(audioStream);
+            }
 
             mediaRecorder.ondataavailable = function(e) {
                 if (e.data && e.data.size > 0) {
@@ -2391,23 +2428,34 @@
 
             mediaRecorder.start(250); // Alle 250ms Daten sammeln
 
+            // Kurzer Start-Ton
+            playRecordingTone(true);
+
             // UI umschalten auf Aufnahmebalken
-            document.getElementById('chat-form').classList.add('hidden');
-            document.getElementById('voice-recording-bar').classList.remove('hidden');
-            document.getElementById('recording-timer').innerText = '0:00';
+            const chatForm = document.getElementById('chat-form');
+            const recBar = document.getElementById('voice-recording-bar');
+            if (chatForm) chatForm.classList.add('hidden');
+            if (recBar) recBar.classList.remove('hidden');
+            const timerEl = document.getElementById('recording-timer');
+            if (timerEl) timerEl.innerText = '0:00';
 
             // Timer starten
             recordingTimerInterval = setInterval(function() {
                 recordingSeconds++;
                 const mins = Math.floor(recordingSeconds / 60);
                 const secs = recordingSeconds % 60;
-                document.getElementById('recording-timer').innerText = 
-                    mins + ':' + (secs < 10 ? '0' : '') + secs;
+                if (timerEl) {
+                    timerEl.innerText = mins + ':' + (secs < 10 ? '0' : '') + secs;
+                }
             }, 1000);
 
         } catch (err) {
             console.error('Mikrofonfehler:', err);
-            alert('Mikrofon-Zugriff fehlgeschlagen: Bitte erlaube dem Browser den Zugriff auf das Mikrofon.');
+            if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+                alert('Mikrofon-Zugriff verweigert: Bitte erlaube ChatConnect in deinen Browser-Einstellungen den Zugriff auf das Mikrofon.');
+            } else {
+                alert('Mikrofon-Zugriff fehlgeschlagen: ' + (err.message || err));
+            }
             cleanupRecording();
         }
     }
@@ -2423,11 +2471,14 @@
         }
         mediaRecorder = null;
         audioChunks = [];
-        document.getElementById('voice-recording-bar').classList.add('hidden');
-        document.getElementById('chat-form').classList.remove('hidden');
+        const recBar = document.getElementById('voice-recording-bar');
+        const chatForm = document.getElementById('chat-form');
+        if (recBar) recBar.classList.add('hidden');
+        if (chatForm) chatForm.classList.remove('hidden');
     }
 
     function cancelVoiceRecording() {
+        playRecordingTone(false);
         if (mediaRecorder && mediaRecorder.state !== 'inactive') {
             mediaRecorder.stop();
         }
@@ -2436,6 +2487,7 @@
 
     function sendVoiceRecording() {
         if (!mediaRecorder || mediaRecorder.state === 'inactive') return;
+        playRecordingTone(false);
 
         mediaRecorder.onstop = function() {
             const mimeType = mediaRecorder.mimeType || 'audio/webm';
