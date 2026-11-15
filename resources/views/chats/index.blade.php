@@ -3026,59 +3026,76 @@
 
             return confirm(`Möchtest du einen ${typeLabel} mit ${partnerName} starten?`);
         };
-
-        window.openStatusModal = function() {
-            const modal = document.getElementById('cc-status-modal');
-            if (!modal) return;
-            modal.classList.remove('hidden');
-            modal.style.display = 'flex';
-            setTimeout(() => document.getElementById('cc-custom-status-input')?.focus(), 100);
-        };
-
-        window.closeStatusModal = function() {
-            const modal = document.getElementById('cc-status-modal');
-            if (!modal) return;
-            modal.classList.add('hidden');
-            modal.style.display = 'none';
-        };
-
-        window.selectStatusPreset = function(presetText) {
-            saveStatusToServer(presetText);
-        };
-
-        window.saveCustomStatus = function() {
-            const input = document.getElementById('cc-custom-status-input');
-            if (!input || !input.value.trim()) return;
-            saveStatusToServer(input.value.trim());
-        };
-
-        function saveStatusToServer(statusText) {
-            fetch("{{ route('profile.status.update') }}", {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify({ status: statusText })
-            })
-            .then(r => r.json())
-            .then(data => {
-                if (data.status === 'success') {
-                    const statusEl = document.getElementById('my-status-text');
-                    if (statusEl) statusEl.textContent = statusText;
-                    closeStatusModal();
-                }
-            })
-            .catch(err => console.error('Status save error:', err));
-        }
-
-        window.addEventListener('beforeunload', function() {
-            if (navigator.sendBeacon) {
-                navigator.sendBeacon("{{ route('heartbeat.offline') }}");
-            }
-        });
     @endif
+
+    // =========================================================================
+    // 🟢 GLOBAL STATUS-VERWALTUNG & MODAL (für alle Chats & auch ohne aktiven Chat)
+    // =========================================================================
+    window.openStatusModal = function() {
+        const modal = document.getElementById('cc-status-modal');
+        if (!modal) {
+            console.warn('Status-Modal nicht im Dokument gefunden');
+            return;
+        }
+        modal.classList.remove('hidden');
+        modal.style.display = 'flex';
+        setTimeout(() => document.getElementById('cc-custom-status-input')?.focus(), 100);
+    };
+
+    window.closeStatusModal = function() {
+        const modal = document.getElementById('cc-status-modal');
+        if (!modal) return;
+        modal.classList.add('hidden');
+        modal.style.display = 'none';
+    };
+
+    window.selectStatusPreset = function(presetText) {
+        saveStatusToServer(presetText);
+    };
+
+    window.saveCustomStatus = function() {
+        const input = document.getElementById('cc-custom-status-input');
+        if (!input || !input.value.trim()) return;
+        saveStatusToServer(input.value.trim());
+    };
+
+    function saveStatusToServer(statusText) {
+        fetch("{{ route('profile.status.update') }}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({ status: statusText })
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.status === 'success') {
+                const statusEl = document.getElementById('my-status-text');
+                if (statusEl) statusEl.textContent = statusText;
+                closeStatusModal();
+            }
+        })
+        .catch(err => console.error('Status save error:', err));
+    }
+
+    window.addEventListener('beforeunload', function() {
+        if (navigator.sendBeacon) {
+            navigator.sendBeacon("{{ route('heartbeat.offline') }}");
+        }
+    });
+
+    // Globaler Heartbeat (alle 45 Sek. aktiv melden)
+    setInterval(function() {
+        fetch("{{ route('heartbeat') }}", {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json'
+            }
+        }).catch(() => {});
+    }, 45000);
 
     // Dropdown-Menü schließen, wenn außerhalb geklickt wird
     document.addEventListener('click', function(event) {
