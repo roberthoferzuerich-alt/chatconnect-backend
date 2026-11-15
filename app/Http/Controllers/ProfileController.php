@@ -146,6 +146,50 @@ class ProfileController extends Controller
         ]);
     }
 
+    public function updateStatus(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'status' => 'required|string|max:100',
+        ]);
+
+        $user = $request->user();
+        $user->about = $validated['status'];
+        $user->is_online = true;
+        $user->last_seen_at = now();
+        $user->save();
+
+        return response()->json([
+            'status' => 'success',
+            'about' => $user->about,
+        ]);
+    }
+
+    public function heartbeat(Request $request): JsonResponse
+    {
+        $user = $request->user();
+        if ($user) {
+            $user->update([
+                'is_online' => true,
+                'last_seen_at' => now(),
+            ]);
+        }
+
+        return response()->json(['status' => 'ok']);
+    }
+
+    public function setOffline(Request $request): JsonResponse
+    {
+        $user = $request->user();
+        if ($user) {
+            $user->update([
+                'is_online' => false,
+                'last_seen_at' => now(),
+            ]);
+        }
+
+        return response()->json(['status' => 'ok']);
+    }
+
     /**
      * Delete the user's account.
      */

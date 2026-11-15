@@ -22,6 +22,9 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::post('/profile/wallpaper', [ProfileController::class, 'updateWallpaper'])->name('profile.wallpaper.update');
     Route::delete('/profile/wallpaper', [ProfileController::class, 'deleteWallpaper'])->name('profile.wallpaper.delete');
+    Route::post('/profile/status', [ProfileController::class, 'updateStatus'])->name('profile.status.update');
+    Route::post('/heartbeat', [ProfileController::class, 'heartbeat'])->name('heartbeat');
+    Route::post('/heartbeat/offline', [ProfileController::class, 'setOffline'])->name('heartbeat.offline');
 
     // Chats
     Route::get('/chats', [ChatController::class, 'index'])->name('chats.index');

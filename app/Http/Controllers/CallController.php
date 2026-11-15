@@ -67,16 +67,43 @@ class CallController extends Controller
             $icon = $isVideo ? '📹' : '📞';
             $typeLabel = $isVideo ? 'Videoanruf' : 'Sprachanruf';
 
-            if ($reason === 'declined') {
-                $content = "{$icon} **Verpasster {$typeLabel}** *(abgelehnt um {$callTime} Uhr)* — [📞 Jetzt zurückrufen](/calls)";
-            } else {
-                $content = "{$icon} **Verpasster {$typeLabel}** von **{$caller->name}** *(um {$callTime} Uhr)* — [📞 Jetzt zurückrufen](/calls)";
+            // Smart Grouping: Prüfe, ob die letzte Nachricht bereits ein verpasster Anruf dieses Anrufers ist
+            $lastMessage = $conversation->messages()->latest('id')->first();
+            $isPreviousMissedCall = false;
+            $count = 1;
+
+            if ($lastMessage && $lastMessage->sender_id === $caller->id && str_contains($lastMessage->content, 'Verpasster')) {
+                if ($lastMessage->created_at && $lastMessage->created_at->diffInHours(now()) < 6) {
+                    $isPreviousMissedCall = true;
+                    if (preg_match('/\((\d+)x[,\)]/i', $lastMessage->content, $matches)) {
+                        $count = intval($matches[1]) + 1;
+                    } else {
+                        $count = 2;
+                    }
+                }
             }
 
-            $message = $conversation->messages()->create([
-                'sender_id' => $caller->id,
-                'content' => $content,
-            ]);
+            $countBadge = ($count > 1) ? " **({$count}x)**" : "";
+
+            if ($reason === 'declined') {
+                $content = "{$icon} **Verpasster {$typeLabel}**{$countBadge} *(abgelehnt um {$callTime} Uhr)* — [📞 Jetzt zurückrufen](/calls)";
+            } else {
+                $timeNote = ($count > 1) ? "*(zuletzt um {$callTime} Uhr)*" : "*(um {$callTime} Uhr)*";
+                $content = "{$icon} **Verpasster {$typeLabel}**{$countBadge} von **{$caller->name}** {$timeNote} — [📞 Jetzt zurückrufen](/calls)";
+            }
+
+            if ($isPreviousMissedCall) {
+                $lastMessage->update([
+                    'content' => $content,
+                    'updated_at' => now(),
+                ]);
+                $message = $lastMessage;
+            } else {
+                $message = $conversation->messages()->create([
+                    'sender_id' => $caller->id,
+                    'content' => $content,
+                ]);
+            }
 
             $conversation->update([
                 'last_message_id' => $message->id,

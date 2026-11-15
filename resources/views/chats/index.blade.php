@@ -346,9 +346,17 @@
                         <div class="w-9 h-9 bg-teal-600 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-sm group-hover:ring-2 group-hover:ring-teal-500 transition">{{ substr($user->name, 0, 1) }}</div>
                     @endif
                 </a>
-                <div class="flex items-baseline space-x-2 min-w-0">
-                    <h2 class="text-xl sm:text-2xl font-semibold text-gray-900">Chats</h2>
-                    <span class="text-xs sm:text-sm font-medium text-teal-600 truncate" title="{{ $user->name }}">· {{ $user->name }}</span>
+                <div class="flex flex-col min-w-0">
+                    <div class="flex items-baseline space-x-1.5 min-w-0">
+                        <h2 class="text-xl sm:text-2xl font-semibold text-gray-900">Chats</h2>
+                        <span class="text-xs font-medium text-teal-600 truncate" title="{{ $user->name }}">· {{ $user->name }}</span>
+                    </div>
+                    <!-- Status Button -->
+                    <button type="button" onclick="openStatusModal()" class="text-[11px] text-gray-500 hover:text-teal-700 hover:underline flex items-center gap-1 cursor-pointer truncate text-left" title="Status ändern (z. B. Am Gamen, Nicht da, Hausaufgaben)">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 flex-shrink-0"></span>
+                        <span id="my-status-text" class="truncate font-medium">{{ $user->about ?: '🟢 Verfügbar' }}</span>
+                        <span class="text-[9px] text-gray-400">✏️</span>
+                    </button>
                 </div>
             </div>
             
@@ -615,13 +623,29 @@
                         </div>
                         <div class="ml-2.5 sm:ml-3 min-w-0">
                             <h3 class="font-medium text-gray-900 text-sm truncate leading-snug">{{ $headerTitle }}</h3>
-                            <p class="text-[11px] text-gray-500 truncate">
+                            <p class="text-[11px] text-gray-500 truncate" id="chat-header-status" data-partner-online="{{ $activePartner && $activePartner->is_online ? '1' : '0' }}" data-partner-about="{{ $activePartner ? ($activePartner->about ?? '') : '' }}">
                                 @if($isGroup)
                                     {{ implode(', ', $activeConversation->users->pluck('name')->toArray()) }}
                                 @elseif($isSelfChat)
                                     Persönliche Notizen, Dokumente & 3D-Dateien
-                                @else
-                                    {{ $activePartner && $activePartner->is_online ? 'online' : ($activePartner ? ($activePartner->about ?? 'ChatConnect') : '') }}
+                                @elseif($activePartner)
+                                    @if($activePartner->is_online)
+                                        <span class="inline-flex items-center gap-1 text-emerald-600 font-medium">
+                                            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                                            <span>online</span>
+                                            @if($activePartner->about && !in_array($activePartner->about, ['ChatConnect', 'ChatConnect Nutzer', 'Hallo, ich nutze ChatConnect.', '🟢 Verfügbar']))
+                                                <span class="text-gray-500 font-normal">· {{ $activePartner->about }}</span>
+                                            @endif
+                                        </span>
+                                    @else
+                                        <span class="inline-flex items-center gap-1 text-gray-400">
+                                            <span class="w-2 h-2 rounded-full bg-gray-300"></span>
+                                            <span>offline</span>
+                                            @if($activePartner->about && !in_array($activePartner->about, ['ChatConnect', 'ChatConnect Nutzer', 'Hallo, ich nutze ChatConnect.', '🟢 Verfügbar']))
+                                                <span class="text-gray-500 font-normal">· {{ $activePartner->about }}</span>
+                                            @endif
+                                        </span>
+                                    @endif
                                 @endif
                             </p>
                         </div>
@@ -630,7 +654,7 @@
                     @if(!$isGroup && $activePartner && $activePartner->email !== \App\Services\CopilotService::BOT_EMAIL)
                         <div class="flex items-center space-x-0.5 sm:space-x-1 text-gray-600 flex-shrink-0">
                             <!-- Video Call Button -->
-                            <form action="{{ route('calls.store') }}" method="POST" class="m-0" onsubmit="return confirm('Möchtest du einen Videoanruf mit {{ addslashes($activePartner->name) }} starten?');">
+                            <form action="{{ route('calls.store') }}" method="POST" class="m-0" onsubmit="return handleCallAttempt(event, 'video', '{{ addslashes($activePartner->name) }}');">
                                 @csrf
                                 <input type="hidden" name="receiver_id" value="{{ $activePartner->id }}">
                                 <input type="hidden" name="type" value="video">
@@ -639,7 +663,7 @@
                                 </button>
                             </form>
                             <!-- Audio Call Button -->
-                            <form action="{{ route('calls.store') }}" method="POST" class="m-0" onsubmit="return confirm('Möchtest du einen Sprachanruf mit {{ addslashes($activePartner->name) }} starten?');">
+                            <form action="{{ route('calls.store') }}" method="POST" class="m-0" onsubmit="return handleCallAttempt(event, 'audio', '{{ addslashes($activePartner->name) }}');">
                                 @csrf
                                 <input type="hidden" name="receiver_id" value="{{ $activePartner->id }}">
                                 <input type="hidden" name="type" value="audio">
@@ -2898,6 +2922,12 @@
                         playNotificationSound();
                     }
                 }
+                if (data.states && window.ccSyncLiveStates) {
+                    window.ccSyncLiveStates(data.states, data.active_ids);
+                }
+                if (data.partner && typeof window.syncPartnerLiveStatus === 'function') {
+                    window.syncPartnerLiveStatus(data.partner);
+                }
             })
             .catch(err => {
                 console.warn('Polling check error:', err);
@@ -2906,6 +2936,139 @@
                 isPollingRequestInProgress = false;
             });
         }
+
+        // =========================================================================
+        // 🟢 LIVE PARTNER STATUS, ANRUF-SCHUTZ & STATUS-VERWALTUNG
+        // =========================================================================
+        window.syncPartnerLiveStatus = function(partner) {
+            if (!partner) return;
+            const statusEl = document.getElementById('chat-header-status');
+            if (!statusEl) return;
+            statusEl.setAttribute('data-partner-online', partner.is_online ? '1' : '0');
+            statusEl.setAttribute('data-partner-about', partner.about || '');
+
+            const isOnline = partner.is_online;
+            const about = partner.about || '';
+            const hasCustomStatus = about && !['ChatConnect', 'ChatConnect Nutzer', 'Hallo, ich nutze ChatConnect.', '🟢 Verfügbar'].includes(about);
+
+            let html = '';
+            if (isOnline) {
+                html = `<span class="inline-flex items-center gap-1 text-emerald-600 font-medium">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span>online</span>`;
+                if (hasCustomStatus) {
+                    html += `<span class="text-gray-500 font-normal">· ${escapeHtml(about)}</span>`;
+                }
+                html += `</span>`;
+            } else {
+                html = `<span class="inline-flex items-center gap-1 text-gray-400">
+                    <span class="w-2 h-2 rounded-full bg-gray-300"></span>
+                    <span>offline</span>`;
+                if (hasCustomStatus) {
+                    html += `<span class="text-gray-500 font-normal">· ${escapeHtml(about)}</span>`;
+                }
+                html += `</span>`;
+            }
+            statusEl.innerHTML = html;
+        };
+
+        window.handleCallAttempt = function(event, type, partnerName) {
+            const statusEl = document.getElementById('chat-header-status');
+            const isOnline = statusEl ? (statusEl.getAttribute('data-partner-online') === '1') : true;
+            const about = statusEl ? (statusEl.getAttribute('data-partner-about') || '') : '';
+            const typeLabel = (type === 'video') ? 'Videoanruf' : 'Sprachanruf';
+
+            if (!isOnline) {
+                const proceed = confirm(
+                    `⚠️ ${partnerName} ist aktuell OFFLINE (Gerät ist nicht aktiv).\n\n` +
+                    `Möchtest du trotzdem versuchen durchzuklingeln oder lieber eine Nachricht im Chat schreiben?\n\n` +
+                    `[OK] = Trotzdem anrufen\n[Abbrechen] = Nachricht schreiben`
+                );
+                if (!proceed) {
+                    event.preventDefault();
+                    const input = document.getElementById('chat-input-field');
+                    if (input) {
+                        input.focus();
+                        input.scrollIntoView({ behavior: 'smooth' });
+                    }
+                    return false;
+                }
+                return true;
+            }
+
+            const isBusy = /gamen|nicht da|hausaufgaben|stören|zeichnen|unterwegs/i.test(about);
+            if (isBusy) {
+                const proceed = confirm(
+                    `ℹ️ ${partnerName} ist im Status: „${about}“\n\n` +
+                    `Möchtest du trotzdem einen ${typeLabel} starten oder lieber eine Nachricht schreiben?\n\n` +
+                    `[OK] = Trotzdem anrufen\n[Abbrechen] = Nachricht schreiben`
+                );
+                if (!proceed) {
+                    event.preventDefault();
+                    const input = document.getElementById('chat-input-field');
+                    if (input) {
+                        input.focus();
+                        input.scrollIntoView({ behavior: 'smooth' });
+                    }
+                    return false;
+                }
+                return true;
+            }
+
+            return confirm(`Möchtest du einen ${typeLabel} mit ${partnerName} starten?`);
+        };
+
+        window.openStatusModal = function() {
+            const modal = document.getElementById('cc-status-modal');
+            if (!modal) return;
+            modal.classList.remove('hidden');
+            modal.style.display = 'flex';
+            setTimeout(() => document.getElementById('cc-custom-status-input')?.focus(), 100);
+        };
+
+        window.closeStatusModal = function() {
+            const modal = document.getElementById('cc-status-modal');
+            if (!modal) return;
+            modal.classList.add('hidden');
+            modal.style.display = 'none';
+        };
+
+        window.selectStatusPreset = function(presetText) {
+            saveStatusToServer(presetText);
+        };
+
+        window.saveCustomStatus = function() {
+            const input = document.getElementById('cc-custom-status-input');
+            if (!input || !input.value.trim()) return;
+            saveStatusToServer(input.value.trim());
+        };
+
+        function saveStatusToServer(statusText) {
+            fetch("{{ route('profile.status.update') }}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({ status: statusText })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    const statusEl = document.getElementById('my-status-text');
+                    if (statusEl) statusEl.textContent = statusText;
+                    closeStatusModal();
+                }
+            })
+            .catch(err => console.error('Status save error:', err));
+        }
+
+        window.addEventListener('beforeunload', function() {
+            if (navigator.sendBeacon) {
+                navigator.sendBeacon("{{ route('heartbeat.offline') }}");
+            }
+        });
     @endif
 
     // Dropdown-Menü schließen, wenn außerhalb geklickt wird
@@ -6105,6 +6268,82 @@
         <!-- File List & Optional Text Preview -->
         <div class="flex-1 overflow-y-auto p-3 sm:p-4 space-y-1.5 bg-white" id="cc-archive-entries" style="min-height: 250px;"></div>
         <div id="cc-archive-file-preview" class="hidden border-t border-slate-200 bg-slate-900 text-emerald-300 p-3 font-mono text-xs max-h-48 overflow-y-auto whitespace-pre-wrap"></div>
+    </div>
+</div>
+
+<!-- ========================================================= -->
+<!-- 🟢 MODAL: EIGENEN STATUS WÄHLEN (ONLINE / NICHT DA / GAMEN)-->
+<!-- ========================================================= -->
+<div id="cc-status-modal" class="hidden fixed inset-0 flex items-center justify-center p-3 sm:p-5 bg-black/75 backdrop-blur-sm" style="display: none; z-index: 99996;" onclick="if(event.target===this) closeStatusModal()">
+    <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] border border-gray-100">
+        <div class="px-5 py-4 flex items-center justify-between text-white" style="background: linear-gradient(135deg, #008069 0%, #10b981 100%);">
+            <div class="flex items-center gap-3">
+                <span class="w-10 h-10 rounded-xl bg-white/15 flex items-center justify-center text-xl">💬</span>
+                <div>
+                    <h3 class="font-bold text-base sm:text-lg">Mein Status</h3>
+                    <p class="text-xs text-emerald-100">Zeigt deiner Familie, ob du gerade erreichbar bist</p>
+                </div>
+            </div>
+            <button type="button" onclick="closeStatusModal()" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-xl font-bold cursor-pointer">&times;</button>
+        </div>
+
+        <div class="p-4 sm:p-5 overflow-y-auto space-y-4 flex-1 bg-slate-50/50">
+            <div>
+                <label class="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-2">Schnell-Status wählen:</label>
+                <div class="grid grid-cols-1 gap-2">
+                    <button type="button" onclick="selectStatusPreset('🟢 Verfügbar')" class="w-full flex items-center gap-3 p-3 bg-white hover:bg-emerald-50 rounded-xl border border-gray-200 hover:border-emerald-300 transition text-left cursor-pointer group">
+                        <span class="text-2xl">🟢</span>
+                        <div>
+                            <div class="font-bold text-sm text-gray-900 group-hover:text-emerald-700">Verfügbar / Da</div>
+                            <div class="text-xs text-gray-500">Ich bin online und kann chatten oder telefonieren</div>
+                        </div>
+                    </button>
+                    <button type="button" onclick="selectStatusPreset('🎮 Am Gamen (Minecraft / Roblox)')" class="w-full flex items-center gap-3 p-3 bg-white hover:bg-indigo-50 rounded-xl border border-gray-200 hover:border-indigo-300 transition text-left cursor-pointer group">
+                        <span class="text-2xl">🎮</span>
+                        <div>
+                            <div class="font-bold text-sm text-gray-900 group-hover:text-indigo-700">Am Gamen (Minecraft / Roblox)</div>
+                            <div class="text-xs text-gray-500">Bin im Spiel – Anrufe bitte nur bei Wichtigem</div>
+                        </div>
+                    </button>
+                    <button type="button" onclick="selectStatusPreset('🎨 Am Zeichnen & Basteln')" class="w-full flex items-center gap-3 p-3 bg-white hover:bg-pink-50 rounded-xl border border-gray-200 hover:border-pink-300 transition text-left cursor-pointer group">
+                        <span class="text-2xl">🎨</span>
+                        <div>
+                            <div class="font-bold text-sm text-gray-900 group-hover:text-pink-700">Am Zeichnen & Basteln</div>
+                            <div class="text-xs text-gray-500">Kreativ beschäftigt – melde mich gleich</div>
+                        </div>
+                    </button>
+                    <button type="button" onclick="selectStatusPreset('📚 Hausaufgaben & Lernen')" class="w-full flex items-center gap-3 p-3 bg-white hover:bg-amber-50 rounded-xl border border-gray-200 hover:border-amber-300 transition text-left cursor-pointer group">
+                        <span class="text-2xl">📚</span>
+                        <div>
+                            <div class="font-bold text-sm text-gray-900 group-hover:text-amber-700">Hausaufgaben & Lernen</div>
+                            <div class="text-xs text-gray-500">Muss mich konzentrieren – bitte nicht anrufen</div>
+                        </div>
+                    </button>
+                    <button type="button" onclick="selectStatusPreset('🏃 Bin gerade nicht da / Unterwegs')" class="w-full flex items-center gap-3 p-3 bg-white hover:bg-sky-50 rounded-xl border border-gray-200 hover:border-sky-300 transition text-left cursor-pointer group">
+                        <span class="text-2xl">🏃</span>
+                        <div>
+                            <div class="font-bold text-sm text-gray-900 group-hover:text-sky-700">Bin gerade nicht da / Unterwegs</div>
+                            <div class="text-xs text-gray-500">Tablet oder Handy liegt gerade nicht bei mir</div>
+                        </div>
+                    </button>
+                    <button type="button" onclick="selectStatusPreset('🌙 Bitte nicht stören / Pause')" class="w-full flex items-center gap-3 p-3 bg-white hover:bg-purple-50 rounded-xl border border-gray-200 hover:border-purple-300 transition text-left cursor-pointer group">
+                        <span class="text-2xl">🌙</span>
+                        <div>
+                            <div class="font-bold text-sm text-gray-900 group-hover:text-purple-700">Bitte nicht stören / Pause</div>
+                            <div class="text-xs text-gray-500">Keine Anrufe erwünscht</div>
+                        </div>
+                    </button>
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-1">Oder eigener Statustext:</label>
+                <div class="flex gap-2">
+                    <input type="text" id="cc-custom-status-input" placeholder="z. B. Beim Essen 🍕 oder Fahrrad fahren 🚲" class="flex-1 bg-white border border-gray-300 rounded-xl px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-teal-500">
+                    <button type="button" onclick="saveCustomStatus()" class="px-4 py-2 bg-[#008069] hover:bg-[#006a56] text-white text-xs font-bold rounded-xl transition cursor-pointer">Speichern</button>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 

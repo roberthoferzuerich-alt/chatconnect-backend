@@ -234,6 +234,13 @@ class ChatController extends Controller
             ->whereNull('read_at')
             ->update(['read_at' => now()]);
 
+        // Keep current user alive / online heartbeat
+        if (!$user->is_online || !$user->last_seen_at || $user->last_seen_at->diffInSeconds(now()) > 45) {
+            $user->update(['is_online' => true, 'last_seen_at' => now()]);
+        }
+
+        $partner = $conversation->is_group ? null : $conversation->users()->where('users.id', '!=', $user->id)->first();
+
         $afterId = (int)$request->query('after_id', 0);
         $newMessages = $conversation->messages()
             ->with(['sender', 'reactions.user'])
@@ -289,6 +296,12 @@ class ChatController extends Controller
             }),
             'states' => $states,
             'active_ids' => $activeIds,
+            'partner' => $partner ? [
+                'id' => $partner->id,
+                'name' => $partner->name,
+                'is_online' => (bool)$partner->is_online,
+                'about' => $partner->about ?: '',
+            ] : null,
         ]);
     }
 

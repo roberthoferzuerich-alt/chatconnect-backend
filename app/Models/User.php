@@ -127,6 +127,22 @@ class User extends Authenticatable
         ];
     }
 
+    public function getIsOnlineAttribute(): bool
+    {
+        if ($this->email === \App\Services\CopilotService::BOT_EMAIL) {
+            return true;
+        }
+        $raw = (bool)($this->attributes['is_online'] ?? false);
+        if (!$raw) {
+            return false;
+        }
+        $lastSeen = $this->last_seen_at;
+        if (!$lastSeen) {
+            return false;
+        }
+        return $lastSeen->gt(now()->subMinutes(3));
+    }
+
     public function conversations()
     {
         return $this->belongsToMany(Conversation::class);
