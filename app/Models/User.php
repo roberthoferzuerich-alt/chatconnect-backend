@@ -87,6 +87,9 @@ class User extends Authenticatable
         if (str_starts_with($path, 'http://') || str_starts_with($path, 'https://')) {
             return $path;
         }
+        if (str_starts_with($path, '/images/') || str_starts_with($path, 'images/')) {
+            return '/' . ltrim($path, '/');
+        }
         return '/storage/' . ltrim($path, '/');
     }
 

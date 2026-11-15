@@ -35,8 +35,14 @@ class CopilotService
                 'phone' => null,
                 'about' => 'Dein aufmerksamer Co-Pilot in ChatConnect',
                 'is_online' => true,
+                'avatar' => '/images/beifahrer-avatar.jpg',
             ]
         );
+
+        if (!$bot->avatar || !str_contains($bot->avatar, 'beifahrer-avatar')) {
+            $bot->avatar = '/images/beifahrer-avatar.jpg';
+            $bot->save();
+        }
 
         self::$cachedBotUser = $bot;
         return $bot;
