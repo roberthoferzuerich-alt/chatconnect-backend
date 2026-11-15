@@ -6294,8 +6294,15 @@
                     <button type="button" onclick="selectStatusPreset('🟢 Verfügbar')" class="w-full flex items-center gap-3 p-3 bg-white hover:bg-emerald-50 rounded-xl border border-gray-200 hover:border-emerald-300 transition text-left cursor-pointer group">
                         <span class="text-2xl">🟢</span>
                         <div>
-                            <div class="font-bold text-sm text-gray-900 group-hover:text-emerald-700">Verfügbar / Da</div>
-                            <div class="text-xs text-gray-500">Ich bin online und kann chatten oder telefonieren</div>
+                            <div class="font-bold text-sm text-gray-900 group-hover:text-emerald-700">Online / Verfügbar</div>
+                            <div class="text-xs text-gray-500">Ich bin online und normal erreichbar</div>
+                        </div>
+                    </button>
+                    <button type="button" onclick="selectStatusPreset('⚪ Offline (Nicht erreichbar)')" class="w-full flex items-center gap-3 p-3 bg-white hover:bg-gray-100 rounded-xl border border-gray-200 hover:border-gray-400 transition text-left cursor-pointer group">
+                        <span class="text-2xl">⚪</span>
+                        <div>
+                            <div class="font-bold text-sm text-gray-700 group-hover:text-gray-900">Als Offline anzeigen</div>
+                            <div class="text-xs text-gray-500">Du wirst für alle als offline angezeigt (Ruhe vor Anrufen)</div>
                         </div>
                     </button>
                     <button type="button" onclick="selectStatusPreset('🎮 Am Gamen (Minecraft / Roblox)')" class="w-full flex items-center gap-3 p-3 bg-white hover:bg-indigo-50 rounded-xl border border-gray-200 hover:border-indigo-300 transition text-left cursor-pointer group">

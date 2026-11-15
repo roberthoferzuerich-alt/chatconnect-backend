@@ -153,14 +153,27 @@ class ProfileController extends Controller
         ]);
 
         $user = $request->user();
-        $user->about = $validated['status'];
-        $user->is_online = true;
+        $statusText = $validated['status'];
+        $isOfflineChoice = str_contains($statusText, 'Offline') || str_contains($statusText, 'offline');
+
+        $settings = $user->settings ?? [];
+        if ($isOfflineChoice) {
+            $settings['appear_offline'] = true;
+            $user->is_online = false;
+        } else {
+            $settings['appear_offline'] = false;
+            $user->is_online = true;
+        }
+
+        $user->settings = $settings;
+        $user->about = $statusText;
         $user->last_seen_at = now();
         $user->save();
 
         return response()->json([
             'status' => 'success',
             'about' => $user->about,
+            'is_online' => (bool)$user->is_online,
         ]);
     }
 
@@ -168,10 +181,13 @@ class ProfileController extends Controller
     {
         $user = $request->user();
         if ($user) {
-            $user->update([
-                'is_online' => true,
-                'last_seen_at' => now(),
-            ]);
+            $settings = $user->settings ?? [];
+            if (empty($settings['appear_offline'])) {
+                $user->update([
+                    'is_online' => true,
+                    'last_seen_at' => now(),
+                ]);
+            }
         }
 
         return response()->json(['status' => 'ok']);
