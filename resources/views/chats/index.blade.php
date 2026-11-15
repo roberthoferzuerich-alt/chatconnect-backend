@@ -333,11 +333,11 @@
     </div>
 
     <!-- Sidebar (Chat List) -->
-    <div class="{{ $activeConversation ? 'hidden md:flex' : 'flex' }} w-full md:w-1/3 lg:w-96 flex-col border-r border-gray-200 bg-white z-30 relative flex-shrink-0 h-full overflow-hidden">
+    <div class="{{ $activeConversation ? 'hidden md:flex' : 'flex' }} w-full md:w-80 lg:w-96 md:min-w-[300px] lg:min-w-[340px] flex-col border-r border-gray-200 bg-white z-30 relative flex-shrink-0 h-full overflow-hidden">
         <!-- Header -->
-        <div class="h-16 landscape-header bg-white flex items-center justify-between px-4 py-2 border-b border-gray-100 flex-shrink-0">
-            <div class="flex items-center space-x-2.5 min-w-0">
-                <a href="{{ route('profile.about') }}" class="flex-shrink-0 group" title="Mein Profil ({{ $user->name }})">
+        <div class="h-16 landscape-header bg-white flex items-center justify-between px-3 sm:px-4 py-2 border-b border-gray-100 flex-shrink-0 gap-2">
+            <div class="flex items-center space-x-2.5 min-w-0 flex-1">
+                <a href="{{ route('profile.about') }}" class="flex-shrink-0 group relative" title="Mein Profil ({{ $user->name }})">
                     @if($user->avatar_url)
                         <img src="{{ $user->avatar_url }}" alt="{{ $user->name }}" class="w-9 h-9 rounded-full object-cover shadow-sm border border-gray-200 group-hover:ring-2 group-hover:ring-teal-500 transition">
                     @elseif($user->avatar)
@@ -345,42 +345,51 @@
                     @else
                         <div class="w-9 h-9 bg-teal-600 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-sm group-hover:ring-2 group-hover:ring-teal-500 transition">{{ substr($user->name, 0, 1) }}</div>
                     @endif
+                    <!-- Online indicator dot on avatar -->
+                    <span class="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-500 border-2 border-white"></span>
                 </a>
-                <div class="flex flex-col min-w-0">
-                    <div class="flex items-baseline space-x-1.5 min-w-0">
-                        <h2 class="text-xl sm:text-2xl font-semibold text-gray-900">Chats</h2>
-                        <span class="text-xs font-medium text-teal-600 truncate" title="{{ $user->name }}">· {{ $user->name }}</span>
+                <div class="flex flex-col min-w-0 flex-1">
+                    <div class="flex items-center space-x-1.5 min-w-0">
+                        <span class="text-sm font-bold text-gray-900 truncate">{{ $user->name }}</span>
                     </div>
-                    <!-- Status Button -->
-                    <button type="button" onclick="openStatusModal()" class="text-[11px] text-gray-500 hover:text-teal-700 hover:underline flex items-center gap-1 cursor-pointer truncate text-left" title="Status ändern (z. B. Am Gamen, Nicht da, Hausaufgaben)">
+                    <!-- Status Button (immer sichtbar, 1 Klick zum Ändern!) -->
+                    <button type="button" onclick="openStatusModal()" class="text-[11px] text-gray-600 hover:text-teal-700 bg-gray-100 hover:bg-teal-50 px-2 py-0.5 rounded-full border border-gray-200 hover:border-teal-300 flex items-center gap-1 cursor-pointer truncate text-left max-w-full transition mt-0.5" title="Status &amp; Ruhemodus ändern">
                         <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 flex-shrink-0"></span>
-                        <span id="my-status-text" class="truncate font-medium">{{ $user->about ?: '🟢 Verfügbar' }}</span>
-                        <span class="text-[9px] text-gray-400">✏️</span>
+                        <span id="my-status-text" class="truncate font-semibold">{{ $user->about ?: '🟢 Verfügbar' }}</span>
+                        <span class="text-[9px] text-gray-400 flex-shrink-0">✏️</span>
                     </button>
                 </div>
             </div>
             
-            <div class="flex items-center space-x-3 text-gray-600">
+            <div class="flex items-center space-x-1 sm:space-x-1.5 text-gray-600 flex-shrink-0">
                 <!-- 3-Punkte Menu Button -->
-                <button type="button" id="top-ki-studio-btn" onclick="openAiImageModal()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 transition text-xs font-bold shadow-sm cursor-pointer" title="KI-Bildgenerator & Bild-Werkzeuge">
+                <button type="button" id="top-ki-studio-btn" onclick="openAiImageModal()" class="hidden xl:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 transition text-xs font-bold shadow-sm cursor-pointer" title="KI-Bildgenerator & Bild-Werkzeuge">
                     <svg class="w-4 h-4 text-emerald-600" fill="currentColor" viewBox="0 0 24 24"><path d="M19 9l1.25-2.75L23 5l-2.75-1.25L19 1l-1.25 2.75L15 5l2.75 1.25L19 9zm-7.5.5L9 4 6.5 9.5 1 12l5.5 2.5L9 20l2.5-5.5L17 12l-5.5-2.5zM19 15l-1.25 2.75L15 19l2.75 1.25L19 23l1.25-2.75L23 19l-2.75-1.25L19 15z"/></svg>
-                    <span class="hidden sm:inline">KI-Studio</span>
+                    <span>KI-Studio</span>
                 </button>
-                <button type="button" id="menu-button" onclick="document.getElementById('chat-menu').classList.toggle('hidden')" class="hover:text-gray-900 p-2 rounded-full hover:bg-gray-100 transition focus:outline-none" title="Menü">
+                <button type="button" id="menu-button" onclick="document.getElementById('chat-menu').classList.toggle('hidden')" class="hover:text-gray-900 p-2 rounded-full hover:bg-gray-100 transition focus:outline-none cursor-pointer" title="Menü">
                     <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M12 7a2 2 0 1 0-.001-4.001A2 2 0 0 0 12 7zm0 2a2 2 0 1 0-.001 3.999A2 2 0 0 0 12 9zm0 6a2 2 0 1 0-.001 3.999A2 2 0 0 0 12 15z" />
                     </svg>
                 </button>
 
                 <!-- Neues Chat Plus Icon (grüner Kreis) -->
-                <button type="button" onclick="document.getElementById('new-chat-modal').classList.remove('hidden')" class="w-10 h-10 bg-[#00a884] rounded-full flex items-center justify-center text-white hover:bg-teal-600 transition shadow-sm" title="Neuer Chat">
+                <button type="button" onclick="document.getElementById('new-chat-modal').classList.remove('hidden')" class="w-9 h-9 sm:w-10 sm:h-10 bg-[#00a884] rounded-full flex items-center justify-center text-white hover:bg-teal-600 transition shadow-sm cursor-pointer" title="Neuer Chat">
                     <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M19 3H5c-1.1 0-2 .9-2 2v14l4-4h12c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 9h-3v3h-2v-3H9V9h3V6h2v3h3v2z"/>
                     </svg>
                 </button>
 
                 <!-- Dropdown Menü (ChatConnect) -->
-                <div id="chat-menu" class="hidden absolute top-14 left-2 w-64 bg-white rounded-2xl shadow-2xl border border-gray-100 py-2 z-50" style="left: 8px; right: auto; transform: none; width: 260px; max-width: calc(100vw - 20px); z-index: 999;">
+                <div id="chat-menu" class="hidden absolute top-14 left-2 w-72 bg-white rounded-2xl shadow-2xl border border-gray-100 py-2 z-50" style="left: 8px; right: auto; transform: none; width: 280px; max-width: calc(100vw - 20px); z-index: 999;">
+                    <!-- Status Button in Menu -->
+                    <button type="button" onclick="document.getElementById('chat-menu').classList.add('hidden'); openStatusModal();" class="w-full flex items-center px-4 py-3 text-[15px] font-semibold text-teal-800 hover:bg-teal-50 transition text-left border-b border-gray-100 cursor-pointer">
+                        <span class="text-xl mr-3">🟢</span>
+                        <div>
+                            <div class="font-bold text-sm text-teal-900">Status &amp; Ruhemodus ändern</div>
+                            <div class="text-xs text-gray-500 font-normal">Online, Offline, Gamen, Basteln, Pause...</div>
+                        </div>
+                    </button>
                     <a href="{{ route('communities.index') }}" class="flex items-center px-4 py-3 text-[15px] text-gray-800 hover:bg-gray-50 transition">
                         <svg class="w-5 h-5 mr-3.5 text-gray-600 flex-shrink-0" style="min-width: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5V18a3 3 0 00-5-2.5M9 20H4V18a3 3 0 015-2.5M16 11a3 3 0 100-6 3 3 0 000 6zM9 11a3 3 0 100-6 3 3 0 000 6z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11v4m-2-2h4"></path></svg>
                         <span>Neue Gruppe</span>
