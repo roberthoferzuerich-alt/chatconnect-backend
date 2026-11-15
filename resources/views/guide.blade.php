@@ -477,6 +477,22 @@
                             </p>
                         </div>
                     </div>
+                    <div class="grid sm:grid-cols-2 gap-3 pt-1">
+                        <div class="p-3 bg-white rounded-xl border border-teal-200 flex items-start space-x-3 text-xs text-gray-700">
+                            <span class="text-xl">✨</span>
+                            <div>
+                                <strong class="text-teal-900 block font-bold mb-0.5">Neu: Intelligente Anruf-Zusammenfassung (Anti-Spam)</strong>
+                                Ruft jemand mehrfach hintereinander vergeblich an, wird der Chatverlauf nicht mehr mit dutzenden Meldungen überflutet. Wiederholte Anrufe werden automatisch in einer einzigen Chatblase zusammengefasst (z.&nbsp;B. <em>„📞 Verpasster Sprachanruf (3x) von …“</em>) und aktualisieren diskret Zeitstempel und Zähler.
+                            </div>
+                        </div>
+                        <div class="p-3 bg-white rounded-xl border border-teal-200 flex items-start space-x-3 text-xs text-gray-700">
+                            <span class="text-xl">🛡️</span>
+                            <div>
+                                <strong class="text-teal-900 block font-bold mb-0.5">Neu: Live-Status (🟢 online / ⚪ offline) &amp; Anruf-Schutz</strong>
+                                Im Chat-Kopf siehst du live, ob dein Partner erreichbar ist. Wenn jemand offline ist oder auf <em>„Am Gamen 🎮“</em>, <em>„Am Zeichnen 🎨“</em>, <em>„Hausaufgaben 📚“</em> oder <em>„Ruhemodus ⚪“</em> steht, fragt ChatConnect vor dem Wählen nach, ob du wirklich anrufen oder lieber schreiben möchtest.
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </section>
 
@@ -1255,25 +1271,38 @@
                         ]
                     },
                     {
-                        label: 'Bild 2: Automatische Rückruf-Nachricht im Chat & Die 3 Fälle',
-                        contactName: '💬 Automatische „Verpasster Anruf“-Nachricht im Chat',
-                        contactSub: 'Was passiert, wenn der Angerufene nach 65 Sekunden nicht abnimmt?',
-                        pinnedBanner: '📱 Fall 1: Android-App (FCM Push) • 💻 Fall 2: Hintergrund-Tab • 📴 Fall 3: Browser zu',
-                        msg1: { sender: 'System / Anruf-Info', time: '19:52', text: '📞 Verpasster Sprachanruf von Opa Robert (um 19:52 Uhr)', attachment: '📞 [Jetzt mit 1 Klick zurückrufen]' },
-                        msg2: { sender: 'Zoe', time: '19:55', isMe: true, text: 'Oh, ich habe die Nachricht im Chat sofort gesehen und rufe dich direkt über den Link zurück, Opa! 📞💚', reactions: ['❤️ 1'] },
+                        label: 'Bild 2: Automatische Rückruf-Nachricht & Intelligente Zusammenfassung',
+                        contactName: '💬 Intelligente „Verpasster Anruf“-Nachricht im Chat',
+                        contactSub: 'Kein Spam: Wiederholte Anrufe werden sauber zusammengefasst (3x)!',
+                        pinnedBanner: '✨ Anti-Spam: Nur 1 Chatblase • 🟢 Live-Status & Anruf-Schutz bei Abwesenheit',
+                        msg1: { sender: 'System / Anruf-Info', time: '19:52', text: '📞 Verpasster Sprachanruf (3x) von Opa Robert (um 19:52 Uhr)', attachment: '📞 [Jetzt mit 1 Klick zurückrufen]' },
+                        msg2: { sender: 'Zoe', time: '19:55', isMe: true, text: 'Hoi Opa! Ich war am Basteln 🎨. Super, dass der Chat nicht zugemüllt wird und nur 1x aktualisiert wurde! Ich rufe dich gleich zurück! 👍', reactions: ['❤️ 1'] },
                         inputText: '1 Klick auf „Jetzt zurückrufen“ startet den Rückruf...',
                         bubbles: [
-                            { x: 44, y: 45, title: '📞 Automatischer Eintrag direkt im Chatverlauf', text: 'Wird ein Anruf nicht erreicht oder abgelehnt, schreibt ChatConnect automatisch eine „Verpasster Anruf“-Nachricht mit Rückruf-Link in euren Chat!' },
-                            { x: 64, y: 68, title: '👆 1-Klick Sofort-Rückruf', text: 'So geht kein Anruf verloren – auch wenn der Browser des Empfängers komplett geschlossen war (Fall 3).' }
+                            { x: 44, y: 45, title: '✨ Intelligente Zusammenfassung (Anti-Spam)', text: 'Wird mehrfach vergebens angerufen, fasst ChatConnect die Anrufe in einer einzigen Chatblase zusammen (z.B. (3x)) und aktualisiert nur die Uhrzeit.' },
+                            { x: 64, y: 68, title: '👆 1-Klick Sofort-Rückruf', text: 'So geht kein Anruf verloren – auch wenn der Browser des Empfängers komplett geschlossen war.' }
                         ]
                     }
                 ]
             },
             10: {
-                title: '10. ⭕ Status / Storys für 24 Stunden teilen',
+                title: '10. 🟢 Live Online/Offline-Status & ⭕ Storys teilen',
                 screens: [
                     {
-                        label: 'Bild 1: Eigenen Status (Foto & Text) posten',
+                        label: 'Bild 1: 1-Klick Status-Wahl (Online, Ruhemodus, Gamen, Basteln)',
+                        contactName: '🟢 Status-Schnellwahl & Live-Erreichbarkeit',
+                        contactSub: 'Klick in der Seitenleiste direkt unter deinem Namen auf deinen Status',
+                        pinnedBanner: '🟢 Online • ⚪ Als Offline anzeigen (Ruhemodus) • 🎮 Gamen • 🎨 Basteln • 📚 Lernen',
+                        msg1: { sender: 'Status-Auswahl', time: '1-Klick', text: 'Tippe auf dein Status-Badge in der Leiste: Wähle z.B. „🎮 Am Gamen“, „🎨 Am Zeichnen“ oder „⚪ Als Offline anzeigen (Ruhemodus)“!' },
+                        msg2: { sender: 'Dario', time: '14:20', isMe: true, text: 'Bin gerade am Minecraften 🎮. ChatConnect schützt mich automatisch vor spontanen Anrufen!', reactions: ['👍 2'] },
+                        inputText: 'Tippe auf deinen Status unter deinem Namen...',
+                        bubbles: [
+                            { x: 30, y: 15, title: '🟢 Status unter deinem Namen', text: 'Ein Klick auf die Statuszeile unter deinem Profilbild öffnet die praktische Schnellauswahl.' },
+                            { x: 50, y: 55, title: '🛡️ Ruhemodus & Anruf-Schutz', text: 'Im Ruhemodus oder Gaming-Status werden Anrufer vorgewarnt und können dir stattdessen schreiben.' }
+                        ]
+                    },
+                    {
+                        label: 'Bild 2: Eigenen Status (Foto & Text) posten',
                         contactName: '⭕ Status & Familien-Storys (24h)',
                         contactSub: 'Über das ⭕-Symbol in der Navigationsleiste',
                         pinnedBanner: '📸 Teile schöne Momente, Ausflüge oder gebastelte Kunstwerke für 24 Stunden',
@@ -1284,7 +1313,7 @@
                         ]
                     },
                     {
-                        label: 'Bild 2: Storys der Familie im Vollbild ansehen',
+                        label: 'Bild 3: Storys der Familie im Vollbild ansehen',
                         contactName: '⭕ Aktuelle Storys deiner Kontakte',
                         contactSub: 'Nach 24 Stunden räumt der Server abgelaufene Storys automatisch auf',
                         pinnedBanner: '🟢 Farbiger Ring um das Profilbild zeigt neue Storys an',

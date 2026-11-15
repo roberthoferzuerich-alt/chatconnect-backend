@@ -422,6 +422,16 @@ Ist dir die Schrift im Chat auf dem Handy zu klein oder zu groß?
   *(bzw. `📹 Verpasster Videoanruf ...`)*
   - Dadurch erscheint der verpasste Anruf sofort mit ungelesenem Zähler ganz oben in deiner Chatliste, und du kannst mit einem einzigen Klick zurückrufen!
 
+- **✨ Intelligente Anruf-Zusammenfassung (Anti-Spam-Schutz):**
+  Wenn dich jemand mehrfach hintereinander vergeblich anruft (oder du jemanden mehrfach versuchst zu erreichen), wird der Chatverlauf nicht mehr mit dutzenden einzelnen Meldungen überflutet! ChatConnect erkennt wiederholte verpasste Anrufe innerhalb von 6 Stunden automatisch, fasst sie in **einer einzigen Chatblase** zusammen und zählt sie hoch:
+  > 📞 **Verpasster Sprachanruf (3x)** von **Jil Hofer** *(um 17:15 Uhr)* — **[📞 Jetzt zurückrufen](/calls)**  
+  Die Uhrzeit aktualisiert sich dabei stets auf den jüngsten Anrufversuch.
+
+- **🛡️ Anruf-Schutz bei Abwesenheit & Offline-Status:**
+  Tippst du auf das Hörer- oder Kamerasymbol bei einem Kontakt, der gerade offline ist oder seinen Status auf *„Am Gamen 🎮“*, *„Am Zeichnen 🎨“*, *„Hausaufgaben 📚“* oder *„Als offline anzeigen ⚪“* gesetzt hat, fragt ChatConnect vor dem Wählen per Bestätigungsfenster:
+  > *„[Name] ist gerade offline / am Gamen. Möchtest du trotzdem anrufen oder lieber eine Chat-Nachricht schreiben?“*  
+  Ein Klick auf *„Lieber schreiben“* bricht den Anruf ab und setzt den Fokus direkt ins Chat-Eingabefeld.
+
 ---
 
 ### 9.3 📋 Fallunterscheidung: Was passiert, wenn der Angerufene gerade nicht aktiv in der WebApp ist?
@@ -438,8 +448,25 @@ Je nachdem, wie der Angerufene ChatConnect nutzt, läuft beim Anrufen folgender 
 
 <a id="10--status--storys-teilen"></a>
 <a id="10-status-storys-teilen"></a>
-## 10. ⭕ Status / Storys teilen
+## 10. 🟢 Live-Status (Online/Offline) & ⭕ Storys teilen
 
+### 10.1 🟢 Live Online/Offline-Status & 1-Klick Status-Schnellwahl
+ChatConnect zeigt dir und deinen Kontakten immer in Echtzeit, wer erreichbar ist:
+- **Grüner Punkt (`🟢 online`):** Dein Gesprächspartner hat ChatConnect aktiv geöffnet und ist erreichbar.
+- **Grauer Punkt (`⚪ offline`):** Dein Partner ist inaktiv oder hat die App/den Browser geschlossen (automatische Erkennung nach 3 Minuten Inaktivität).
+
+**Eigene Status-Schnellwahl mit 1 Klick:**  
+Tippe in der linken Seitenleiste direkt unter deinem Namen auf deine Status-Zeile (z. B. `🟢 Verfügbar` oder `⚪ Als offline anzeigen`), um das Auswahlfenster zu öffnen:
+- 🟢 **Online / Verfügbar:** Du bist für alle sichtbar online.
+- ⚪ **Als Offline anzeigen (Ruhemodus):** Du wirst für andere mit einem grauen Punkt (`⚪ offline`) angezeigt. Perfekt, wenn du ungestört lesen möchtest!
+- 🎮 **Am Gamen (Minecraft / Roblox):** Informiert Freunde und Familie, dass du gerade am Zocken bist.
+- 🎨 **Am Zeichnen & Basteln:** Kreativmodus ohne störende Anrufe.
+- 📚 **Hausaufgaben & Lernen:** Fokus auf Schule und Lernen.
+- 🏃 **Bin gerade nicht da / Unterwegs:** Schnelle Info über Abwesenheit.
+- 🌙 **Bitte nicht stören / Pause:** Signalisieren, dass du gerade eine Pause machst.
+- ✏️ **Eigener Statustext:** Tippe einen beliebigen individuellen Spruch mit Emojis ein und speichere ihn.
+
+### 10.2 ⭕ 24-Stunden Storys teilen
 Über das **Status-Symbol (`⭕`)** in der Navigationsleiste kannst du kurze Updates oder Fotos für 24 Stunden mit deinen Kontakten teilen:
 
 1. Klicke auf **„Mein Status“** (bzw. das **`+`**-Symbol).
