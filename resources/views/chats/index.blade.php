@@ -210,48 +210,56 @@
             }
         }
 
-        /* Full height & system navbar fix for smartphones (Samsung Internet, Chrome, Safari) */
-        html, body {
-            height: 100%;
-            width: 100%;
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
+        /* Full height & system navbar fix for smartphones & tablets (Samsung Internet, Chrome, Safari, One UI Taskbar) */
+        html {
+            height: 100% !important;
+            height: 100svh !important;
+            height: 100dvh !important;
+            height: var(--app-height, 100dvh) !important;
+            overflow: hidden !important;
         }
 
-        @media screen and (max-width: 768px) {
-            html {
-                height: 100% !important;
-                height: 100svh !important;
-                height: 100dvh !important;
-                overflow: hidden !important;
-            }
+        body {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            height: 100svh !important;
+            height: 100dvh !important;
+            height: var(--app-height, 100dvh) !important;
+            max-height: var(--app-height, 100dvh) !important;
+            overflow: hidden !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        #app-root-container {
+            width: 100% !important;
+            height: 100% !important;
+            height: 100svh !important;
+            height: 100dvh !important;
+            height: var(--app-height, 100dvh) !important;
+            max-height: var(--app-height, 100dvh) !important;
+        }
+
+        @media screen and (min-width: 1280px) {
             body {
-                position: fixed !important;
-                top: 0 !important;
-                left: 0 !important;
-                right: 0 !important;
-                bottom: auto !important;
-                width: 100% !important;
-                height: 100% !important;
-                height: 100svh !important;
-                height: 100dvh !important;
-                height: var(--app-height, 100dvh) !important;
-                max-height: var(--app-height, 100dvh) !important;
-                overflow: hidden !important;
+                position: relative !important;
+                padding: 1rem !important;
             }
             #app-root-container {
-                height: 100% !important;
-                height: 100svh !important;
-                height: 100dvh !important;
-                height: var(--app-height, 100dvh) !important;
-                max-height: 100% !important;
+                height: calc(var(--app-height, 100dvh) - 2rem) !important;
+                max-height: calc(var(--app-height, 100dvh) - 2rem) !important;
+                border-radius: 0.75rem !important;
             }
         }
 
         /* Safe area support for notch and home bar / system navigation */
         .safe-area-bottom {
-            padding-bottom: max(1rem, env(safe-area-inset-bottom, 16px)) !important;
+            padding-bottom: max(0.5rem, env(safe-area-inset-bottom, 8px)) !important;
         }
         .safe-area-top {
             padding-top: max(0.5rem, env(safe-area-inset-top, 0px)) !important;
@@ -282,9 +290,9 @@
         }
     </style>
 </head>
-<body class="bg-gray-200 h-screen w-full flex items-center justify-center p-0 md:p-4 overflow-hidden">
+<body class="bg-gray-200 w-full flex items-center justify-center p-0 xl:p-4 overflow-hidden">
 
-<div id="app-root-container" class="w-full md:max-w-7xl h-full shadow-2xl bg-white flex overflow-hidden md:rounded-lg">
+<div id="app-root-container" class="w-full xl:max-w-7xl h-full shadow-2xl bg-white flex overflow-hidden xl:rounded-lg">
     
     <!-- Far Left Navigation Sidebar (Desktop only) -->
     <div class="hidden md:flex w-16 bg-gray-50 flex-col items-center py-4 border-r border-gray-200 z-20 justify-between flex-shrink-0">
@@ -3357,16 +3365,15 @@
         applyChatFontSize(saved);
     })();
 
-    // --- DYNAMISCHE VIEWPORT-HÖHE FÜR SMARTPHONES (SAMSUNG Z FLIP, IPHONE, CHROME) ---
+    // --- DYNAMISCHE VIEWPORT-HÖHE FÜR SMARTPHONES & TABLETS (SAMSUNG INTERNET, ONE UI TASKBAR, CHROME) ---
     function updateAppHeight() {
-        if (window.innerWidth > 768) return;
         let h = window.innerHeight;
         if (window.visualViewport && window.visualViewport.height) {
             h = window.visualViewport.height;
         }
         document.documentElement.style.setProperty('--app-height', h + 'px');
         
-        // Bei mobile: falls Tastatur geöffnet, zum neuesten Chat scrollen
+        // Bei geöffneter Tastatur: zum neuesten Chat scrollen
         const mc = document.getElementById('messages-container');
         if (mc) {
             mc.scrollTop = mc.scrollHeight;
