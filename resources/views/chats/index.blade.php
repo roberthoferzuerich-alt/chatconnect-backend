@@ -813,20 +813,15 @@
                             </svg>
                         </button>
 
-                        <!-- Paperclip Attachment (Mobile: Popover Menu / Desktop: Direct Image Picker) -->
+                        <!-- Paperclip Attachment (Popover Menu on Mobile, Tablet & Desktop) -->
                         <div class="relative flex-shrink-0">
-                            <!-- Mobile Trigger Button (Visible on screens < sm) -->
-                            <button type="button" id="attachment-menu-btn" onclick="toggleAttachmentMenu(event)" class="sm:hidden text-gray-500 hover:text-gray-700 hover:bg-gray-200 rounded-full p-1.5 transition flex items-center justify-center flex-shrink-0" title="Anhang & Medien auswählen">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path></svg>
+                            <!-- Attachment Trigger Button (Opens Popover Menu with Camera, Documents, AI Studio, 3D Generator, Polls) -->
+                            <button type="button" id="attachment-menu-btn" onclick="toggleAttachmentMenu(event)" class="p-1.5 sm:p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-200 rounded-full transition flex items-center justify-center flex-shrink-0 cursor-pointer" title="Anhang & Medien auswählen">
+                                <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path></svg>
                             </button>
 
-                            <!-- Desktop Trigger Button (Visible on screens >= sm) -->
-                            <button type="button" onclick="document.getElementById('image-file-input').click();" class="hidden sm:inline-flex text-gray-500 hover:text-gray-700 hover:bg-gray-200 rounded-full cursor-pointer p-2 transition flex-shrink-0" title="Foto / Bild anhängen & zuschneiden">
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path></svg>
-                            </button>
-
-                            <!-- Mobile Attachment Popover Menu -->
-                            <div id="attachment-popover" class="hidden absolute bottom-14 left-0 mb-1 w-60 bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl border border-gray-200 p-2 z-50 text-gray-800 transition-all">
+                            <!-- Attachment Popover Menu -->
+                            <div id="attachment-popover" class="hidden absolute bottom-14 left-0 mb-1 w-64 bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl border border-gray-200 p-2 z-50 text-gray-800 transition-all">
                                 <button type="button" onclick="closeAttachmentMenu(); document.getElementById('image-file-input').click();" class="w-full flex items-center gap-3 px-3 py-2 text-xs font-semibold hover:bg-teal-50 hover:text-teal-700 rounded-xl transition text-left">
                                     <span class="w-7 h-7 rounded-full bg-teal-100 text-teal-600 flex items-center justify-center text-sm flex-shrink-0">📷</span>
                                     <div>
@@ -869,23 +864,24 @@
                         <input type="file" id="image-file-input" accept="image/*" class="hidden" onchange="openImageCropModal(event)">
                         <input type="file" id="document-file-input" accept=".pdf,.doc,.docx,.xls,.xlsx,.txt,.csv,.zip,.7z,.z,.rar,.tar,.gz,.tgz,.bz2,.xz,.jar,.mcpack,.mcworld,.mcaddon,.json,.3mf,.obj,.gcode,.scad,.ppt,.pptx,.md,.markdown,.stl,.ctl,application/pdf,application/zip,application/java-archive,application/x-java-archive,application/x-zip-compressed,application/x-7z-compressed,application/x-rar-compressed,text/markdown,model/stl,application/sla" class="hidden" onchange="handleDocumentSelect(event)">
 
-                        <!-- Desktop Direct Action Buttons (hidden on mobile to keep input field spacious) -->
-                        <button type="button" onclick="document.getElementById('document-file-input').click();" class="hidden sm:inline-flex text-gray-500 hover:text-teal-700 hover:bg-gray-200 rounded-full cursor-pointer p-1.5 sm:p-2 transition flex-shrink-0" title="Dokument, PDF, ZIP / 7-Zip (.zip / .7z), Minecraft-Mod (.jar), Markdown (.md) oder 3D-Modell (.stl / .ctl) senden">
+                        <!-- Wide Desktop Direct Action Buttons (only visible on xl screens >= 1280px to prevent overflow on tablets & split screens) -->
+                        <button type="button" onclick="document.getElementById('document-file-input').click();" class="hidden xl:inline-flex text-gray-500 hover:text-teal-700 hover:bg-gray-200 rounded-full cursor-pointer p-1.5 sm:p-2 transition flex-shrink-0" title="Dokument, PDF, ZIP / 7-Zip (.zip / .7z), Minecraft-Mod (.jar), Markdown (.md) oder 3D-Modell (.stl / .ctl) senden">
                             <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-6 4h4"></path></svg>
                         </button>
 
                         <!-- ✨ KI-Bildgenerator (ChatConnect-Assistent) -->
-                        <button type="button" onclick="openAiImageModal()" class="hidden sm:inline-flex text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 rounded-full cursor-pointer p-1.5 sm:p-2 transition flex-shrink-0" title="✨ KI-Bildgenerator (ChatConnect-Assistent)">
+                        <button type="button" onclick="openAiImageModal()" class="hidden xl:inline-flex text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 rounded-full cursor-pointer p-1.5 sm:p-2 transition flex-shrink-0" title="✨ KI-Bildgenerator (ChatConnect-Assistent)">
                             <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M19 9l1.25-2.75L23 5l-2.75-1.25L19 1l-1.25 2.75L15 5l2.75 1.25L19 9zm-7.5.5L9 4 6.5 9.5 1 12l5.5 2.5L9 20l2.5-5.5L17 12l-5.5-2.5zM19 15l-1.25 2.75L15 19l2.75 1.25L19 23l1.25-2.75L23 19l-2.75-1.25L19 15z"/></svg>
                         </button>
 
                         <!-- 3D-Modell (.stl) Generator Button -->
-                        <button type="button" onclick="openStlGeneratorModal()" class="hidden md:inline-flex text-sky-600 hover:text-sky-700 hover:bg-sky-50 rounded-full cursor-pointer p-1.5 sm:p-2 transition flex-shrink-0" title="✨ 3D-Modell (.stl) aus Beschreibung erstellen">
+                        <button type="button" onclick="openStlGeneratorModal()" class="hidden xl:inline-flex text-sky-600 hover:text-sky-700 hover:bg-sky-50 rounded-full cursor-pointer p-1.5 sm:p-2 transition flex-shrink-0" title="✨ 3D-Modell (.stl) aus Beschreibung erstellen">
                             <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
                         </button>
                         
                         <!-- Text Input mit nativer Rechtschreibhilfe & Zauberstab -->
-                        <div class="flex-1 min-w-[120px] sm:min-w-[180px] relative">
+                        <div class="flex-1 min-w-0 relative">
+                            <input type="text" id="chat-input-field" name="content" placeholder="Schreibe eine Nachricht..." class="w-full bg-white rounded-lg pl-3 sm:pl-4 pr-9 sm:pr-10 py-2 sm:py-2.5 outline-none focus:ring-2 focus:ring-[#00a884] shadow-sm border border-transparent text-sm sm:text-[15px]" autofocus autocomplete="off" spellcheck="true" lang="de" autocorrect="on" autocapitalize="sentences">
                             <input type="text" id="chat-input-field" name="content" placeholder="Schreibe eine Nachricht..." class="w-full bg-white rounded-lg pl-3 sm:pl-4 pr-9 sm:pr-10 py-2 sm:py-2.5 outline-none focus:ring-2 focus:ring-[#00a884] shadow-sm border border-transparent text-sm sm:text-[15px]" autofocus autocomplete="off" spellcheck="true" lang="de" autocorrect="on" autocapitalize="sentences">
                             <button type="button" id="magic-spell-btn" onclick="triggerMagicSpellCheck()" class="absolute right-1 sm:right-1.5 top-1/2 -translate-y-1/2 w-7 h-7 flex items-center justify-center text-teal-600 hover:text-teal-700 hover:bg-teal-50 rounded-full transition cursor-pointer z-10" title="✨ Text mit Zauberstab prüfen & korrigieren">
                                 <span class="text-sm">✨</span>
@@ -6741,7 +6737,7 @@
                 pollBtn.id = 'cc-form-poll-btn';
                 pollBtn.type = 'button';
                 pollBtn.onclick = openPollCreatorModal;
-                pollBtn.className = 'text-amber-600 hover:text-amber-700 hover:bg-amber-50 rounded-full cursor-pointer p-1.5 sm:p-2 transition flex-shrink-0 hidden md:inline-flex';
+                pollBtn.className = 'text-amber-600 hover:text-amber-700 hover:bg-amber-50 rounded-full cursor-pointer p-1.5 sm:p-2 transition flex-shrink-0 hidden xl:inline-flex';
                 pollBtn.title = '📊 Interaktive Umfrage erstellen';
                 pollBtn.innerHTML = `<svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>`;
                 stlBtn.insertAdjacentElement('afterend', pollBtn);
