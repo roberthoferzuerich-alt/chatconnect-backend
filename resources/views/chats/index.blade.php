@@ -435,6 +435,14 @@
                         <svg class="w-5 h-5 mr-3.5 text-teal-600 flex-shrink-0" style="min-width: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
                         <span>📲 Als App installieren (Tablet / Handy)</span>
                     </button>
+                    <!-- Version & Updates -->
+                    <button type="button" onclick="document.getElementById('chat-menu').classList.add('hidden'); openVersionModal();" class="w-full flex items-center px-4 py-3 text-[15px] font-semibold text-teal-800 hover:bg-teal-50 transition text-left">
+                        <svg class="w-5 h-5 mr-3.5 text-teal-600 flex-shrink-0" style="min-width: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <div class="flex-1 flex items-center justify-between">
+                            <span>Version &amp; Updates</span>
+                            <span class="text-xs bg-teal-100 text-teal-800 font-bold px-2 py-0.5 rounded-full">v1.0.6</span>
+                        </div>
+                    </button>
                     <a href="#" class="flex items-center px-4 py-3 text-[15px] text-gray-800 hover:bg-gray-50 transition">
                         <svg class="w-5 h-5 mr-3.5 text-gray-600 flex-shrink-0" style="min-width: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
                         <span>App-Sperre</span>
@@ -791,7 +799,7 @@
                                 @endif
 
                                 <div class="absolute bottom-1 right-2 flex items-center text-[10px] text-gray-500">
-                                    <span>{{ $msg->created_at->format('H:i') }}</span>
+                                    <span>{{ $isMe ? $msg->created_at->format('d.m.Y H:i') : $msg->created_at->format('H:i') }}</span>
                                     
                                     @if($isMe)
                                         <div class="ml-1 flex">
@@ -922,7 +930,6 @@
                         
                         <!-- Text Input mit nativer Rechtschreibhilfe & Zauberstab -->
                         <div class="flex-1 min-w-0 relative">
-                            <input type="text" id="chat-input-field" name="content" placeholder="Schreibe eine Nachricht..." class="w-full bg-white rounded-lg pl-3 sm:pl-4 pr-9 sm:pr-10 py-2 sm:py-2.5 outline-none focus:ring-2 focus:ring-[#00a884] shadow-sm border border-transparent text-sm sm:text-[15px]" autofocus autocomplete="off" spellcheck="true" lang="de" autocorrect="on" autocapitalize="sentences">
                             <input type="text" id="chat-input-field" name="content" placeholder="Schreibe eine Nachricht..." class="w-full bg-white rounded-lg pl-3 sm:pl-4 pr-9 sm:pr-10 py-2 sm:py-2.5 outline-none focus:ring-2 focus:ring-[#00a884] shadow-sm border border-transparent text-sm sm:text-[15px]" autofocus autocomplete="off" spellcheck="true" lang="de" autocorrect="on" autocapitalize="sentences">
                             <button type="button" id="magic-spell-btn" onclick="triggerMagicSpellCheck()" class="absolute right-1 sm:right-1.5 top-1/2 -translate-y-1/2 w-7 h-7 flex items-center justify-center text-teal-600 hover:text-teal-700 hover:bg-teal-50 rounded-full transition cursor-pointer z-10" title="✨ Text mit Zauberstab prüfen & korrigieren">
                                 <span class="text-sm">✨</span>
@@ -2433,8 +2440,19 @@
             audioChunks = [];
             recordingSeconds = 0;
             
-            // Mikrofon anfordern
-            audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            // Mikrofon ohne aggressives Auto-Gain / Filter anfordern, damit die Lautstärke konstant bleibt
+            try {
+                audioStream = await navigator.mediaDevices.getUserMedia({
+                    audio: {
+                        echoCancellation: false,
+                        noiseSuppression: false,
+                        autoGainControl: false
+                    }
+                });
+            } catch (constraintErr) {
+                console.warn('Erweiterte Audio-Constraints fehlgeschlagen, nutze Standard:', constraintErr);
+                audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            }
             
             // Geeigneten Mime-Type ermitteln
             let options = {};
@@ -2820,7 +2838,7 @@
                 </button>
                 ${bodyHtml}
                 <div class="absolute bottom-1 right-2 flex items-center text-[10px] text-gray-500">
-                    <span>${msg.time}</span>
+                    <span>${isMe ? ((msg.date ? msg.date + ' ' : '') + msg.time) : msg.time}</span>
                     ${checkmarks}
                 </div>
             </div>
@@ -6298,6 +6316,73 @@
 </div>
 
 <!-- ========================================================= -->
+<!-- ℹ️ MODAL: VERSION & UPDATE-KONTROLLE -->
+<!-- ========================================================= -->
+<div id="cc-version-modal" class="hidden fixed inset-0 flex items-center justify-center p-3 sm:p-5 bg-black/75 backdrop-blur-sm" style="display: none; z-index: 99996;" onclick="if(event.target===this) closeVersionModal()">
+    <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] border border-gray-100">
+        <div class="px-5 py-4 flex items-center justify-between text-white" style="background: linear-gradient(135deg, #008069 0%, #10b981 100%);">
+            <div class="flex items-center gap-3">
+                <span class="w-10 h-10 rounded-xl bg-white/15 flex items-center justify-center text-xl">ℹ️</span>
+                <div>
+                    <h3 class="font-bold text-base sm:text-lg">Version &amp; Updates</h3>
+                    <p class="text-xs text-emerald-100">ChatConnect Versionen &amp; Neuerungen</p>
+                </div>
+            </div>
+            <button type="button" onclick="closeVersionModal()" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-xl font-bold cursor-pointer">&times;</button>
+        </div>
+
+        <div class="p-4 sm:p-5 overflow-y-auto space-y-4 flex-1 bg-slate-50/50">
+            <!-- WebApp Version Card -->
+            <div class="p-4 bg-white rounded-xl border border-gray-200 shadow-sm">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2.5">
+                        <span class="text-2xl">🌐</span>
+                        <div>
+                            <div class="font-bold text-sm text-gray-900">ChatConnect Web</div>
+                            <div class="text-xs text-gray-500">Browser-Version</div>
+                        </div>
+                    </div>
+                    <span class="px-2.5 py-1 bg-emerald-100 text-emerald-800 font-bold text-xs rounded-full">v1.0.6 (Aktuell)</span>
+                </div>
+            </div>
+
+            <!-- Android App Version Card -->
+            <div class="p-4 bg-white rounded-xl border border-gray-200 shadow-sm">
+                <div class="flex items-center justify-between mb-2">
+                    <div class="flex items-center gap-2.5">
+                        <span class="text-2xl">🤖</span>
+                        <div>
+                            <div class="font-bold text-sm text-gray-900">ChatConnect Android</div>
+                            <div class="text-xs text-gray-500">Version 1.0.6 (Build 9)</div>
+                        </div>
+                    </div>
+                    <span class="px-2.5 py-1 bg-teal-100 text-teal-800 font-bold text-xs rounded-full">Neueste Version</span>
+                </div>
+                <a href="/downloads/ChatConnect.apk" download class="mt-2 w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-[#00a884] hover:bg-[#008f6f] text-white rounded-xl font-bold text-xs transition shadow-sm">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                    <span>Neueste APK herunterladen (196.9 MB)</span>
+                </a>
+            </div>
+
+            <!-- Changelog -->
+            <div class="p-4 bg-white rounded-xl border border-gray-200 shadow-sm">
+                <div class="font-bold text-xs text-gray-700 uppercase tracking-wider mb-2">✨ Neuheiten in dieser Version:</div>
+                <ul class="text-xs text-gray-600 space-y-1.5 list-disc list-inside">
+                    <li><strong class="text-gray-800">Sprachnachrichten:</strong> 1-Klick-Aufnahme mit Live-Timer &amp; voller Lautstärke</li>
+                    <li><strong class="text-gray-800">Datumsanzeige:</strong> Vollständiges Datum bei Sprachnachrichten &amp; eigenen Texten</li>
+                    <li><strong class="text-gray-800">Verpasste Videoanrufe:</strong> Mit Datum &amp; Löschfunktion</li>
+                    <li><strong class="text-gray-800">Optimiertes Layout:</strong> Kein Überlauf in der Menüleiste mehr</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="p-3 bg-gray-50 border-t border-gray-200 flex justify-end">
+            <button type="button" onclick="closeVersionModal()" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold rounded-xl text-xs transition cursor-pointer">Schließen</button>
+        </div>
+    </div>
+</div>
+
+<!-- ========================================================= -->
 <!-- 🟢 MODAL: EIGENEN STATUS WÄHLEN (ONLINE / NICHT DA / GAMEN)-->
 <!-- ========================================================= -->
 <div id="cc-status-modal" class="hidden fixed inset-0 flex items-center justify-center p-3 sm:p-5 bg-black/75 backdrop-blur-sm" style="display: none; z-index: 99996;" onclick="if(event.target===this) closeStatusModal()">
@@ -8973,45 +9058,4 @@
             modal.id = 'cc-pwa-install-modal';
             modal.className = 'fixed inset-0 z-[9999] bg-slate-900/75 backdrop-blur-xs flex items-center justify-center p-4';
             modal.innerHTML = `
-                <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl border border-teal-200 overflow-hidden">
-                    <div class="bg-gradient-to-r from-[#075e54] to-[#00a884] text-white p-5 flex items-center gap-3.5">
-                        <img src="/icon.svg" alt="ChatConnect Icon" class="w-14 h-14 rounded-2xl shadow-md border-2 border-white/40 bg-white">
-                        <div>
-                            <h3 class="font-extrabold text-lg leading-tight">ChatConnect als App starten</h3>
-                            <p class="text-xs text-teal-100 mt-0.5">Mit eigenem App-Icon auf deinem Samsung Tablet &amp; Handy</p>
-                        </div>
-                    </div>
-                    <div class="p-5 space-y-3.5 text-sm text-slate-700">
-                        <div class="p-3.5 rounded-xl bg-teal-50 border border-teal-200">
-                            <div class="font-extrabold text-teal-950 mb-1">📱 Auf dem Samsung Tablet / Android (Chrome):</div>
-                            <p class="text-xs leading-relaxed text-teal-900">
-                                Tippe oben rechts im Browser auf das <strong>Drei-Punkte-Menü (⋮)</strong> und wähle <strong>„App installieren“</strong> oder <strong>„Zum Startbildschirm hinzufügen“</strong>.
-                            </p>
-                        </div>
-                        <div class="p-3.5 rounded-xl bg-sky-50 border border-sky-200">
-                            <div class="font-extrabold text-sky-950 mb-1">🌐 In Samsung Internet (Tablet / Smartphone):</div>
-                            <p class="text-xs leading-relaxed text-sky-900">
-                                Tippe auf das <strong>Menü (≡)</strong> (oder das <strong>＋</strong>-Symbol in der Adressleiste) ➔ <strong>„Seite hinzufügen zu“</strong> ➔ <strong>„Startbildschirm“</strong>.
-                            </p>
-                        </div>
-                        <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
-                            <div class="font-extrabold text-slate-900 mb-1">🍎 Auf dem iPhone / iPad (Safari):</div>
-                            <p class="text-xs leading-relaxed text-slate-600">
-                                Tippe auf <strong>Teilen (⬆️)</strong> ➔ <strong>„Zum Home-Bildschirm“</strong>.
-                            </p>
-                        </div>
-                        <button type="button" onclick="document.getElementById('cc-pwa-install-modal').remove()" class="w-full py-2.5 rounded-xl bg-[#00a884] hover:bg-[#008f6f] text-white font-extrabold text-sm shadow transition cursor-pointer">
-                            Verstanden 👍
-                        </button>
-                    </div>
-                </div>
-            `;
-            document.body.appendChild(modal);
-        }
-    };
-
-</script>
-@include('partials.incoming-call-listener')
-</body>
-</html>
-
+... [truncated for diff preview]

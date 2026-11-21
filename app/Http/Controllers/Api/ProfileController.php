@@ -29,6 +29,24 @@ class ProfileController extends Controller
 
         if ($request->has('about')) {
             $user->about = $request->about;
+            $statusText = $request->about ?? '';
+            $isOfflineChoice = str_contains($statusText, 'Offline') || str_contains($statusText, 'offline');
+            $settings = $user->settings;
+            if (is_string($settings)) {
+                $settings = json_decode($settings, true) ?: [];
+            }
+            if (!is_array($settings)) {
+                $settings = [];
+            }
+            if ($isOfflineChoice) {
+                $settings['appear_offline'] = true;
+                $user->is_online = false;
+            } else {
+                $settings['appear_offline'] = false;
+                $user->is_online = true;
+            }
+            $user->settings = $settings;
+            $user->last_seen_at = now();
         }
 
         if ($request->has('phone')) {

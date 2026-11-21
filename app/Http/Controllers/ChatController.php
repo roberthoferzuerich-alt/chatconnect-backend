@@ -201,6 +201,7 @@ class ChatController extends Controller
                     'audio_url' => $message->audio_url ?: ($message->audio_path ? '/storage/' . ltrim($message->audio_path, '/') : null),
                     'file_url' => $message->file_url ?: ($message->file_path ? '/storage/' . ltrim($message->file_path, '/') : null),
                     'file_name' => $message->file_name,
+                    'date' => $message->created_at->format('d.m.Y'),
                     'time' => $message->created_at->format('H:i'),
                     'read' => false,
                 ]
@@ -293,6 +294,7 @@ class ChatController extends Controller
                     'audio_url' => $msg->audio_url ?: ($msg->audio_path ? '/storage/' . ltrim($msg->audio_path, '/') : null),
                     'file_url' => $msg->file_url ?: ($msg->file_path ? '/storage/' . ltrim($msg->file_path, '/') : null),
                     'file_name' => $msg->file_name,
+                    'date' => $msg->created_at->format('d.m.Y'),
                     'time' => $msg->created_at->format('H:i'),
                     'read' => (bool)$msg->read_at,
                 ];

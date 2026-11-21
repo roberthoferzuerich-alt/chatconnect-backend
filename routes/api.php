@@ -21,6 +21,24 @@ Route::prefix('v1')->group(function () {
         ]);
     });
 
+    Route::get('/version', function () {
+        return response()->json([
+            'status' => 'ok',
+            'app_name' => 'ChatConnect',
+            'latest_version' => '1.0.6',
+            'latest_build' => 9,
+            'release_date' => '21.11.2026',
+            'apk_url' => url('/downloads/ChatConnect.apk'),
+            'changelog' => [
+                'Sprachnachrichten: 1-Klick-Aufnahme mit Timer',
+                'Datum bei allen Sprachnachrichten & Texten',
+                'Verpasste Videoanrufe mit Datum & Löschfunktion',
+                'Menüleiste optimiert & Bild-Überlauf behoben',
+                'Gleichbleibende Lautstärke in der WebApp',
+            ],
+        ]);
+    });
+
     Route::prefix('auth')->group(function () {
         Route::post('/register', [AuthController::class, 'register']);
         Route::post('/login', [AuthController::class, 'login']);
@@ -54,8 +72,8 @@ Route::prefix('v1')->group(function () {
         // Stories
         Route::get('/stories', [StoryController::class, 'index']);
         Route::post('/stories', [StoryController::class, 'store']);
-        Route::delete('/stories/{story}', [StoryController::class, 'destroy']);
-        Route::post('/stories/{story}/view', [StoryController::class, 'view']);
+        Route::delete('/stories/{id}', [StoryController::class, 'destroy']);
+        Route::post('/stories/{id}/view', [StoryController::class, 'view']);
         
         Route::get('/conversations/{conversation}/messages', [MessageController::class, 'index']);
         Route::post('/conversations/{conversation}/messages', [MessageController::class, 'store']);

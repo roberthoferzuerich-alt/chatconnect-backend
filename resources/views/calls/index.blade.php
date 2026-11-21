@@ -174,9 +174,13 @@
                                         @if($isOutgoing)
                                             <!-- Green arrow up/right -->
                                             <svg class="w-4 h-4 text-[#00a884] mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path></svg>
+                                        @elseif($call->status === 'missed' || $call->status === 'declined')
+                                            <!-- Red arrow for missed/declined -->
+                                            <svg class="w-4 h-4 text-red-500 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg>
+                                            <span class="text-red-600 font-medium mr-1">Verpasst ·</span>
                                         @else
-                                            <!-- Red/Green arrow down/left depending on missed/answered, for now always green down -->
-                                            <svg class="w-4 h-4 {{ $call->status === 'missed' ? 'text-red-500' : 'text-[#00a884]' }} mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg>
+                                            <!-- Green arrow down/left for answered -->
+                                            <svg class="w-4 h-4 text-[#00a884] mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg>
                                         @endif
                                         <span>{{ $call->created_at->format('d.m.Y H:i') }}</span>
                                     </div>

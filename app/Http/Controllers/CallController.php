@@ -62,10 +62,13 @@ class CallController extends Controller
                 $conversation->users()->attach([$caller->id, $receiver->id]);
             }
 
-            $callTime = ($call->started_at ?: $call->created_at ?: now())->format('H:i');
+            $callDateTime = $call->started_at ?: $call->created_at ?: now();
+            $callDate = $callDateTime->format('d.m.Y');
+            $callTime = $callDateTime->format('H:i');
             $isVideo = $call->type === 'video';
             $icon = $isVideo ? '📹' : '📞';
             $typeLabel = $isVideo ? 'Videoanruf' : 'Sprachanruf';
+            $returnIcon = $isVideo ? '📹' : '📞';
 
             // Smart Grouping: Prüfe, ob die letzte Nachricht bereits ein verpasster Anruf dieses Anrufers ist
             $lastMessage = $conversation->messages()->latest('id')->first();
@@ -86,10 +89,10 @@ class CallController extends Controller
             $countBadge = ($count > 1) ? " **({$count}x)**" : "";
 
             if ($reason === 'declined') {
-                $content = "{$icon} **Verpasster {$typeLabel}**{$countBadge} *(abgelehnt um {$callTime} Uhr)* — [📞 Jetzt zurückrufen](/calls)";
+                $content = "{$icon} **Verpasster {$typeLabel}**{$countBadge} *(abgelehnt am {$callDate} um {$callTime} Uhr)* — [{$returnIcon} Jetzt zurückrufen](/calls)";
             } else {
-                $timeNote = ($count > 1) ? "*(zuletzt um {$callTime} Uhr)*" : "*(um {$callTime} Uhr)*";
-                $content = "{$icon} **Verpasster {$typeLabel}**{$countBadge} von **{$caller->name}** {$timeNote} — [📞 Jetzt zurückrufen](/calls)";
+                $timeNote = ($count > 1) ? "*(zuletzt am {$callDate} um {$callTime} Uhr)*" : "*(am {$callDate} um {$callTime} Uhr)*";
+                $content = "{$icon} **Verpasster {$typeLabel}**{$countBadge} von **{$caller->name}** {$timeNote} — [{$returnIcon} Jetzt zurückrufen](/calls)";
             }
 
             if ($isPreviousMissedCall) {
@@ -123,7 +126,7 @@ class CallController extends Controller
                         ->withToken($receiver->fcm_token)
                         ->withNotification(\Kreait\Firebase\Messaging\Notification::create(
                             "{$icon} Verpasster {$typeLabel}",
-                            "{$caller->name} hat versucht dich anzurufen ({$callTime} Uhr)."
+                            "{$caller->name} hat versucht dich anzurufen (am {$callDate} um {$callTime} Uhr)."
                         ))
                         ->withAndroidConfig(\Kreait\Firebase\Messaging\AndroidConfig::fromArray([
                             'priority' => 'high',
