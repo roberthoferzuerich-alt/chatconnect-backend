@@ -19,11 +19,11 @@ Route::get('/version', function () {
         'app_name' => 'ChatConnect',
         'web_version' => '1.0.6',
         'android_version' => '1.0.6',
-        'android_build' => 9,
+        'android_build' => 10,
         'release_date' => '21.11.2026',
         'apk_url' => url('/downloads/ChatConnect.apk'),
         'changelog' => [
-            'Sprachnachrichten: 1-Klick-Aufnahme & Live-Timer',
+            'Sprachnachrichten: 1-Klick-Aufnahme mit Sound & Live-Timer',
             'Datum bei allen Sprachnachrichten & Texten',
             'Verpasste Videoanrufe mit Datum & Löschfunktion',
             'Menüleiste optimiert & Bild-Überlauf behoben',

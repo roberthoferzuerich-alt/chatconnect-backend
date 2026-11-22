@@ -9058,4 +9058,44 @@
             modal.id = 'cc-pwa-install-modal';
             modal.className = 'fixed inset-0 z-[9999] bg-slate-900/75 backdrop-blur-xs flex items-center justify-center p-4';
             modal.innerHTML = `
-... [truncated for diff preview]
+                <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl border border-teal-200 overflow-hidden">
+                    <div class="bg-gradient-to-r from-[#075e54] to-[#00a884] text-white p-5 flex items-center gap-3.5">
+                        <img src="/icon.svg" alt="ChatConnect Icon" class="w-14 h-14 rounded-2xl shadow-md border-2 border-white/40 bg-white">
+                        <div>
+                            <h3 class="font-extrabold text-lg leading-tight">ChatConnect als App starten</h3>
+                            <p class="text-xs text-teal-100 mt-0.5">Mit eigenem App-Icon auf deinem Samsung Tablet &amp; Handy</p>
+                        </div>
+                    </div>
+                    <div class="p-5 space-y-3.5 text-sm text-slate-700">
+                        <div class="p-3.5 rounded-xl bg-teal-50 border border-teal-200">
+                            <div class="font-extrabold text-teal-950 mb-1">📱 Auf dem Samsung Tablet / Android (Chrome):</div>
+                            <p class="text-xs leading-relaxed text-teal-900">
+                                Tippe oben rechts im Browser auf das <strong>Drei-Punkte-Menü (⋮)</strong> und wähle <strong>„App installieren“</strong> oder <strong>„Zum Startbildschirm hinzufügen“</strong>.
+                            </p>
+                        </div>
+                        <div class="p-3.5 rounded-xl bg-sky-50 border border-sky-200">
+                            <div class="font-extrabold text-sky-950 mb-1">🌐 In Samsung Internet (Tablet / Smartphone):</div>
+                            <p class="text-xs leading-relaxed text-sky-900">
+                                Tippe auf das <strong>Menü (≡)</strong> (oder das <strong>＋</strong>-Symbol in der Adressleiste) ➔ <strong>„Seite hinzufügen zu“</strong> ➔ <strong>„Startbildschirm“</strong>.
+                            </p>
+                        </div>
+                        <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
+                            <div class="font-extrabold text-slate-900 mb-1">🍎 Auf dem iPhone / iPad (Safari):</div>
+                            <p class="text-xs leading-relaxed text-slate-600">
+                                Tippe auf <strong>Teilen (⬆️)</strong> ➔ <strong>„Zum Home-Bildschirm“</strong>.
+                            </p>
+                        </div>
+                        <button type="button" onclick="document.getElementById('cc-pwa-install-modal').remove()" class="w-full py-2.5 rounded-xl bg-[#00a884] hover:bg-[#008f6f] text-white font-extrabold text-sm shadow transition cursor-pointer">
+                            Verstanden 👍
+                        </button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+    };
+
+</script>
+@include('partials.incoming-call-listener')
+</body>
+</html>

@@ -26,11 +26,11 @@ Route::prefix('v1')->group(function () {
             'status' => 'ok',
             'app_name' => 'ChatConnect',
             'latest_version' => '1.0.6',
-            'latest_build' => 9,
+            'latest_build' => 10,
             'release_date' => '21.11.2026',
             'apk_url' => url('/downloads/ChatConnect.apk'),
             'changelog' => [
-                'Sprachnachrichten: 1-Klick-Aufnahme mit Timer',
+                'Sprachnachrichten: 1-Klick-Aufnahme mit Sound & Live-Timer',
                 'Datum bei allen Sprachnachrichten & Texten',
                 'Verpasste Videoanrufe mit Datum & Löschfunktion',
                 'Menüleiste optimiert & Bild-Überlauf behoben',
