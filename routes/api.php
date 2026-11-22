@@ -26,7 +26,7 @@ Route::prefix('v1')->group(function () {
             'status' => 'ok',
             'app_name' => 'ChatConnect',
             'latest_version' => '1.0.6',
-            'latest_build' => 10,
+            'latest_build' => 11,
             'release_date' => '21.11.2026',
             'apk_url' => url('/downloads/ChatConnect.apk'),
             'changelog' => [

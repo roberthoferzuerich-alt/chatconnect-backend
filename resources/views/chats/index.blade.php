@@ -865,41 +865,41 @@
                         <!-- Paperclip Attachment (Popover Menu on Mobile, Tablet & Desktop) -->
                         <div class="relative flex-shrink-0">
                             <!-- Attachment Trigger Button (Opens Popover Menu with Camera, Documents, AI Studio, 3D Generator, Polls) -->
-                            <button type="button" id="attachment-menu-btn" onclick="toggleAttachmentMenu(event)" class="p-1.5 sm:p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-200 rounded-full transition flex items-center justify-center flex-shrink-0 cursor-pointer" title="Anhang & Medien auswählen">
+                            <button type="button" id="attachment-menu-btn" onclick="if(window.toggleAttachmentMenu){window.toggleAttachmentMenu(event);}else{const p=document.getElementById('attachment-popover');if(p)p.classList.toggle('hidden');}" class="p-1.5 sm:p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-200 rounded-full transition flex items-center justify-center flex-shrink-0 cursor-pointer" title="Anhang & Medien auswählen">
                                 <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path></svg>
                             </button>
 
                             <!-- Attachment Popover Menu -->
                             <div id="attachment-popover" class="hidden absolute bottom-14 left-0 mb-1 w-64 bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl border border-gray-200 p-2 z-50 text-gray-800 transition-all">
-                                <button type="button" onclick="closeAttachmentMenu(); document.getElementById('image-file-input').click();" class="w-full flex items-center gap-3 px-3 py-2 text-xs font-semibold hover:bg-teal-50 hover:text-teal-700 rounded-xl transition text-left">
+                                <button type="button" onclick="(window.closeAttachmentMenu?window.closeAttachmentMenu():document.getElementById('attachment-popover')?.classList.add('hidden')); document.getElementById('image-file-input').click();" class="w-full flex items-center gap-3 px-3 py-2 text-xs font-semibold hover:bg-teal-50 hover:text-teal-700 rounded-xl transition text-left">
                                     <span class="w-7 h-7 rounded-full bg-teal-100 text-teal-600 flex items-center justify-center text-sm flex-shrink-0">📷</span>
                                     <div>
                                         <div class="font-bold text-gray-900 text-xs">Foto / Bild</div>
                                         <div class="text-[10px] text-gray-500">Zuschneiden & senden</div>
                                     </div>
                                 </button>
-                                <button type="button" onclick="closeAttachmentMenu(); document.getElementById('document-file-input').click();" class="w-full flex items-center gap-3 px-3 py-2 text-xs font-semibold hover:bg-indigo-50 hover:text-indigo-700 rounded-xl transition text-left">
+                                <button type="button" onclick="(window.closeAttachmentMenu?window.closeAttachmentMenu():document.getElementById('attachment-popover')?.classList.add('hidden')); document.getElementById('document-file-input').click();" class="w-full flex items-center gap-3 px-3 py-2 text-xs font-semibold hover:bg-indigo-50 hover:text-indigo-700 rounded-xl transition text-left">
                                     <span class="w-7 h-7 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center text-sm flex-shrink-0">📄</span>
                                     <div>
                                         <div class="font-bold text-gray-900 text-xs">Dokument & Datei</div>
                                         <div class="text-[10px] text-gray-500">PDF, ZIP, Mod (.jar), 3D</div>
                                     </div>
                                 </button>
-                                <button type="button" onclick="closeAttachmentMenu(); openAiImageModal();" class="w-full flex items-center gap-3 px-3 py-2 text-xs font-semibold hover:bg-emerald-50 hover:text-emerald-700 rounded-xl transition text-left">
+                                <button type="button" onclick="(window.closeAttachmentMenu?window.closeAttachmentMenu():document.getElementById('attachment-popover')?.classList.add('hidden')); openAiImageModal();" class="w-full flex items-center gap-3 px-3 py-2 text-xs font-semibold hover:bg-emerald-50 hover:text-emerald-700 rounded-xl transition text-left">
                                     <span class="w-7 h-7 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-sm flex-shrink-0">✨</span>
                                     <div>
                                         <div class="font-bold text-gray-900 text-xs">KI-Studio</div>
                                         <div class="text-[10px] text-gray-500">Bild per KI malen</div>
                                     </div>
                                 </button>
-                                <button type="button" onclick="closeAttachmentMenu(); openStlGeneratorModal();" class="w-full flex items-center gap-3 px-3 py-2 text-xs font-semibold hover:bg-sky-50 hover:text-sky-700 rounded-xl transition text-left">
+                                <button type="button" onclick="(window.closeAttachmentMenu?window.closeAttachmentMenu():document.getElementById('attachment-popover')?.classList.add('hidden')); openStlGeneratorModal();" class="w-full flex items-center gap-3 px-3 py-2 text-xs font-semibold hover:bg-sky-50 hover:text-sky-700 rounded-xl transition text-left">
                                     <span class="w-7 h-7 rounded-full bg-sky-100 text-sky-600 flex items-center justify-center text-sm flex-shrink-0">🧊</span>
                                     <div>
                                         <div class="font-bold text-gray-900 text-xs">3D-Generator</div>
                                         <div class="text-[10px] text-gray-500">STL aus Text erstellen</div>
                                     </div>
                                 </button>
-                                <button type="button" onclick="closeAttachmentMenu(); openPollCreatorModal();" class="w-full flex items-center gap-3 px-3 py-2 text-xs font-semibold hover:bg-amber-50 hover:text-amber-700 rounded-xl transition text-left">
+                                <button type="button" onclick="(window.closeAttachmentMenu?window.closeAttachmentMenu():document.getElementById('attachment-popover')?.classList.add('hidden')); openPollCreatorModal();" class="w-full flex items-center gap-3 px-3 py-2 text-xs font-semibold hover:bg-amber-50 hover:text-amber-700 rounded-xl transition text-left">
                                     <span class="w-7 h-7 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center text-sm flex-shrink-0">📊</span>
                                     <div>
                                         <div class="font-bold text-gray-900 text-xs">Umfrage erstellen</div>
@@ -2250,6 +2250,33 @@
 </div>
 
 <script>
+    // 📎 Anhang & Medien Popover-Menü (Büroklammer)
+    function toggleAttachmentMenu(e) {
+        if (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        const pop = document.getElementById('attachment-popover');
+        if (pop) pop.classList.toggle('hidden');
+    }
+    window.toggleAttachmentMenu = toggleAttachmentMenu;
+
+    function closeAttachmentMenu() {
+        const pop = document.getElementById('attachment-popover');
+        if (pop) pop.classList.add('hidden');
+    }
+    window.closeAttachmentMenu = closeAttachmentMenu;
+
+    document.addEventListener('click', function(e) {
+        const pop = document.getElementById('attachment-popover');
+        const btn = document.getElementById('attachment-menu-btn');
+        if (pop && !pop.classList.contains('hidden')) {
+            if (!pop.contains(e.target) && (!btn || !btn.contains(e.target))) {
+                pop.classList.add('hidden');
+            }
+        }
+    });
+
     // Scrollen nach unten erzwingen
     const container = document.getElementById('messages-container');
     if (container) {

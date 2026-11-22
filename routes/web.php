@@ -19,7 +19,7 @@ Route::get('/version', function () {
         'app_name' => 'ChatConnect',
         'web_version' => '1.0.6',
         'android_version' => '1.0.6',
-        'android_build' => 10,
+        'android_build' => 11,
         'release_date' => '21.11.2026',
         'apk_url' => url('/downloads/ChatConnect.apk'),
         'changelog' => [
